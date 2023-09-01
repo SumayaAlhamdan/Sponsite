@@ -39,7 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // Initialize the Firebase Database reference
     final DatabaseReference database = FirebaseDatabase.instance.ref();
     // Write data to the database
-    database.child('Sponsor').set({'Comapny': 'STC'}).then((_) {
+    database.child('Sponsor').set({'Comapny': 'Elm'}).then((_) {
       print('Data written to the database successfully');
     }).catchError((error) {
       print('Error writing to the database: $error');
