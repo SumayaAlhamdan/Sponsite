@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "840091040136",
+    "firebase_url": "https://sponsite-6a696-default-rtdb.firebaseio.com",
+    "project_id": "sponsite-6a696",
+    "storage_bucket": "sponsite-6a696.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:840091040136:android:2881e43683f4877e26623d",
+        "android_client_info": {
+          "package_name": "com.example.sponsite"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "840091040136-q5n8mr3oqf810bgcto9tsvdh03170r7b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbA1V-xYec5iwaAEc4BCUmhvIiJrRioUM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "840091040136-q5n8mr3oqf810bgcto9tsvdh03170r7b.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "840091040136-be499kn53k0up1nvs05fcajdilknmtkm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.demo.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
