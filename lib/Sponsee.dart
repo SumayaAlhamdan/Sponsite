@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
@@ -15,9 +16,9 @@ class Sponsee extends StatefulWidget {
 
 class _SponseeState extends State<Sponsee> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   final DatabaseReference dbref = FirebaseDatabase.instance.reference();
   UploadTask? task;
   File? file;
@@ -78,17 +79,17 @@ class _SponseeState extends State<Sponsee> {
     final fileName = file != null ? basename(file!.path) : 'No File Selected';
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sponsee Registration'),
+        title: const Text('Sponsee Registration'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: <Widget>[
               TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Name',
                 ),
                 validator: (value) {
@@ -98,10 +99,10 @@ class _SponseeState extends State<Sponsee> {
                   return null;
                 },
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               TextFormField(
                 controller: _emailController,
-                decoration: InputDecoration(labelText: 'Email Address'),
+                decoration: const InputDecoration(labelText: 'Email Address'),
                 keyboardType: TextInputType.emailAddress,
                 autocorrect: false,
                 textCapitalization: TextCapitalization.none,
@@ -114,10 +115,10 @@ class _SponseeState extends State<Sponsee> {
                   return null;
                 },
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               TextFormField(
                 controller: _passwordController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Password',
                 ),
                 obscureText: true,
@@ -131,17 +132,17 @@ class _SponseeState extends State<Sponsee> {
               const SizedBox(
                 height: 12,
               ),
-              SizedBox(height: 20.0),
+              const SizedBox(height: 20.0),
               ElevatedButton(
                 onPressed: selectFile,
-                child: Text('Select authentication document'),
+                child: const Text('Select authentication document'),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 fileName,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
-              SizedBox(height: 48),
+              const SizedBox(height: 48),
               /* ElevatedButton(
                 onPressed: uploadFile,
                 child: Text('Upload authentication document'),
@@ -161,7 +162,7 @@ class _SponseeState extends State<Sponsee> {
                   uploadFile();
                   sendDatatoDB(name, email, password, fileName);
                 },
-                child: Text('Submit'),
+                child: const Text('Submit'),
               ),
             ],
           ),
