@@ -15,7 +15,7 @@ class SponsorHome extends StatelessWidget{
       home: MaterialApp(
       home: Scaffold(
         backgroundColor: Colors.white,
-        body:const Text("hi sponsee"),
+        body:const Text("hi sponsor"),
         bottomNavigationBar: const BottomNavBar(),
         floatingActionButton: const FloatingActionButton.large(
             shape: CircleBorder(),
@@ -40,7 +40,7 @@ class SponsorHome extends StatelessWidget{
           ),
         ],
           backgroundColor: const Color.fromARGB(255, 168, 112, 205),
-          title: Text('Sponsee!'),
+          title: const Text('Sponsor!'),
         ),
       ),
       theme: ThemeData(

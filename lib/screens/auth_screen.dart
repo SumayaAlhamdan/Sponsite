@@ -6,11 +6,10 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:path/path.dart';
 import '../FirebaseApi.dart';
-import '../main.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
-  
+
   @override
   State<AuthScreen> createState() {
     return _AuthScreenState();
@@ -18,7 +17,6 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  
   bool _obscured = true;
   var _isLogin = false;
   var _isAuthenticating = false;
@@ -30,6 +28,10 @@ class _AuthScreenState extends State<AuthScreen> {
   final DatabaseReference dbref = FirebaseDatabase.instance.reference();
   final _firebase = FirebaseAuth.instance;
   var type;
+
+  String? nameErrorMessage;
+  String? emailErrorMessage;
+  String? passwordErrorMessage;
 
   UploadTask? task;
   File? file;
@@ -45,17 +47,60 @@ class _AuthScreenState extends State<AuthScreen> {
     });
   }
 
-  void sendDatatoDB(
-      String name, String email, String password, String fileName) async {
+  String? _validateName(String? value) {
+    if (_isLogin) return null; // No need to validate name during login
+    if (value == null || value.trim().isEmpty) {
+      setState(() {
+        nameErrorMessage = 'Please enter your name nowwwww';
+      });
+      return nameErrorMessage;
+    }
+
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Email is required';
+    }
+    if (!value.contains('@')) {
+      return 'Enter a valid email address';
+    }
+    if (value == 'email-already-in-use') {
+      setState(() {
+        nameErrorMessage = 'email already usedddd';
+      });
+      return nameErrorMessage;
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Password is required';
+    }
+    if (value.length < 6) {
+      return 'Password must be at least 6 characters long';
+    }
+    return null;
+  }
+
+  void sendDatatoDB(BuildContext context, String name, String email,
+      String password, String fileName) async {
+    setState(() {
+      nameErrorMessage = null;
+      emailErrorMessage = null;
+      passwordErrorMessage = null;
+    });
     final isValid = _formKey.currentState!.validate();
 
-    if (!isValid) {
-      ScaffoldMessenger.of(context as BuildContext).showSnackBar(
-        const SnackBar(
-          content: Text("Please make sure to fill all fields correctly"),
-        ),
-      );
-    }
+    // if (!isValid) {
+    //   ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+    //     const SnackBar(
+    //       content: Text("Please make sure to fill all fields correctly"),
+    //     ),
+    //   );
+    // }
     _formKey.currentState!.save();
 
     try {
@@ -81,35 +126,40 @@ class _AuthScreenState extends State<AuthScreen> {
           'authentication document': fileName, // Remove the extra colon
         });
       }
-      // Navigator.push(context as BuildContext,
-      //     MaterialPageRoute(builder: (context) => const MyApp()));
-    } on FirebaseAuthException catch (error) {
-      if (error.code == 'email-already-in-use') {
-        // ...
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+        setState(() {
+          _isAuthenticating = false;
+        });
+      } else if (e.code == 'email-already-in-use') {
+        _validateEmail(e.code);
+        setState(() {
+          _isAuthenticating = false;
+        });
       }
-      ScaffoldMessenger.of(context as BuildContext).clearSnackBars();
-      ScaffoldMessenger.of(context as BuildContext).showSnackBar(
-        SnackBar(
-          content: Text(error.message ?? 'Authentication failed.'),
-        ),
-      );
-      setState(() {
-        _isAuthenticating = false;
-      });
-    }on FirebaseAuthException catch (error) {
-      if (error.code == 'email-already-in-use') {
-        // ...
-      }
-      ScaffoldMessenger.of(context as BuildContext).clearSnackBars();
-      ScaffoldMessenger.of(context as BuildContext).showSnackBar(
-        SnackBar(
-          content: Text(error.message ?? 'Authentication failed.'),
-        ),
-      );
+    } catch (e) {
+      print(e);
       setState(() {
         _isAuthenticating = false;
       });
     }
+    // } on FirebaseAuthException catch (error) {
+    //   print("error 111111111111111111");
+    //   print(error.code);
+    //   if (error.code == 'email-already-in-use') {
+    //     _validateEmail(error.code);
+    //   }
+    //   // ScaffoldMessenger.of(context as BuildContext).clearSnackBars();
+    //   // ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+    //   //   SnackBar(
+    //   //     content: Text(error.message ?? 'Authentication failed.'),
+    //   //   ),
+    //   // );
+    //   setState(() {
+    //     _isAuthenticating = false;
+    //   });
+    // }
 
     //show error message
   }
@@ -152,7 +202,7 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     final fileName = file != null ? basename(file!.path) : 'No File Selected';
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sponsee Registration'),
@@ -166,26 +216,26 @@ class _AuthScreenState extends State<AuthScreen> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 if (!_isLogin)
-                Row(children: [
-                   TextButton(
+                  Row(
+                    children: [
+                      TextButton(
                         onPressed: () {
                           setState(() {
-                            type='Sponsors';
+                            type = 'Sponsors';
                           });
                         },
                         child: const Text("I'm a Sponsor"),
                       ),
-                       TextButton(
+                      TextButton(
                         onPressed: () {
                           setState(() {
-                            type='Sponsees';
+                            type = 'Sponsees';
                           });
                         },
-                        child:const  Text("I'm a Sponsee"),
+                        child: const Text("I'm a Sponsee"),
                       )
-                ],)
-
-                ,
+                    ],
+                  ),
                 if (!_isLogin)
                   TextFormField(
                     controller: _nameController,
@@ -193,58 +243,88 @@ class _AuthScreenState extends State<AuthScreen> {
                       border: OutlineInputBorder(),
                       labelText: 'Name',
                     ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return "Please enter name";
-                      }
-                      return null;
-                    },
+
+                    validator: _validateName,
+
+                    // (value) {
+                    //   if (value == null || value.trim().isEmpty) {
+                    //     return "Please enter name";
+                    //   }
+                    //   return null;
+                    // },
+                  ),
+                if (nameErrorMessage != null)
+                  Text(
+                    nameErrorMessage!, // Display the custom error message
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 12.0,
+                    ),
                   ),
                 const SizedBox(height: 16.0),
                 TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                      border: OutlineInputBorder(), labelText: 'Email Address'),
-                  keyboardType: TextInputType.emailAddress,
-                  autocorrect: false,
-                  textCapitalization: TextCapitalization.none,
-                  validator: (value) {
-                    if (value == null ||
-                        value.trim().isEmpty ||
-                        !value.contains("@")) {
-                      return "Please enter a valid email address";
-                    }
-                    return null;
-                  },
-                ),
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Email Address'),
+                    keyboardType: TextInputType.emailAddress,
+                    autocorrect: false,
+                    textCapitalization: TextCapitalization.none,
+                    validator: _validateEmail
+                    //  (value) {
+                    //   if (value == null ||
+                    //       value.trim().isEmpty ||
+                    //       !value.contains("@")) {
+                    //     return "Please enter a valid email address";
+                    //   }
+                    //   return null;
+                    // },
+                    ),
+                  if (emailErrorMessage != null)
+                  Text(
+                    emailErrorMessage!, // Display the custom error message
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 12.0,
+                    ),
+                  ),
                 const SizedBox(height: 16.0),
                 TextFormField(
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Password',
-                    // prefixIcon: Icon(Icons.lock_rounded, size: 24),
-                    suffixIcon: Padding(
-                      padding: EdgeInsets.fromLTRB(0, 0, 4, 0),
-                      child: GestureDetector(
-                        onTap: _toggleObscured,
-                        child: Icon(
-                          _obscured
-                              ? Icons.visibility_off_rounded
-                              : Icons.visibility_rounded,
-                          size: 24,
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: 'Password',
+                      // prefixIcon: Icon(Icons.lock_rounded, size: 24),
+                      suffixIcon: Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                        child: GestureDetector(
+                          onTap: _toggleObscured,
+                          child: Icon(
+                            _obscured
+                                ? Icons.visibility_off_rounded
+                                : Icons.visibility_rounded,
+                            size: 24,
+                          ),
                         ),
                       ),
                     ),
+                    obscureText: _obscured,
+                    validator: _validatePassword
+                    //  (value) {
+                    //   if (value == null || value.trim().length < 6) {
+                    //     return "Password must be at least 6 characters long";
+                    //   }
+                    //   return null;
+                    // },
+                    ),
+                  if (passwordErrorMessage != null)
+                  Text(
+                    passwordErrorMessage!, // Display the custom error message
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 12.0,
+                    ),
                   ),
-                  obscureText: _obscured,
-                  validator: (value) {
-                    if (value == null || value.trim().length < 6) {
-                      return "Password must be at least 6 characters long";
-                    }
-                    return null;
-                  },
-                ),
                 const SizedBox(height: 16.0),
                 // TextFormField(
                 //   decoration: InputDecoration(
@@ -290,7 +370,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                     if (!_isLogin)
                       Container(
-                        color: Color.fromARGB(116, 159, 172, 178),
+                        color: const Color.fromARGB(116, 159, 172, 178),
                         child: Text(
                           fileName,
                           style: const TextStyle(
@@ -331,7 +411,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         uploadFile();
                       }
 
-                      sendDatatoDB(name, email, password, fileName);
+                      sendDatatoDB(context, name, email, password, fileName);
                     },
                     child: Text(_isLogin ? 'Sign In' : 'Sign Up'),
                   ),

@@ -35,8 +35,8 @@ class _BottomNavBarState extends State<BottomNavBar> {
               currentPageIndex = index;
             });
           },
-          backgroundColor: Color.fromARGB(255, 255, 255, 255),
-          indicatorColor: Color.fromARGB(134, 214, 214, 215),
+          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+          indicatorColor: const Color.fromARGB(134, 214, 214, 215),
           height: 100,
           selectedIndex: currentPageIndex,
           destinations: const <Widget>[
