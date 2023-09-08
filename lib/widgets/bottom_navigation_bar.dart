@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});
@@ -20,13 +20,13 @@ class _BottomNavBarState extends State<BottomNavBar> {
           BoxShadow(
               color: Color.fromARGB(111, 0, 0, 0),
               spreadRadius: 0,
-              blurRadius: 10),
+              blurRadius: 0),
         ],
       ),
       child: ClipRRect(
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(30.0),
-          topRight: Radius.circular(30.0),
+          topLeft: Radius.circular(20.0),
+          topRight: Radius.circular(20.0),
         ),
         child: NavigationBar(
           labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
@@ -35,39 +35,39 @@ class _BottomNavBarState extends State<BottomNavBar> {
               currentPageIndex = index;
             });
           },
-          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-          indicatorColor: const Color.fromARGB(134, 214, 214, 215),
-          height: 100,
+          backgroundColor: Color.fromARGB(255, 255, 255, 255),
+          indicatorColor: Color.fromARGB(134, 214, 214, 215),
+          height: 60,
           selectedIndex: currentPageIndex,
           destinations: const <Widget>[
             NavigationDestination(
               // selectedIcon: Icon(Icons.home,size: 40,color: Color.fromARGB(255, 106, 33, 134)),
               icon: Icon(Icons.home_rounded,
-                  size: 40, color: Color.fromARGB(255, 106, 33, 134)),
+                  size: 40, color: Color(0xFF6A62B6),),
               label: '',
             ),
             NavigationDestination(
               icon: Icon(Icons.calendar_month_rounded,
-                  size: 40, color: Color.fromARGB(255, 106, 33, 134)),
+                  size: 40, color: Color(0xFF6A62B6),),
               label: '',
             ),
-            // NavigationDestination(
-            //   selectedIcon: Icon(Icons.add_box_rounded,size: 40,color: Color.fromARGB(255, 106, 33, 134)),
-            //   icon: Icon(Icons.add_box_outlined,size: 40,color: Color.fromARGB(255, 106, 33, 134)),
-            //   label: '',
-            // ),
+            NavigationDestination(
+              selectedIcon: Icon(Icons.add_circle_rounded ,size: 60,color: Color(0xFF6A62B6),),
+              icon: Icon(Icons.add_circle_rounded, size: 60,color: Color(0xFF6A62B6),),
+              label: '',
+            ),
             NavigationDestination(
               selectedIcon: Icon(Icons.chat_bubble,
-                  size: 40, color: Color.fromARGB(255, 106, 33, 134)),
+                  size: 40, color: Color(0xFF6A62B6),),
               icon: Icon(Icons.chat_bubble_outline,
-                  size: 40, color: Color.fromARGB(255, 106, 33, 134)),
+                  size: 40, color: Color(0xFF6A62B6),),
               label: '',
             ),
             NavigationDestination(
               selectedIcon: Icon(Icons.account_circle,
-                  size: 40, color: Color.fromARGB(255, 106, 33, 134)),
+                  size: 40, color: Color(0xFF6A62B6)),
               icon: Icon(Icons.account_circle,
-                  size: 40, color: Color.fromARGB(255, 106, 33, 134)),
+                  size: 40, color: Color(0xFF6A62B6)),
               label: '',
             )
           ],

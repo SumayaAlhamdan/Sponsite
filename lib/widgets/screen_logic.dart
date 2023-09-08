@@ -17,7 +17,7 @@ class ScreenLogic {
     
     if (sponsorsSnapshot.value != null) {
      
-      return const SponsorHome();
+      return  SponsorHomePage();
     } else if (sponseesSnapshot.value != null) {
      
       return const SponseeHome();

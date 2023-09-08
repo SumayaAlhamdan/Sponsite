@@ -178,7 +178,7 @@ class _SignUpState extends State<SignUp> {
                             SizedBox(height: screenHeight * .01),
 
                             Text(
-                              'Sign in to continue',
+                              'Sign up to continue',
                               style: TextStyle(
                                 fontSize: 20,
                                 color: Colors.black.withOpacity(.6),
