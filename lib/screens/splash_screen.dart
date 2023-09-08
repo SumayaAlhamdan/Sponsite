@@ -10,7 +10,10 @@ class SplashScreen extends StatelessWidget {
         title: const Text('Sponsite'),
       ),
       body: const Center(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(
+          color:  Color.fromARGB(255, 87, 11, 117),
+          strokeWidth: 10,
+        ),
       ),
     );
   }

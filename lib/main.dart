@@ -1,25 +1,25 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:sponsite/screens/auth_screen.dart';
+import 'package:sponsite/screens/signIn_screen.dart';
 import 'package:sponsite/screens/splash_screen.dart';
 import 'package:sponsite/widgets/screen_logic.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MaterialApp(
+    theme: ThemeData(useMaterial3: true),
     title: 'Sponsite',
-    home: StreamBuilder(
+     home: 
+    StreamBuilder(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (ctx, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          print('waitingggggggg');
+         
           return const SplashScreen();
         } else if (snapshot.hasData) {
-          print('eeeeeeee');
+        
           final user = snapshot.data!;
           return FutureBuilder<Widget>(
             future: ScreenLogic.getUserHomeScreen(user.uid),
@@ -33,15 +33,16 @@ void main() async {
                 return homeScreenSnapshot.data!;
               } else {
                 // If no data is available, show the AuthScreen.
-                return const AuthScreen();
+                return const SignIn();
+                // AuthScreen();
               }
             },
           );
         } else {
-          return const AuthScreen();
+          return const SignIn();
+          //AuthScreen();
         }
       },
     ),
   ));
 }
-
