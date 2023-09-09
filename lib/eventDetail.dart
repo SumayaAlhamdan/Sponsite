@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sponsite/widgets/bottom_navigation_bar.dart';
 //import 'package:sponsite/Detail.dart';
-import 'navigation_bar.dart' ;
 
 class eventDetail extends StatefulWidget {
   const eventDetail({Key? key, required this.DetailKey, required this.img, required this.location, required this.fullDesc, required this.date, required this.Type , required this.Category , required this.time , required this.notes , required this.benefits}) : super(key: key);
