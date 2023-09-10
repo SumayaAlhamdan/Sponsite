@@ -167,6 +167,11 @@ DateTime? selectedDate;
 TimeOfDay? selectedTime;
 
 class _MyHomePageState extends State<MyHomePage> {
+  void initState() {
+    super.initState();
+    check();
+  }
+
   void _postNewEvent(
       String type,
       String eventName,
@@ -207,6 +212,7 @@ class _MyHomePageState extends State<MyHomePage> {
         print(categ);
         print(benefits);
         print(notes);
+        print(sponseeID);
       } catch (e) {
         print('Error sending data to DB: $e');
       }
@@ -584,7 +590,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   controller: benefitsController,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Benefits to the sponsor',
+                    labelText: 'Benefits to the sponsor *',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -600,7 +606,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   controller: notesController,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Additional notesController',
+                    labelText: 'Additional Notes',
                   ),
                 ),
                 const SizedBox(
