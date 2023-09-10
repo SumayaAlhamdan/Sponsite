@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sponsite/widgets/bottom_navigation_bar.dart';
+import 'package:sponsite/screens/postEvent.dart';
 
 void doSomething() {
+  runApp(const MyApp());
   print("hi");
 }
 
@@ -30,7 +32,7 @@ class SponseeHome extends StatelessWidget {
             IconButton(
               iconSize: 40,
               onPressed: () {
-                 FirebaseAuth.instance.signOut();
+                FirebaseAuth.instance.signOut();
                 // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const AuthScreen()));
 
                 // Future<void> signOutUser() async {

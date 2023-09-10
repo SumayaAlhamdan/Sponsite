@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});
@@ -42,25 +42,45 @@ class _BottomNavBarState extends State<BottomNavBar> {
           destinations: const <Widget>[
             NavigationDestination(
               // selectedIcon: Icon(Icons.home,size: 40,color: Color.fromARGB(255, 106, 33, 134)),
-              icon: Icon(Icons.home_rounded,
-                  size: 40, color: Color(0xFF6A62B6),),
+              icon: Icon(
+                Icons.home_rounded,
+                size: 40,
+                color: Color(0xFF6A62B6),
+              ),
               label: '',
             ),
             NavigationDestination(
-              icon: Icon(Icons.calendar_month_rounded,
-                  size: 40, color: Color(0xFF6A62B6),),
+              icon: Icon(
+                Icons.calendar_month_rounded,
+                size: 40,
+                color: Color(0xFF6A62B6),
+              ),
               label: '',
             ),
             NavigationDestination(
-              selectedIcon: Icon(Icons.add_circle_rounded ,size: 60,color: Color(0xFF6A62B6),),
-              icon: Icon(Icons.add_circle_rounded, size: 60,color: Color(0xFF6A62B6),),
+              selectedIcon: Icon(
+                Icons.add_circle_rounded,
+                size: 60,
+                color: Color(0xFF6A62B6),
+              ),
+              icon: Icon(
+                Icons.add_circle_rounded,
+                size: 60,
+                color: Color(0xFF6A62B6),
+              ),
               label: '',
             ),
             NavigationDestination(
-              selectedIcon: Icon(Icons.chat_bubble,
-                  size: 40, color: Color(0xFF6A62B6),),
-              icon: Icon(Icons.chat_bubble_outline,
-                  size: 40, color: Color(0xFF6A62B6),),
+              selectedIcon: Icon(
+                Icons.chat_bubble,
+                size: 40,
+                color: Color(0xFF6A62B6),
+              ),
+              icon: Icon(
+                Icons.chat_bubble_outline,
+                size: 40,
+                color: Color(0xFF6A62B6),
+              ),
               label: '',
             ),
             NavigationDestination(
