@@ -28,19 +28,29 @@ class MyApp extends StatelessWidget {
   }
 }
 
-String getUsername() {
-  User? user = FirebaseAuth.instance.currentUser;
-
+User? user = FirebaseAuth.instance.currentUser;
+String? sponseeID;
+void check() {
   if (user != null) {
-    // User is signed in
-    String email = user.email!;
-    print(email);
-    return email;
+    sponseeID = user?.uid;
+    print('Sponsor ID: $sponseeID');
   } else {
-    // No user is signed in
-    return '';
+    print('User is not logged in.');
   }
 }
+// String getUsername() {
+//   User? user = FirebaseAuth.instance.currentUser;
+
+//   if (user != null) {
+//     // User is signed in
+//     String email = user.email!;
+//     print(email);
+//     return email;
+//   } else {
+//     // No user is signed in
+//     return '';
+//   }
+// }
 
 Widget _titleContainer(String myTitle) {
   return Text(
@@ -176,16 +186,16 @@ class _MyHomePageState extends State<MyHomePage> {
     if (isValid) {
       try {
         dbref.child('sponseeEvents').push().set({
-          'USER': getUsername(),
+          'SponseeID': check(),
           'EventType': type,
           'EventName': eventName,
-          'EventLocation': location,
-          'EventDate': date,
-          'EventTime': time,
-          'NumberofAttendees': numofAt,
-          'SponsorshipCategories': categ,
-          'benefits': benefits,
-          'notes': notes,
+          'Location': location,
+          'Date': date,
+          'Time': time,
+          'NumberOfAttendees': numofAt,
+          'Category': categ,
+          'Benefits': benefits,
+          'Notes': notes,
         });
         print('sent to database!');
         print(type);
