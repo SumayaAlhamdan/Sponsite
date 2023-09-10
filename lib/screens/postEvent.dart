@@ -186,7 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (isValid) {
       try {
         dbref.child('sponseeEvents').push().set({
-          'SponseeID': check(),
+          'SponseeID': sponseeID,
           'EventType': type,
           'EventName': eventName,
           'Location': location,
