@@ -151,6 +151,8 @@ List<Widget> promoCards = List.generate(5, (index) {
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 140, 99, 133), // Customize the card background color
           borderRadius: BorderRadius.circular(30),
+
+        
         ),
         padding: EdgeInsets.all(18),
         child: Column(

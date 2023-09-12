@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:sponsite/eventDetail.dart';
 import 'package:sponsite/widgets/bottom_navigation_bar.dart';
+import 'package:sponsite/widgets/sponsee_bottom_navbar.dart';
 import 'package:sponsite/widgets/user_type_selector.dart';
 import 'pastevents.dart';
 
@@ -168,7 +169,8 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
 }@override
 Widget build(BuildContext context) {
   return Scaffold(
-    bottomNavigationBar: const BottomNavBar(),
+    // bottomNavigationBar: const SponseeBottomNavBar(),
+    //BottomNavBar(),
     backgroundColor: Colors.white,
     appBar: AppBar(
       backgroundColor: Colors.white,

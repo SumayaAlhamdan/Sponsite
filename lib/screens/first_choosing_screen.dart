@@ -42,9 +42,11 @@ class _FirstChoosingState extends State<FirstChoosing> {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        // appBar: AppBar(
-        //   title: const Text('Sponsite'),
-        // ),
+        appBar: AppBar(
+          // title: const Text('Sponsite'),
+          backgroundColor: Colors.transparent,
+          iconTheme:const IconThemeData(color: Colors.white),
+        ),
         body: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),

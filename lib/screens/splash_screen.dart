@@ -5,16 +5,15 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sponsite'),
-      ),
-      body: const Center(
-        child: CircularProgressIndicator(
-          color:  Color.fromARGB(255, 87, 11, 117),
-          strokeWidth: 10,
+    return const Scaffold(
+        backgroundColor: Color.fromARGB(255, 51, 45, 81),
+        body:  Center(
+          child: CircularProgressIndicator(
+            color:  Color.fromARGB(255, 255, 255, 255),
+            strokeWidth: 10,
+          ),
         ),
-      ),
+     
     );
   }
 }

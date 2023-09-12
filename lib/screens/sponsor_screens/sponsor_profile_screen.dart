@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sponsite/widgets/drawer.dart';
+import 'package:sponsite/widgets/sponsor_botton_navbar.dart';
 
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+class SponsorProfile extends StatelessWidget {
+  const SponsorProfile({Key? key}) : super(key: key);
 
   Future<void> _showSignOutConfirmationDialog(BuildContext context) async {
     return showDialog<void>(
@@ -23,7 +24,7 @@ class ProfilePage extends StatelessWidget {
               onPressed: () async {
                 // Sign out the user
                 await FirebaseAuth.instance.signOut();
-                //Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop(); // Close the dialog
               },
               child:const  Text('Sign Out',style: TextStyle(color:Color.fromARGB(255,51,45,81) )),
             ),
@@ -36,7 +37,8 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      endDrawer: const SideDrawer(),
+      //bottomNavigationBar: const SponsorBottomNavBar(),
+      // endDrawer: const SideDrawer(),
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255,51,45,81),
         actions: [
