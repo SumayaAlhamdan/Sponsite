@@ -116,6 +116,7 @@ class _SignInState extends State<SignIn> {
                               style: TextStyle(
                                 fontSize: 40,
                                 fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255,51,45,81)
                               ),
                             ),
                             SizedBox(height: screenHeight * .01),
@@ -155,6 +156,7 @@ class _SignInState extends State<SignIn> {
                               ),
                             ),
                             const SizedBox(height: 10.0),
+                            const SizedBox(height: 30.0),
                             SizedBox(
                               width: MediaQuery.of(context).size.width *
                                   0.7, // Set the desired width
@@ -188,11 +190,12 @@ class _SignInState extends State<SignIn> {
                                     return "Password should not be greater than 15 characters";
                                   } else {
                                     return null;
-                                  }
+                                  }//Color.fromARGB(235, 160, 122, 192)
                                 },
                               ),
                             ),
                             const SizedBox(height: 10.0),
+                            const SizedBox(height: 100.0),
                             if (_isAuthenticating)
                               const CircularProgressIndicator(),
                             if (!_isAuthenticating)
@@ -200,8 +203,8 @@ class _SignInState extends State<SignIn> {
                                 style: ButtonStyle(
                                     backgroundColor:
                                         MaterialStateProperty.all<Color>(
-                                            const Color.fromARGB(
-                                                255, 87, 11, 117)), // Background color
+                                           Color.fromARGB(255,51,45,81)),
+                                           //Color.fromARGB(255, 207, 186, 224),), // Background color
                                     textStyle:
                                         MaterialStateProperty.all<TextStyle>(
                                             const TextStyle(

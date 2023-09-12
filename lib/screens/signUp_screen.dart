@@ -9,7 +9,7 @@ import 'package:sponsite/screens/signIn_screen.dart';
 import '../FirebaseApi.dart';
 
 class SignUp extends StatefulWidget {
-  const SignUp(this.type,{super.key});
+  const SignUp(this.type, {super.key});
   final type;
   @override
   State<SignUp> createState() {
@@ -18,8 +18,8 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  _SignUpState(type){
-    theType=type;
+  _SignUpState(type) {
+    theType = type;
     print(theType);
   }
   bool _obscured = true;
@@ -33,7 +33,6 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController _passwordController = TextEditingController();
   final DatabaseReference dbref = FirebaseDatabase.instance.reference();
   final _firebase = FirebaseAuth.instance;
-  
 
   var fileName = 'No File Selected';
 
@@ -42,21 +41,34 @@ class _SignUpState extends State<SignUp> {
   UploadTask? task;
   File? file;
 
+
+  void _displayError(context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(errorMessage!),
+        backgroundColor: const Color.fromARGB(255, 87, 11, 117),
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.all(50),
+        elevation: 30,
+      ),
+    );
+  }
+
   void _toggleObscured() {
     setState(() {
       _obscured = !_obscured;
     });
   }
 
-  void sendDatatoDB(
-      String name, String email, String password, String fileName) async {
+  void sendDatatoDB(String name, String email, String password, String fileName,
+      context) async {
     final isValid = _formKey.currentState!.validate();
-
+    print("111111111");
     if (!isValid) {
       setState(() {
         errorMessage = "Please make sure to fill all fields correctly";
       });
-
+      print("22222222222");
       return;
     }
     _formKey.currentState!.save();
@@ -65,13 +77,13 @@ class _SignUpState extends State<SignUp> {
       setState(() {
         _isAuthenticating = true;
       });
-
+      print("33333333333");
       final userCredentials = await _firebase.createUserWithEmailAndPassword(
           email: email, password: password);
       //connect the enterd user to its info
 
       final userId = userCredentials.user!.uid;
-
+      print("44444444444444");
 // Connect the entered user to its info with the user's ID
       dbref.child(theType).child(userId).set({
         'Name': name,
@@ -84,17 +96,28 @@ class _SignUpState extends State<SignUp> {
         setState(() {
           _isAuthenticating = false;
           errorMessage = 'The password provided is too weak';
+         _displayError(context);
+
+          print("5555555555");
+          return;
         });
       } else if (e.code == 'email-already-in-use') {
         setState(() {
           _isAuthenticating = false;
           errorMessage = 'Email already in use';
+          _displayError(context);
+          print("66666666666");
+          return;
         });
       }
     } catch (e) {
       print(e);
       setState(() {
         _isAuthenticating = false;
+        errorMessage='error occured';
+         _displayError(context);
+        print("777777777");
+        return;
       });
     }
   }
@@ -276,78 +299,82 @@ class _SignUpState extends State<SignUp> {
                               width: MediaQuery.of(context).size.width *
                                   0.7, // Set the desired width
                               child: TextFormField(
-                                decoration: InputDecoration(
-                                  border: const OutlineInputBorder(),
+                                controller: _fileController,
+                                readOnly: true, // Link the controller
+                                decoration: const InputDecoration(
+                                  border: OutlineInputBorder(),
                                   labelText: 'Authentication document',
-                                  prefixIcon: Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(0, 0, 4, 0),
-                                    child: ElevatedButton.icon(
-                                      style: ButtonStyle(
-                                        // overlayColor: MaterialStateProperty.all(Colors.red),
-                                        backgroundColor:
-                                            MaterialStateProperty.all<Color>(
-                                          const Color.fromARGB(
-                                              255, 87, 11, 117),
-                                        ), // Background color
-                                        textStyle: MaterialStateProperty.all<
-                                            TextStyle>(
-                                          const TextStyle(fontSize: 0),
-                                        ), // Text style
-                                        padding: MaterialStateProperty.all<
-                                            EdgeInsetsGeometry>(
-                                          const EdgeInsets.symmetric(
-                                              vertical: 2,
-                                              horizontal: 10), // Padding
-                                        ), // Padding
-                                        elevation:
-                                            MaterialStateProperty.all<double>(
-                                                1), // Elevation
-                                        shape: MaterialStateProperty.all<
-                                            OutlinedBorder>(
-                                          RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                                10), // Border radius
-                                            side: const BorderSide(
-                                              color: Color.fromARGB(
-                                                  255, 255, 255, 255),
-                                            ), // Border color
-                                          ),
-                                        ),
-                                        minimumSize:
-                                            MaterialStateProperty.all<Size>(
-                                                const Size(3, 3)),
-                                      ),
-                                      onPressed: () {
-                                        selectFile();
-                                      },
-                                      icon: const Icon(
-                                        Icons.attach_file,
-                                        color:
-                                            Color.fromARGB(255, 255, 255, 255),
-                                      ),
-                                      label: const Text(
-                                        '',
-                                        style: TextStyle(
-                                            color: Color.fromARGB(
-                                                255, 255, 255, 255)),
-                                      ),
-                                      // child: const Text(
-                                      //     'Attatch File',
-                                      //     style: TextStyle(
-                                      //         color: Color.fromARGB(
-                                      //             255, 255, 255, 255)),
-                                      //   ),
-                                      // const Icon(
-                                      //   Icons.attach_file,
-                                      //   size: 24,
-                                      // ),
-                                    ),
-                                  ),
+                                  prefixIcon:
+                                      Icon(Icons.attach_file_sharp, size: 24),
+                                  // suffixIcon: Padding(
+                                  //   padding:
+                                  // const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                                  // child: ElevatedButton.icon(
+                                  //   style: ButtonStyle(
+                                  //     // overlayColor: MaterialStateProperty.all(Colors.red),
+                                  //     backgroundColor:
+                                  //         MaterialStateProperty.all<Color>(
+                                  //       const Color.fromARGB(
+                                  //           255, 87, 11, 117),
+                                  //     ), // Background color
+                                  //     textStyle: MaterialStateProperty.all<
+                                  //         TextStyle>(
+                                  //       const TextStyle(fontSize: 0),
+                                  //     ), // Text style
+                                  //     padding: MaterialStateProperty.all<
+                                  //         EdgeInsetsGeometry>(
+                                  //       const EdgeInsets.symmetric(
+                                  //           vertical: 8,
+                                  //           horizontal: 10), // Padding
+                                  //     ), // Padding
+                                  //     elevation:
+                                  //         MaterialStateProperty.all<double>(
+                                  //             1), // Elevation
+                                  //     shape: MaterialStateProperty.all<
+                                  //         OutlinedBorder>(
+                                  //       RoundedRectangleBorder(
+                                  //         borderRadius: BorderRadius.circular(
+                                  //             30), // Border radius
+                                  //         side: const BorderSide(
+                                  //           color: Color.fromARGB(
+                                  //               255, 255, 255, 255),
+                                  //         ), // Border color
+                                  //       ),
+                                  //     ),
+                                  //     minimumSize:
+                                  //         MaterialStateProperty.all<Size>(
+                                  //             const Size(3, 3)),
+                                  //   ),
+                                  //   onPressed: () {
+                                  //     selectFile();
+                                  //   },
+                                  //   icon: const Icon(
+                                  //     Icons.attach_file,
+                                  //     color:
+                                  //         Color.fromARGB(255, 255, 255, 255),
+                                  //   ),
+                                  //   label: const Text(
+                                  //     '',
+                                  //     style: TextStyle(
+                                  //         color: Color.fromARGB(
+                                  //             255, 255, 255, 255)),
+                                  //   ),
+                                  //   // child: const Text(
+                                  //   //     'Attatch File',
+                                  //   //     style: TextStyle(
+                                  //   //         color: Color.fromARGB(
+                                  //   //             255, 255, 255, 255)),
+                                  //   //   ),
+                                  //   // const Icon(
+                                  //   //   Icons.attach_file,
+                                  //   //   size: 24,
+                                  //   // ),
+                                  // ),
                                 ),
-                                controller:
-                                    _fileController, // Link the controller
-                                readOnly: true,
+                                onTap: () {
+                                  selectFile();
+                                },
+
                                 validator: (value) {
                                   if (value == 'No file selected') {
                                     print("hello1");
@@ -452,7 +479,21 @@ class _SignUpState extends State<SignUp> {
 
                                   uploadFile();
 
-                                  sendDatatoDB(name, email, password, fileName);
+                                  sendDatatoDB(
+                                      name, email, password, fileName, context);
+                                  // if (errorMessage != null) {
+                                  //   ScaffoldMessenger.of(context).showSnackBar(
+                                  //     SnackBar(
+                                  //       content: Text(errorMessage!),
+                                  //       backgroundColor: const Color.fromARGB(
+                                  //           255, 87, 11, 117),
+                                  //       behavior: SnackBarBehavior.floating,
+                                  //       margin: EdgeInsets.all(50),
+                                  //       elevation: 30,
+                                  //     ),
+                                  //   );
+                                  //   return; // Return or perform any other necessary action
+                                  // }
                                 },
                                 child: const Text(
                                   'Sign Up',
