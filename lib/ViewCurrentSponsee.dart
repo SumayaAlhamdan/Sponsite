@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -6,6 +7,18 @@ import 'package:sponsite/eventDetail.dart';
 import 'package:sponsite/widgets/bottom_navigation_bar.dart';
 import 'package:sponsite/widgets/user_type_selector.dart';
 import 'pastevents.dart';
+
+User? user = FirebaseAuth.instance.currentUser;
+String? sponseeID;
+
+void check() {
+  if (user != null) {
+    sponseeID = user?.uid;
+    print('Sponsee ID: $sponseeID');
+  } else {
+    print('User is not logged in.');
+  }
+}
 
 class ViewCurrentSponsee extends StatefulWidget {
   const ViewCurrentSponsee({Key? key}) : super(key: key);
@@ -215,16 +228,15 @@ Widget build(BuildContext context) {
             setState(() {
               selectedTabIndex = selection == eventType.current ? 0 : 1;
               if (selectedTabIndex == eventType.current) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ViewCurrentSponsee()),
-                );
-              } else{
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const pastevents()),
-                );
-              }
+  Navigator.of(context).pushReplacement(
+    MaterialPageRoute(builder: (context) => const ViewCurrentSponsee()),
+  );
+} else {
+  Navigator.of(context).pushReplacement(
+    MaterialPageRoute(builder: (context) => const pastevents()),
+  );
+}
+
             });
           },
         ),
@@ -235,16 +247,19 @@ Widget build(BuildContext context) {
 
 
   void _loadEventsFromFirebase() {
-    dbRef.onValue.listen((event) {
-      if (event.snapshot.value != null) {
-        setState(() {
-          events.clear();
-          Map<dynamic, dynamic> eventData =
-              event.snapshot.value as Map<dynamic, dynamic>;
-          eventData.forEach((key, value) {
-            var categoryList = (value['Category'] as List<dynamic>)
-                .map((category) => category.toString())
-                .toList();
+    check();
+  dbRef.onValue.listen((event) {
+    if (event.snapshot.value != null) {
+      setState(() {
+        events.clear();
+        Map<dynamic, dynamic> eventData =
+            event.snapshot.value as Map<dynamic, dynamic>;
+        eventData.forEach((key, value) {
+          var categoryList = (value['Category'] as List<dynamic>)
+              .map((category) => category.toString())
+              .toList();
+          // Check if the event belongs to the current user (sponsee)
+          if (value['SponseeID'] == sponseeID) {
             events.add(Event(
               EventName: value['EventName'] as String? ?? '',
               EventType: value['EventType'] as String? ?? '',
@@ -257,11 +272,13 @@ Widget build(BuildContext context) {
               benefits: value['benefits'] as String? ?? '',
               Category: categoryList,
             ));
-          });
+          }
         });
-      }
-    });
-  }
+      });
+    }
+  });
+}
+
 }
 
 
@@ -290,108 +307,3 @@ class Event {
     required this.benefits,
   });
 }
-/*
-class SegmentedButton extends StatelessWidget {
-  final String text;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  SegmentedButton({
-    required this.text,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-        decoration: BoxDecoration(
-          color: isSelected ? Color.fromARGB(255, 106, 33, 134) : Colors.white,
-          borderRadius: BorderRadius.circular(40),
-          border: Border.all(
-            color: Color.fromARGB(225, 106, 33, 134),
-            width: 2.0,
-          ),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            color: isSelected ? Colors.white : Color.fromARGB(225, 106, 33, 134),
-            fontSize: 18,
-          ),
-        ),
-      ),
-    );
-  }
-  
-} */
- 
-
-/*
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        backgroundColor: Color.fromARGB(255, 106, 33, 134),
-        bottomNavigationBar: const NavigationExample(),
-        body: Padding(
-          padding: EdgeInsets.only(top: 100), // Adjust the top padding as needed
-          child: Container(
-            width: 800,
-            height: 1340,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(40),
-                topRight: Radius.circular(40),
-              ),
-              color: Color.fromRGBO(255, 255, 255, 1),
-            ),
-            child: Column(
-              children: [
-                SizedBox(
-                  width: 144,
-                  height: 31,
-                  child: Align(
-                    alignment: Alignment.topLeft, // Align to the left
-                    child: Text(
-                      'Current Events',
-                      style: TextStyle(
-                        color: Color(0xFF6A2186),
-                        fontSize: 17,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.50,
-                      ),
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Container(
-                    width: 612,
-                    height: 165,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color(0x3F000000),
-                          blurRadius: 4,
-                          offset: Offset(0, 4),
-                          spreadRadius: 0,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }} */
