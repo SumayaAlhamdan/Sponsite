@@ -77,19 +77,25 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
     _loadEventsFromFirebase();
   }
 
-  void _loadEventsFromFirebase() {
-    final DatabaseReference database = FirebaseDatabase.instance.ref();
-    database.child('sponseeEvents').onValue.listen((event) {
-      if (event.snapshot.value != null) {
-        setState(() {
-          events.clear();
-          Map<dynamic, dynamic> eventData =
-              event.snapshot.value as Map<dynamic, dynamic>;
+ void _loadEventsFromFirebase() {
+  final DatabaseReference database = FirebaseDatabase.instance.ref();
+  database.child('sponseeEvents').onValue.listen((event) {
+    if (event.snapshot.value != null) {
+      setState(() {
+        events.clear();
+        Map<dynamic, dynamic> eventData =
+            event.snapshot.value as Map<dynamic, dynamic>;
 
-          eventData.forEach((key, value) {
-            var categoryList = (value['Category'] as List<dynamic>)
+        eventData.forEach((key, value) {
+          // Check if value['Category'] is a list
+          List<String> categoryList = [];
+          if (value['Category'] is List<dynamic>) {
+            categoryList = (value['Category'] as List<dynamic>)
                 .map((category) => category.toString())
                 .toList();
+          }
+
+                
             events.add(Event(
               EventId: key,
               sponseeId: value['sponseeId'] as String? ?? '',
@@ -127,7 +133,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
       return Container(
         decoration: BoxDecoration(
           color: Color(0xFF6A62B6), // Customize the card background color
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(30),
         ),
         padding: EdgeInsets.all(16),
         height: 220, // Increased card height
@@ -163,7 +169,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-            color: const Color.fromARGB(248, 248, 248, 248),
+            color: const Color.fromARGB(255, 255, 255, 255),
             ),
             child: Column(
               children: [
@@ -173,8 +179,8 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                     width: 430,
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                    color: const Color.fromARGB(248, 248, 248, 248),
-                      borderRadius: BorderRadius.circular(12),
+                    color: Color.fromARGB(255, 255, 255, 255),
+                      borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.grey,
@@ -208,7 +214,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-                    color: const Color.fromARGB(248, 248, 248, 248),
+                    color: Color.fromARGB(255, 255, 255, 255),
             ),
             child: Column(
               children: [
@@ -297,9 +303,9 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                   child: Card(
                     elevation: 5,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(30),
                     ),
-                    color: const Color.fromARGB(248, 248, 248, 248),
+                    color: Color.fromARGB(255, 255, 255, 255),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -354,7 +360,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                                   return Chip(
                                     label: Text(category),
                                     backgroundColor:
-                                    Color.fromARGB(248, 243, 243, 243),
+                                    Color.fromARGB(255, 255, 255, 255),
                                     shadowColor: Color(0xFF6A62B6),
                                     elevation: 3,
                                     labelStyle: TextStyle(
@@ -378,7 +384,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                                     );
                                   },
                                   child: Text(
-                                    'Send an offer',
+                                    'Send offer',
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
@@ -389,11 +395,16 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                                     onPrimary: Colors.white,
                                     elevation: 20,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
+                                      borderRadius: BorderRadius.circular(30),
                                     ),
                                   ),
                                 ),
                               ),
+                                ElevatedButton(
+                                  onPressed: (){
+                                  FirebaseAuth.instance.signOut();
+                                  }, child: null,
+                                ),
                             ],
                           ),
                         ),
@@ -577,8 +588,7 @@ class RecentEventsDetails extends StatelessWidget {
                           children: event.Category.map((category) {
                             return Chip(
                               label: Text(category),
-                              backgroundColor: Color.fromARGB(
-                                  248, 243, 243, 243),
+                              backgroundColor: Color.fromARGB(255, 255, 255, 255),
                               shadowColor: Color(0xFF6A62B6),
                               elevation: 3,
                               labelStyle: TextStyle(
@@ -647,7 +657,7 @@ class RecentEventsDetails extends StatelessWidget {
                               onPrimary: Colors.white,
                               elevation: 10,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(30),
                               ),
                             ),
                           ),
@@ -699,7 +709,9 @@ class _CustomDialogState extends State<CustomDialog> {
               'Please select at least one category and enter some notes before sending the offer'),
           actions: [
             ElevatedButton(
-              onPressed: _sendOffer, // Use the _sendOffer function
+              onPressed: (){
+                Navigator.of(context).pop();
+                }, // Use the _sendOffer function
               child: Text(
                 'OK',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -709,7 +721,7 @@ class _CustomDialogState extends State<CustomDialog> {
                 onPrimary: Colors.white,
                 elevation: 20,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(30),
                 ),
               ),
             ),
@@ -776,8 +788,8 @@ class _CustomDialogState extends State<CustomDialog> {
       contentPadding: EdgeInsets.symmetric(horizontal: 70.0, vertical: 40.0),
       content: SingleChildScrollView(
         child: Container(
-          width: 350,
-          height: 440,
+          width: 380,
+          height: 470,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -818,7 +830,7 @@ class _CustomDialogState extends State<CustomDialog> {
                     borderSide: BorderSide(color: Colors.grey, width: 1.0),
                   ),
                 ),
-                maxLines: 17,
+                maxLines: 15,
               ),
               
             ],
@@ -842,7 +854,7 @@ class _CustomDialogState extends State<CustomDialog> {
                 onPrimary: Colors.white,
                 elevation: 20,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(30),
                 ),
               ),
             ),

@@ -3,6 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const MyApp());
+}
+
 
 // void main() {
 //   runApp(const MyApp());
@@ -146,15 +156,7 @@ class _FilterChipWidgetState extends State<FilterChipWidget> {
   }
 }
 
-enum EventTypeEnum {
-  Social,
-  Business,
-  Sports,
-  Entertainment,
-  Educational,
-  Charity,
-  Technology
-}
+
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -165,13 +167,27 @@ class MyHomePage extends StatefulWidget {
 
 DateTime? selectedDate;
 TimeOfDay? selectedTime;
+ List<String> eventTypesList = [];
+  String? selectedEventType;
 
 class _MyHomePageState extends State<MyHomePage> {
+  File? _imageFile; // Store the picked image file
+List<String> eventTypesList = []; 
+
   void initState() {
     super.initState();
     check();
-  }
+ fetchEventTypesFromDatabase(); // Call the function to fetch event types
+}
 
+Future<void> fetchEventTypesFromDatabase() async {
+  final eventTypes = await fetchEventTypes();
+
+  // Update the event types in the UI
+  setState(() {
+    eventTypesList = eventTypes;
+  });
+}
   void _postNewEvent(
       String type,
       String eventName,
@@ -179,7 +195,7 @@ class _MyHomePageState extends State<MyHomePage> {
       String date,
       String time,
       String numofAt,
-      String categ,
+      List<String> categ,
       String benefits,
       String notes) async {
     if (benefitsController.text.isEmpty) {
@@ -190,6 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
       try {
+        final String imageUploadResult = await _uploadImage(_imageFile!);
         dbref.child('sponseeEvents').push().set({
           'SponseeID': sponseeID,
           'EventType': type,
@@ -200,6 +217,7 @@ class _MyHomePageState extends State<MyHomePage> {
           'NumberOfAttendees': numofAt,
           'Category': categ,
           'Benefits': benefits,
+          'img': imageUploadResult,
           'Notes': notes,
         });
         print('sent to database!');
@@ -241,6 +259,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
   }
+  
 
   int _activeStepIndex = 0;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -262,10 +281,174 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final DatabaseReference dbref = FirebaseDatabase.instance.reference();
 
-  EventTypeEnum? _eventTypeEnum;
+  String _selectedEventType= '';
   List<String> selectedChips = [];
   bool showCategoryValidationMessage = false;
   bool showRequiredValidationMessage = false;
+  Future<void> _pickImage() async {
+  final imagePicker = ImagePicker();
+  final PickedFile? pickedFile = await imagePicker.getImage(source: ImageSource.gallery);
+
+  if (pickedFile != null) {
+    setState(() {
+      _imageFile = File(pickedFile.path); // Correctly create a File object
+    });
+  }
+}
+Future<String> _uploadImage(File imageFile) async {
+  try {
+    final firebase_storage.Reference storageReference =
+        firebase_storage.FirebaseStorage.instance.ref().child('event_images').child(
+            '${DateTime.now().millisecondsSinceEpoch}.${imageFile.path.split('.').last}');
+
+    final uploadTask = storageReference.putFile(imageFile);
+
+    final firebase_storage.TaskSnapshot storageTaskSnapshot =
+        await uploadTask.whenComplete(() => null);
+
+    // Get the URL of the uploaded image
+    final String imageURL = await storageTaskSnapshot.ref.getDownloadURL();
+
+    return imageURL; // Return the image URL
+  } catch (e) {
+    print('Error uploading image: $e');
+    return ''; // Return an empty string in case of an error
+  }
+}
+
+Future<List<String>> _fetchCategories() async {
+  final categories = <String>[];
+
+  try {
+    // Replace 'your_categories_node' with the actual database path where your categories are stored
+    final DatabaseEvent dataSnapshot = await FirebaseDatabase.instance
+        .reference()
+        .child('Categories')
+        .once();
+    
+    if (dataSnapshot.snapshot.value != null) {
+      // Convert the data snapshot into a List<String>
+      final categoryData = dataSnapshot.snapshot.value as Map<dynamic, dynamic>;
+      categoryData.forEach((key, value) {
+        categories.add(value.toString());
+      });
+    }
+  } catch (e) {
+    print('Error fetching categories: $e');
+  }
+
+  return categories;
+}
+
+Future<List<String>> fetchEventTypes() async {
+  final eventTypes = <String>[];
+
+  try {
+    final DatabaseEvent dataSnapshot = await FirebaseDatabase.instance
+        .reference()
+        .child('EventType')
+        .once();
+
+    if (dataSnapshot.snapshot.value != null) {
+      final Map<dynamic, dynamic> eventTypesMap = dataSnapshot.snapshot.value as Map<dynamic, dynamic>;
+
+      // Iterate through the map and add event type names to the 'eventTypes' list
+      eventTypesMap.forEach((key, value) {
+        eventTypes.add(value.toString());
+      });
+    }
+  } catch (e) {
+    print('Error fetching event types: $e');
+  }
+
+  return eventTypes;
+}
+
+
+Widget _buildCategoryChips() {
+  return FutureBuilder<List<String>>(
+    future: _fetchCategories(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        // Display a loading indicator while fetching categories
+        return CircularProgressIndicator();
+      } else if (snapshot.hasError) {
+        // Handle error if fetching categories fails
+        return Text('Error: ${snapshot.error}');
+      } else if (snapshot.hasData) {
+        // Create FilterChipWidget widgets based on the fetched categories
+        final categories = snapshot.data!;
+        return Wrap(
+          spacing: 5.0,
+          runSpacing: 3.0,
+          children: categories.map((category) {
+            return FilterChipWidget(
+              chipName: category,
+              onChipCreated: _handleChipCreation,
+              onChipSelected: _handleChipSelection,
+            );
+          }).toList(),
+        );
+      } else {
+        // Handle the case when there are no categories
+        return Text('No categories available.');
+      }
+    },
+  );
+}
+Widget _buildEventTypesRadioList() {// Calculate events per column
+
+  return Column(
+    children: [
+      Row(
+        children: eventTypesList
+            .sublist(0, 6)
+            .map((eventType) {
+              return Row(
+                children: [
+                  Radio(
+                    value: eventType,
+                    groupValue: _selectedEventType,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedEventType = value as String;
+                      });
+                    },
+                  ),
+                  Text(eventType),
+                ],
+              );
+            })
+            .toList(),
+      ),
+      SizedBox(width: 16), // Add some spacing between the columns
+      Row(
+        children: eventTypesList
+            .sublist(6,7)
+            .map((eventType) {
+              return Row(
+                children: [
+                  Radio(
+                    value: eventType,
+                    groupValue: selectedEventType,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedEventType = value as String;
+                      });
+                    },
+                  ),
+                  Text(eventType),
+                ],
+              );
+            })
+            .toList(),
+      ),
+    ],
+  );
+}
+
+
+
 
   List<Step> stepList() => [
         Step(
@@ -281,139 +464,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     height: 8,
                   ),
                 ]),
-                Row(
-                  children: [
-                    Expanded(
-                      child: RadioListTile(
-                        contentPadding: EdgeInsets.all(0.0),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0)),
-                        value: EventTypeEnum.Social,
-                        groupValue: _eventTypeEnum,
-                        tileColor: Colors.deepPurple.shade50,
-                        title: Text('Social'),
-                        onChanged: (val) {
-                          setState(() {
-                            _eventTypeEnum = val;
-                            showRequiredValidationMessage = false;
-                          });
-                        },
-                      ),
-                    ),
-                    SizedBox(width: 5.0),
-                    Expanded(
-                      child: RadioListTile(
-                        contentPadding: EdgeInsets.all(0.0),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0)),
-                        value: EventTypeEnum.Business,
-                        title: Text('Business'),
-                        groupValue: _eventTypeEnum,
-                        tileColor: Colors.deepPurple.shade50,
-                        onChanged: (val) {
-                          setState(() {
-                            _eventTypeEnum = val;
-                            showRequiredValidationMessage = false;
-                          });
-                        },
-                      ),
-                    ),
-                    SizedBox(width: 5.0),
-                    Expanded(
-                      child: RadioListTile(
-                        contentPadding: EdgeInsets.all(0.0),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0)),
-                        value: EventTypeEnum.Sports,
-                        title: Text('Sports'),
-                        groupValue: _eventTypeEnum,
-                        tileColor: Colors.deepPurple.shade50,
-                        onChanged: (val) {
-                          setState(() {
-                            _eventTypeEnum = val;
-                            showRequiredValidationMessage = false;
-                          });
-                        },
-                      ),
-                    ),
-                    SizedBox(width: 5.0),
-                    Expanded(
-                      child: RadioListTile(
-                        contentPadding: EdgeInsets.all(0.0),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0)),
-                        value: EventTypeEnum.Entertainment,
-                        groupValue: _eventTypeEnum,
-                        tileColor: Colors.deepPurple.shade50,
-                        title: Text('Entertainment'),
-                        onChanged: (val) {
-                          setState(() {
-                            _eventTypeEnum = val;
-                            showRequiredValidationMessage = false;
-                          });
-                        },
-                      ),
-                    ),
-                    SizedBox(width: 5.0),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: RadioListTile(
-                        contentPadding: EdgeInsets.all(0.0),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0)),
-                        value: EventTypeEnum.Educational,
-                        title: Text('Educational'),
-                        groupValue: _eventTypeEnum,
-                        tileColor: Colors.deepPurple.shade50,
-                        onChanged: (val) {
-                          setState(() {
-                            _eventTypeEnum = val;
-                            showRequiredValidationMessage = false;
-                          });
-                        },
-                      ),
-                    ),
-                    SizedBox(width: 5.0),
-                    Expanded(
-                      child: RadioListTile(
-                        contentPadding: EdgeInsets.all(0.0),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0)),
-                        value: EventTypeEnum.Charity,
-                        title: Text('Charity'),
-                        groupValue: _eventTypeEnum,
-                        tileColor: Colors.deepPurple.shade50,
-                        onChanged: (val) {
-                          setState(() {
-                            _eventTypeEnum = val;
-                            showRequiredValidationMessage = false;
-                          });
-                        },
-                      ),
-                    ),
-                    SizedBox(width: 5.0),
-                    Expanded(
-                      child: RadioListTile(
-                        contentPadding: EdgeInsets.all(0.0),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0)),
-                        value: EventTypeEnum.Technology,
-                        title: Text('Technology'),
-                        groupValue: _eventTypeEnum,
-                        tileColor: Colors.deepPurple.shade50,
-                        onChanged: (val) {
-                          setState(() {
-                            _eventTypeEnum = val;
-                            showRequiredValidationMessage = false;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                Column(
+  children: <Widget>[
+    const SizedBox(height: 10),
+    if (eventTypesList.isEmpty)
+      const CircularProgressIndicator()
+    else
+      _buildEventTypesRadioList(),
+  ],
+),
                 const SizedBox(
                   height: 8,
                 ),
@@ -483,6 +542,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 const SizedBox(
                   height: 8,
                 ),
+                ElevatedButton(
+  onPressed: () => _pickImage(),
+  child: const Text("Select Image"),
+),
                 if (showRequiredValidationMessage) // Show the message conditionally
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -495,89 +558,55 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ),
-        Step(
-          state: _activeStepIndex <= 1 ? StepState.indexed : StepState.complete,
-          isActive: _activeStepIndex >= 1,
-          title: const Text('Sponsorship Category'),
-          content: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: _titleContainer("What do you need from sponsors?"),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    child: Wrap(
-                      spacing: 5.0,
-                      runSpacing: 3.0,
-                      children: <Widget>[
-                        FilterChipWidget(
-                          chipName: 'Food',
-                          onChipCreated: _handleChipCreation,
-                          onChipSelected: _handleChipSelection,
-                        ),
-                        FilterChipWidget(
-                          chipName: 'Coffee/Beverages',
-                          onChipCreated: _handleChipCreation,
-                          onChipSelected: _handleChipSelection,
-                        ),
-                        FilterChipWidget(
-                          chipName: 'Financial',
-                          onChipCreated: _handleChipCreation,
-                          onChipSelected: _handleChipSelection,
-                        ),
-                        FilterChipWidget(
-                          chipName: 'Prizes',
-                          onChipCreated: _handleChipCreation,
-                          onChipSelected: _handleChipSelection,
-                        ),
-                        FilterChipWidget(
-                          chipName: 'Venue',
-                          onChipCreated: _handleChipCreation,
-                          onChipSelected: _handleChipSelection,
-                        ),
-                        FilterChipWidget(
-                          chipName: 'Other',
-                          onChipCreated: _handleChipCreation,
-                          onChipSelected: _handleChipSelection,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              // Display the selected chips
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Wrap(
-                  spacing: 5.0,
-                  runSpacing: 3.0,
-                  children: selectedChips.map((chipName) {
-                    return Chip(
-                      label: Text(chipName),
-                      onDeleted: () {
-                        setState(() {
-                          selectedChips.remove(chipName);
-                        });
-                      },
-                    );
-                  }).toList(),
-                ),
-              ),
-              if (showCategoryValidationMessage) // Show the message conditionally
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'Please select at least one category',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ),
-            ],
+    Step(
+  state: _activeStepIndex <= 1 ? StepState.indexed : StepState.complete,
+  isActive: _activeStepIndex >= 1,
+  title: const Text('Sponsorship Category'),
+  content: Column(
+    children: [
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: _titleContainer("What do you need from sponsors?"),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(left: 8.0),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Container(
+            child: _buildCategoryChips(), // Use the _buildCategoryChips() function here
           ),
         ),
+      ),
+      // Display the selected chips
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Wrap(
+          spacing: 5.0,
+          runSpacing: 3.0,
+          children: selectedChips.map((chipName) {
+            return Chip(
+              label: Text(chipName),
+              onDeleted: () {
+                setState(() {
+                  selectedChips.remove(chipName);
+                });
+              },
+            );
+          }).toList(),
+        ),
+      ),
+      if (showCategoryValidationMessage) // Show the message conditionally
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            'Please select at least one category',
+            style: TextStyle(color: Colors.red),
+          ),
+        ),
+    ],
+  ),
+),
+
         Step(
           state: StepState.complete,
           //StepState.indexed : StepState.complete,
@@ -614,16 +643,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    String type = _eventTypeEnum
-                        .toString()
-                        .substring(_eventTypeEnum.toString().indexOf('.') + 1);
+                    String type = _selectedEventType;
                     String ename = EnameController.text;
                     String location = LocationController.text;
                     String date =
                         selectedDate!.toLocal().toString().substring(0, 10);
                     String time = selectedTime!.format(context);
                     String numOfAt = numofAttendeesController.text;
-                    String categ = selectedChips.toString();
+                    List<String> categ = selectedChips;
                     String benefits = benefitsController.text;
                     String notes = notesController.text;
 
@@ -733,7 +760,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         if (_activeStepIndex == 0)
                           {
                             // Check if required fields are empty
-                            if (_eventTypeEnum == null ||
+                            if (_selectedEventType == null ||
                                 EnameController.text.isEmpty ||
                                 selectedDate == null ||
                                 selectedTime == null ||
