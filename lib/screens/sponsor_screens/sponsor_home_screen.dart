@@ -1,10 +1,10 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:sponsite/screens/signIn_screen.dart';
 import 'package:sponsite/widgets/bottom_navigation_bar.dart';
 
 User? user = FirebaseAuth.instance.currentUser;
@@ -145,16 +145,17 @@ List<Widget> promoCards = List.generate(5, (index) {
   // Add the randomIndex to the displayedEventIndices set
   displayedEventIDs.add(randomIndex);
   Event event = events[randomIndex];
-      return SizedBox(
-      height: 220, 
-      child:  Container(
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 140, 99, 133), // Customize the card background color
-          borderRadius: BorderRadius.circular(30),
-
-        
-        ),
-        padding: EdgeInsets.all(18),
+    return Container(
+    height: 220, // Set the desired fixed height
+    width: 300,  // Set the desired fixed width
+    child: Card(
+      elevation: 0, 
+      child: Container(
+      decoration: BoxDecoration(
+        color: Color.fromARGB(255,91,79,158),// Customize the card background color
+        borderRadius: BorderRadius.circular(25),
+      ),
+        padding: EdgeInsets.fromLTRB(7, 5, 0, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -177,6 +178,8 @@ List<Widget> promoCards = List.generate(5, (index) {
             SizedBox(height: 12), // Increased the height between title and description
             Text(
               '${event.location}',
+              maxLines: 2, // Set the maximum number of lines
+              overflow: TextOverflow.ellipsis, // Add ellipsis (...) if text overflows
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 15, // Increased description font size
@@ -184,122 +187,126 @@ List<Widget> promoCards = List.generate(5, (index) {
             ),
           ],
         ),
-      ),);
+      ),));
     }).toList();
 
-    return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: Color.fromARGB(255, 255, 255, 255),
-            ),
-            child: Column(
-              children: [
-                SizedBox(height: 33),
-                Center(
-                  child: Container(
-                    width: 430,
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 255, 255, 255),
-                      borderRadius: BorderRadius.circular(30),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey,
-                          offset: Offset(0, 2),
-                          blurRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            style: TextStyle(color: Color(0xFF5B4F9E)), // Button color
-                            decoration: InputDecoration(
-                              hintText: 'Search for an event',
-                              hintStyle: TextStyle(color: Colors.grey),
-                              border: InputBorder.none,
+ return Scaffold(
+      body: SingleChildScrollView( // Wrap your content in SingleChildScrollView to enable scrolling
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 255, 255, 255),
+              ),
+              child: Column(
+                children: [
+                  SizedBox(height: 33),
+                  Center(
+                    child: Container(
+                      width: 430,
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 255, 255, 255),
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey,
+                            offset: Offset(0, 2),
+                            blurRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              style: TextStyle(color: Color.fromARGB(255,91,79,158)),
+                              decoration: InputDecoration(
+                                hintText: 'Search for an event',
+                                hintStyle: TextStyle(color: Colors.grey),
+                                border: InputBorder.none,
+                              ),
                             ),
                           ),
-                        ),
-                        Icon(Icons.search, color: Color(0xFF5B4F9E)), // Button color
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-              ],
-            ),
-          ),
-          SizedBox(height: 20),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: Color.fromARGB(255, 255, 255, 255),
-            ),
-            child: Column(
-              children: [
-                SizedBox(height: 14),
-                CarouselSlider(
-                  items: promoCards,
-                  options: CarouselOptions(
-                    height: 150,
-                    aspectRatio: 1.5,
-                    autoPlay: true,
-                    enlargeCenterPage: true,
-                    autoPlayInterval: Duration(seconds: 3),
-                  ),
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Recent Events",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30,
-                        color: Color(0xFF5B4F9E), // Button color
+                          Icon(Icons.search, color: Color(0xFF6A62B6)),
+                        ],
                       ),
                     ),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            Icons.filter_list,
-                             color: Colors.white, // Button color
-                          ),
-                          onPressed: () {
-                            // Handle filter action
-                          },
-                        ),
-                      ],
+                  ),
+                  SizedBox(height: 40),
+                ],
+              ),
+            ),
+            SizedBox(height: 20),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 255, 255, 255),
+              ),
+              child: Column(
+                children: [
+                  SizedBox(height: 20),
+                  CarouselSlider(
+                    items: promoCards,
+                    options: CarouselOptions(
+                      height: 170,// You can adjust this value to control the height
+                      aspectRatio: 1.7, // Set your desired aspect ratio for width and height
+                      autoPlay: true,
+                      enlargeCenterPage: true,
+                      autoPlayInterval: Duration(seconds: 3),
                     ),
-                  ],
-                ),
-                SizedBox(height: 20),
-              ],
+                  ),
+                  SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Recent Events",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30,
+                          color: Color.fromARGB(255,91,79,158), // Changed to purple
+                          // Removed the underline
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.filter_list,
+                              color: Color.fromARGB(255,91,79,158),// Changed to purple
+                            ),
+                            onPressed: () {
+                              // Handle filter action
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                ],
+              ),
             ),
-          ),
-          Container(
-            height: 40,
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildCategoryText('All', selectedCategory == 'All'),
-                _buildCategoryText('Education', false),
-                _buildCategoryText('Cultural', false),
-                _buildCategoryText('Financial Support', false),
-              ],
+            Container(
+              height: 40,
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildCategoryText('All', selectedCategory == 'All'),
+                  _buildCategoryText('Education', false),
+                  _buildCategoryText('Cultural', false),
+                  _buildCategoryText('Financial Support', false),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: GridView.builder(
+            // SizedBox(height: 3),
+                SizedBox(height: screenHeight-540,
+              child: GridView.builder(
+              shrinkWrap: true, // Add this to allow GridView to scroll inside SingleChildScrollView
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 childAspectRatio: 0.8,
@@ -312,6 +319,7 @@ List<Widget> promoCards = List.generate(5, (index) {
 
                 return GestureDetector(
                   onTap: () {
+                    // Navigate to the event details page
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -323,10 +331,9 @@ List<Widget> promoCards = List.generate(5, (index) {
                   child: Card(
                     elevation: 5,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(30),
                     ),
-                    color : Color.fromARGB(255, 255, 255, 255),//cards color 
-
+                    color: Color.fromARGB(255, 255, 255, 255),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -361,37 +368,86 @@ List<Widget> promoCards = List.generate(5, (index) {
                                   Icon(
                                     Icons.calendar_today,
                                     size: 18,
-                                    color : Color.fromARGB(255, 91, 79, 158),
+                                    color: Color.fromARGB(255,91,79,158),
                                   ),
                                   SizedBox(width: 4),
                                   Text(
                                     "${event.date}",
                                     style: TextStyle(
                                       fontSize: 18,
-                                      color: const Color.fromARGB(255, 0, 0, 0),
+                                      color: const Color.fromARGB(
+                                          255, 0, 0, 0),
                                     ),
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 10),
+                              SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.location_on,
+                                    size: 18,
+                                    color: Color.fromARGB(255,91,79,158),
+                                  ),
+                                  SizedBox(width: 4),
+                                   Expanded(
+                                  child: Text(
+                                    event.location,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: const Color.fromARGB(255, 0, 0, 0),
+                                    ),
+                                    overflow: TextOverflow.ellipsis, // Add this line
+                                    maxLines: 1, // Add this line
+                                  ),)
+                                ],
+                              ),
+                                SizedBox(height: 10),
                               Wrap(
-                              spacing: 4,
-  children: event.Category.map((category) {
-    return Chip(
-      label: Text(category),
-      backgroundColor: Colors.white,
-      shadowColor: Color.fromARGB(255, 235, 140, 140), // Button color
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        // Set the border to none
-        borderRadius: BorderRadius.circular(20), // Adjust the border radius as needed
-      ),
-    );
-  }).toList(),
-),
-  
+                                spacing: 4,
+                                children: event.Category.map((category) {
+                                  return Chip(
+                                    label: Text(category),
+                                    backgroundColor:
+                                    Color.fromARGB(255, 255, 255, 255),
+                                    shadowColor: Color(0xFF6A62B6),
+                                    elevation: 3,
+                                    labelStyle: TextStyle(
+                                      color: Color.fromARGB(255,91,79,158),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
                               SizedBox(height: 10),
-
+                              Center(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return CustomDialog(
+                                          event: event,
+                                          parentContext: context, sponsorID: '',
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Text(
+                                    'Send offer',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    primary:  Color.fromARGB(255,91,79,158),
+                                    onPrimary: Colors.white,
+                                    elevation: 20,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -400,14 +456,17 @@ List<Widget> promoCards = List.generate(5, (index) {
                   ),
                 );
               },
-            ),
-          ),
-          const BottomNavBar(),
-        ],
+            ),),
+            const BottomNavBar(),
+    
+          ],
+   
+        ),
+        
       ),
+     
     );
   }
-
   Widget _buildCategoryText(String category, bool isSelected) {
     return GestureDetector(
       onTap: () {
@@ -421,9 +480,9 @@ List<Widget> promoCards = List.generate(5, (index) {
             category,
             style: TextStyle(
               fontSize: 16,
-              color: isSelected ? Color(0xFF5B4F9E) : Colors.grey, // Button color
+              color: isSelected ? Color.fromARGB(255,91,79,158) : Colors.grey, // Button color
               decoration: isSelected ? TextDecoration.underline : null,
-              decorationColor: Color(0xFF5B4F9E), // Button color
+              decorationColor: Color.fromARGB(255,91,79,158), // Button color
               decorationThickness: 2,
             ),
           ),
@@ -432,7 +491,7 @@ List<Widget> promoCards = List.generate(5, (index) {
               ? Container(
                   width: 30,
                   height: 2,
-                  color: Color(0xFF5B4F9E), // Button color
+                  color: Color.fromARGB(255,91,79,158), // Button color
                 )
               : SizedBox(height: 2),
         ],
@@ -467,7 +526,7 @@ class RecentEventsDetails extends StatelessWidget {
                   children: [
                     IconButton(
                       icon: Icon(Icons.arrow_back),
-                      color: Color(0xFF5B4F9E), // Button color
+                      color: Color.fromARGB(255,91,79,158), // Button color
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
@@ -531,7 +590,7 @@ class RecentEventsDetails extends StatelessWidget {
                             Icon(
                               Icons.location_on,
                               size: 40,
-                              color: Color(0xFF5B4F9E), // Button color
+                              color: Color.fromARGB(255,91,79,158), // Button color
                             ),
                             SizedBox(width: 4),
                             Text(
@@ -548,7 +607,7 @@ class RecentEventsDetails extends StatelessWidget {
                             Icon(
                               Icons.access_time,
                               size: 25,
-                              color: Colors.purple,
+                              color: Color.fromARGB(255,91,79,158),
                             ),
                             SizedBox(width: 4),
                             Text(
@@ -575,8 +634,8 @@ class RecentEventsDetails extends StatelessWidget {
                           children: event.Category.map((category) {
                             return Chip(
                               label: Text(category),
-                              backgroundColor: Color(0xFF5B4F9E), // Button color
-                              shadowColor: Color(0xFF5B4F9E), // Button color
+                              backgroundColor: Color.fromARGB(255,91,79,158), // Button color
+                              shadowColor: Color.fromARGB(255,91,79,158), // Button color
                               elevation: 3,
                               labelStyle: TextStyle(
                                 color: Colors.white,
@@ -634,15 +693,15 @@ class RecentEventsDetails extends StatelessWidget {
                               );
                             },
                             child: Text(
-                              'Send an offer',
+                              'Send offer',
                               style: TextStyle(
-                                fontSize: 24,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              primary: Color(0xFF5B4F9E), // Button color
+                              primary: Color.fromARGB(255,91,79,158), // Button color
                               onPrimary: Colors.white,
                               elevation: 10,
                               shape: RoundedRectangleBorder(
@@ -707,10 +766,10 @@ class _CustomDialogState extends State<CustomDialog> {
               },
               child: Text(
                 'OK',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20),
               ),
               style: ElevatedButton.styleFrom(
-                primary: Color(0xFF5B4F9E), // Button color
+                primary: Color.fromARGB(255,51,45,81), // Button color
                 onPrimary: Colors.white,
                 elevation: 20,
                 shape: RoundedRectangleBorder(
@@ -805,8 +864,8 @@ class _CustomDialogState extends State<CustomDialog> {
                         }
                       });
                     },
-                    backgroundColor: Color(0xFF5B4F9E), // Button color
-                    selectedColor: Color(0xFF5B4F9E), // Button color
+                    backgroundColor: Color.fromARGB(255, 168, 164, 194), // Button color
+                    selectedColor: Color.fromARGB(255,91,79,158), // Button color
                     labelStyle: TextStyle(
                       color: Colors.white,
                     ),
@@ -821,7 +880,7 @@ class _CustomDialogState extends State<CustomDialog> {
                   hintText: 'Enter notes or additional information',
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(
-                        color: Color(0xFF5B4F9E), width: 2.0), // Button color
+                        color: Color.fromARGB(255,91,79,158)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.grey, width: 1.0),
@@ -844,7 +903,7 @@ class _CustomDialogState extends State<CustomDialog> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               style: ElevatedButton.styleFrom(
-                primary: Color(0xFF5B4F9E), // Button color
+                primary: Color.fromARGB(255,91,79,158), // Button color
                 onPrimary: Colors.white,
                 elevation: 20,
                 shape: RoundedRectangleBorder(
@@ -866,98 +925,6 @@ void main() async {
     theme: ThemeData(
       primaryColor: Color(0xFF5B4F9E), // Button color
     ),
-    home: user != null ? SponsorHomePage() : Login(),
+    home: user != null ? SponsorHomePage() : SignIn(),
   ));
-}
-
-class Login extends StatelessWidget {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(top: 40.0, left: 15.0),
-            child: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ),
-          SizedBox(height: 50.0),
-          Center(
-            child: Text(
-              'Login',
-              style: TextStyle(
-                fontSize: 36.0,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF5B4F9E), // Button color
-              ),
-            ),
-          ),
-          SizedBox(height: 30.0),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 40.0),
-            child: Column(
-              children: [
-                TextField(
-                  controller: emailController,
-                  decoration: InputDecoration(
-                    hintText: 'Email',
-                  ),
-                ),
-                SizedBox(height: 20.0),
-                TextField(
-                  controller: passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: 'Password',
-                  ),
-                ),
-                SizedBox(height: 30.0),
-                ElevatedButton(
-                  onPressed: () {
-                    // Implement login logic here
-                  },
-                  child: Text(
-                    'Login',
-                    style: TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    primary: Color(0xFF5B4F9E), // Button color
-                    onPrimary: Colors.white,
-                    elevation: 20,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20.0),
-                TextButton(
-                  onPressed: () {
-                    // Implement forgot password logic here
-                  },
-                  child: Text(
-                    'Forgot Password?',
-                    style: TextStyle(
-                      color: Color(0xFF5B4F9E), // Button color
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
