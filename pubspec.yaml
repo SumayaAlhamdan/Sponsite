@@ -69,9 +69,13 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
 
-    - assets/5-removebg-preview.png
-    - assets/6-removebg-preview.png
-    -  assets/ksuCPCLogo.png
+    - assets/ksuCPCLogo.png
+    - assets/2.png
+    - assets/4.png
+    - assets/5.png
+    - assets/Spo_site__1_-removebg-preview.png
+    - assets/Spo_site__2_-removebg-preview.png
+    - assets/sponsee-4.png
 
    
 

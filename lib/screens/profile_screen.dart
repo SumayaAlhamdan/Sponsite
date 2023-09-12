@@ -17,15 +17,15 @@ class ProfilePage extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel',style: TextStyle(color:Color.fromARGB(255,51,45,81) ),),
             ),
             TextButton(
               onPressed: () async {
                 // Sign out the user
                 await FirebaseAuth.instance.signOut();
-                Navigator.of(context).pop(); // Close the dialog
+                //Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('Sign Out'),
+              child:const  Text('Sign Out',style: TextStyle(color:Color.fromARGB(255,51,45,81) )),
             ),
           ],
         );
@@ -59,7 +59,7 @@ class ProfilePage extends StatelessWidget {
             icon: const Icon(
               Icons.more_horiz,
               color: Color.fromARGB(255, 255, 255, 255),
-              size: 60,
+              size: 70,
             ),
             onSelected: (value) {
               // Handle menu item selection here
@@ -187,7 +187,7 @@ class ProfilePage extends StatelessWidget {
                           // icon: Icon(Icons.person),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
-                                8.0), // Adjust the border radius as needed
+                                30.0), // Adjust the border radius as needed
                           ),
                         ),
                       )
@@ -307,7 +307,7 @@ class _TopPortion extends StatelessWidget {
                     shape: BoxShape.circle,
                     image: DecorationImage(
                         fit: BoxFit.cover,
-                        image: AssetImage("assets\\ksuCPCLogo.png")),
+                        image: AssetImage("assets/ksuCPCLogo.png")),
                   ),
                 ),
                 Positioned(
