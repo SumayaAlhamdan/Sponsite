@@ -5,7 +5,6 @@ import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});
-
   @override
   State<BottomNavBar> createState() => _BottomNavBarState();
 }
@@ -22,7 +21,6 @@ void check() {
 }
 class _BottomNavBarState extends State<BottomNavBar> {
   int currentPageIndex = 0;
-  Color indicatorColor = Color.fromARGB(134, 214, 214, 215);
 
   @override
   void initState() {
@@ -53,21 +51,18 @@ class _BottomNavBarState extends State<BottomNavBar> {
           labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
           onDestinationSelected: (int index) {
             if (index == 1 && sponseeID != null) {
-              currentPageIndex = index;
+              //currentPageIndex = index;
               // Only navigate to the calendar page if the user is a sponsee
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (context) => const ViewCurrentSponsee()),
               );
-              setState(() {
-                indicatorColor = Color.fromARGB(134, 214, 214, 215) ;
-              });
             } else {
               setState(() {
                 currentPageIndex = index;
               });
             } 
             if (index == 0 && sponseeID != null) {
-              currentPageIndex = index;
+              //currentPageIndex = index;
               // Only navigate to the home page if the user is a sponsee
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (context) => const SponseeHome()),
@@ -81,7 +76,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
 
           },
           backgroundColor: Color.fromARGB(255, 255, 255, 255),
-          indicatorColor: indicatorColor,
+          indicatorColor: Color.fromARGB(134, 214, 214, 215),
           height: 60,
           selectedIndex: currentPageIndex,
           destinations: const <Widget>[
