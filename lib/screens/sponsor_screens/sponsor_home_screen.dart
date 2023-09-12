@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart'; 
+import 'dart:math';
+
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -77,25 +79,24 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
     _loadEventsFromFirebase();
   }
 
- void _loadEventsFromFirebase() {
-  final DatabaseReference database = FirebaseDatabase.instance.ref();
-  database.child('sponseeEvents').onValue.listen((event) {
-    if (event.snapshot.value != null) {
-      setState(() {
-        events.clear();
-        Map<dynamic, dynamic> eventData =
-            event.snapshot.value as Map<dynamic, dynamic>;
+  void _loadEventsFromFirebase() {
+    final DatabaseReference database = FirebaseDatabase.instance.ref();
+    database.child('sponseeEvents').onValue.listen((event) {
+      if (event.snapshot.value != null) {
+        setState(() {
+          events.clear();
+          Map<dynamic, dynamic> eventData =
+              event.snapshot.value as Map<dynamic, dynamic>;
 
-        eventData.forEach((key, value) {
-          // Check if value['Category'] is a list
-          List<String> categoryList = [];
-          if (value['Category'] is List<dynamic>) {
-            categoryList = (value['Category'] as List<dynamic>)
-                .map((category) => category.toString())
-                .toList();
-          }
+          eventData.forEach((key, value) {
+            // Check if value['Category'] is a list
+            List<String> categoryList = [];
+            if (value['Category'] is List<dynamic>) {
+              categoryList = (value['Category'] as List<dynamic>)
+                  .map((category) => category.toString())
+                  .toList();
+            }
 
-                
             events.add(Event(
               EventId: key,
               sponseeId: value['sponseeId'] as String? ?? '',
@@ -125,23 +126,38 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
     }
   }
 
-  @override
+
+@override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
+    Random random = Random();
+Set<int> displayedEventIDs = Set<int>();
+List<Widget> promoCards = List.generate(5, (index) {
+  if (events.isEmpty || displayedEventIDs.length == events.length) {
+    return Container(); // Return an empty container if events list is empty
+  }
 
-    List<Widget> promoCards = List.generate(5, (index) {
-      return Container(
+  int randomIndex;
+  do {
+    randomIndex = random.nextInt(events.length);
+  } while (displayedEventIDs.contains(randomIndex));
+
+  // Add the randomIndex to the displayedEventIndices set
+  displayedEventIDs.add(randomIndex);
+  Event event = events[randomIndex];
+      return SizedBox(
+      height: 220, 
+      child:  Container(
         decoration: BoxDecoration(
-          color: Color(0xFF6A62B6), // Customize the card background color
+          color: const Color.fromARGB(255, 140, 99, 133), // Customize the card background color
           borderRadius: BorderRadius.circular(30),
         ),
-        padding: EdgeInsets.all(16),
-        height: 220, // Increased card height
+        padding: EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Promo Card $index',
+              ' ${event.EventName}',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24, // Increased title font size
@@ -150,26 +166,33 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
             ),
             SizedBox(height: 12), // Increased the height between title and description
             Text(
-              'Description for Promo Card $index',
+              '${event.EventType}',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18, // Increased description font size
               ),
             ),
+            SizedBox(height: 12), // Increased the height between title and description
+            Text(
+              '${event.location}',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15, // Increased description font size
+              ),
+            ),
           ],
         ),
-      );
-    });
+      ),);
+    }).toList();
 
     return Scaffold(
-      body: 
-      Column(
+      body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 255, 255, 255),
+              color: Color.fromARGB(255, 255, 255, 255),
             ),
             child: Column(
               children: [
@@ -179,7 +202,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                     width: 430,
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 255, 255, 255),
+                      color: Color.fromARGB(255, 255, 255, 255),
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(
@@ -193,7 +216,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                       children: [
                         Expanded(
                           child: TextField(
-                            style: TextStyle(color:Color(0xFF6A62B6)),
+                            style: TextStyle(color: Color(0xFF5B4F9E)), // Button color
                             decoration: InputDecoration(
                               hintText: 'Search for an event',
                               hintStyle: TextStyle(color: Colors.grey),
@@ -201,7 +224,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                             ),
                           ),
                         ),
-                        Icon(Icons.search, color:Color(0xFF6A62B6)),
+                        Icon(Icons.search, color: Color(0xFF5B4F9E)), // Button color
                       ],
                     ),
                   ),
@@ -214,7 +237,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 255, 255, 255),
+              color: Color.fromARGB(255, 255, 255, 255),
             ),
             child: Column(
               children: [
@@ -222,8 +245,8 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                 CarouselSlider(
                   items: promoCards,
                   options: CarouselOptions(
-                    height: 150, // You can adjust this value to control the height
-                    aspectRatio: 1.5, // Set your desired aspect ratio for width and height
+                    height: 150,
+                    aspectRatio: 1.5,
                     autoPlay: true,
                     enlargeCenterPage: true,
                     autoPlayInterval: Duration(seconds: 3),
@@ -238,9 +261,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 30,
-                         color: Color(0xFF6A62B6), // Changed to purple
-
-                        // Removed the underline
+                        color: Color(0xFF5B4F9E), // Button color
                       ),
                     ),
                     Row(
@@ -248,7 +269,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                         IconButton(
                           icon: Icon(
                             Icons.filter_list,
-                            color: Color(0xFF6A62B6), // Changed to purple
+                             color: Colors.white, // Button color
                           ),
                           onPressed: () {
                             // Handle filter action
@@ -257,9 +278,8 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                       ],
                     ),
                   ],
-                
                 ),
-                  SizedBox(height: 20),
+                SizedBox(height: 20),
               ],
             ),
           ),
@@ -276,7 +296,6 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
               ],
             ),
           ),
-          // SizedBox(height: 3),
           Expanded(
             child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -291,7 +310,6 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
 
                 return GestureDetector(
                   onTap: () {
-                    // Navigate to the event details page
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -303,9 +321,10 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                   child: Card(
                     elevation: 5,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    color: Color.fromARGB(255, 255, 255, 255),
+                    color : Color.fromARGB(255, 255, 255, 255),//cards color 
+
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -340,71 +359,37 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                                   Icon(
                                     Icons.calendar_today,
                                     size: 18,
-                                    color: Color(0xFF6A62B6),
+                                    color : Color.fromARGB(255, 91, 79, 158),
                                   ),
                                   SizedBox(width: 4),
                                   Text(
                                     "${event.date}",
                                     style: TextStyle(
                                       fontSize: 18,
-                                      color: const Color.fromARGB(
-                                          255, 0, 0, 0),
+                                      color: const Color.fromARGB(255, 0, 0, 0),
                                     ),
                                   ),
                                 ],
                               ),
                               SizedBox(height: 10),
                               Wrap(
-                                spacing: 4,
-                                children: event.Category.map((category) {
-                                  return Chip(
-                                    label: Text(category),
-                                    backgroundColor:
-                                    Color.fromARGB(255, 255, 255, 255),
-                                    shadowColor: Color(0xFF6A62B6),
-                                    elevation: 3,
-                                    labelStyle: TextStyle(
-                                      color: Color(0xFF6A62B6),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
+                              spacing: 4,
+  children: event.Category.map((category) {
+    return Chip(
+      label: Text(category),
+      backgroundColor: Colors.white,
+      shadowColor: Color.fromARGB(255, 235, 140, 140), // Button color
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        // Set the border to none
+        borderRadius: BorderRadius.circular(20), // Adjust the border radius as needed
+      ),
+    );
+  }).toList(),
+),
+  
                               SizedBox(height: 10),
-                              Center(
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return CustomDialog(
-                                          event: event,
-                                          parentContext: context, sponsorID: '',
-                                        );
-                                      },
-                                    );
-                                  },
-                                  child: Text(
-                                    'Send offer',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    primary: Color(0xFF6A62B6),
-                                    onPrimary: Colors.white,
-                                    elevation: 20,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                                ElevatedButton(
-                                  onPressed: (){
-                                  FirebaseAuth.instance.signOut();
-                                  }, child: null,
-                                ),
+
                             ],
                           ),
                         ),
@@ -434,9 +419,9 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
             category,
             style: TextStyle(
               fontSize: 16,
-              color: isSelected ? Color(0xFF6A62B6) : Colors.grey,
+              color: isSelected ? Color(0xFF5B4F9E) : Colors.grey, // Button color
               decoration: isSelected ? TextDecoration.underline : null,
-              decorationColor: Color(0xFF6A62B6),
+              decorationColor: Color(0xFF5B4F9E), // Button color
               decorationThickness: 2,
             ),
           ),
@@ -445,7 +430,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
               ? Container(
                   width: 30,
                   height: 2,
-                  color: Color(0xFF6A62B6),
+                  color: Color(0xFF5B4F9E), // Button color
                 )
               : SizedBox(height: 2),
         ],
@@ -480,7 +465,7 @@ class RecentEventsDetails extends StatelessWidget {
                   children: [
                     IconButton(
                       icon: Icon(Icons.arrow_back),
-                      color: Color(0xFF6A62B6),
+                      color: Color(0xFF5B4F9E), // Button color
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
@@ -511,8 +496,8 @@ class RecentEventsDetails extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20), // Adjust the radius as needed
-                  topRight: Radius.circular(20), // Adjust the radius as needed
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
                 ),
                 child: Container(
                   color: Colors.white,
@@ -544,7 +529,7 @@ class RecentEventsDetails extends StatelessWidget {
                             Icon(
                               Icons.location_on,
                               size: 40,
-                              color: Color(0xFF6A62B6)
+                              color: Color(0xFF5B4F9E), // Button color
                             ),
                             SizedBox(width: 4),
                             Text(
@@ -588,11 +573,11 @@ class RecentEventsDetails extends StatelessWidget {
                           children: event.Category.map((category) {
                             return Chip(
                               label: Text(category),
-                              backgroundColor: Color.fromARGB(255, 255, 255, 255),
-                              shadowColor: Color(0xFF6A62B6),
+                              backgroundColor: Color(0xFF5B4F9E), // Button color
+                              shadowColor: Color(0xFF5B4F9E), // Button color
                               elevation: 3,
                               labelStyle: TextStyle(
-                                color: Color(0xFF6A62B6),
+                                color: Colors.white,
                               ),
                             );
                           }).toList(),
@@ -640,7 +625,8 @@ class RecentEventsDetails extends StatelessWidget {
                                 builder: (BuildContext context) {
                                   return CustomDialog(
                                     event: event,
-                                    parentContext: context, sponsorID: '',
+                                    parentContext: context,
+                                    sponsorID: '',
                                   );
                                 },
                               );
@@ -650,10 +636,11 @@ class RecentEventsDetails extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              primary: Color(0xFF6A62B6),
+                              primary: Color(0xFF5B4F9E), // Button color
                               onPrimary: Colors.white,
                               elevation: 10,
                               shape: RoundedRectangleBorder(
@@ -678,10 +665,14 @@ class RecentEventsDetails extends StatelessWidget {
 
 class CustomDialog extends StatefulWidget {
   final Event event;
-final BuildContext? parentContext;
+  final BuildContext? parentContext;
   final String? sponsorID;
 
-  CustomDialog({required this.event, this.parentContext,  required this.sponsorID,});
+  CustomDialog({
+    required this.event,
+    this.parentContext,
+    required this.sponsorID,
+  });
 
   @override
   _CustomDialogState createState() => _CustomDialogState();
@@ -709,15 +700,15 @@ class _CustomDialogState extends State<CustomDialog> {
               'Please select at least one category and enter some notes before sending the offer'),
           actions: [
             ElevatedButton(
-              onPressed: (){
+              onPressed: () {
                 Navigator.of(context).pop();
-                }, // Use the _sendOffer function
+              },
               child: Text(
                 'OK',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               style: ElevatedButton.styleFrom(
-                primary: Color(0xFF6A62B6),
+                primary: Color(0xFF5B4F9E), // Button color
                 onPrimary: Colors.white,
                 elevation: 20,
                 shape: RoundedRectangleBorder(
@@ -736,13 +727,13 @@ class _CustomDialogState extends State<CustomDialog> {
       _showEmptyFormAlert();
     } else {
       List<String> selectedCategories = filters
-                      .map((category) => category.toString().split('.').last)
-                      .toList();
+          .map((category) => category.toString().split('.').last)
+          .toList();
 
       // Create an Offer object
       Offer offer = Offer(
         EventId: widget.event.EventId,
-        sponseeId: "sponseeID", 
+        sponseeId: "sponseeID",
         sponsorId: widget.sponsorID ?? "", // Replace with the actual sponsor ID
         notes: notesController.text,
         Category: selectedCategories,
@@ -751,7 +742,7 @@ class _CustomDialogState extends State<CustomDialog> {
       // Save the offer to the database
       DatabaseReference offersRef = database.child('offers');
       DatabaseReference newOfferRef = offersRef.push();
-    
+
       await newOfferRef.set({
         "eventName": offer.EventId,
         "sponseeId": offer.sponseeId,
@@ -773,18 +764,21 @@ class _CustomDialogState extends State<CustomDialog> {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-      Text('Offer', style: TextStyle(fontSize: 30)),
-      Container(
-          alignment: Alignment.topRight,
-          child: Padding(
-            padding: EdgeInsets.only(top: 1, right: 1), // Adjust padding as needed
-            child: IconButton(
-              icon: Icon(Icons.close),
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
+          Text('Offer', style: TextStyle(fontSize: 30)),
+          Container(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: EdgeInsets.only(top: 1, right: 1),
+              child: IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
             ),
-          )),]),
+          ),
+        ],
+      ),
       contentPadding: EdgeInsets.symmetric(horizontal: 70.0, vertical: 40.0),
       content: SingleChildScrollView(
         child: Container(
@@ -809,8 +803,8 @@ class _CustomDialogState extends State<CustomDialog> {
                         }
                       });
                     },
-                    backgroundColor: Color.fromARGB(255, 176, 174, 198),
-                    selectedColor: Color(0xFF6A62B6),
+                    backgroundColor: Color(0xFF5B4F9E), // Button color
+                    selectedColor: Color(0xFF5B4F9E), // Button color
                     labelStyle: TextStyle(
                       color: Colors.white,
                     ),
@@ -824,7 +818,8 @@ class _CustomDialogState extends State<CustomDialog> {
                 decoration: InputDecoration(
                   hintText: 'Enter notes or additional information',
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF6A62B6), width: 2.0),
+                    borderSide: BorderSide(
+                        color: Color(0xFF5B4F9E), width: 2.0), // Button color
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.grey, width: 1.0),
@@ -832,25 +827,22 @@ class _CustomDialogState extends State<CustomDialog> {
                 ),
                 maxLines: 15,
               ),
-              
             ],
           ),
-              
-      )
-  
+        ),
       ),
       actions: [
         Padding(
           padding: const EdgeInsets.only(bottom: 30.0),
           child: Center(
             child: ElevatedButton(
-              onPressed: _sendOffer, // Use the _sendOffer function
+              onPressed: _sendOffer,
               child: Text(
                 'Send Offer',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               style: ElevatedButton.styleFrom(
-                primary: Color(0xFF6A62B6),
+                primary: Color(0xFF5B4F9E), // Button color
                 onPrimary: Colors.white,
                 elevation: 20,
                 shape: RoundedRectangleBorder(
@@ -860,7 +852,6 @@ class _CustomDialogState extends State<CustomDialog> {
             ),
           ),
         ),
-        //  SizedBox(height: ),
       ],
     );
   }
@@ -870,8 +861,101 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MaterialApp(
-    home: Scaffold(
-      body: SponsorHomePage(),
+    theme: ThemeData(
+      primaryColor: Color(0xFF5B4F9E), // Button color
     ),
+    home: user != null ? SponsorHomePage() : Login(),
   ));
+}
+
+class Login extends StatelessWidget {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: 40.0, left: 15.0),
+            child: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ),
+          SizedBox(height: 50.0),
+          Center(
+            child: Text(
+              'Login',
+              style: TextStyle(
+                fontSize: 36.0,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF5B4F9E), // Button color
+              ),
+            ),
+          ),
+          SizedBox(height: 30.0),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 40.0),
+            child: Column(
+              children: [
+                TextField(
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    hintText: 'Email',
+                  ),
+                ),
+                SizedBox(height: 20.0),
+                TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    hintText: 'Password',
+                  ),
+                ),
+                SizedBox(height: 30.0),
+                ElevatedButton(
+                  onPressed: () {
+                    // Implement login logic here
+                  },
+                  child: Text(
+                    'Login',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    primary: Color(0xFF5B4F9E), // Button color
+                    onPrimary: Colors.white,
+                    elevation: 20,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20.0),
+                TextButton(
+                  onPressed: () {
+                    // Implement forgot password logic here
+                  },
+                  child: Text(
+                    'Forgot Password?',
+                    style: TextStyle(
+                      color: Color(0xFF5B4F9E), // Button color
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
