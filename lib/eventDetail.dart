@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 //import 'package:sponsite/Detail.dart';
 
 class eventDetail extends StatefulWidget {
-  const eventDetail({Key? key, required this.DetailKey, required this.img, required this.location, required this.fullDesc, required this.date, required this.Type , required this.Category , required this.time , required this.notes , required this.benefits}) : super(key: key);
+  const eventDetail({Key? key, required this.DetailKey, required this.img, required this.location, required this.fullDesc, required this.date, required this.Type , required this.Category , required this.time , this.notes , this.benefits}) : super(key: key);
  final String img;
  final String location ;
  final String date;
@@ -11,8 +11,8 @@ class eventDetail extends StatefulWidget {
   final String Type ;
   final String Category ;
   final String time ;
-  final String notes ; 
-  final String benefits ;
+  final String? notes ; 
+  final String? benefits ;
 
   @override
   State<eventDetail> createState() => _Start();
@@ -103,7 +103,7 @@ class _Start extends State<eventDetail> {
                         Text(
                           widget.DetailKey,
                           style: TextStyle(
-                            //fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.bold,
                             fontSize: 32,
                             color: Colors.black87,
                           ),
@@ -122,7 +122,7 @@ class _Start extends State<eventDetail> {
                             Icon(
                               Icons.location_on,
                               size: 40,
-                              color: Color(0xFF6A62B6),
+                              color: Color.fromARGB(255,91,79,158),
                             ),
                             SizedBox(width: 4),
                             Text(
@@ -139,7 +139,7 @@ class _Start extends State<eventDetail> {
                             Icon(
                               Icons.access_time,
                               size: 28,
-                              color: Color(0xFF6A62B6),
+                              color: Color.fromARGB(255,91,79,158),
                             ),
                             SizedBox(width: 4),
                             Text(
@@ -156,7 +156,7 @@ class _Start extends State<eventDetail> {
                           "Categories",
                           style: TextStyle(
                             fontSize: 28,
-                            //fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.bold,
                             color: Colors.black87,
                           ),
                         ),
@@ -167,10 +167,10 @@ class _Start extends State<eventDetail> {
                             return Chip(
                               label: Text(category.trim()),
                               backgroundColor: Color.fromARGB(255, 255, 255, 255),
-                              shadowColor: Color(0xFF6A62B6),
+                              shadowColor: Color.fromARGB(255,91,79,158),
                               elevation: 3,
                               labelStyle: TextStyle(
-                                color: Color(0xFF6A62B6),
+                                color: Color.fromARGB(255,91,79,158),
                               ),
                             );
                           }).toList(),
@@ -180,13 +180,13 @@ class _Start extends State<eventDetail> {
                           "Notes",
                           style: TextStyle(
                             fontSize: 28,
-                            //fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.bold,
                             color: Colors.black87,
                           ),
                         ),
                         SizedBox(height: 10),
                         Text(
-                          widget.fullDesc ?? "No notes available",
+                          widget.notes ?? "No notes available",
                           style: TextStyle(
                             fontSize: 20,
                             color: Colors.black87,
@@ -197,7 +197,7 @@ class _Start extends State<eventDetail> {
                           "Benefits",
                           style: TextStyle(
                             fontSize: 28,
-                            //fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.bold,
                             color: Colors.black87,
                           ),
                         ),
