@@ -7,7 +7,7 @@
     <application
         android:label="Sponsite"
         android:name="${applicationName}"
-        android:icon="@mipmap/darksponsite">
+        android:icon="@mipmap/sponsitelogodark">
         <activity
             android:name=".MainActivity"
             android:exported="true"
