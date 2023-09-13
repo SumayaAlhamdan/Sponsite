@@ -45,8 +45,9 @@ class Event {
   final String date;
   final String time;
   final List<String> Category;
-  final String? notes;
+  final String notes;
   final String? benefits;
+  final String  NumberOfAttendees ; 
 
   Event({
     required this.EventId,
@@ -58,8 +59,9 @@ class Event {
     required this.date,
     required this.time,
     required this.Category,
-    this.notes,
+     required  this.notes,
     this.benefits,
+    required this.NumberOfAttendees, 
   });
 }
 
@@ -103,12 +105,13 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
               EventName: value['EventName'] as String? ?? '',
               EventType: value['EventType'] as String? ?? '',
               location: value['Location'] as String? ?? '',
-              imgURL: value['img'] as String? ?? '',
+              imgURL: value['img'] as String? ?? 'https://png.pngtree.com/templates/sm/20180611/sm_5b1edb6d03c39.jpg',
               date: value['Date'] as String? ?? '',
               time: value['Time'] as String? ?? ' ',
               Category: categoryList,
-              notes: value['Notes'] as String?,
+              notes: value['Notes'] as String? ?? 'There are no notes available',
               benefits: value['Benefits'] as String?,
+              NumberOfAttendees: value['NumberOfAttendees'] as String? ?? '', 
             ));
           });
         });
@@ -164,7 +167,7 @@ List<Widget> promoCards = List.generate(5, (index) {
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24, // Increased title font size
-                fontWeight: FontWeight.bold,
+                
               ),
             ),
             SizedBox(height: 12), // Increased the height between title and description
@@ -343,10 +346,13 @@ List<Widget> promoCards = List.generate(5, (index) {
                             borderRadius: BorderRadius.vertical(
                               top: Radius.circular(16),
                             ),
-                            image: DecorationImage(
-                              image: NetworkImage(event.imgURL),
-                              fit: BoxFit.cover,
-                            ),
+                           image: DecorationImage(
+  image: event.imgURL.isNotEmpty
+      ? NetworkImage(event.imgURL)
+      : NetworkImage('https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
+  fit: BoxFit.cover,
+),
+
                           ),
                         ),
                         Padding(
@@ -386,7 +392,7 @@ List<Widget> promoCards = List.generate(5, (index) {
                                 children: [
                                   Icon(
                                     Icons.location_on,
-                                    size: 18,
+                                    size: 21,
                                     color: Color.fromARGB(255,91,79,158),
                                   ),
                                   SizedBox(width: 4),
@@ -420,33 +426,7 @@ List<Widget> promoCards = List.generate(5, (index) {
                               ),
                               SizedBox(height: 10),
                               Center(
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return CustomDialog(
-                                          event: event,
-                                          parentContext: context, sponsorID: '',
-                                        );
-                                      },
-                                    );
-                                  },
-                                  child: Text(
-                                    'Send offer',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    primary:  Color.fromARGB(255,91,79,158),
-                                    onPrimary: Colors.white,
-                                    elevation: 20,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                  ),
-                                ),
+                                
                               ),
                             ],
                           ),
@@ -514,33 +494,41 @@ class RecentEventsDetails extends StatelessWidget {
           Stack(
             alignment: Alignment.topLeft,
             children: [
-              Image.network(
-                event.imgURL,
+              Container(
                 height: 400,
                 width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back),
-                      color: Color.fromARGB(255,91,79,158), // Button color
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    Text(
-                      "Event Details",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                      ),
-                    ),
-                  ],
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: event.imgURL.isNotEmpty
+                        ? NetworkImage(event.imgURL)
+                        : NetworkImage('https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
+             Padding(
+  padding: const EdgeInsets.all(16.0),
+  child: Row(
+    children: [
+      IconButton(
+        icon: Icon(Icons.arrow_back),
+        color: Color.fromARGB(255, 91, 79, 158),
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      ),
+      Text(
+        "Event Details",
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 24,
+        ),
+      ),
+      SizedBox(width: 40), // Adjust the spacing as needed
+    ],
+  ),
+),
+
             ],
           ),
           Expanded(
@@ -590,9 +578,9 @@ class RecentEventsDetails extends StatelessWidget {
                             Icon(
                               Icons.location_on,
                               size: 40,
-                              color: Color.fromARGB(255,91,79,158), // Button color
+                              color: Color.fromARGB(255, 91, 79, 158),
                             ),
-                            SizedBox(width: 4),
+                            SizedBox(width: 10), // Adjust the spacing as needed
                             Text(
                               event.location,
                               style: TextStyle(
@@ -605,13 +593,13 @@ class RecentEventsDetails extends StatelessWidget {
                         Row(
                           children: [
                             Icon(
-                              Icons.access_time,
-                              size: 25,
-                              color: Color.fromARGB(255,91,79,158),
+                              Icons.calendar_today,
+                              size: 40,
+                              color: Color.fromARGB(255, 91, 79, 158),
                             ),
-                            SizedBox(width: 4),
+                            SizedBox(width: 10), // Adjust the spacing as needed
                             Text(
-                              "${event.date}, ${event.time}",
+                              event.date,
                               style: TextStyle(
                                 fontSize: 22,
                                 color: Colors.black87,
@@ -619,7 +607,43 @@ class RecentEventsDetails extends StatelessWidget {
                             ),
                           ],
                         ),
+                        Row(
+  children: [
+    Icon(
+      Icons.access_time,
+      size: 40,
+      color: Color.fromARGB(255, 91, 79, 158),
+    ),
+    SizedBox(width: 1), // Adjust the spacing as needed
+    Text(
+      " ${event.time}",
+      style: TextStyle(
+        fontSize: 22,
+        color: Colors.black87,
+      ),
+    ),
+  ],
+),
                         SizedBox(height: 20),
+                        Row(
+  children: [
+    Icon(
+      Icons.person,
+      size: 40,
+      color: Color.fromARGB(255, 91, 79, 158),
+    ),
+    SizedBox(width: 10), // Adjust the spacing as needed
+    Text(
+      "${event.NumberOfAttendees}",
+      style: TextStyle(
+        fontSize: 22,
+        color: Colors.black87,
+      ),
+    ),
+  ],
+),
+
+
                         Text(
                           "Categories",
                           style: TextStyle(
@@ -630,36 +654,20 @@ class RecentEventsDetails extends StatelessWidget {
                         ),
                         SizedBox(height: 10),
                         Wrap(
-                          spacing: 8,
-                          children: event.Category.map((category) {
-                            return Chip(
-                              label: Text(category),
-                              backgroundColor: Color.fromARGB(255,91,79,158), // Button color
-                              shadowColor: Color.fromARGB(255,91,79,158), // Button color
-                              elevation: 3,
-                              labelStyle: TextStyle(
-                                color: Colors.white,
+                                spacing: 4,
+                                children: event.Category.map((category) {
+                                  return Chip(
+                                    label: Text(category),
+                                    backgroundColor:
+                                    Color.fromARGB(255, 255, 255, 255),
+                                    shadowColor: Color(0xFF6A62B6),
+                                    elevation: 3,
+                                    labelStyle: TextStyle(
+                                      color: Color.fromARGB(255,91,79,158),
+                                    ),
+                                  );
+                                }).toList(),
                               ),
-                            );
-                          }).toList(),
-                        ),
-                        SizedBox(height: 20),
-                        Text(
-                          "Notes",
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          event.notes ?? "No notes available",
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.black87,
-                          ),
-                        ),
                         SizedBox(height: 20),
                         Text(
                           "Benefits",
@@ -678,6 +686,26 @@ class RecentEventsDetails extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 20),
+                        Text(
+                          "Notes",
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          (event.notes != null && event.notes.isNotEmpty)
+                              ? event.notes
+                              : "There are no notes available",
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        
                         Center(
                           child: ElevatedButton(
                             onPressed: () {
@@ -701,7 +729,7 @@ class RecentEventsDetails extends StatelessWidget {
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              primary: Color.fromARGB(255,91,79,158), // Button color
+                              primary: Color.fromARGB(255, 91, 79, 158),
                               onPrimary: Colors.white,
                               elevation: 10,
                               shape: RoundedRectangleBorder(
@@ -723,6 +751,10 @@ class RecentEventsDetails extends StatelessWidget {
     );
   }
 }
+
+
+
+
 
 class CustomDialog extends StatefulWidget {
   final Event event;
