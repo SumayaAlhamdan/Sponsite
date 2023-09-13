@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sponsite/ViewCurrentSponsee.dart';
-import 'package:sponsite/widgets/bottom_navigation_bar.dart';
 import 'package:sponsite/widgets/user_type_selector.dart';
 
 class pastevents extends StatefulWidget {
@@ -16,7 +15,7 @@ class _pastevents extends State<pastevents> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: const BottomNavBar(),
+      //bottomNavigationBar: const BottomNavBar(),
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -32,7 +31,7 @@ class _pastevents extends State<pastevents> {
                 style: TextStyle(
                   height: 0,
                   fontSize: 35,
-                  letterSpacing: 10,
+                  //letterSpacing: 10,
                 ),
               ),
               SizedBox(
@@ -43,9 +42,9 @@ class _pastevents extends State<pastevents> {
                   'No past events',
                   style: TextStyle(
                     height: 15,
-                    color: Color(0xFF6A62B6),
+                    color: Color.fromARGB(255,91,79,158),
                     fontSize: 25,
-                    letterSpacing: 5,
+                   // letterSpacing: 5,
                   ),
                 ),
               ),

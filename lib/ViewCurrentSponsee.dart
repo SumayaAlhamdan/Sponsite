@@ -4,8 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:sponsite/eventDetail.dart';
-import 'package:sponsite/widgets/bottom_navigation_bar.dart';
-import 'package:sponsite/widgets/sponsee_bottom_navbar.dart';
 import 'package:sponsite/widgets/user_type_selector.dart';
 import 'pastevents.dart';
 
@@ -105,10 +103,10 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
     return Chip(
       label: Text(category.trim()),
       backgroundColor: Color.fromARGB(255, 255, 255, 255),
-      shadowColor: Color(0xFF6A62B6),
+      shadowColor: Color.fromARGB(255,91,79,158),
       elevation: 3,
       labelStyle: TextStyle(
-        color: Color(0xFF6A62B6),
+        color: Color.fromARGB(255,91,79,158),
       ),
     );
   }).toList(),
@@ -147,13 +145,13 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
           style: TextStyle(
             fontSize: 16,
             fontStyle: FontStyle.italic,
-            color: Color(0xFF6A62B6),
+            color: Color.fromARGB(255,91,79,158),
           ),
         ),
         Icon(
           Icons.arrow_forward,
           size: 16, // Adjust the size as needed
-          color: Color(0xFF6A62B6),
+          color: Color.fromARGB(255,91,79,158),
         ),
       ],
     ),
@@ -186,7 +184,7 @@ Widget build(BuildContext context) {
               style: TextStyle(
                 height: 0,
                 fontSize: 35,
-                letterSpacing: 10
+                fontWeight: FontWeight.bold
               ),
             ),
             SizedBox(
@@ -270,8 +268,8 @@ Widget build(BuildContext context) {
               imgURL: value['img'] as String? ?? '',
               date: value['Date'] as String? ?? '',
               time: value['Time'] as String? ?? '',
-              notes: value['notes'] as String? ?? '',
-              benefits: value['benefits'] as String? ?? '',
+              notes: value['Notes'] as String? ?? '',
+              benefits: value['Benefits'] as String? ?? '',
               Category: categoryList,
             ));
           }
@@ -292,8 +290,8 @@ class Event {
   final String imgURL;
   final String date;
   final String time;
-  final String notes;
-  final String benefits;
+  final String? notes;
+  final String? benefits;
   final List<String> Category;
 
   Event({
@@ -305,7 +303,7 @@ class Event {
     required this.date,
     required this.time,
     required this.Category, 
-    required this.notes,
-    required this.benefits,
+     this.notes,
+     this.benefits,
   });
 }
