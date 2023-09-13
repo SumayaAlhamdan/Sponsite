@@ -4,8 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:sponsite/eventDetail.dart';
+import 'package:sponsite/widgets/customAppBar.dart';
 import 'package:sponsite/widgets/user_type_selector.dart';
-import 'pastevents.dart';
 
 User? user = FirebaseAuth.instance.currentUser;
 String? sponseeID;
@@ -37,7 +37,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
     super.initState();
     _loadEventsFromFirebase();
   }
-  Widget listItem({required Event event}) {
+ Widget listItem({required Event event}) {
   return Container(
     margin: const EdgeInsets.all(10),
     padding: const EdgeInsets.all(10),
@@ -62,7 +62,9 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Image.network(
-              event.imgURL,
+              event.imgURL.isNotEmpty
+                  ? event.imgURL
+                  : 'https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk=',
               fit: BoxFit.cover,
             ),
           ),
@@ -75,22 +77,44 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
             children: [
               Text(
                 event.EventName,
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(
                 height: 5,
               ),
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.calendar_today,
-                    size: 24,
-                    color: Colors.black87,
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today,
+                        size: 24,
+                        color:Color.fromARGB(255, 91, 79, 158),
+                      ),
+                      SizedBox(width: 5),
+                      Text(
+                        event.date,
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ],
                   ),
-                  SizedBox(width: 5),
-                  Text(
-                    event.date,
-                    style: TextStyle(fontSize: 18),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on,
+                        size: 24,
+                        color: Color.fromARGB(255, 91, 79, 158),
+                      ),
+                      SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          event.location,
+                          style: TextStyle(fontSize: 18),
+                           overflow: TextOverflow.ellipsis
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -98,95 +122,88 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                 height: 5,
               ),
               Wrap(
-  spacing: 8,
-  children: event.Category.map((category) {
-    return Chip(
-      label: Text(category.trim()),
-      backgroundColor: Color.fromARGB(255, 255, 255, 255),
-      shadowColor: Color.fromARGB(255,91,79,158),
-      elevation: 3,
-      labelStyle: TextStyle(
-        color: Color.fromARGB(255,91,79,158),
-      ),
-    );
-  }).toList(),
-),
+                spacing: 8,
+                children: event.Category.map((category) {
+                  return Chip(
+                    label: Text(category.trim()),
+                    backgroundColor: Color.fromARGB(255, 255, 255, 255),
+                    shadowColor: Color.fromARGB(255, 91, 79, 158),
+                    elevation: 3,
+                    labelStyle: TextStyle(
+                      color: Color.fromARGB(255, 91, 79, 158),
+                    ),
+                  );
+                }).toList(),
+              ),
               const SizedBox(
                 height: 10,
               ),
               Align(
-  alignment: Alignment.bottomRight,
-  child: GestureDetector(
-    onTap: () {
-      final categoriesString = event.Category.join(', ');
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => eventDetail(
-            DetailKey: event.EventName,
-            location: event.location,
-            fullDesc: event.description,
-            img: event.imgURL,
-            date: event.date,
-            Type: event.EventType,
-            Category: categoriesString,
-            time: event.time,
-            notes: event.notes,
-            benefits: event.benefits,
-          ),
-        ),
-      );
-    },
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Text(
-          'more details',
-          style: TextStyle(
-            fontSize: 16,
-            fontStyle: FontStyle.italic,
-            color: Color.fromARGB(255,91,79,158),
-          ),
-        ),
-        Icon(
-          Icons.arrow_forward,
-          size: 16, // Adjust the size as needed
-          color: Color.fromARGB(255,91,79,158),
-        ),
-      ],
-    ),
-  ),
-),
-
+                alignment: Alignment.bottomRight,
+                child: GestureDetector(
+                  onTap: () {
+                    final categoriesString = event.Category.join(', ');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => eventDetail(
+                          DetailKey: event.EventName,
+                          location: event.location,
+                          fullDesc: event.description,
+                          img: event.imgURL,
+                          date: event.date,
+                          Type: event.EventType,
+                          Category: categoriesString,
+                          time: event.time,
+                          notes: event.notes,
+                          benefits: event.benefits,
+                          NumberOfAttendees: event.NumberOfAttendees,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        'more details',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontStyle: FontStyle.italic,
+                          color: Color.fromARGB(255, 91, 79, 158),
+                        ),
+                      ),
+                      Icon(
+                        Icons.arrow_forward,
+                        size: 16, // Adjust the size as needed
+                        color: Color.fromARGB(255, 91, 79, 158),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ],
     ),
   );
-}@override
+}
+@override
 Widget build(BuildContext context) {
   return Scaffold(
     // bottomNavigationBar: const SponseeBottomNavBar(),
     //BottomNavBar(),
     backgroundColor: Colors.white,
-    appBar: AppBar(
-      backgroundColor: Colors.white,
-      elevation: 0, // Remove the elevation shadow
+    appBar: PreferredSize(
+      preferredSize: Size.fromHeight(100.0), // Adjust the height as needed
+      child: CustomAppBar(title: 'My Events',),
     ),
     body: SafeArea(
       child: Padding(
-        padding: EdgeInsets.only(top: 10),
+        padding: EdgeInsets.only(top: 15),
         child: Column(
           children: [
-            Text(
-              'My Events',
-              style: TextStyle(
-                height: 0,
-                fontSize: 35,
-                fontWeight: FontWeight.bold
-              ),
-            ),
             SizedBox(
               height: 100,
             ),
@@ -198,10 +215,12 @@ Widget build(BuildContext context) {
             ),
             Expanded(
               child: GridView.builder(
+                 shrinkWrap: true,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  crossAxisSpacing: 10.0,
-                  mainAxisSpacing: 10.0,
+                childAspectRatio: 0.9,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
                 ),
                 itemCount: events.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -216,7 +235,7 @@ Widget build(BuildContext context) {
     ),
     floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
     floatingActionButton: Padding(
-      padding: const EdgeInsets.only(top: 200), // Adjust the top padding as needed
+      padding: const EdgeInsets.only(top: 170), // Adjust the top padding as needed
       child: SizedBox(
         width: 250, // Set the button width to 250
         height: 50, // Set a constant height for the button
@@ -232,9 +251,6 @@ Widget build(BuildContext context) {
     MaterialPageRoute(builder: (context) => const ViewCurrentSponsee()),
   );
 } else {
-  Navigator.of(context).pushReplacement(
-    MaterialPageRoute(builder: (context) => const pastevents()),
-  );
 }
 
             });
@@ -265,11 +281,12 @@ Widget build(BuildContext context) {
               EventType: value['EventType'] as String? ?? '',
               location: value['Location'] as String? ?? '',
               description: value['Description'] as String? ?? '',
-              imgURL: value['img'] as String? ?? '',
+              imgURL: value['img'] as String? ?? 'https://png.pngtree.com/templates/sm/20180611/sm_5b1edb6d03c39.jpg' ,
               date: value['Date'] as String? ?? '',
               time: value['Time'] as String? ?? '',
-              notes: value['Notes'] as String? ?? '',
+              notes: value['Notes'] as String? ?? 'There are no notes available',
               benefits: value['Benefits'] as String? ?? '',
+              NumberOfAttendees: value['NumberOfAttendees'] as String? ?? '' ,
               Category: categoryList,
             ));
           }
@@ -290,8 +307,9 @@ class Event {
   final String imgURL;
   final String date;
   final String time;
-  final String? notes;
+  final String notes;
   final String? benefits;
+  final String NumberOfAttendees ;
   final List<String> Category;
 
   Event({
@@ -303,7 +321,8 @@ class Event {
     required this.date,
     required this.time,
     required this.Category, 
-     this.notes,
+    required this.NumberOfAttendees,
+     required this.notes,
      this.benefits,
   });
 }

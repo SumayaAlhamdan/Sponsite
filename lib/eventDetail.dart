@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 //import 'package:sponsite/Detail.dart';
 
 class eventDetail extends StatefulWidget {
-  const eventDetail({Key? key, required this.DetailKey, required this.img, required this.location, required this.fullDesc, required this.date, required this.Type , required this.Category , required this.time , this.notes , this.benefits}) : super(key: key);
+  const eventDetail({Key? key, required this.DetailKey, required this.img, required this.location, required this.fullDesc, required this.date, required this.Type , required this.Category , required this.time , required this.notes , this.benefits , required this.NumberOfAttendees}) : super(key: key);
  final String img;
  final String location ;
  final String date;
@@ -11,8 +11,9 @@ class eventDetail extends StatefulWidget {
   final String Type ;
   final String Category ;
   final String time ;
-  final String? notes ; 
+  final String notes ; 
   final String? benefits ;
+  final String NumberOfAttendees ;
 
   @override
   State<eventDetail> createState() => _Start();
@@ -41,8 +42,8 @@ class _Start extends State<eventDetail> {
                   height: screenHeight / 2.2,
                   width: screenWidth,
                   child: Image.network(
-                    widget.img,
-                    fit: BoxFit.cover,
+                     widget.img.isNotEmpty?widget.img: 'https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk=',
+               fit: BoxFit.cover,
                   ),
                 ),
               ),
@@ -57,7 +58,7 @@ class _Start extends State<eventDetail> {
                     children: [
                       Icon(
                         Icons.arrow_back,
-                        color: Colors.black,
+                        color: Color.fromARGB(255,91,79,158),
                         size: 30,
                       ), SizedBox(width: 20),
                       Text(
@@ -65,7 +66,7 @@ class _Start extends State<eventDetail> {
                         style: TextStyle(
                           fontSize: 20,
                           color: Colors.black,
-                          //fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -137,13 +138,13 @@ class _Start extends State<eventDetail> {
                         Row(
                           children: [
                             Icon(
-                              Icons.access_time,
-                              size: 28,
+                              Icons.calendar_today,
+                              size: 40,
                               color: Color.fromARGB(255,91,79,158),
                             ),
                             SizedBox(width: 4),
                             Text(
-                              "${widget.date}, ${widget.time}",
+                              "${widget.date}",
                               style: TextStyle(
                                 fontSize: 22,
                                 color: Colors.black87,
@@ -151,7 +152,42 @@ class _Start extends State<eventDetail> {
                             ),
                           ],
                         ),
+
+                        Row(
+  children: [
+    Icon(
+      Icons.access_time,
+      size: 40,
+      color: Color.fromARGB(255, 91, 79, 158),
+    ),
+    SizedBox(width: 1), // Adjust the spacing as needed
+    Text(
+      " ${widget.time}",
+      style: TextStyle(
+        fontSize: 22,
+        color: Colors.black87,
+      ),
+    ),
+  ],
+),
                         SizedBox(height: 20),
+                        Row(
+  children: [
+    Icon(
+      Icons.person,
+      size: 40,
+      color: Color.fromARGB(255, 91, 79, 158),
+    ),
+    SizedBox(width: 10), // Adjust the spacing as needed
+    Text(
+      "${widget.NumberOfAttendees}",
+      style: TextStyle(
+        fontSize: 22,
+        color: Colors.black87,
+      ),
+    ),
+  ],
+),SizedBox(height: 10),
                         Text(
                           "Categories",
                           style: TextStyle(
@@ -177,23 +213,6 @@ class _Start extends State<eventDetail> {
                         ),
                         SizedBox(height: 20),
                         Text(
-                          "Notes",
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          widget.notes ?? "No notes available",
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        Text(
                           "Benefits",
                           style: TextStyle(
                             fontSize: 28,
@@ -204,6 +223,25 @@ class _Start extends State<eventDetail> {
                         SizedBox(height: 10),
                         Text(
                           widget.benefits ?? "No benefits available",
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        Text(
+                          "Notes",
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                           (widget.notes != null && widget.notes.isNotEmpty)
+                              ? widget.notes
+                              : "There are no notes available",
                           style: TextStyle(
                             fontSize: 20,
                             color: Colors.black87,
