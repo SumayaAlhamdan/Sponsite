@@ -9,7 +9,7 @@ class SponsorChat extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Scaffold(
        body: Center(child: Text('No chats yet')),
-       bottomNavigationBar: SponsorBottomNavBar(),
+      // bottomNavigationBar: SponsorBottomNavBar(),
     );
   }
 }
