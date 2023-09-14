@@ -12,13 +12,13 @@ class SponsorProfile extends StatelessWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Sign Out Confirmation'),
-          content: Text('Are you sure you want to sign out?'),
+          content: Text('Are you sure you want to sign out?',style: TextStyle(fontSize: 20),),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: const Text('Cancel',style: TextStyle(color:Color.fromARGB(255,51,45,81) ),),
+              child: const Text('Cancel',style: TextStyle(color:Color.fromARGB(255,51,45,81), fontSize: 20),),
             ),
             TextButton(
               onPressed: () async {
@@ -26,7 +26,7 @@ class SponsorProfile extends StatelessWidget {
                 await FirebaseAuth.instance.signOut();
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child:const  Text('Sign Out',style: TextStyle(color:Color.fromARGB(255,51,45,81) )),
+              child:const  Text('Sign Out',style: TextStyle(color:Color.fromARGB(255,51,45,81),fontSize: 20 )),
             ),
           ],
         );
