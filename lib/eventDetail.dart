@@ -30,6 +30,28 @@ class _Start extends State<eventDetail> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+  title: Text(
+    'Event Details',
+    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+  ),
+  backgroundColor: Color.fromARGB(255, 51, 45, 81),
+  elevation: 0, // Remove the shadow
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.only(
+      bottomLeft: Radius.circular(20),
+      bottomRight: Radius.circular(20),
+    ),
+  ),
+  leading: IconButton(
+    icon: Icon(Icons.arrow_back, color: Colors.white),
+    onPressed: () {
+      Navigator.of(context).pop();
+    },
+  ),
+),
+
+
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -44,32 +66,6 @@ class _Start extends State<eventDetail> {
                   child: Image.network(
                      widget.img.isNotEmpty?widget.img: 'https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk=',
                fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 25, top: 35),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.arrow_back,
-                        color: Color.fromARGB(255,91,79,158),
-                        size: 30,
-                      ), SizedBox(width: 20),
-                      Text(
-                        ' Event Details',
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
                   ),
                 ),
               ),
