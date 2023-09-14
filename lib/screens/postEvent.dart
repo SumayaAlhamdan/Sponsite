@@ -74,7 +74,10 @@ class _FilterChipWidgetState extends State<FilterChipWidget> {
   @override
   Widget build(BuildContext context) {
     return FilterChip(
-      label: Text(widget.chipName),
+      label: Text(
+        widget.chipName,
+        style: TextStyle(fontSize: 25),
+      ),
       labelStyle: TextStyle(
         color: const Color(0xff6200ee),
         fontSize: 16.0,
@@ -104,7 +107,18 @@ class _FilterChipWidgetState extends State<FilterChipWidget> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Warning'),
+          title: Text(
+            'Warning',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+          ),
+          backgroundColor: Color.fromARGB(255, 51, 45, 81),
+          elevation: 0, // Remove the shadow
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
+          ),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
@@ -248,6 +262,8 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     check();
     fetchEventTypesFromDatabase();
+    _imageController.text =
+        'No image selected'; // Initialize the controller text
   }
 
   bool areRequiredFieldsFilled() {
@@ -363,12 +379,23 @@ class _MyHomePageState extends State<MyHomePage> {
       TextEditingController(text: 'No image selected');
   final TextEditingController _datetimeController =
       TextEditingController(text: 'No Date & Time selected');
+  TextEditingController textEditingController = TextEditingController();
 
   final DatabaseReference dbref = FirebaseDatabase.instance.reference();
 
   String _selectedEventType = '';
   bool showCategoryValidationMessage = false;
   bool showRequiredValidationMessage = false;
+
+  Future<void> _deleteImage() async {
+    setState(() {
+      _imageFile = null;
+      _selectedImagePath = null;
+      _imageController.text = 'No image selected';
+    });
+  }
+
+  String? _selectedImagePath;
 
   Future<void> _pickImage() async {
     final imagePicker = ImagePicker();
@@ -378,7 +405,9 @@ class _MyHomePageState extends State<MyHomePage> {
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
-        _imageController.text = _imageFile.toString();
+        _selectedImagePath = pickedFile.path;
+        _imageController.text = _selectedImagePath ?? '';
+        print('image picked');
       });
     }
   }
@@ -398,7 +427,7 @@ class _MyHomePageState extends State<MyHomePage> {
           await uploadTask.whenComplete(() => null);
 
       final String imageURL = await storageTaskSnapshot.ref.getDownloadURL();
-
+      print('image uploaded');
       return imageURL;
     } catch (e) {
       print('Error uploading image: $e');
@@ -466,16 +495,97 @@ class _MyHomePageState extends State<MyHomePage> {
             spacing: 5.0,
             runSpacing: 3.0,
             children: categories.map((category) {
+              final isSelected = selectedChips.contains(category);
+
               return FilterChipWidget(
                 chipName: category,
                 onChipCreated: _handleChipCreation,
-                onChipSelected: _handleChipSelection,
+                onChipSelected: (chipName, selected) {
+                  _handleChipSelection(chipName, selected);
+                },
               );
             }).toList(),
           );
         } else {
           return Text('No categories available.');
         }
+      },
+    );
+  }
+
+  void _showpostconfirm() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            "Are you sure you want to post this event?",
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+          ),
+          backgroundColor: Colors.white,
+          elevation: 0, // Remove the shadow
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
+          ),
+
+          actions: [
+            ElevatedButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                      Color.fromARGB(255, 51, 45, 81)),
+                  //Color.fromARGB(255, 207, 186, 224),), // Background color
+                  textStyle: MaterialStateProperty.all<TextStyle>(
+                      const TextStyle(fontSize: 16)), // Text style
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                      const EdgeInsets.all(16)), // Padding
+                  elevation: MaterialStateProperty.all<double>(1), // Elevation
+                  shape: MaterialStateProperty.all<OutlinedBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30), // Border radius
+                      side: const BorderSide(
+                          color: Color.fromARGB(
+                              255, 255, 255, 255)), // Border color
+                    ),
+                  ),
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(200, 50))),
+            ),
+            ElevatedButton(
+                child: const Text("Post"),
+                onPressed: () {
+                  return;
+                },
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        Color.fromARGB(255, 51, 45, 81)),
+                    //Color.fromARGB(255, 207, 186, 224),), // Background color
+                    textStyle: MaterialStateProperty.all<TextStyle>(
+                        const TextStyle(fontSize: 16)), // Text style
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                        const EdgeInsets.all(16)), // Padding
+                    elevation:
+                        MaterialStateProperty.all<double>(1), // Elevation
+                    shape: MaterialStateProperty.all<OutlinedBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(30), // Border radius
+                        side: const BorderSide(
+                            color: Color.fromARGB(
+                                255, 255, 255, 255)), // Border color
+                      ),
+                    ),
+                    minimumSize:
+                        MaterialStateProperty.all<Size>(const Size(200, 50)))),
+            //)
+          ],
+        );
       },
     );
   }
@@ -533,6 +643,16 @@ class _MyHomePageState extends State<MyHomePage> {
           content: Container(
             child: Column(
               children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "About your event",
+                    style: TextStyle(fontSize: 40),
+                  ),
+                ),
+                const SizedBox(
+                  height: 50,
+                ),
                 Row(children: [
                   Text("Event Type"),
                   const SizedBox(
@@ -558,6 +678,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       labelText: 'Event Name *',
+                      prefixIcon: Icon(Icons.text_fields,
+                          size: 24, color: Colors.black),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -578,6 +700,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       labelText: 'Event Address',
+                      prefixIcon: Icon(Icons.location_pin,
+                          size: 24, color: Colors.black),
                     ),
                   ),
                 ),
@@ -592,7 +716,11 @@ class _MyHomePageState extends State<MyHomePage> {
                       decoration: const InputDecoration(
                         labelText: 'Select Date and Time *',
                         border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.calendar_month, size: 24),
+                        prefixIcon: Icon(
+                          Icons.calendar_month,
+                          size: 24,
+                          color: Colors.black,
+                        ),
                       ),
                       onTap: () {
                         _selectDateAndTime(context);
@@ -606,6 +734,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       labelText: 'Number of attendees *',
+                      prefixIcon:
+                          Icon(Icons.people, size: 24, color: Colors.black),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -635,16 +765,18 @@ class _MyHomePageState extends State<MyHomePage> {
                         decoration: InputDecoration(
                           labelText: 'Upload Image',
                           border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.image, size: 24),
-                          suffixIcon: GestureDetector(
+                          prefixIcon:
+                              Icon(Icons.image, size: 24, color: Colors.black),
+                          suffixIcon: InkWell(
                             onTap: () {
-                              setState() {
-                                _imageFile = null;
-                                _imageController.clear();
-                              }
+                              _deleteImage();
+                              print('image deleted');
                             },
-                            child: Icon(
-                                Icons.cancel), // Replace with your desired icon
+                            child: Row(children: [
+                              Spacer(),
+                              Icon(Icons.cancel),
+                              SizedBox(width: 8)
+                            ]),
                           ),
                         ),
                         onTap: () {
@@ -676,7 +808,13 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text("What do you need from sponsors?"),
+                child: Text(
+                  "What do you need from sponsors?",
+                  style: TextStyle(fontSize: 40),
+                ),
+              ),
+              const SizedBox(
+                height: 50,
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
@@ -687,23 +825,67 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
+              const SizedBox(
+                height: 50,
+              ),
+              Text("Selected Categories:", style: TextStyle(fontSize: 20)),
+
+              const SizedBox(
+                height: 30,
+              ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Wrap(
-                  spacing: 5.0,
-                  runSpacing: 3.0,
-                  children: selectedChips.map((chipName) {
-                    return Chip(
-                      label: Text(chipName),
-                      onDeleted: () {
-                        setState(() {
-                          selectedChips.remove(chipName);
-                        });
-                      },
-                    );
-                  }).toList(),
+                child: TextField(
+                  controller: textEditingController,
+                  readOnly: true, // Set the TextField to read-only
+                  decoration: InputDecoration(
+                    //hintText: "Selected Chips",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    prefix:
+                        _buildSelectedChipsWidget(), // Display selected chips inside the TextField
+                  ),
                 ),
               ),
+              // Padding(
+              //   padding: const EdgeInsets.all(8.0),
+              //   child: TextField(
+              //     controller: textEditingController,
+              //     readOnly: true, // Set the TextField to read-only
+              //     decoration: InputDecoration(
+              //       hintText: "Selected Categories",
+              //       border: OutlineInputBorder(
+              //         borderRadius: BorderRadius.all(Radius.circular(10.0)),
+              //         borderSide: BorderSide(color: Colors.grey),
+              //       ),
+              //     ),
+              //   ),
+              // ),
+              const SizedBox(
+                height: 50,
+              ),
+              // Padding(
+              //   padding: const EdgeInsets.all(8.0),
+              //   child: Wrap(
+              //     spacing: 5.0,
+              //     runSpacing: 3.0,
+              //     children: selectedChips.map((chipName) {
+              //       return Chip(
+              //         label: Text(chipName),
+              //         onDeleted: () {
+              //           setState(() {
+              //             selectedChips.remove(chipName);
+              //           });
+              //           const SizedBox(
+              //             height: 50,
+              //           );
+              //         },
+              //       );
+              //     }).toList(),
+              //   ),
+              // ),
               if (showCategoryValidationMessage)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -725,6 +907,13 @@ class _MyHomePageState extends State<MyHomePage> {
           content: Container(
             child: Column(
               children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Sponsor Benefits",
+                    style: TextStyle(fontSize: 40),
+                  ),
+                ),
                 TextFormField(
                   controller: benefitsController,
                   decoration: const InputDecoration(
@@ -744,9 +933,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 TextFormField(
                   controller: notesController,
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Additional Notes',
-                  ),
+                      border: OutlineInputBorder(),
+                      labelText: 'Additional Notes',
+                      contentPadding: EdgeInsets.symmetric(vertical: 20.0)),
                 ),
                 const SizedBox(
                   height: 26,
@@ -763,7 +952,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       List<String> categ = selectedChips;
                       String benefits = benefitsController.text;
                       String notes = notesController.text;
-
+                      _showpostconfirm();
                       _postNewEvent(type, ename, location, date, time, numOfAt,
                           categ, benefits, notes);
                     },
@@ -804,11 +993,80 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ];
 
+  List<String> selectedChips = [];
+
+  // Widget _buildSelectedChipsWidget() {
+  //   List<Widget> chipWidgets = selectedChips.map((chipName) {
+  //     return Row(
+  //       mainAxisSize: MainAxisSize.min,
+  //       children: [
+  //         Chip(
+  //           label: Text(chipName),
+  //           onDeleted: () {
+  //             _handleChipRemoval(chipName);
+  //           },
+  //         ),
+  //         SizedBox(width: 4.0), // Add spacing between chips and clear buttons
+  //       ],
+  //     );
+  //   }).toList();
+
+  //   return Wrap(
+  //     spacing: 5.0,
+  //     runSpacing: 3.0,
+  //     children: chipWidgets,
+  //   );
+  //}
+
+  Widget _buildSelectedChipsWidget() {
+    if (selectedChips.isEmpty) {
+      return Container(); // Return an empty container if no chips are selected.
+    }
+
+    return Wrap(
+      spacing: 5.0,
+      runSpacing: 3.0,
+      children: selectedChips.map((chipName) {
+        return Chip(
+          label: Text(chipName), // Empty label for the chip
+          deleteIcon:
+              Icon(Icons.cancel), // Add a delete (cancel) icon for each chip
+          onDeleted: () {
+            _handleChipRemoval(chipName);
+          },
+        );
+      }).toList(),
+    );
+  }
+
+  // void _updateTextFieldText() {
+  //   textEditingController.text =
+  //       selectedChips.join(", "); // Comma-separated chip names
+  // }
+
+  void _updateTextFieldText() {
+    // Generate a visual representation for selected chips, for example, using icons
+    String visualRepresentation = selectedChips.map((chipName) {
+      return ' '; // You can use any symbol or icon here
+    }).join(' '); // Use a space or any separator you prefer
+
+    textEditingController.text =
+        visualRepresentation; // Set the visual representation as the text
+  }
+
+  void _handleChipRemoval(String chipName) {
+    setState(() {
+      selectedChips.remove(chipName);
+      _updateTextFieldText();
+    });
+  }
+
   void _handleChipCreation(String newChipName) {
     setState(() {
       if (newChipName.isNotEmpty) {
         selectedChips.add(newChipName);
         showCategoryValidationMessage = false;
+        _updateTextFieldText();
       }
     });
   }
@@ -820,6 +1078,7 @@ class _MyHomePageState extends State<MyHomePage> {
       } else if (!isSelected && selectedChips.contains(chipName)) {
         selectedChips.remove(chipName);
       }
+      _updateTextFieldText();
     });
   }
 
@@ -962,7 +1221,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             if (_activeStepIndex == 0)
                               {
                                 // Check if required fields are empty
-                                if (_selectedEventType == null ||
+                                if (_selectedEventType.isEmpty ||
                                     EnameController.text.isEmpty ||
                                     _datetimeController.text ==
                                         'No Date & Time selected' ||
