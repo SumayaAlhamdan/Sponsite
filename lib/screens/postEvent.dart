@@ -113,11 +113,30 @@ class _FilterChipWidgetState extends State<FilterChipWidget> {
             ),
           ),
           actions: <Widget>[
-            TextButton(
+            ElevatedButton(
               child: Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
+              style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                      Color.fromARGB(255, 51, 45, 81)),
+                  //Color.fromARGB(255, 207, 186, 224),), // Background color
+                  textStyle: MaterialStateProperty.all<TextStyle>(
+                      const TextStyle(fontSize: 16)), // Text style
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                      const EdgeInsets.all(16)), // Padding
+                  elevation: MaterialStateProperty.all<double>(1), // Elevation
+                  shape: MaterialStateProperty.all<OutlinedBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30), // Border radius
+                      side: const BorderSide(
+                          color: Color.fromARGB(
+                              255, 255, 255, 255)), // Border color
+                    ),
+                  ),
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(200, 50))),
             ),
           ],
         );
@@ -145,6 +164,25 @@ class _FilterChipWidgetState extends State<FilterChipWidget> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
+              style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                      Color.fromARGB(255, 51, 45, 81)),
+                  //Color.fromARGB(255, 207, 186, 224),), // Background color
+                  textStyle: MaterialStateProperty.all<TextStyle>(
+                      const TextStyle(fontSize: 16)), // Text style
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                      const EdgeInsets.all(16)), // Padding
+                  elevation: MaterialStateProperty.all<double>(1), // Elevation
+                  shape: MaterialStateProperty.all<OutlinedBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30), // Border radius
+                      side: const BorderSide(
+                          color: Color.fromARGB(
+                              255, 255, 255, 255)), // Border color
+                    ),
+                  ),
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(200, 50))),
             ),
             ElevatedButton(
                 child: const Text("Create Category"),
@@ -218,7 +256,6 @@ class _MyHomePageState extends State<MyHomePage> {
         selectedDate != null &&
         selectedTime != null &&
         numofAttendeesController.text.isNotEmpty &&
-        _imageFile != null &&
         selectedChips.isNotEmpty &&
         benefitsController.text.isNotEmpty;
   }
@@ -231,64 +268,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  // void _postNewEvent(
-  //   String type,
-  //   String eventName,
-  //   String location,
-  //   String date,
-  //   String time,
-  //   String numofAt,
-  //   List<String> categ,
-  //   String benefits,
-  //   String notes,
-  // ) async {
-  //   if (benefitsController.text.isEmpty) {
-  //     setState(() {
-  //       showRequiredValidationMessage = true;
-  //     });
-  //     return; // Exit early if benefitsController is empty
-  //   }
-
-  //   final isValid = _formKey.currentState!.validate();
-  //   if (!isValid) {
-  //     return; // Exit early if the form is not valid
-  //   }
-
-  //   if (user == null) {
-  //     print('User is not logged in.');
-  //     return; // Exit early if user is null
-  //   }
-
-  //   try {
-  //     final String imageUploadResult = await _uploadImage(_imageFile!);
-  //     dbref.child('sponseeEvents').push().set({
-  //       'SponseeID': sponseeID ?? '', // Use empty string if sponseeID is null
-  //       'EventType': type,
-  //       'EventName': eventName,
-  //       'Location': location,
-  //       'Date': date,
-  //       'Time': time,
-  //       'NumberOfAttendees': numofAt,
-  //       'Category': categ,
-  //       'Benefits': benefits,
-  //       'img': imageUploadResult,
-  //       'Notes': notes,
-  //     });
-  //     print('sent to database!');
-  //     print(type);
-  //     print(eventName);
-  //     print(location);
-  //     print(date);
-  //     print(time);
-  //     print(numofAt);
-  //     print(categ);
-  //     print(benefits);
-  //     print(notes);
-  //     print(sponseeID);
-  //   } catch (e) {
-  //     print('Error sending data to DB: $e');
-  //   }
-  // }
   void _postNewEvent(
     String type,
     String eventName,
@@ -362,6 +341,9 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {
           selectedDate = pickedDate;
           selectedTime = pickedTime;
+          if (selectedDate != null && selectedTime != null)
+            _datetimeController.text =
+                '${selectedDate!.toLocal().toString().substring(0, 10)} , ${selectedTime!.format(context)}';
         });
       }
     }
@@ -377,6 +359,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   final TextEditingController benefitsController = TextEditingController();
   final TextEditingController notesController = TextEditingController();
+  final TextEditingController _imageController =
+      TextEditingController(text: 'No image selected');
+  final TextEditingController _datetimeController =
+      TextEditingController(text: 'No Date & Time selected');
 
   final DatabaseReference dbref = FirebaseDatabase.instance.reference();
 
@@ -392,6 +378,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
+        _imageController.text = _imageFile.toString();
       });
     }
   }
@@ -541,7 +528,8 @@ class _MyHomePageState extends State<MyHomePage> {
         Step(
           state: _activeStepIndex <= 0 ? StepState.indexed : StepState.complete,
           isActive: _activeStepIndex >= 0,
-          title: const Text('Event Details', style: TextStyle(fontSize: 25.0)),
+          title: const Text('Event Details',
+              style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.normal)),
           content: Container(
             child: Column(
               children: [
@@ -573,8 +561,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Event Name is required';
+                        return 'Event name is required';
                       }
+                      print("event name not null");
                       return null;
                     },
                   ),
@@ -595,50 +584,20 @@ class _MyHomePageState extends State<MyHomePage> {
                 const SizedBox(
                   height: 25.0,
                 ),
-                ElevatedButton.icon(
-                    icon: Icon(
-                      Icons.calendar_month,
-                      size: 40,
-                    ),
-                    onPressed: () => _selectDateAndTime(context),
-                    label: Text(
-                      'Select Date and Time *',
-                    ),
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            Color.fromARGB(255, 51, 45, 81)),
-                        //Color.fromARGB(255, 207, 186, 224),), // Background color
-                        textStyle: MaterialStateProperty.all<TextStyle>(
-                            const TextStyle(fontSize: 20)), // Text style
-                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                            const EdgeInsets.all(16)), // Padding
-                        elevation:
-                            MaterialStateProperty.all<double>(1), // Elevation
-                        shape: MaterialStateProperty.all<OutlinedBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(30), // Border radius
-                            side: const BorderSide(
-                                color: Color.fromARGB(
-                                    255, 255, 255, 255)), // Border color
-                          ),
-                        ),
-                        minimumSize: MaterialStateProperty.all<Size>(
-                            const Size(200, 50)))),
-                //),
-                if (selectedDate != null)
-                  Text(
-                    'Event Date: ${selectedDate!.toLocal().toString().substring(0, 10)} ',
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-                if (selectedTime != null)
-                  Text(
-                    'Event Time:  ${selectedTime!.format(context)}',
-                    style: TextStyle(fontSize: 16),
-                  ),
-
+                SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.6,
+                    child: TextFormField(
+                      controller: _datetimeController,
+                      readOnly: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Select Date and Time *',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.calendar_month, size: 24),
+                      ),
+                      onTap: () {
+                        _selectDateAndTime(context);
+                      },
+                    )),
                 const SizedBox(height: 25.0),
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.6,
@@ -668,32 +627,29 @@ class _MyHomePageState extends State<MyHomePage> {
                   height: 8,
                 ),
                 const SizedBox(height: 25.0),
-                ElevatedButton.icon(
-                    icon: Icon(Icons.image, size: 40),
-                    onPressed: () => _pickImage(),
-                    label: const Text("Upload Image",
-                        style: TextStyle(fontSize: 20, color: Colors.white)),
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            Color.fromARGB(255, 51, 45, 81)),
-                        //Color.fromARGB(255, 207, 186, 224),), // Background color
-                        textStyle: MaterialStateProperty.all<TextStyle>(
-                            const TextStyle(fontSize: 16)), // Text style
-                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                            const EdgeInsets.all(16)), // Padding
-                        elevation:
-                            MaterialStateProperty.all<double>(1), // Elevation
-                        shape: MaterialStateProperty.all<OutlinedBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(30), // Border radius
-                            side: const BorderSide(
-                                color: Color.fromARGB(
-                                    255, 255, 255, 255)), // Border color
+                SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.6,
+                    child: TextFormField(
+                        controller: _imageController,
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          labelText: 'Upload Image',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.image, size: 24),
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              setState() {
+                                _imageFile = null;
+                                _imageController.clear();
+                              }
+                            },
+                            child: Icon(
+                                Icons.cancel), // Replace with your desired icon
                           ),
                         ),
-                        minimumSize: MaterialStateProperty.all<Size>(
-                            const Size(200, 50)))),
+                        onTap: () {
+                          _pickImage();
+                        })),
                 if (showRequiredValidationMessage)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -712,13 +668,15 @@ class _MyHomePageState extends State<MyHomePage> {
         Step(
           state: _activeStepIndex <= 1 ? StepState.indexed : StepState.complete,
           isActive: _activeStepIndex >= 1,
-          title: const Text('Sponsorship Category',
-              style: TextStyle(fontSize: 25)),
+          title: const Text(
+            'Sponsorship Category',
+            style: TextStyle(fontSize: 25, fontWeight: FontWeight.normal),
+          ),
           content: Column(
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: _titleContainer("What do you need from sponsors?"),
+                child: Text("What do you need from sponsors?"),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 8.0),
@@ -758,9 +716,12 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         Step(
-          state: StepState.complete,
+          state: _activeStepIndex <= 0 ? StepState.indexed : StepState.complete,
           isActive: _activeStepIndex >= 2,
-          title: const Text('Benefits', style: TextStyle(fontSize: 25)),
+          title: const Text(
+            'Benefits',
+            style: TextStyle(fontSize: 25, fontWeight: FontWeight.normal),
+          ),
           content: Container(
             child: Column(
               children: [
@@ -877,11 +838,31 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           actions: <Widget>[
             ElevatedButton(
-              child: Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        Color.fromARGB(255, 51, 45, 81)),
+                    //Color.fromARGB(255, 207, 186, 224),), // Background color
+                    textStyle: MaterialStateProperty.all<TextStyle>(
+                        const TextStyle(fontSize: 16)), // Text style
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                        const EdgeInsets.all(16)), // Padding
+                    elevation:
+                        MaterialStateProperty.all<double>(1), // Elevation
+                    shape: MaterialStateProperty.all<OutlinedBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(30), // Border radius
+                        side: const BorderSide(
+                            color: Color.fromARGB(
+                                255, 255, 255, 255)), // Border color
+                      ),
+                    ),
+                    minimumSize:
+                        MaterialStateProperty.all<Size>(const Size(200, 50)))),
           ],
         );
       },
@@ -915,6 +896,28 @@ class _MyHomePageState extends State<MyHomePage> {
                               _activeStepIndex -= 1;
                             });
                           },
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Color.fromARGB(255, 51, 45, 81)),
+                              //Color.fromARGB(255, 207, 186, 224),), // Background color
+                              textStyle: MaterialStateProperty.all<TextStyle>(
+                                  const TextStyle(fontSize: 16)), // Text style
+                              padding:
+                                  MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                      const EdgeInsets.all(16)), // Padding
+                              elevation: MaterialStateProperty.all<double>(
+                                  1), // Elevation
+                              shape: MaterialStateProperty.all<OutlinedBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      30), // Border radius
+                                  side: const BorderSide(
+                                      color: Color.fromARGB(
+                                          255, 255, 255, 255)), // Border color
+                                ),
+                              ),
+                              minimumSize: MaterialStateProperty.all<Size>(
+                                  const Size(200, 50))),
                           child: const Text(
                             'BACK',
                           ),
@@ -961,8 +964,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                 // Check if required fields are empty
                                 if (_selectedEventType == null ||
                                     EnameController.text.isEmpty ||
-                                    selectedDate == null ||
-                                    selectedTime == null ||
+                                    _datetimeController.text ==
+                                        'No Date & Time selected' ||
                                     numofAttendeesController.text.isEmpty)
                                   {
                                     setState(() {
@@ -1044,8 +1047,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-
-
 // import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
 // import 'package:firebase_database/firebase_database.dart';
@@ -1060,7 +1061,6 @@ class _MyHomePageState extends State<MyHomePage> {
 //   await Firebase.initializeApp();
 //   runApp(const MyApp());
 // }
-
 
 // // void main() {
 // //   runApp(const MyApp());
@@ -1204,8 +1204,6 @@ class _MyHomePageState extends State<MyHomePage> {
 //   }
 // }
 
-
-
 // class MyHomePage extends StatefulWidget {
 //   const MyHomePage({Key? key}) : super(key: key);
 
@@ -1220,7 +1218,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 // class _MyHomePageState extends State<MyHomePage> {
 //   File? _imageFile; // Store the picked image file
-// List<String> eventTypesList = []; 
+// List<String> eventTypesList = [];
 
 //   void initState() {
 //     super.initState();
@@ -1307,7 +1305,6 @@ class _MyHomePageState extends State<MyHomePage> {
 //       }
 //     }
 //   }
-  
 
 //   int _activeStepIndex = 0;
 //   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -1373,7 +1370,7 @@ class _MyHomePageState extends State<MyHomePage> {
 //         .reference()
 //         .child('Categories')
 //         .once();
-    
+
 //     if (dataSnapshot.snapshot.value != null) {
 //       // Convert the data snapshot into a List<String>
 //       final categoryData = dataSnapshot.snapshot.value as Map<dynamic, dynamic>;
@@ -1411,7 +1408,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
 //   return eventTypes;
 // }
-
 
 // Widget _buildCategoryChips() {
 //   return FutureBuilder<List<String>>(
@@ -1494,9 +1490,6 @@ class _MyHomePageState extends State<MyHomePage> {
 //     ],
 //   );
 // }
-
-
-
 
 //   List<Step> stepList() => [
 //         Step(
