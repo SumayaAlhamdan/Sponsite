@@ -871,7 +871,33 @@ class _CustomDialogState extends State<CustomDialog> {
     notesController.dispose();
     super.dispose();
   }
-
+Future<void> _showSignOutConfirmationDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Sign Out Confirmation'),
+          content: Text('Are you sure you want to sign out?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancel',style: TextStyle(color:Color.fromARGB(255,51,45,81) ),),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Sign out the user
+                await FirebaseAuth.instance.signOut();
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child:const  Text('Sign Out',style: TextStyle(color:Color.fromARGB(255,51,45,81) )),
+            ),
+          ],
+        );
+      },
+    );
+  }
   void _showEmptyFormAlert() {
     showDialog(
       context: context,
@@ -879,24 +905,13 @@ class _CustomDialogState extends State<CustomDialog> {
         return AlertDialog(
           title: Text('Empty Offer'),
           content: Text(
-              'Please select at least one category and enter some notes before sending the offer'),
+              'Please select at least one category and enter some notes before sending the offer',style: TextStyle(fontSize: 20),),
           actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
+             TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text(
-                'OK',
-                style: TextStyle(fontSize: 20),
-              ),
-              style: ElevatedButton.styleFrom(
-                primary: Color.fromARGB(255,51,45,81), // Button color
-                onPrimary: Colors.white,
-                elevation: 20,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
+              child:const  Text('OK',style: TextStyle(color:Color.fromARGB(255,51,45,81), fontSize: 20),),
             ),
           ],
         );
@@ -964,8 +979,8 @@ class _CustomDialogState extends State<CustomDialog> {
       contentPadding: EdgeInsets.symmetric(horizontal: 70.0, vertical: 40.0),
       content: SingleChildScrollView(
         child: Container(
-          width: 380,
-          height: 470,
+          width: 390,
+          height: 729,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -994,9 +1009,10 @@ class _CustomDialogState extends State<CustomDialog> {
                   );
                 }).toList(),
               ),
-              SizedBox(height: 15),
+              SizedBox(height: 17),
               TextField(
                 controller: notesController,
+                 maxLength: 600,
                 decoration: InputDecoration(
                   hintText: 'Enter notes or additional information',
                   focusedBorder: OutlineInputBorder(
@@ -1007,7 +1023,8 @@ class _CustomDialogState extends State<CustomDialog> {
                     borderSide: BorderSide(color: Colors.grey, width: 1.0),
                   ),
                 ),
-                maxLines: 15,
+                style: TextStyle(fontSize: 20),
+                maxLines: 20,
               ),
             ],
           ),
@@ -1015,7 +1032,7 @@ class _CustomDialogState extends State<CustomDialog> {
       ),
       actions: [
         Padding(
-          padding: const EdgeInsets.only(bottom: 30.0),
+          padding: const EdgeInsets.only(bottom: 20.0),
           child: Center(
             child: ElevatedButton(
               onPressed: _sendOffer,
