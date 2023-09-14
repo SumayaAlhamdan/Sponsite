@@ -173,7 +173,7 @@ List<Widget> promoCards = List.generate(5, (index) {
       elevation: 0, 
       child: Container(
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 255, 255, 255),// Customize the card background color
+                        color: Color.fromARGB(0, 255, 255, 255),
         borderRadius: BorderRadius.circular(25),
         image: DecorationImage(
         image: event.imgURL.isNotEmpty
@@ -235,11 +235,11 @@ List<Widget> promoCards = List.generate(5, (index) {
                       width: 430,
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 255, 255, 255),
-                        borderRadius: BorderRadius.circular(30),
+                        color: Color.fromARGB(0, 255, 255, 255),
+                        borderRadius: BorderRadius.circular(10),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey,
+                            color: const Color.fromARGB(96, 158, 158, 158),
                             offset: Offset(0, 2),
                             blurRadius: 2,
                           ),
@@ -257,7 +257,7 @@ List<Widget> promoCards = List.generate(5, (index) {
                               ),
                             ),
                           ),
-                          Icon(Icons.search, color: Color(0xFF6A62B6)),
+                          Icon(Icons.search, color: Colors.grey),
                         ],
                       ),
                     ),
@@ -320,52 +320,60 @@ List<Widget> promoCards = List.generate(5, (index) {
                       autoPlayInterval: Duration(seconds: 3),
                     ),
                   ),
-                  SizedBox(height: 26),
+                  SizedBox(height: 80),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Recent Events",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 30,
-                          color: Color.fromARGB(255,91,79,158), // Changed to purple
-                          // Removed the underline
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              Icons.filter_list,
-                              color: Color.fromARGB(255,91,79,158),// Changed to purple
-                            ),
-                            onPressed: () {
-                              // Handle filter action
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
+                   children: [
+                    
+  Padding(
+    padding: const EdgeInsets.only(left: 16), // Add left padding to the title
+    child: Text(
+      "Recent Events",
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 30,
+        color: Color.fromARGB(255, 91, 79, 158), // Changed to purple
+      ),
+    ),
+  ), // Add a comma here
+  Positioned(
+        top: kToolbarHeight + 40, // Adjust the top position as needed
+        right: 16, // Adjust the right position as needed
+        child: IconButton(
+          icon: Icon(Icons.filter_list, color: Colors.grey), // Customize the icon
+          onPressed: () {
+            // Add your filter functionality here
+          },
+        ),
+      ),
+  
+],
+
                   ),
                   SizedBox(height: 16),
                 ],
               ),
              ],
 ),
-            Container(
-              height: 40,
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildCategoryText('All', selectedCategory == 'All'),
-                  _buildCategoryText('Education', false),
-                  _buildCategoryText('Cultural', false),
-                  _buildCategoryText('Financial Support', false),
-                ],
-              ),
-            ),
+          Container(
+  height: 40,
+  padding: EdgeInsets.symmetric(horizontal: 16),
+  child: Column(
+    children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildCategoryText('All', selectedCategory == 'All'),
+          _buildCategoryText('Education', false),
+          _buildCategoryText('Cultural', false),
+          _buildCategoryText('Financial Support', false),
+        ],
+      ),
+      
+    ],
+  ),
+),
+
             // SizedBox(height: 3),
                 SizedBox(height: screenHeight-540,
               child: GridView.builder(
@@ -379,140 +387,142 @@ List<Widget> promoCards = List.generate(5, (index) {
               itemCount: getFilteredEvents().length,
               itemBuilder: (context, index) {
                 Event event = getFilteredEvents()[index];
+                
 
                 return GestureDetector(
-                  onTap: () {
-                    // Navigate to the event details page
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            RecentEventsDetails(event: event),
-                      ),
-                    );
-                  },
-                  child: Card(
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    color: Color.fromARGB(255, 255, 255, 255),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          height: screenHeight * 0.19,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(16),
-                            ),
-                           image: DecorationImage(
-                              image: event.imgURL.isNotEmpty
-                                  ? NetworkImage(event.imgURL)
-                                  : NetworkImage('https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                event.EventName,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                  color: const Color.fromARGB(255, 0, 0, 0),
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.calendar_today,
-                                    size: 18,
-                                    color: Color.fromARGB(255,91,79,158),
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    "${event.date}",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: const Color.fromARGB(
-                                          255, 0, 0, 0),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.location_on,
-                                    size: 21,
-                                    color: Color.fromARGB(255,91,79,158),
-                                  ),
-                                  SizedBox(width: 4),
-                                   Expanded(
-                                  child: Text(
-                                    event.location,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: const Color.fromARGB(255, 0, 0, 0),
-                                    ),
-                                    overflow: TextOverflow.ellipsis, // Add this line
-                                    maxLines: 1, // Add this line
-                                  ),)
-                                ],
-                              ),
-                                SizedBox(height: 10),
-                              Wrap(
-                                spacing: 4,
-                                children: event.Category.map((category) {
-                                  return Chip(
-                                    label: Text(category),
-                                    backgroundColor:
-                                    Color.fromARGB(255, 255, 255, 255),
-                                    shadowColor: Color(0xFF6A62B6),
-                                    elevation: 3,
-                                    labelStyle: TextStyle(
-                                      color: Color.fromARGB(255,91,79,158),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                              SizedBox(height: 10),
-                              Center(
-                                
-                              ),
-                            ],
-                          ),
-                        ),
-                      Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'more details',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontStyle: FontStyle.italic,
-                          color: Color.fromARGB(255, 91, 79, 158),
-                        ),
-                      ),
-                      Icon(
-                        Icons.arrow_forward,
-                        size: 16, // Adjust the size as needed
-                        color: Color.fromARGB(255, 91, 79, 158),
-                      ),
-                    ],
+  onTap: () {
+    // Navigate to the event details page
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            RecentEventsDetails(event: event),
+      ),
+    );
+  },
+  child: Card(
+    elevation: 5,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(30),
+    ),
+    color: Color.fromARGB(255, 255, 255, 255), // Set the card's background color to white
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: screenHeight * 0.19,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(16),
+            ),
+            image: DecorationImage(
+              image: event.imgURL.isNotEmpty
+                  ? NetworkImage(event.imgURL)
+                  : NetworkImage('https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                event.EventName,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: const Color.fromARGB(255, 0, 0, 0),
+                ),
+              ),
+              SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(
+                    Icons.calendar_today,
+                    size: 18,
+                    color: Color.fromARGB(255,91,79,158),
                   ),
-                      ],
+                  SizedBox(width: 4),
+                  Text(
+                    "${event.date}",
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: const Color.fromARGB(
+                          255, 0, 0, 0),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(
+                    Icons.location_on,
+                    size: 21,
+                    color: Color.fromARGB(255,91,79,158),
+                  ),
+                  SizedBox(width: 4),
+                   Expanded(
+                    child: Text(
+                      event.location,
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: const Color.fromARGB(255, 0, 0, 0),
+                      ),
+                      overflow: TextOverflow.ellipsis, // Add this line
+                      maxLines: 1, // Add this line
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(height: 10),
+              Wrap(
+                spacing: 4,
+                children: event.Category.map((category) {
+                  return Chip(
+                    label: Text(category),
+                    backgroundColor:
+                    Color.fromARGB(255, 255, 255, 255),
+                    shadowColor: Color(0xFF6A62B6),
+                    elevation: 3,
+                    labelStyle: TextStyle(
+                      color: Color.fromARGB(255,91,79,158),
+                    ),
+                  );
+                }).toList(),
+              ),
+              SizedBox(height: 10),
+              Center(
+                
+              ),
+            ],
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              'more details',
+              style: TextStyle(
+                fontSize: 16,
+                fontStyle: FontStyle.italic,
+                color: Color.fromARGB(255, 91, 79, 158),
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward,
+              size: 16, // Adjust the size as needed
+              color: Color.fromARGB(255, 91, 79, 158),
+            ),
+          ],
+        ),
+      ],
+    ),
+  ),
+);
 
-                    ),
-                  ),
-                );
               },
             ),),
             const BottomNavBar(),
@@ -576,44 +586,48 @@ class RecentEventsDetails extends StatelessWidget {
                 height: 440,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color:  Color.fromARGB(255, 51, 45, 81),
+                  color: Color.fromARGB(255, 51, 45, 81),
                   image: DecorationImage(
                     image: event.imgURL.isNotEmpty
                         ? NetworkImage(event.imgURL)
-                        : NetworkImage('https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
+                        : NetworkImage(
+                            'https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
-             Padding(
-  padding: const EdgeInsets.all(16.0),
-             ),
-Container(
- color:  Color.fromARGB(255, 51, 45, 81),
- height: 75,
- padding: const EdgeInsets.fromLTRB(0,25,0,0),
+              Container(
+  decoration: BoxDecoration(
+    color: Color.fromARGB(255, 51, 45, 81),
+    borderRadius: BorderRadius.only(
+      bottomLeft: Radius.circular(20),
+      bottomRight: Radius.circular(20),
+    ),
+  ),
+  height: 75,
+  padding: const EdgeInsets.fromLTRB(16, 0, 0, 0), // Adjust the padding as needed
   child: Row(
     children: [
       IconButton(
         icon: Icon(Icons.arrow_back),
-        color: Color.fromARGB(255, 139, 134, 167),
+        color: Colors.white,
         onPressed: () {
           Navigator.of(context).pop();
         },
       ),
-      
       Text(
         "Event Details",
         style: TextStyle(
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w500,
           fontSize: 24,
-          color: Color.fromARGB(255, 255, 255, 255),
+          color: Colors.white,
         ),
       ),
       SizedBox(width: 40), // Adjust the spacing as needed
     ],
   ),
-             ),
+)
+
             ],
           ),
           Expanded(
@@ -658,75 +672,11 @@ Container(
                           ),
                         ),
                         Divider(height: 30, thickness: 2),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.location_on,
-                              size: 40,
-                              color: Color.fromARGB(255, 91, 79, 158),
-                            ),
-                            SizedBox(width: 10), // Adjust the spacing as needed
-                            Text(
-                              event.location,
-                              style: TextStyle(
-                                fontSize: 22,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.calendar_today,
-                              size: 40,
-                              color: Color.fromARGB(255, 91, 79, 158),
-                            ),
-                            SizedBox(width: 10), // Adjust the spacing as needed
-                            Text(
-                              event.date,
-                              style: TextStyle(
-                                fontSize: 22,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-  children: [
-    Icon(
-      Icons.access_time,
-      size: 40,
-      color: Color.fromARGB(255, 91, 79, 158),
-    ),
-    SizedBox(width: 1), // Adjust the spacing as needed
-    Text(
-      " ${event.time}",
-      style: TextStyle(
-        fontSize: 22,
-        color: Colors.black87,
-      ),
-    ),
-  ],
-),
-  Row(
-                            children: [
-                              Icon(
-                                Icons.person,
-                                size: 40,
-                                color: Color.fromARGB(255, 91, 79, 158),
-                              ),
-                              SizedBox(width: 10), // Adjust the spacing as needed
-                              Text(
-                                "${event.NumberOfAttendees}",
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ],
-                          ),
+                        // Info Rows
+                        _buildInfoRow(Icons.location_on, event.location, "Location"),
+                        _buildInfoRow(Icons.calendar_today, event.date, "Date"),
+                        _buildInfoRow(Icons.access_time, event.time, "Time"),
+                        _buildInfoRow(Icons.person, "${event.NumberOfAttendees}", "Attendees"),
                         SizedBox(height: 20),
 
                         Text(
@@ -739,21 +689,21 @@ Container(
                         ),
                         SizedBox(height: 10),
                         Wrap(
-                                spacing: 4,
-                                children: event.Category.map((category) {
-                                  return Chip(
-                                    label: Text(category),
-                                    backgroundColor:
-                                    Color.fromARGB(255, 255, 255, 255),
-                                    shadowColor: Color(0xFF6A62B6),
-                                    elevation: 3,
-                                    labelStyle: TextStyle(
-                                      color: Color.fromARGB(255,91,79,158),
-                                    ),
-                                  );
-                                }).toList(),
+                          spacing: 4,
+                          children: event.Category.map((category) {
+                            return Chip(
+                              label: Text(category),
+                              backgroundColor: Color.fromARGB(255, 255, 255, 255),
+                              shadowColor: Color(0xFF6A62B6),
+                              elevation: 3,
+                              labelStyle: TextStyle(
+                                color: Color.fromARGB(255, 91, 79, 158),
                               ),
+                            );
+                          }).toList(),
+                        ),
                         SizedBox(height: 20),
+
                         Text(
                           "Benefits",
                           style: TextStyle(
@@ -771,6 +721,7 @@ Container(
                           ),
                         ),
                         SizedBox(height: 20),
+
                         Text(
                           "Notes",
                           style: TextStyle(
@@ -790,42 +741,41 @@ Container(
                           ),
                         ),
                         SizedBox(height: 20),
-                        
+
                         Center(
-                         child:  SizedBox( 
-                          height:55, //height of button
-                          width:190,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return CustomDialog(
-                                    event: event,
-                                    parentContext: context,
-                                    sponsorID: '',
-                                  );
-                                },
-                              );
-                            },
-                            child: Text(
-                              'Send offer',
-                              style: TextStyle(
-                                fontSize: 25,
-                                color: Colors.white,
+                          child: SizedBox(
+                            height: 55, //height of button
+                            width: 190,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return CustomDialog(
+                                      event: event,
+                                      parentContext: context,
+                                      sponsorID: '',
+                                    );
+                                  },
+                                );
+                              },
+                              child: Text(
+                                'Send offer',
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              primary: Color.fromARGB(255, 91, 79, 158),
-                              onPrimary: Colors.white,
-                              elevation: 10,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
+                              style: ElevatedButton.styleFrom(
+                               // primary: Color.fromARGB(255, 91, 79, 158),
+                               primary: Color(0xFF6A62B6),
+                                elevation: 10,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
                               ),
-                              
                             ),
                           ),
-                         ),
                         ),
                         SizedBox(height: 20),
                       ],
@@ -839,7 +789,43 @@ Container(
       ),
     );
   }
+
+  Widget _buildInfoRow(IconData icon, String text, String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 40,
+            color: Color.fromARGB(255, 91, 79, 158),
+          ),
+          SizedBox(width: 10), // Adjust the spacing as needed
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black54,
+                ),
+              ),
+              Text(
+                text,
+                style: TextStyle(
+                  fontSize: 22,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
+
 
 
 
@@ -954,8 +940,6 @@ Future<void> _showSignOutConfirmationDialog(BuildContext context) async {
       Navigator.of(context).pop();
     }
   }
-
-  @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Row(
@@ -1054,6 +1038,196 @@ Future<void> _showSignOutConfirmationDialog(BuildContext context) async {
       ],
     );
   }
+  //Majd's Modifications to the offer pop up 
+  /*
+@override
+Widget build(BuildContext context) {
+  return Dialog(
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 51, 45, 81),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Text(
+                    'Offer',
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  color: Colors.white,
+                ),
+              ],
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white, // Changed to white
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'What do you want to offer?',
+                    style: TextStyle(
+                      fontSize: 23,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(
+                    '(Choice is required)',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                  Wrap(
+                    spacing: 9.0,
+                    children: widget.event.Category.map((category) {
+                      return FilterChip(
+                        label: Text(
+                          category,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        selected: filters.contains(category),
+                        onSelected: (bool selected) {
+                          setState(() {
+                            if (selected) {
+                              filters.add(category);
+                            } else {
+                              filters.remove(category);
+                            }
+                          });
+                        },
+                        backgroundColor: const Color.fromARGB(255, 51, 45, 81),
+                        labelStyle: TextStyle(
+                          color: Colors.white,
+                        ),
+                        elevation: 3,
+                        selectedColor: Color(0xFF4A42A1),
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(height: 17),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.grey,
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: TextField(
+                        controller: notesController,
+                        maxLength: 600,
+                        decoration: InputDecoration(
+                          hintText: 'Enter notes or additional information',
+                          border: InputBorder.none,
+                        ),
+                        style: TextStyle(fontSize: 20),
+                        maxLines: 6,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _sendOffer();
+                        Navigator.of(context).pop(); // Close the popup
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text('Success'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.check_circle,
+                                    color: Colors.purple,
+                                    size: 48,
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'Your offer was sent successfully!',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text('OK'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: Text(
+                        'Send Offer',
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        primary: Color(0xFF6A62B6),
+                        onPrimary: Colors.white,
+                        elevation: 20,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}*/
+
+
+
 }
 
 void main() async {
