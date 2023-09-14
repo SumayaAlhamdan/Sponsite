@@ -64,7 +64,25 @@ class Event {
     required this.NumberOfAttendees, 
   });
 }
+class CurveClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    int curveHeight = 40;
+    Offset controlPoint = Offset(size.width / 2, size.height + curveHeight);
+    Offset endPoint = Offset(size.width, size.height - curveHeight);
 
+    Path path = Path()
+      ..lineTo(0, size.height - curveHeight)
+      ..quadraticBezierTo(controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy)
+      ..lineTo(size.width, 0)
+      ..close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
 class SponsorHomePage extends StatefulWidget {
   @override
   _SponsorHomePageState createState() => _SponsorHomePageState();
@@ -155,40 +173,46 @@ List<Widget> promoCards = List.generate(5, (index) {
       elevation: 0, 
       child: Container(
       decoration: BoxDecoration(
-        color: Color.fromARGB(255,91,79,158),// Customize the card background color
+        color: Color.fromARGB(255, 255, 255, 255),// Customize the card background color
         borderRadius: BorderRadius.circular(25),
-      ),
+        image: DecorationImage(
+        image: event.imgURL.isNotEmpty
+        ? NetworkImage(event.imgURL)
+         : NetworkImage('https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
+         fit: BoxFit.cover,
+         ),
+                              ),
         padding: EdgeInsets.fromLTRB(7, 5, 0, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              ' ${event.EventName}',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24, // Increased title font size
+          // children: [
+          //   Text(
+          //     ' ${event.EventName}',
+          //     style: TextStyle(
+          //       color: Color.fromARGB(255, 51, 45, 81),
+          //       fontSize: 24, // Increased title font size
                 
-              ),
-            ),
-            SizedBox(height: 12), // Increased the height between title and description
-            Text(
-              '${event.EventType}',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18, // Increased description font size
-              ),
-            ),
-            SizedBox(height: 12), // Increased the height between title and description
-            Text(
-              '${event.location}',
-              maxLines: 2, // Set the maximum number of lines
-              overflow: TextOverflow.ellipsis, // Add ellipsis (...) if text overflows
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 15, // Increased description font size
-              ),
-            ),
-          ],
+          //     ),
+          //   ),
+          //   SizedBox(height: 12), // Increased the height between title and description
+          //   Text(
+          //     '${event.EventType}',
+          //     style: TextStyle(
+          //       color: Color.fromARGB(255, 51, 45, 81),
+          //       fontSize: 18, // Increased description font size
+          //     ),
+          //   ),
+          //   SizedBox(height: 12), // Increased the height between title and description
+          //   Text(
+          //     '${event.location}',
+          //     maxLines: 2, // Set the maximum number of lines
+          //     overflow: TextOverflow.ellipsis, // Add ellipsis (...) if text overflows
+          //     style: TextStyle(
+          //       color: Color.fromARGB(255, 51, 45, 81),
+          //       fontSize: 15, // Increased description font size
+          //     ),
+          //   ),
+          // ],
         ),
       ),));
     }).toList();
@@ -201,7 +225,7 @@ List<Widget> promoCards = List.generate(5, (index) {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 255, 255, 255),
+                color: const  Color.fromARGB(255, 51, 45, 81),
               ),
               child: Column(
                 children: [
@@ -242,13 +266,48 @@ List<Widget> promoCards = List.generate(5, (index) {
                 ],
               ),
             ),
-            SizedBox(height: 20),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Color.fromARGB(255, 255, 255, 255),
-              ),
-              child: Column(
+            // SizedBox(height: ),
+            
+      //       Container(
+      //         padding: EdgeInsets.symmetric(horizontal: 16),
+      //         decoration: BoxDecoration(
+      //   borderRadius: BorderRadius.only(
+      //     bottomLeft: Radius.circular(150.0),
+      //     bottomRight: Radius.circular(150.0),
+      //   ),
+      //   gradient: LinearGradient(
+      //     begin: Alignment.bottomCenter,
+      //     end: Alignment.topCenter,
+      //     colors: [
+      //       Color.fromARGB(255, 91, 79, 158),
+      //       Color.fromARGB(255, 51, 45, 81),
+      //     ],
+      //   ),
+      // ),
+      Stack(
+  children: [
+    Container(
+      height: 200,
+      color: Color.fromARGB(255, 255, 255, 255),
+    ),
+   ClipPath(
+  clipper: CurveClipper(),
+  child: Container(
+     decoration: BoxDecoration(
+    gradient: LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: [
+            Color.fromARGB(255, 91, 79, 158),
+            Color.fromARGB(255, 51, 45, 81),
+          ],
+        ),
+     ),
+    height: 240.0,
+  ),
+),
+
+              Column(
                 children: [
                   SizedBox(height: 20),
                   CarouselSlider(
@@ -261,7 +320,7 @@ List<Widget> promoCards = List.generate(5, (index) {
                       autoPlayInterval: Duration(seconds: 3),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: 26),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -289,10 +348,11 @@ List<Widget> promoCards = List.generate(5, (index) {
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 16),
                 ],
               ),
-            ),
+             ],
+),
             Container(
               height: 40,
               padding: EdgeInsets.symmetric(horizontal: 16),
@@ -341,18 +401,17 @@ List<Widget> promoCards = List.generate(5, (index) {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          height: screenHeight * 0.17,
+                          height: screenHeight * 0.19,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.vertical(
                               top: Radius.circular(16),
                             ),
                            image: DecorationImage(
-  image: event.imgURL.isNotEmpty
-      ? NetworkImage(event.imgURL)
-      : NetworkImage('https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
-  fit: BoxFit.cover,
-),
-
+                              image: event.imgURL.isNotEmpty
+                                  ? NetworkImage(event.imgURL)
+                                  : NetworkImage('https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                         Padding(
@@ -431,7 +490,26 @@ List<Widget> promoCards = List.generate(5, (index) {
                             ],
                           ),
                         ),
+                      Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        'more details',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontStyle: FontStyle.italic,
+                          color: Color.fromARGB(255, 91, 79, 158),
+                        ),
+                      ),
+                      Icon(
+                        Icons.arrow_forward,
+                        size: 16, // Adjust the size as needed
+                        color: Color.fromARGB(255, 91, 79, 158),
+                      ),
+                    ],
+                  ),
                       ],
+
                     ),
                   ),
                 );
@@ -495,9 +573,10 @@ class RecentEventsDetails extends StatelessWidget {
             alignment: Alignment.topLeft,
             children: [
               Container(
-                height: 400,
+                height: 440,
                 width: double.infinity,
                 decoration: BoxDecoration(
+                  color:  Color.fromARGB(255, 51, 45, 81),
                   image: DecorationImage(
                     image: event.imgURL.isNotEmpty
                         ? NetworkImage(event.imgURL)
@@ -508,27 +587,33 @@ class RecentEventsDetails extends StatelessWidget {
               ),
              Padding(
   padding: const EdgeInsets.all(16.0),
+             ),
+Container(
+ color:  Color.fromARGB(255, 51, 45, 81),
+ height: 75,
+ padding: const EdgeInsets.fromLTRB(0,25,0,0),
   child: Row(
     children: [
       IconButton(
         icon: Icon(Icons.arrow_back),
-        color: Color.fromARGB(255, 91, 79, 158),
+        color: Color.fromARGB(255, 139, 134, 167),
         onPressed: () {
           Navigator.of(context).pop();
         },
       ),
+      
       Text(
         "Event Details",
         style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 24,
+          color: Color.fromARGB(255, 255, 255, 255),
         ),
       ),
       SizedBox(width: 40), // Adjust the spacing as needed
     ],
   ),
-),
-
+             ),
             ],
           ),
           Expanded(
@@ -590,6 +675,7 @@ class RecentEventsDetails extends StatelessWidget {
                             ),
                           ],
                         ),
+
                         Row(
                           children: [
                             Icon(
@@ -624,25 +710,24 @@ class RecentEventsDetails extends StatelessWidget {
     ),
   ],
 ),
+  Row(
+                            children: [
+                              Icon(
+                                Icons.person,
+                                size: 40,
+                                color: Color.fromARGB(255, 91, 79, 158),
+                              ),
+                              SizedBox(width: 10), // Adjust the spacing as needed
+                              Text(
+                                "${event.NumberOfAttendees}",
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
                         SizedBox(height: 20),
-                        Row(
-  children: [
-    Icon(
-      Icons.person,
-      size: 40,
-      color: Color.fromARGB(255, 91, 79, 158),
-    ),
-    SizedBox(width: 10), // Adjust the spacing as needed
-    Text(
-      "${event.NumberOfAttendees}",
-      style: TextStyle(
-        fontSize: 22,
-        color: Colors.black87,
-      ),
-    ),
-  ],
-),
-
 
                         Text(
                           "Categories",
@@ -707,6 +792,9 @@ class RecentEventsDetails extends StatelessWidget {
                         SizedBox(height: 20),
                         
                         Center(
+                         child:  SizedBox( 
+                          height:55, //height of button
+                          width:190,
                           child: ElevatedButton(
                             onPressed: () {
                               showDialog(
@@ -723,8 +811,7 @@ class RecentEventsDetails extends StatelessWidget {
                             child: Text(
                               'Send offer',
                               style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                                fontSize: 25,
                                 color: Colors.white,
                               ),
                             ),
@@ -735,8 +822,10 @@ class RecentEventsDetails extends StatelessWidget {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
                               ),
+                              
                             ),
                           ),
+                         ),
                         ),
                         SizedBox(height: 20),
                       ],
@@ -932,7 +1021,7 @@ class _CustomDialogState extends State<CustomDialog> {
               onPressed: _sendOffer,
               child: Text(
                 'Send Offer',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20,),
               ),
               style: ElevatedButton.styleFrom(
                 primary: Color.fromARGB(255,91,79,158), // Button color
