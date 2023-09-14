@@ -167,7 +167,7 @@ class _SignUpState extends State<SignUp> {
       decoration: const BoxDecoration(
         // image: DecorationImage(image:AssetImage('assets/5.png'),
         // fit: BoxFit.cover),
-        
+
         gradient: LinearGradient(
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
@@ -178,10 +178,10 @@ class _SignUpState extends State<SignUp> {
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-       appBar: AppBar(
+        appBar: AppBar(
           // title: const Text('Sponsite'),
           backgroundColor: Colors.transparent,
-          iconTheme:const IconThemeData(color: Colors.white),
+          iconTheme: const IconThemeData(color: Colors.white),
         ),
         body: Center(
           child: SingleChildScrollView(
@@ -195,7 +195,7 @@ class _SignUpState extends State<SignUp> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Form(
-                          //autovalidateMode: AutovalidateMode.always,
+                          autovalidateMode: AutovalidateMode.always,
                           key: _formKey,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -242,8 +242,12 @@ class _SignUpState extends State<SignUp> {
                                     prefixIcon: Icon(Icons.person, size: 24),
                                   ),
                                   validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return "Please enter name";
+                                    if (value!.contains(' ') ||
+                                        RegExp(r'[!@#$%^&*(),.?":{}|<>]')
+                                            .hasMatch(value) ||
+                                        value.isEmpty ||
+                                        value.length > 50) {
+                                      return "Please enter a valid name";
                                     }
                                     return null;
                                   },
@@ -266,12 +270,12 @@ class _SignUpState extends State<SignUp> {
                                   autocorrect: false,
                                   textCapitalization: TextCapitalization.none,
                                   validator: (value) {
-                                    if (value == null ||
-                                        value.trim().isEmpty ||
-                                        !value.contains("@")) {
-                                      return "Please enter a valid email address";
+                                    if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$')
+                                            .hasMatch(value!) ||
+                                        value.isEmpty) {
+                                      return 'Please enter a valid email address';
                                     }
-                                    return null;
+                                    return null; // Add this line to handle valid input
                                   },
                                 ),
                               ),
@@ -302,14 +306,15 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                   obscureText: _obscured,
                                   validator: (value) {
-                                    if (value == null ||
-                                        value.trim().length < 6) {
-                                      return "Password must be at least 6 characters long";
-                                    } else if (value.length > 15) {
-                                      return "Password should not be greater than 15 characters";
-                                    } else {
-                                      return null;
+                                    if (value!.isEmpty) {
+                                      return 'Please enter your password';
                                     }
+
+                                    if (value.length < 6 || value.length > 15) {
+                                      return 'Password must between 6 and 15 characters';
+                                    }
+
+                                    return null;
                                   },
                                 ),
                               ),
@@ -397,7 +402,6 @@ class _SignUpState extends State<SignUp> {
 
                                   validator: (value) {
                                     if (value == 'No file selected') {
-                                      
                                       return "Please select authentication document";
                                     }
                                     return null;
@@ -449,83 +453,91 @@ class _SignUpState extends State<SignUp> {
                                 const CircularProgressIndicator(),
                               if (!_isAuthenticating)
                                 ElevatedButton(
-                                  style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.all<Color>(
-                                        Color.fromARGB(255, 51, 45, 81),
-                                      ), // Background color
-                                      textStyle:
-                                          MaterialStateProperty.all<TextStyle>(
-                                              const TextStyle(
-                                                  fontSize: 16)), // Text style
-                                      padding: MaterialStateProperty.all<
-                                              EdgeInsetsGeometry>(
-                                          const EdgeInsets.all(16)), // Padding
-                                      elevation:
-                                          MaterialStateProperty.all<double>(
-                                              1), // Elevation
-                                      shape: MaterialStateProperty.all<
-                                          OutlinedBorder>(
-                                        RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                              30), // Border radius
-                                          // Border color
+                                    style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                          Color.fromARGB(255, 51, 45, 81),
+                                        ), // Background color
+                                        textStyle: MaterialStateProperty.all<TextStyle>(
+                                            const TextStyle(
+                                                fontSize: 16)), // Text style
+                                        padding:
+                                            MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                                const EdgeInsets.all(
+                                                    16)), // Padding
+                                        elevation:
+                                            MaterialStateProperty.all<double>(
+                                                1), // Elevation
+                                        shape: MaterialStateProperty.all<
+                                            OutlinedBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                30), // Border radius
+                                            // Border color
+                                          ),
                                         ),
-                                      ),
-                                      minimumSize:
-                                          MaterialStateProperty.all<Size>(
-                                              const Size(200, 50))),
-                                  onPressed: () {
-                                    String name = _nameController.text;
-                                    String email = _emailController.text;
-                                    String password = _passwordController.text;
+                                        minimumSize:
+                                            MaterialStateProperty.all<Size>(
+                                                const Size(200, 50))),
+                                    onPressed: () {
+                                      String name = _nameController.text;
+                                      String email = _emailController.text;
+                                      String password =
+                                          _passwordController.text;
 
-                                    print('Name: $name');
-                                    print('Email: $email');
-                                    print('Password: $password');
-                                    print('authentication document: $fileName');
+                                      print('Name: $name');
+                                      print('Email: $email');
+                                      print('Password: $password');
+                                      print(
+                                          'authentication document: $fileName');
 
-                                    if (errorMessage != null) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(errorMessage!),
-                                          backgroundColor:
-                                              Color.fromARGB(255, 91, 79, 158),
-                                          behavior: SnackBarBehavior.floating,
-                                          margin: EdgeInsets.all(50),
-                                          elevation: 30,
-                                        ),
-                                      );
-                                      return; // Return or perform any other necessary action
-                                    }
+                                      if (errorMessage != null) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(errorMessage!),
+                                            backgroundColor: Color.fromARGB(
+                                                255, 91, 79, 158),
+                                            behavior: SnackBarBehavior.floating,
+                                            margin: EdgeInsets.all(50),
+                                            elevation: 30,
+                                          ),
+                                        );
+                                        return;
+                                        // Return or perform any other necessary action
+                                      }
 
-                                    uploadFile();
+                                      uploadFile();
 
-                                    sendDatatoDB(name, email, password,
-                                        fileName, context);
-                                    // if (errorMessage != null) {
-                                    //   ScaffoldMessenger.of(context).showSnackBar(
-                                    //     SnackBar(
-                                    //       content: Text(errorMessage!),
-                                    //       backgroundColor: const Color.fromARGB(
-                                    //           255, 87, 11, 117),
-                                    //       behavior: SnackBarBehavior.floating,
-                                    //       margin: EdgeInsets.all(50),
-                                    //       elevation: 30,
-                                    //     ),
-                                    //   );
-                                    //   return; // Return or perform any other necessary action
-                                    // }
-                                  },
-                                  child: const Text(
-                                    'Sign Up',
-                                    style: TextStyle(
-                                        color:
-                                            Color.fromARGB(255, 255, 255, 255),
-                                        fontSize: 20),
-                                  ),
-                                ),
+                                      sendDatatoDB(name, email, password,
+                                          fileName, context);
+
+                                      /*   Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const SignIn()),
+                                      ); */
+                                      // if (errorMessage != null) {
+                                      //   ScaffoldMessenger.of(context).showSnackBar(
+                                      //     SnackBar(
+                                      //       content: Text(errorMessage!),
+                                      //       backgroundColor: const Color.fromARGB(
+                                      //           255, 87, 11, 117),
+                                      //       behavior: SnackBarBehavior.floating,
+                                      //       margin: EdgeInsets.all(50),
+                                      //       elevation: 30,
+                                      //     ),
+                                      //   );
+                                      //   return; // Return or perform any other necessary action
+                                      // }
+                                    },
+                                    child: const Text(
+                                      'Sign Up',
+                                      style: TextStyle(
+                                          color: Color.fromARGB(
+                                              255, 255, 255, 255),
+                                          fontSize: 20),
+                                    )),
                               const SizedBox(
                                 height: 30,
                               ),
