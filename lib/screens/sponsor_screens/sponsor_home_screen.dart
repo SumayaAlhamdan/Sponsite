@@ -404,125 +404,129 @@ List<Widget> promoCards = List.generate(5, (index) {
    child: Container(
     color:Color.fromARGB(255, 255, 255, 255),
   child: Card(
-    elevation: 5,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(30),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          height: screenHeight * 0.19,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(16),
-            ),
-            image: DecorationImage(
-              image: event.imgURL.isNotEmpty
-                  ? NetworkImage(event.imgURL)
-                  : NetworkImage('https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
-              fit: BoxFit.cover,
-            ),
+  elevation: 5,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(30),
+  ),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Container(
+        height: screenHeight * 0.19,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(16),
+          ),
+          image: DecorationImage(
+            image: event.imgURL.isNotEmpty
+                ? NetworkImage(event.imgURL)
+                : NetworkImage('https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
+            fit: BoxFit.cover,
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                event.EventName,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: const Color.fromARGB(255, 0, 0, 0),
-                ),
-              ),
-              SizedBox(height: 4),
-              Row(
-                children: [
-                  Icon(
-                    Icons.calendar_today,
-                    size: 18,
-                    color: Color.fromARGB(255,91,79,158),
-                  ),
-                  SizedBox(width: 4),
-                  Text(
-                    "${event.date}",
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: const Color.fromARGB(
-                          255, 0, 0, 0),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 4),
-              Row(
-                children: [
-                  Icon(
-                    Icons.location_on,
-                    size: 21,
-                    color: Color.fromARGB(255,91,79,158),
-                  ),
-                  SizedBox(width: 4),
-                   Expanded(
-                    child: Text(
-                      event.location,
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: const Color.fromARGB(255, 0, 0, 0),
-                      ),
-                      overflow: TextOverflow.ellipsis, // Add this line
-                      maxLines: 1, // Add this line
-                    ),
-                  )
-                ],
-              ),
-              SizedBox(height: 10),
-              Wrap(
-                spacing: 4,
-                children: event.Category.map((category) {
-                  return Chip(
-                    label: Text(category),
-                    backgroundColor:
-                    Color.fromARGB(255, 255, 255, 255),
-                    shadowColor:Color.fromARGB(255, 91, 79, 158),
-                    elevation: 3,
-                    labelStyle: TextStyle(
-                      color: Color.fromARGB(255,91,79,158),
-                    ),
-                  );
-                }).toList(),
-              ),
-              SizedBox(height: 10),
-              Center(
-                
-              ),
-            ],
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+      ),
+      Container(
+        decoration: BoxDecoration(color: Colors.white ,borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(30),)),
+        //color: Colors.white, // Set the background color to white
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'more details',
+              event.EventName,
               style: TextStyle(
-                fontSize: 16,
-                fontStyle: FontStyle.italic,
-                color: Color.fromARGB(255, 91, 79, 158),
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                color: const Color.fromARGB(255, 0, 0, 0),
               ),
             ),
-            Icon(
-              Icons.arrow_forward,
-              size: 16, // Adjust the size as needed
-              color: Color.fromARGB(255, 91, 79, 158),
+            SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(
+                  Icons.calendar_today,
+                  size: 18,
+                  color: Color.fromARGB(255, 91, 79, 158),
+                ),
+                SizedBox(width: 4),
+                Text(
+                  "${event.date}",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: const Color.fromARGB(255, 0, 0, 0),
+                  ),
+                ),
+              ],
             ),
+            SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(
+                  Icons.location_on,
+                  size: 21,
+                  color: Color.fromARGB(255, 91, 79, 158),
+                ),
+                SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    event.location,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: const Color.fromARGB(255, 0, 0, 0),
+                    ),
+                    overflow: TextOverflow.ellipsis, // Add this line
+                    maxLines: 1, // Add this line
+                  ),
+                )
+              ],
+            ),
+            SizedBox(height: 10),
+            Wrap(
+              spacing: 4,
+              children: event.Category.map((category) {
+                return Chip(
+                  label: Text(category),
+                  backgroundColor:
+                  Color.fromARGB(255, 255, 255, 255),
+                  shadowColor:Color.fromARGB(255, 91, 79, 158),
+                  elevation: 3,
+                  labelStyle: TextStyle(
+                    color: Color.fromARGB(255, 91, 79, 158),
+                  ),
+                );
+              }).toList(),
+            ),
+            SizedBox(height: 10), // Add some space
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(
+                  'more details',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontStyle: FontStyle.italic,
+                    color: Color.fromARGB(255, 91, 79, 158),
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward,
+                  size: 16, // Adjust the size as needed
+                  color: Color.fromARGB(255, 91, 79, 158),
+                ),
+              ],
+            ),
+             SizedBox(height: 20.5), // Add some space at the bottom
+              Container(
+                color: Colors.white, // Set the background color to white
+                height: 12, // Adjust the height as needed
+              ),
           ],
         ),
-      ],
-    ),
+      ),
+    ],
   ),
+)
 ));
 
               },
@@ -651,135 +655,137 @@ class RecentEventsDetails extends StatelessWidget {
                 child: Container(
                   color: Colors.white,
                   padding: const EdgeInsets.all(16.0),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 20),
-                        Text(
-                          event.EventName,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 32,
-                            color: Colors.black87,
+                  child: Scrollbar(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 20),
+                          Text(
+                            event.EventName,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 32,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          event.EventType,
-                          style: TextStyle(
-                            fontSize: 22,
-                            color: Colors.black87,
+                          SizedBox(height: 10),
+                          Text(
+                            event.EventType,
+                            style: TextStyle(
+                              fontSize: 22,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
-                        Divider(height: 30, thickness: 2),
-                        // Info Rows
-                        _buildInfoRow(Icons.location_on, event.location, "Location"),
-                        _buildInfoRow(Icons.calendar_today, event.date, "Date"),
-                        _buildInfoRow(Icons.access_time, event.time, "Time"),
-                        _buildInfoRow(Icons.person, "${event.NumberOfAttendees}", "Attendees"),
-                        SizedBox(height: 20),
-
-                        Text(
-                          "Categories",
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                          Divider(height: 30, thickness: 2),
+                          // Info Rows
+                          _buildInfoRow(Icons.location_on, event.location, "Location"),
+                          _buildInfoRow(Icons.calendar_today, event.date, "Date"),
+                          _buildInfoRow(Icons.access_time, event.time, "Time"),
+                          _buildInfoRow(Icons.person, "${event.NumberOfAttendees}", "Attendees"),
+                          SizedBox(height: 20),
+                  
+                          Text(
+                            "Categories",
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 10),
-                        Wrap(
-                          spacing: 4,
-                          children: event.Category.map((category) {
-                            return Chip(
-                              label: Text(category),
-                              backgroundColor: Color.fromARGB(255, 255, 255, 255),
-                              shadowColor: Color.fromARGB(255, 91, 79, 158),
-                              elevation: 3,
-                              labelStyle: TextStyle(
-                                color: Color.fromARGB(255, 91, 79, 158),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                        SizedBox(height: 20),
-
-                        Text(
-                          "Benefits",
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          event.benefits ?? "No benefits available",
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        SizedBox(height: 20),
-
-                        Text(
-                          "Notes",
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          (event.notes != null && event.notes.isNotEmpty)
-                              ? event.notes
-                              : "There are no notes available",
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        SizedBox(height: 20),
-
-                        Center(
-                          child: SizedBox(
-                            height: 55, //height of button
-                            width: 190,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return CustomDialog(
-                                      event: event,
-                                      parentContext: context,
-                                      sponsorId: sponsorID,
-                                    );
-                                  },
-                                );
-                              },
-                              child: Text(
-                                'Send offer',
-                                style: TextStyle(
-                                  fontSize: 25,
-                                  color: Colors.white,
+                          SizedBox(height: 10),
+                          Wrap(
+                            spacing: 4,
+                            children: event.Category.map((category) {
+                              return Chip(
+                                label: Text(category),
+                                backgroundColor: Color.fromARGB(255, 255, 255, 255),
+                                shadowColor: Color.fromARGB(255, 91, 79, 158),
+                                elevation: 3,
+                                labelStyle: TextStyle(
+                                  color: Color.fromARGB(255, 91, 79, 158),
                                 ),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                               primary: Color.fromARGB(255, 91, 79, 158),
-                              //  primary: Color(0xFF6A62B6),
-                                elevation: 10,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
+                              );
+                            }).toList(),
+                          ),
+                          SizedBox(height: 20),
+                  
+                          Text(
+                            "Benefits",
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            event.benefits ?? "No benefits available",
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                  
+                          Text(
+                            "Notes",
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            (event.notes != null && event.notes.isNotEmpty)
+                                ? event.notes
+                                : "There are no notes available",
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                  
+                          Center(
+                            child: SizedBox(
+                              height: 55, //height of button
+                              width: 190,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return CustomDialog(
+                                        event: event,
+                                        parentContext: context,
+                                        sponsorId: sponsorID,
+                                      );
+                                    },
+                                  );
+                                },
+                                child: Text(
+                                  'Send offer',
+                                  style: TextStyle(
+                                    fontSize: 25,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                 primary: Color.fromARGB(255, 91, 79, 158),
+                                //  primary: Color(0xFF6A62B6),
+                                  elevation: 10,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        SizedBox(height: 20),
-                      ],
+                          SizedBox(height: 20),
+                        ],
+                      ),
                     ),
                   ),
                 ),
