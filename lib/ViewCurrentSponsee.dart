@@ -188,8 +188,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
       ],
     ),
   );
-}
-@override
+}@override
 Widget build(BuildContext context) {
   return Scaffold(
     // bottomNavigationBar: const SponseeBottomNavBar(),
@@ -214,19 +213,22 @@ Widget build(BuildContext context) {
               height: 20,
             ),
             Expanded(
-              child: GridView.builder(
-                 shrinkWrap: true,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                childAspectRatio: 0.9,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
+              child: Scrollbar(
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  physics: BouncingScrollPhysics(), // Enable scrolling for the GridView
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.9,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  itemCount: events.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    Event event = events[index];
+                    return listItem(event: event);
+                  },
                 ),
-                itemCount: events.length,
-                itemBuilder: (BuildContext context, int index) {
-                  Event event = events[index];
-                  return listItem(event: event);
-                },
               ),
             ),
           ],
@@ -247,12 +249,12 @@ Widget build(BuildContext context) {
             setState(() {
               selectedTabIndex = selection == eventType.current ? 0 : 1;
               if (selectedTabIndex == eventType.current) {
-  Navigator.of(context).pushReplacement(
-    MaterialPageRoute(builder: (context) => const ViewCurrentSponsee()),
-  );
-} else {
-}
-
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => const ViewCurrentSponsee()),
+                );
+              } else {
+                // Handle the case when "Past" is selected
+              }
             });
           },
         ),

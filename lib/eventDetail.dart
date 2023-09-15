@@ -92,92 +92,94 @@ class _Start extends State<eventDetail> {
                 child: Container(
                   color: Colors.white,
                   padding: const EdgeInsets.all(16.0),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 20),
-                        Text(
-                          widget.DetailKey,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 32,
-                            color: Colors.black87,
+                  child: Scrollbar(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 20),
+                          Text(
+                            widget.DetailKey,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 32,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          widget.Type,
-                          style: TextStyle(
-                            fontSize: 22,
-                            color: Colors.black87,
+                          SizedBox(height: 10),
+                          Text(
+                            widget.Type,
+                            style: TextStyle(
+                              fontSize: 22,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
-                        Divider(height: 30, thickness: 2),
-                        _buildInfoRow(Icons.location_on, widget.location, "Location"),
-                        _buildInfoRow(Icons.calendar_today, widget.date, "Date"),
-                        _buildInfoRow(Icons.access_time, widget.time, "Time"),
-                        _buildInfoRow(Icons.person, "${widget.NumberOfAttendees}", "Attendees"),
-                        Text(
-                          "Categories",
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                          Divider(height: 30, thickness: 2),
+                          _buildInfoRow(Icons.location_on, widget.location, "Location"),
+                          _buildInfoRow(Icons.calendar_today, widget.date, "Date"),
+                          _buildInfoRow(Icons.access_time, widget.time, "Time"),
+                          _buildInfoRow(Icons.person, "${widget.NumberOfAttendees}", "Attendees"),
+                          Text(
+                            "Categories",
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 10),
-                        Wrap(
-                          spacing: 8,
-                          children: widget.Category.split(',').map((category) {
-                            return Chip(
-                              label: Text(category.trim()),
-                              backgroundColor: Color.fromARGB(255, 255, 255, 255),
-                              shadowColor: Color.fromARGB(255,91,79,158),
-                              elevation: 3,
-                              labelStyle: TextStyle(
-                                color: Color.fromARGB(255,91,79,158),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                        SizedBox(height: 20),
-                        Text(
-                          "Benefits",
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                          SizedBox(height: 10),
+                          Wrap(
+                            spacing: 8,
+                            children: widget.Category.split(',').map((category) {
+                              return Chip(
+                                label: Text(category.trim()),
+                                backgroundColor: Color.fromARGB(255, 255, 255, 255),
+                                shadowColor: Color.fromARGB(255,91,79,158),
+                                elevation: 3,
+                                labelStyle: TextStyle(
+                                  color: Color.fromARGB(255,91,79,158),
+                                ),
+                              );
+                            }).toList(),
                           ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          widget.benefits ?? "No benefits available",
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.black87,
+                          SizedBox(height: 20),
+                          Text(
+                            "Benefits",
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 20),
-                        Text(
-                          "Notes",
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                          SizedBox(height: 10),
+                          Text(
+                            widget.benefits ?? "No benefits available",
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                           (widget.notes != null && widget.notes.isNotEmpty)
-                              ? widget.notes
-                              : "There are no notes available",
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.black87,
+                          SizedBox(height: 20),
+                          Text(
+                            "Notes",
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
-                      ],
+                          SizedBox(height: 10),
+                          Text(
+                             (widget.notes != null && widget.notes.isNotEmpty)
+                                ? widget.notes
+                                : "There are no notes available",
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
