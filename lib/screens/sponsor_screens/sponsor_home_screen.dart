@@ -5,20 +5,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:sponsite/screens/signIn_screen.dart';
-import 'package:sponsite/widgets/bottom_navigation_bar.dart';
 
-User? user = FirebaseAuth.instance.currentUser;
 String? sponsorID;
-
-void check() {
-  if (user != null) {
-    sponsorID = user?.uid;
-    print('Sponsor ID: $sponsorID');
-  } else {
-    print('User is not logged in.');
-  }
-}
-
 class Offer {
   final String EventId;
   final String sponseeId;
@@ -91,7 +79,17 @@ class SponsorHomePage extends StatefulWidget {
 class _SponsorHomePageState extends State<SponsorHomePage> {
   List<Event> events = [];
   String selectedCategory = 'All';
+User? user = FirebaseAuth.instance.currentUser;
 
+
+void check() {
+  if (user != null) {
+    sponsorID = user?.uid;
+    print('Sponsor ID: $sponsorID');
+  } else {
+    print('User is not logged in.');
+  }
+}
   @override
   void initState() {
     super.initState();
@@ -217,8 +215,10 @@ List<Widget> promoCards = List.generate(5, (index) {
       ),));
     }).toList();
 
- return Scaffold(
-      body: SingleChildScrollView( // Wrap your content in SingleChildScrollView to enable scrolling
+
+  return Scaffold(
+  body:SingleChildScrollView( 
+        physics: AlwaysScrollableScrollPhysics(),// Wrap your content in SingleChildScrollView to enable scrolling
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -375,8 +375,10 @@ List<Widget> promoCards = List.generate(5, (index) {
 ),
 
             // SizedBox(height: 3),
-                SizedBox(height: screenHeight-540,
+              SizedBox(height: screenHeight-540,
+              child:   Scrollbar(// Set this to true to always show the scrollbar
               child: GridView.builder(
+              padding: const EdgeInsets.fromLTRB(12,0,12.0,0), 
               shrinkWrap: true, // Add this to allow GridView to scroll inside SingleChildScrollView
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
@@ -387,9 +389,8 @@ List<Widget> promoCards = List.generate(5, (index) {
               itemCount: getFilteredEvents().length,
               itemBuilder: (context, index) {
                 Event event = getFilteredEvents()[index];
-                
-
-                return GestureDetector(
+             
+   return GestureDetector(
   onTap: () {
     // Navigate to the event details page
     Navigator.push(
@@ -526,9 +527,8 @@ List<Widget> promoCards = List.generate(5, (index) {
 
               },
             ),),
-            const BottomNavBar(),
     
-          ],
+          )],
    
         ),
         
@@ -954,105 +954,6 @@ class _CustomDialogState extends State<CustomDialog> {
                       );
     }
   }
-  // Widget build(BuildContext context) {
-  //   return AlertDialog(
-  //     title: Row(
-  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //       children: [
-  //         Text('Offer', style: TextStyle(fontSize: 30)),
-  //         Container(
-  //           alignment: Alignment.topRight,
-  //           child: Padding(
-  //             padding: EdgeInsets.only(top: 1, right: 1),
-  //             child: IconButton(
-  //               icon: Icon(Icons.close),
-  //               onPressed: () {
-  //                 Navigator.of(context).pop();
-  //               },
-  //             ),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //     contentPadding: EdgeInsets.symmetric(horizontal: 70.0, vertical: 40.0),
-  //     content: SingleChildScrollView(
-  //       child: Container(
-  //         width: 390,
-  //         height: 729,
-  //         child: Column(
-  //           mainAxisAlignment: MainAxisAlignment.start,
-  //           crossAxisAlignment: CrossAxisAlignment.center,
-  //           children: [
-  //             Wrap(
-  //               spacing: 9.0,
-  //               children: widget.event.Category.map((category) {
-  //                 return FilterChip(
-  //                   label: Text(category),
-  //                   selected: filters.contains(category),
-  //                   onSelected: (bool selected) {
-  //                     setState(() {
-  //                       if (selected) {
-  //                         filters.add(category);
-  //                       } else {
-  //                         filters.remove(category);
-  //                       }
-  //                     });
-  //                   },
-  //                   backgroundColor: Color.fromARGB(255, 168, 164, 194), // Button color
-  //                   selectedColor: Color.fromARGB(255,91,79,158), // Button color
-  //                   labelStyle: TextStyle(
-  //                     color: Colors.white,
-  //                   ),
-  //                   elevation: 3,
-  //                 );
-  //               }).toList(),
-  //             ),
-  //             SizedBox(height: 17),
-  //             TextField(
-  //               controller: notesController,
-  //                maxLength: 600,
-  //               decoration: InputDecoration(
-  //                 hintText: 'Enter notes or additional information',
-  //                 focusedBorder: OutlineInputBorder(
-  //                   borderSide: BorderSide(
-  //                       color: Color.fromARGB(255,91,79,158)),
-  //                 ),
-  //                 enabledBorder: OutlineInputBorder(
-  //                   borderSide: BorderSide(color: Colors.grey, width: 1.0),
-  //                 ),
-  //               ),
-  //               style: TextStyle(fontSize: 20),
-  //               maxLines: 20,
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //     actions: [
-  //       Padding(
-  //         padding: const EdgeInsets.only(bottom: 20.0),
-  //         child: Center(
-  //           child: ElevatedButton(
-  //             onPressed: _sendOffer,
-  //             child: Text(
-  //               'Send Offer',
-  //               style: TextStyle(fontSize: 20,),
-  //             ),
-  //             style: ElevatedButton.styleFrom(
-  //               primary: Color.fromARGB(255,91,79,158), // Button color
-  //               onPrimary: Colors.white,
-  //               elevation: 20,
-  //               shape: RoundedRectangleBorder(
-  //                 borderRadius: BorderRadius.circular(30),
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-  //Majd's Modifications to the offer pop up 
 
 @override
 Widget build(BuildContext context) {
@@ -1216,6 +1117,5 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MaterialApp(
-    home: user != null ? SponsorHomePage() : SignIn(),
   ));
 }
