@@ -34,7 +34,7 @@ class _SignInState extends State<SignIn> {
   UploadTask? task;
   File? file;
 
-  void _displayError(context,String errMsg) {
+  void _displayError(context, String errMsg) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(errMsg),
@@ -57,8 +57,7 @@ class _SignInState extends State<SignIn> {
 
     if (!isValid) {
       setState(() {
-        
-         _displayError(context, "Please make sure to fill all fields correctly");
+        _displayError(context, "Please make sure to fill all fields correctly");
       });
 
       return;
@@ -76,8 +75,24 @@ class _SignInState extends State<SignIn> {
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
         setState(() {
           _isAuthenticating = false;
-        
-           _displayError(context,'Wrong email or password');
+          print(e);
+          _displayError(context, 'Wrong email or password');
+
+          return;
+        });
+      } else if (e.code == 'invalid-email') {
+        setState(() {
+          _isAuthenticating = false;
+          print(e);
+          _displayError(context, 'Please enter a valid email');
+
+          return;
+        });
+      } else {
+        print(e);
+        setState(() {
+          _isAuthenticating = false;
+          _displayError(context, "Error occured");
 
           return;
         });
@@ -86,9 +101,9 @@ class _SignInState extends State<SignIn> {
       print(e);
       setState(() {
         _isAuthenticating = false;
-         _displayError(context,"Error occured");
+        _displayError(context, "Error occured");
 
-          return;
+        return;
       });
     }
   }
@@ -178,16 +193,13 @@ class _SignInState extends State<SignIn> {
                                   autocorrect: false,
                                   textCapitalization: TextCapitalization.none,
                                   validator: (value) {
-                                    if (value == null ||
-                                        value.trim().isEmpty ||
-                                        !value.contains("@")) {
-                                      return "Please enter a valid email address";
+                                    if (value == null || value.trim().isEmpty) {
+                                      return "Please enter email address";
                                     }
                                     return null;
                                   },
                                 ),
                               ),
-                              
                               const SizedBox(height: 25.0),
                               SizedBox(
                                 width: MediaQuery.of(context).size.width *
@@ -215,21 +227,24 @@ class _SignInState extends State<SignIn> {
                                   ),
                                   obscureText: _obscured,
                                   validator: (value) {
-                                    if (value == null ||
-                                        value.trim().length < 6) {
-                                      return "Password must be at least 6 characters long";
-                                    } else if (value.length > 15) {
-                                      return "Password should not be greater than 15 characters";
-                                    } else {
-                                      return null;
-                                    } //Color.fromARGB(235, 160, 122, 192)
+                                    if (value == null || value.trim().isEmpty) {
+                                      return 'Please enter password';
+                                    }
+                                    return null;
+                                    // if (value == null ||
+                                    //     value.trim().length < 6) {
+                                    //   return "Password must be at least 6 characters long";
+                                    // } else if (value.length > 15) {
+                                    //   return "Password should not be greater than 15 characters";
+                                    // } else {
+                                    //   return null;
+                                    // } //Color.fromARGB(235, 160, 122, 192)
                                   },
                                 ),
                               ),
                               const SizedBox(height: 10.0),
                               const SizedBox(height: 8),
                               const SizedBox(height: 25),
-                              
                               if (_isAuthenticating)
                                 const CircularProgressIndicator(),
                               if (!_isAuthenticating)
@@ -298,7 +313,7 @@ class _SignInState extends State<SignIn> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Text("Dont have an account?"),
+                                    const Text("Don't have an account?"),
                                     TextButton(
                                       onPressed: () {
                                         Navigator.of(context).push(
@@ -310,11 +325,11 @@ class _SignInState extends State<SignIn> {
                                       },
                                       child: const Text(
                                         'Sign Up',
-                                        style:  TextStyle(fontSize: 17,
-                                         color: 
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          color:
                                               Color.fromARGB(255, 91, 79, 158),
                                         ),
-                                        
                                       ),
                                     )
                                   ],

@@ -106,6 +106,22 @@ class _SignUpState extends State<SignUp> {
 
           return;
         });
+      }else if (e.code == 'invalid-email') {
+        setState(() {
+          _isAuthenticating = false;
+          print(e);
+          _displayError(context, 'Please enter a valid email');
+
+          return;
+        });
+      } else {
+        print(e);
+        setState(() {
+          _isAuthenticating = false;
+          _displayError(context, "Error occured");
+
+          return;
+        });
       }
     } catch (e) {
       print(e);
