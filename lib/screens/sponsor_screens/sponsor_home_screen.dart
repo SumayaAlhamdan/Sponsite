@@ -36,6 +36,7 @@ class Event {
   final String notes;
   final String? benefits;
   final String  NumberOfAttendees ; 
+  final String timeStamp;
 
   Event({
     required this.EventId,
@@ -50,6 +51,7 @@ class Event {
      required  this.notes,
     this.benefits,
     required this.NumberOfAttendees, 
+    required this.timeStamp, 
   });
 }
 class CurveClipper extends CustomClipper<Path> {
@@ -96,25 +98,31 @@ void check() {
     check();
     _loadEventsFromFirebase();
   }
+void _loadEventsFromFirebase() {
+  final DatabaseReference database = FirebaseDatabase.instance.ref();
+  database.child('sponseeEvents').onValue.listen((event) {
+    if (event.snapshot.value != null) {
+      setState(() {
+        events.clear();
+        Map<dynamic, dynamic> eventData =
+            event.snapshot.value as Map<dynamic, dynamic>;
 
-  void _loadEventsFromFirebase() {
-    final DatabaseReference database = FirebaseDatabase.instance.ref();
-    database.child('sponseeEvents').onValue.listen((event) {
-      if (event.snapshot.value != null) {
-        setState(() {
-          events.clear();
-          Map<dynamic, dynamic> eventData =
-              event.snapshot.value as Map<dynamic, dynamic>;
+        eventData.forEach((key, value) {
+          // Check if value['Category'] is a list
+          List<String> categoryList = [];
+          if (value['Category'] is List<dynamic>) {
+            categoryList = (value['Category'] as List<dynamic>)
+                .map((category) => category.toString())
+                .toList();
+          }
+          String timestampString = value['TimeStamp'] as String;
+          DateTime eventDate = DateTime.parse(timestampString);
 
-          eventData.forEach((key, value) {
-            // Check if value['Category'] is a list
-            List<String> categoryList = [];
-            if (value['Category'] is List<dynamic>) {
-              categoryList = (value['Category'] as List<dynamic>)
-                  .map((category) => category.toString())
-                  .toList();
-            }
+          // Simulate the current time (for testing purposes)
+          DateTime currentTime = DateTime.now();
 
+          // Check if the event was added in the last 3 days
+          if (eventDate.isAfter(currentTime.subtract(Duration(days: 3)))) {
             events.add(Event(
               EventId: key,
               sponseeId: value['SponseeID'] as String? ?? '',
@@ -127,13 +135,20 @@ void check() {
               Category: categoryList,
               notes: value['Notes'] as String? ?? 'There are no notes available',
               benefits: value['Benefits'] as String?,
-              NumberOfAttendees: value['NumberOfAttendees'] as String? ?? '', 
+              NumberOfAttendees: value['NumberOfAttendees'] as String? ?? '',
+              timeStamp: timestampString, // Store the timestamp
             ));
-          });
+          }
         });
-      }
-    });
-  }
+
+        // Sort events based on the timeStamp (descending order)
+        events.sort((a, b) => b.timeStamp.compareTo(a.timeStamp));
+      });
+    }
+  });
+}
+
+
 
   List<Event> getFilteredEvents() {
     if (selectedCategory == 'All') {
