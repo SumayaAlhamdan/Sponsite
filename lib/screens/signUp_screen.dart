@@ -6,6 +6,9 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sponsite/screens/signIn_screen.dart';
+import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
+import 'package:sponsite/screens/sponsor_screens/sponsor_home_screen.dart';
+import 'package:sponsite/widgets/screen_logic.dart';
 import '../FirebaseApi.dart';
 
 class SignUp extends StatefulWidget {
@@ -84,12 +87,19 @@ class _SignUpState extends State<SignUp> {
       final userId = userCredentials.user!.uid;
 
 // Connect the entered user to its info with the user's ID
-      dbref.child(theType).child(userId).set({
+      await dbref.child(theType).child(userId).set({
         'Name': name,
         'Email': email,
         'Password': password,
         'authentication document': fileName, // Remove the extra colon
       });
+      if(theType == 'Sponsors'){
+        Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) =>  SponsorHomePage()));
+      }else if(theType == 'Sponsees'){
+         Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => const SponseeHome()));
+      }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         setState(() {
