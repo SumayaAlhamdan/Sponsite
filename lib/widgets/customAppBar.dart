@@ -7,27 +7,18 @@ class CustomAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
+        color: Color.fromARGB(255, 51, 45, 81),
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(40.0),
           bottomRight: Radius.circular(40.0),
         ),
-        gradient: LinearGradient(
-          begin: Alignment.bottomCenter,
-          end: Alignment.topCenter,
-          colors: [
-            Color.fromARGB(255, 91, 79, 158),
-            Color.fromARGB(255, 51, 45, 81),
-          ],
-        ),
       ),
       child: AppBar(
         title: Padding(
-          padding: const EdgeInsets.only(top:12.0),
-          child: Center(
-            child: Text(
-              title,
-              style: TextStyle(color: Colors.white , fontSize: 35 , fontWeight: FontWeight.w300), // Text color
-            ),
+          padding: const EdgeInsets.only(top: 12.0, left: 30.0),
+          child: Text(
+            title,
+            style: TextStyle(color: Colors.white , fontSize: 35 , fontWeight: FontWeight.w400), // Text color
           ),
         ),
         backgroundColor: Colors.transparent, // Transparent app bar background
