@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-
 enum eventType { current, past }
 
 class SingleChoice extends StatefulWidget {
@@ -18,12 +17,12 @@ class SingleChoice extends StatefulWidget {
 }
 
 class _SingleChoiceState extends State<SingleChoice> {
-  late eventType selectedevent;
+  late eventType selectedEvent;
 
   @override
   void initState() {
     super.initState();
-    selectedevent = widget.initialSelection;
+    selectedEvent = widget.initialSelection;
   }
 
   @override
@@ -37,18 +36,20 @@ class _SingleChoiceState extends State<SingleChoice> {
         ButtonSegment<eventType>(
           value: eventType.past,
           label: Text("Past"),
+          enabled: false, 
         ),
       ],
-      selected: <eventType>{selectedevent},
+      selected: <eventType>{selectedEvent},
       onSelectionChanged: (Set<eventType> newSelection) {
         setState(() {
-          selectedevent = newSelection.first;
-          widget.onSelectionChanged(selectedevent);
+          selectedEvent = newSelection.first;
+          widget.onSelectionChanged(selectedEvent);
         });
       },
     );
   }
 }
+
 
 
 // class UserTypeSelector extends StatefulWidget {
