@@ -9,6 +9,8 @@ import 'package:sponsite/screens/signIn_screen.dart';
 import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
 import 'package:sponsite/screens/sponsor_screens/sponsor_home_screen.dart';
 import 'package:sponsite/widgets/screen_logic.dart';
+import 'package:sponsite/widgets/sponsee_bottom_navbar.dart';
+import 'package:sponsite/widgets/sponsor_botton_navbar.dart';
 import '../FirebaseApi.dart';
 
 class SignUp extends StatefulWidget {
@@ -95,10 +97,14 @@ class _SignUpState extends State<SignUp> {
       });
       if(theType == 'Sponsors'){
         Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) =>  SponsorHomePage()));
+                MaterialPageRoute(builder: (context) =>  Stack(
+        children: [SponsorHomePage(), const SponsorBottomNavBar()],
+      )));
       }else if(theType == 'Sponsees'){
          Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => const SponseeHome()));
+                MaterialPageRoute(builder: (context) =>  const Stack(
+        children: [SponseeHome(), SponseeBottomNavBar()],
+      )));
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
