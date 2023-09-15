@@ -119,7 +119,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
 
             events.add(Event(
               EventId: key,
-              sponseeId: value['sponseeId'] as String? ?? '',
+              sponseeId: value['SponseeID'] as String? ?? '',
               EventName: value['EventName'] as String? ?? '',
               EventType: value['EventType'] as String? ?? '',
               location: value['Location'] as String? ?? '',
@@ -173,7 +173,7 @@ List<Widget> promoCards = List.generate(5, (index) {
       elevation: 0, 
       child: Container(
       decoration: BoxDecoration(
-                        color: Color.fromARGB(0, 255, 255, 255),
+       color: Color.fromARGB(255, 255, 255, 255),
         borderRadius: BorderRadius.circular(25),
         image: DecorationImage(
         image: event.imgURL.isNotEmpty
@@ -400,12 +400,13 @@ List<Widget> promoCards = List.generate(5, (index) {
       ),
     );
   },
+   child: Container(
+    color:Color.fromARGB(255, 255, 255, 255),
   child: Card(
     elevation: 5,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(30),
     ),
-    color: Color.fromARGB(255, 255, 255, 255), // Set the card's background color to white
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -485,7 +486,7 @@ List<Widget> promoCards = List.generate(5, (index) {
                     label: Text(category),
                     backgroundColor:
                     Color.fromARGB(255, 255, 255, 255),
-                    shadowColor: Color(0xFF6A62B6),
+                    shadowColor:Color.fromARGB(255, 91, 79, 158),
                     elevation: 3,
                     labelStyle: TextStyle(
                       color: Color.fromARGB(255,91,79,158),
@@ -521,7 +522,7 @@ List<Widget> promoCards = List.generate(5, (index) {
       ],
     ),
   ),
-);
+));
 
               },
             ),),
@@ -694,7 +695,7 @@ class RecentEventsDetails extends StatelessWidget {
                             return Chip(
                               label: Text(category),
                               backgroundColor: Color.fromARGB(255, 255, 255, 255),
-                              shadowColor: Color(0xFF6A62B6),
+                              shadowColor: Color.fromARGB(255, 91, 79, 158),
                               elevation: 3,
                               labelStyle: TextStyle(
                                 color: Color.fromARGB(255, 91, 79, 158),
@@ -754,7 +755,7 @@ class RecentEventsDetails extends StatelessWidget {
                                     return CustomDialog(
                                       event: event,
                                       parentContext: context,
-                                      sponsorID: '',
+                                      sponsorId: sponsorID,
                                     );
                                   },
                                 );
@@ -767,8 +768,8 @@ class RecentEventsDetails extends StatelessWidget {
                                 ),
                               ),
                               style: ElevatedButton.styleFrom(
-                               // primary: Color.fromARGB(255, 91, 79, 158),
-                               primary: Color(0xFF6A62B6),
+                               primary: Color.fromARGB(255, 91, 79, 158),
+                              //  primary: Color(0xFF6A62B6),
                                 elevation: 10,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
@@ -834,12 +835,12 @@ class RecentEventsDetails extends StatelessWidget {
 class CustomDialog extends StatefulWidget {
   final Event event;
   final BuildContext? parentContext;
-  final String? sponsorID;
+  final String? sponsorId;
 
   CustomDialog({
     required this.event,
     this.parentContext,
-    required this.sponsorID,
+    required this.sponsorId,
   });
 
   @override
@@ -857,41 +858,19 @@ class _CustomDialogState extends State<CustomDialog> {
     notesController.dispose();
     super.dispose();
   }
-Future<void> _showSignOutConfirmationDialog(BuildContext context) async {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Sign Out Confirmation'),
-          content: Text('Are you sure you want to sign out?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: const Text('Cancel',style: TextStyle(color:Color.fromARGB(255,51,45,81) ),),
-            ),
-            TextButton(
-              onPressed: () async {
-                // Sign out the user
-                await FirebaseAuth.instance.signOut();
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child:const  Text('Sign Out',style: TextStyle(color:Color.fromARGB(255,51,45,81) )),
-            ),
-          ],
-        );
-      },
-    );
-  }
+
   void _showEmptyFormAlert() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return Theme(
+            data: Theme.of(context).copyWith(dialogBackgroundColor: Colors.white),
+            child:
+      AlertDialog(
           title: Text('Empty Offer'),
+          // backgroundColor: Colors.white,
           content: Text(
-              'Please select at least one category and enter some notes before sending the offer',style: TextStyle(fontSize: 20),),
+              'Please select at least one category before sending the offer',style: TextStyle(fontSize: 20),),
           actions: [
              TextButton(
               onPressed: () async {
@@ -900,13 +879,13 @@ Future<void> _showSignOutConfirmationDialog(BuildContext context) async {
               child:const  Text('OK',style: TextStyle(color:Color.fromARGB(255,51,45,81), fontSize: 20),),
             ),
           ],
-        );
+        ));
       },
     );
   }
 
   void _sendOffer() async {
-    if (filters.isEmpty || notesController.text.isEmpty) {
+    if (filters.isEmpty) {
       _showEmptyFormAlert();
     } else {
       List<String> selectedCategories = filters
@@ -916,8 +895,8 @@ Future<void> _showSignOutConfirmationDialog(BuildContext context) async {
       // Create an Offer object
       Offer offer = Offer(
         EventId: widget.event.EventId,
-        sponseeId: "sponseeID",
-        sponsorId: widget.sponsorID ?? "", // Replace with the actual sponsor ID
+        sponseeId: widget.event.sponseeId,
+        sponsorId: widget.sponsorId ?? "", // Replace with the actual sponsor ID
         notes: notesController.text,
         Category: selectedCategories,
       );
@@ -927,7 +906,7 @@ Future<void> _showSignOutConfirmationDialog(BuildContext context) async {
       DatabaseReference newOfferRef = offersRef.push();
 
       await newOfferRef.set({
-        "eventName": offer.EventId,
+        "eventID": offer.EventId,
         "sponseeId": offer.sponseeId,
         "sponsorId": offer.sponsorId,
         "notes": offer.notes,
@@ -938,108 +917,143 @@ Future<void> _showSignOutConfirmationDialog(BuildContext context) async {
         filters.clear();
       });
       Navigator.of(context).pop();
+      showDialog(
+                      context: context,
+                      builder: (context) {
+                        Future.delayed(Duration(seconds: 3), () {
+                          Navigator.of(context).pop(true);
+                        });
+                        return Theme(
+            data: Theme.of(context).copyWith(dialogBackgroundColor: Colors.white),
+            child: AlertDialog(
+                          content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.check_circle,
+                                    color: Color.fromARGB(255, 91, 79, 158),
+                                    size: 48,
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'Your offer was sent successfully!',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                        ));
+                      }); 
+                      child: Text(
+                        'Send Offer',
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      );
     }
   }
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text('Offer', style: TextStyle(fontSize: 30)),
-          Container(
-            alignment: Alignment.topRight,
-            child: Padding(
-              padding: EdgeInsets.only(top: 1, right: 1),
-              child: IconButton(
-                icon: Icon(Icons.close),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-      contentPadding: EdgeInsets.symmetric(horizontal: 70.0, vertical: 40.0),
-      content: SingleChildScrollView(
-        child: Container(
-          width: 390,
-          height: 729,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Wrap(
-                spacing: 9.0,
-                children: widget.event.Category.map((category) {
-                  return FilterChip(
-                    label: Text(category),
-                    selected: filters.contains(category),
-                    onSelected: (bool selected) {
-                      setState(() {
-                        if (selected) {
-                          filters.add(category);
-                        } else {
-                          filters.remove(category);
-                        }
-                      });
-                    },
-                    backgroundColor: Color.fromARGB(255, 168, 164, 194), // Button color
-                    selectedColor: Color.fromARGB(255,91,79,158), // Button color
-                    labelStyle: TextStyle(
-                      color: Colors.white,
-                    ),
-                    elevation: 3,
-                  );
-                }).toList(),
-              ),
-              SizedBox(height: 17),
-              TextField(
-                controller: notesController,
-                 maxLength: 600,
-                decoration: InputDecoration(
-                  hintText: 'Enter notes or additional information',
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: Color.fromARGB(255,91,79,158)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey, width: 1.0),
-                  ),
-                ),
-                style: TextStyle(fontSize: 20),
-                maxLines: 20,
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 20.0),
-          child: Center(
-            child: ElevatedButton(
-              onPressed: _sendOffer,
-              child: Text(
-                'Send Offer',
-                style: TextStyle(fontSize: 20,),
-              ),
-              style: ElevatedButton.styleFrom(
-                primary: Color.fromARGB(255,91,79,158), // Button color
-                onPrimary: Colors.white,
-                elevation: 20,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget build(BuildContext context) {
+  //   return AlertDialog(
+  //     title: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         Text('Offer', style: TextStyle(fontSize: 30)),
+  //         Container(
+  //           alignment: Alignment.topRight,
+  //           child: Padding(
+  //             padding: EdgeInsets.only(top: 1, right: 1),
+  //             child: IconButton(
+  //               icon: Icon(Icons.close),
+  //               onPressed: () {
+  //                 Navigator.of(context).pop();
+  //               },
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //     contentPadding: EdgeInsets.symmetric(horizontal: 70.0, vertical: 40.0),
+  //     content: SingleChildScrollView(
+  //       child: Container(
+  //         width: 390,
+  //         height: 729,
+  //         child: Column(
+  //           mainAxisAlignment: MainAxisAlignment.start,
+  //           crossAxisAlignment: CrossAxisAlignment.center,
+  //           children: [
+  //             Wrap(
+  //               spacing: 9.0,
+  //               children: widget.event.Category.map((category) {
+  //                 return FilterChip(
+  //                   label: Text(category),
+  //                   selected: filters.contains(category),
+  //                   onSelected: (bool selected) {
+  //                     setState(() {
+  //                       if (selected) {
+  //                         filters.add(category);
+  //                       } else {
+  //                         filters.remove(category);
+  //                       }
+  //                     });
+  //                   },
+  //                   backgroundColor: Color.fromARGB(255, 168, 164, 194), // Button color
+  //                   selectedColor: Color.fromARGB(255,91,79,158), // Button color
+  //                   labelStyle: TextStyle(
+  //                     color: Colors.white,
+  //                   ),
+  //                   elevation: 3,
+  //                 );
+  //               }).toList(),
+  //             ),
+  //             SizedBox(height: 17),
+  //             TextField(
+  //               controller: notesController,
+  //                maxLength: 600,
+  //               decoration: InputDecoration(
+  //                 hintText: 'Enter notes or additional information',
+  //                 focusedBorder: OutlineInputBorder(
+  //                   borderSide: BorderSide(
+  //                       color: Color.fromARGB(255,91,79,158)),
+  //                 ),
+  //                 enabledBorder: OutlineInputBorder(
+  //                   borderSide: BorderSide(color: Colors.grey, width: 1.0),
+  //                 ),
+  //               ),
+  //               style: TextStyle(fontSize: 20),
+  //               maxLines: 20,
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //     actions: [
+  //       Padding(
+  //         padding: const EdgeInsets.only(bottom: 20.0),
+  //         child: Center(
+  //           child: ElevatedButton(
+  //             onPressed: _sendOffer,
+  //             child: Text(
+  //               'Send Offer',
+  //               style: TextStyle(fontSize: 20,),
+  //             ),
+  //             style: ElevatedButton.styleFrom(
+  //               primary: Color.fromARGB(255,91,79,158), // Button color
+  //               onPrimary: Colors.white,
+  //               elevation: 20,
+  //               shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(30),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
   //Majd's Modifications to the offer pop up 
-  /*
+
 @override
 Widget build(BuildContext context) {
   return Dialog(
@@ -1095,6 +1109,7 @@ Widget build(BuildContext context) {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Row(children: [
                   Text(
                     'What do you want to offer?',
                     style: TextStyle(
@@ -1102,13 +1117,14 @@ Widget build(BuildContext context) {
                       color: Colors.black,
                     ),
                   ),
+                  SizedBox(width: 5),
                   Text(
-                    '(Choice is required)',
+                    '(*)',
                     style: TextStyle(
-                      color: Colors.red,
-                      fontStyle: FontStyle.italic,
+                      color: Color.fromARGB(255, 51, 45, 81),
+                      fontSize: 18 ,
                     ),
-                  ),
+                  ),],),
                   Wrap(
                     spacing: 9.0,
                     children: widget.event.Category.map((category) {
@@ -1127,9 +1143,9 @@ Widget build(BuildContext context) {
                             }
                           });
                         },
-                        backgroundColor: const Color.fromARGB(255, 51, 45, 81),
+                        backgroundColor: Color.fromARGB(255, 202, 202, 204),
                         labelStyle: TextStyle(
-                          color: Colors.white,
+                          color: Color(0xFF4A42A1),
                         ),
                         elevation: 3,
                         selectedColor: Color(0xFF4A42A1),
@@ -1142,6 +1158,7 @@ Widget build(BuildContext context) {
                       border: Border.all(
                         color: Colors.grey,
                         width: 1.0,
+                        
                       ),
                       borderRadius: BorderRadius.circular(5),
                     ),
@@ -1155,7 +1172,7 @@ Widget build(BuildContext context) {
                           border: InputBorder.none,
                         ),
                         style: TextStyle(fontSize: 20),
-                        maxLines: 6,
+                        maxLines: 9,
                       ),
                     ),
                   ),
@@ -1164,42 +1181,7 @@ Widget build(BuildContext context) {
                     child: ElevatedButton(
                       onPressed: () {
                         _sendOffer();
-                        Navigator.of(context).pop(); // Close the popup
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: Text('Success'),
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.check_circle,
-                                    color: Colors.purple,
-                                    size: 48,
-                                  ),
-                                  SizedBox(height: 16),
-                                  Text(
-                                    'Your offer was sent successfully!',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Text('OK'),
-                                ),
-                              ],
-                            );
                           },
-                        );
-                      },
                       child: Text(
                         'Send Offer',
                         style: TextStyle(
@@ -1207,7 +1189,7 @@ Widget build(BuildContext context) {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        primary: Color(0xFF6A62B6),
+                         primary: Color.fromARGB(255, 91, 79, 158),
                         onPrimary: Colors.white,
                         elevation: 20,
                         shape: RoundedRectangleBorder(
@@ -1224,7 +1206,7 @@ Widget build(BuildContext context) {
       ),
     ),
   );
-}*/
+}
 
 
 
@@ -1234,9 +1216,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MaterialApp(
-    theme: ThemeData(
-      primaryColor: Color(0xFF5B4F9E), // Button color
-    ),
     home: user != null ? SponsorHomePage() : SignIn(),
   ));
 }
