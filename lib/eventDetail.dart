@@ -114,76 +114,10 @@ class _Start extends State<eventDetail> {
                           ),
                         ),
                         Divider(height: 30, thickness: 2),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.location_on,
-                              size: 40,
-                              color: Color.fromARGB(255,91,79,158),
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              widget.location,
-                              style: TextStyle(
-                                fontSize: 22,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.calendar_today,
-                              size: 40,
-                              color: Color.fromARGB(255,91,79,158),
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              "${widget.date}",
-                              style: TextStyle(
-                                fontSize: 22,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        Row(
-  children: [
-    Icon(
-      Icons.access_time,
-      size: 40,
-      color: Color.fromARGB(255, 91, 79, 158),
-    ),
-    SizedBox(width: 1), // Adjust the spacing as needed
-    Text(
-      " ${widget.time}",
-      style: TextStyle(
-        fontSize: 22,
-        color: Colors.black87,
-      ),
-    ),
-  ],
-),
-                        SizedBox(height: 20),
-                        Row(
-  children: [
-    Icon(
-      Icons.person,
-      size: 40,
-      color: Color.fromARGB(255, 91, 79, 158),
-    ),
-    SizedBox(width: 10), // Adjust the spacing as needed
-    Text(
-      "${widget.NumberOfAttendees}",
-      style: TextStyle(
-        fontSize: 22,
-        color: Colors.black87,
-      ),
-    ),
-  ],
-),SizedBox(height: 10),
+                        _buildInfoRow(Icons.location_on, widget.location, "Location"),
+                        _buildInfoRow(Icons.calendar_today, widget.date, "Date"),
+                        _buildInfoRow(Icons.access_time, widget.time, "Time"),
+                        _buildInfoRow(Icons.person, "${widget.NumberOfAttendees}", "Attendees"),
                         Text(
                           "Categories",
                           style: TextStyle(
@@ -249,6 +183,40 @@ class _Start extends State<eventDetail> {
                 ),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildInfoRow(IconData icon, String text, String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 40,
+            color: Color.fromARGB(255, 91, 79, 158),
+          ),
+          SizedBox(width: 10), // Adjust the spacing as needed
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black54,
+                ),
+              ),
+              Text(
+                text,
+                style: TextStyle(
+                  fontSize: 22,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
           ),
         ],
       ),
