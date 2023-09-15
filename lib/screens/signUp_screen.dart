@@ -41,7 +41,7 @@ class _SignUpState extends State<SignUp> {
   UploadTask? task;
   File? file;
 
-  void _displayError(context,String errMsg) {
+  void _displayError(context, String errMsg) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(errMsg),
@@ -65,7 +65,7 @@ class _SignUpState extends State<SignUp> {
 
     if (!isValid) {
       setState(() {
-        _displayError(context,"Please make sure to fill all fields correctly");
+        _displayError(context, "Please make sure to fill all fields correctly");
       });
 
       return;
@@ -94,15 +94,15 @@ class _SignUpState extends State<SignUp> {
       if (e.code == 'weak-password') {
         setState(() {
           _isAuthenticating = false;
-          _displayError(context,'The password provided is too weak');
+          _displayError(context, 'The password provided is too weak');
 
           return;
         });
       } else if (e.code == 'email-already-in-use') {
         setState(() {
           _isAuthenticating = false;
-         
-          _displayError(context,'Email already in use');
+
+          _displayError(context, 'Email already in use');
 
           return;
         });
@@ -111,8 +111,8 @@ class _SignUpState extends State<SignUp> {
       print(e);
       setState(() {
         _isAuthenticating = false;
-        
-        _displayError(context,'Error occured');
+
+        _displayError(context, 'Error occured');
 
         return;
       });
@@ -240,12 +240,13 @@ class _SignUpState extends State<SignUp> {
                                     prefixIcon: Icon(Icons.person, size: 24),
                                   ),
                                   validator: (value) {
-                                    if (value!.contains(' ') ||
-                                        RegExp(r'[!@#$%^&*(),.?":{}|<>]')
-                                            .hasMatch(value) ||
-                                        value.isEmpty ||
-                                        value.length > 50) {
+                                    if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
+                                            .hasMatch(value!) ||
+                                        value.isEmpty) {
                                       return "Please enter a valid name";
+                                    }
+                                    if (value.length > 50) {
+                                      return 'Name should be shorter than 50 characters';
                                     }
                                     return null;
                                   },
@@ -304,7 +305,10 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                   obscureText: _obscured,
                                   validator: (value) {
-                                    if (value!.isEmpty) {
+                                    if (value!.contains(' ')) {
+                                      return 'Please enter a valid password';
+                                    }
+                                    if (value.isEmpty) {
                                       return 'Please enter your password';
                                     }
 
