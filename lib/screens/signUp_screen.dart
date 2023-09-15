@@ -95,16 +95,16 @@ class _SignUpState extends State<SignUp> {
         'Password': password,
         'authentication document': fileName, // Remove the extra colon
       });
-      if(theType == 'Sponsors'){
-        Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) =>  Stack(
-        children: [SponsorHomePage(), const SponsorBottomNavBar()],
-      )));
-      }else if(theType == 'Sponsees'){
-         Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) =>  const Stack(
-        children: [SponseeHome(), SponseeBottomNavBar()],
-      )));
+      if (theType == 'Sponsors') {
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => Stack(
+                  children: [SponsorHomePage(), const SponsorBottomNavBar()],
+                )));
+      } else if (theType == 'Sponsees') {
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => const Stack(
+                  children: [SponseeHome(), SponseeBottomNavBar()],
+                )));
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -122,7 +122,7 @@ class _SignUpState extends State<SignUp> {
 
           return;
         });
-      }else if (e.code == 'invalid-email') {
+      } else if (e.code == 'invalid-email') {
         setState(() {
           _isAuthenticating = false;
           print(e);
@@ -225,7 +225,6 @@ class _SignUpState extends State<SignUp> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Form(
-                          autovalidateMode: AutovalidateMode.always,
                           key: _formKey,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -514,6 +513,8 @@ class _SignUpState extends State<SignUp> {
                                             MaterialStateProperty.all<Size>(
                                                 const Size(200, 50))),
                                     onPressed: () {
+                                      autovalidateMode:
+                                      AutovalidateMode.always;
                                       String name = _nameController.text;
                                       String email = _emailController.text;
                                       String password =
