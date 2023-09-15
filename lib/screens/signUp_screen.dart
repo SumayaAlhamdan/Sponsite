@@ -41,10 +41,10 @@ class _SignUpState extends State<SignUp> {
   UploadTask? task;
   File? file;
 
-  void _displayError(context) {
+  void _displayError(context,String errMsg) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(errorMessage!),
+        content: Text(errMsg),
         backgroundColor: Color.fromARGB(255, 91, 79, 158),
         behavior: SnackBarBehavior.floating,
         margin: EdgeInsets.all(50),
@@ -65,8 +65,7 @@ class _SignUpState extends State<SignUp> {
 
     if (!isValid) {
       setState(() {
-        errorMessage = "Please make sure to fill all fields correctly";
-        _displayError(context);
+        _displayError(context,"Please make sure to fill all fields correctly");
       });
 
       return;
@@ -95,16 +94,15 @@ class _SignUpState extends State<SignUp> {
       if (e.code == 'weak-password') {
         setState(() {
           _isAuthenticating = false;
-          errorMessage = 'The password provided is too weak';
-          _displayError(context);
+          _displayError(context,'The password provided is too weak');
 
           return;
         });
       } else if (e.code == 'email-already-in-use') {
         setState(() {
           _isAuthenticating = false;
-          errorMessage = 'Email already in use';
-          _displayError(context);
+         
+          _displayError(context,'Email already in use');
 
           return;
         });
@@ -113,8 +111,8 @@ class _SignUpState extends State<SignUp> {
       print(e);
       setState(() {
         _isAuthenticating = false;
-        errorMessage = 'error occured';
-        _displayError(context);
+        
+        _displayError(context,'Error occured');
 
         return;
       });
@@ -491,21 +489,21 @@ class _SignUpState extends State<SignUp> {
                                       print(
                                           'authentication document: $fileName');
 
-                                      if (errorMessage != null) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                            content: Text(errorMessage!),
-                                            backgroundColor: Color.fromARGB(
-                                                255, 91, 79, 158),
-                                            behavior: SnackBarBehavior.floating,
-                                            margin: EdgeInsets.all(50),
-                                            elevation: 30,
-                                          ),
-                                        );
-                                        return;
-                                        // Return or perform any other necessary action
-                                      }
+                                      // if (errorMessage != null) {
+                                      //   ScaffoldMessenger.of(context)
+                                      //       .showSnackBar(
+                                      //     SnackBar(
+                                      //       content: Text(errorMessage!),
+                                      //       backgroundColor: Color.fromARGB(
+                                      //           255, 91, 79, 158),
+                                      //       behavior: SnackBarBehavior.floating,
+                                      //       margin: EdgeInsets.all(50),
+                                      //       elevation: 30,
+                                      //     ),
+                                      //   );
+                                      //   return;
+                                      //   // Return or perform any other necessary action
+                                      // }
 
                                       uploadFile();
 

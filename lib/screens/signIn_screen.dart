@@ -34,10 +34,10 @@ class _SignInState extends State<SignIn> {
   UploadTask? task;
   File? file;
 
-  void _displayError(context) {
+  void _displayError(context,String errMsg) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(errorMessage!),
+        content: Text(errMsg),
         backgroundColor: Color.fromARGB(255, 91, 79, 158),
         behavior: SnackBarBehavior.floating,
         margin: EdgeInsets.all(50),
@@ -57,8 +57,8 @@ class _SignInState extends State<SignIn> {
 
     if (!isValid) {
       setState(() {
-        errorMessage = "Please make sure to fill all fields correctly";
-         _displayError(context);
+        
+         _displayError(context, "Please make sure to fill all fields correctly");
       });
 
       return;
@@ -76,8 +76,8 @@ class _SignInState extends State<SignIn> {
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
         setState(() {
           _isAuthenticating = false;
-          errorMessage = 'Wrong email or password';
-           _displayError(context);
+        
+           _displayError(context,'Wrong email or password');
 
           return;
         });
@@ -86,7 +86,7 @@ class _SignInState extends State<SignIn> {
       print(e);
       setState(() {
         _isAuthenticating = false;
-         _displayError(context);
+         _displayError(context,"Error occured");
 
           return;
       });
@@ -267,19 +267,19 @@ class _SignInState extends State<SignIn> {
                                     print('Email: $email');
                                     print('Password: $password');
 
-                                    if (errorMessage != null) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(errorMessage!),
-                                          backgroundColor: Color.fromARGB(255, 91, 79, 158),
-                                          behavior: SnackBarBehavior.floating,
-                                          margin: EdgeInsets.all(50),
-                                          elevation: 30,
-                                        ),
-                                      );
-                                      return; // Return or perform any other necessary action
-                                    }
+                                    // if (errorMessage != null) {
+                                    //   ScaffoldMessenger.of(context)
+                                    //       .showSnackBar(
+                                    //     SnackBar(
+                                    //       content: Text(errorMessage!),
+                                    //       backgroundColor: Color.fromARGB(255, 91, 79, 158),
+                                    //       behavior: SnackBarBehavior.floating,
+                                    //       margin: EdgeInsets.all(50),
+                                    //       elevation: 30,
+                                    //     ),
+                                    //   );
+                                    //   return; // Return or perform any other necessary action
+                                    // }
 
                                     sendDatatoDB(context, email, password);
                                   },
