@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sponsite/screens/signIn_screen.dart';
@@ -270,6 +271,11 @@ class _SignUpState extends State<SignUp> {
                                     labelText: 'Name',
                                     prefixIcon: Icon(Icons.person, size: 24),
                                   ),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter(
+                                        RegExp('^[A-Za-z\s]+\$'),
+                                        allow: true)
+                                  ],
                                   validator: (value) {
                                     if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
                                             .hasMatch(value!) ||
@@ -299,6 +305,12 @@ class _SignUpState extends State<SignUp> {
                                   keyboardType: TextInputType.emailAddress,
                                   autocorrect: false,
                                   textCapitalization: TextCapitalization.none,
+                                  /* inputFormatters: [
+                                    FilteringTextInputFormatter(
+                                        RegExp(
+                                            r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$'),
+                                        allow: true)
+                                  ],*/
                                   validator: (value) {
                                     if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$')
                                             .hasMatch(value!) ||
@@ -335,6 +347,11 @@ class _SignUpState extends State<SignUp> {
                                     ),
                                   ),
                                   obscureText: _obscured,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.deny(
+                                        RegExp(r'[\s]')),
+                                    LengthLimitingTextInputFormatter(15),
+                                  ],
                                   validator: (value) {
                                     if (value!.contains(' ')) {
                                       return 'Please enter a valid password';
@@ -513,8 +530,7 @@ class _SignUpState extends State<SignUp> {
                                             MaterialStateProperty.all<Size>(
                                                 const Size(200, 50))),
                                     onPressed: () {
-                                      autovalidateMode:
-                                      AutovalidateMode.always;
+                                      //autovalidateMode: AutovalidateMode.always;
                                       String name = _nameController.text;
                                       String email = _emailController.text;
                                       String password =
