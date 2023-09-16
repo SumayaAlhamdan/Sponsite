@@ -116,13 +116,15 @@ void _loadEventsFromFirebase() {
                 .toList();
           }
           String timestampString = value['TimeStamp'] as String;
-          DateTime eventDate = DateTime.parse(timestampString);
+          String eventDatestring = value['Date'];
+         DateTime? eventDate = DateTime.tryParse(eventDatestring as String);
+         
 
           // Simulate the current time (for testing purposes)
           DateTime currentTime = DateTime.now();
 
           // Check if the event was added in the last 3 days
-          if (eventDate.isAfter(currentTime.subtract(Duration(days: 3)))) {
+          if (eventDate!.isAfter(currentTime)) {
             events.add(Event(
               EventId: key,
               sponseeId: value['SponseeID'] as String? ?? '',
