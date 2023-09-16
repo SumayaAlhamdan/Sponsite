@@ -1,6 +1,4 @@
-import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:sponsite/eventDetail.dart';
@@ -43,7 +41,7 @@ void check() {
     padding: const EdgeInsets.all(10),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(20),
-      color: Color.fromARGB(255, 255, 255, 255),
+      color: const Color.fromARGB(255, 255, 255, 255),
       boxShadow: [
         BoxShadow(
           color: Colors.black.withOpacity(0.2), // Add a blurred shadow
@@ -56,7 +54,7 @@ void check() {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Smaller picture on the top
-        Container(
+        SizedBox(
           width: double.infinity,
           height: 180, // Adjust the height as needed
           child: ClipRRect(
@@ -77,7 +75,7 @@ void check() {
             children: [
               Text(
                 event.EventName,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(
                 height: 5,
@@ -87,12 +85,12 @@ void check() {
                 children: [
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.calendar_today,
                         size: 24,
                         color:Color.fromARGB(255, 91, 79, 158),
                       ),
-                      SizedBox(width: 5),
+                      const SizedBox(width: 5),
                       Text(
                         "${event.startDate} - ${event.endDate}",
                         style: TextStyle(fontSize: 18),
@@ -101,16 +99,16 @@ void check() {
                   ),
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.location_on,
                         size: 24,
                         color: Color.fromARGB(255, 91, 79, 158),
                       ),
-                      SizedBox(width: 5),
+                      const SizedBox(width: 5),
                       Expanded(
                         child: Text(
                           event.location,
-                          style: TextStyle(fontSize: 18),
+                          style: const TextStyle(fontSize: 18),
                            overflow: TextOverflow.ellipsis
                         ),
                       ),
@@ -126,10 +124,10 @@ void check() {
                 children: event.Category.map((category) {
                   return Chip(
                     label: Text(category.trim()),
-                    backgroundColor: Color.fromARGB(255, 255, 255, 255),
-                    shadowColor: Color.fromARGB(255, 91, 79, 158),
+                    backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                    shadowColor: const Color.fromARGB(255, 91, 79, 158),
                     elevation: 3,
-                    labelStyle: TextStyle(
+                    labelStyle: const TextStyle(
                       color: Color.fromARGB(255, 91, 79, 158),
                     ),
                   );
@@ -164,7 +162,7 @@ void check() {
                       ),
                     );
                   },
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
@@ -196,30 +194,30 @@ Widget build(BuildContext context) {
     // bottomNavigationBar: const SponseeBottomNavBar(),
     //BottomNavBar(),
     backgroundColor: Colors.white,
-    appBar: PreferredSize(
+    appBar: const PreferredSize(
       preferredSize: Size.fromHeight(100.0), // Adjust the height as needed
       child: CustomAppBar(title: 'My Events',),
     ),
     body: SafeArea(
       child: Padding(
-        padding: EdgeInsets.only(top: 15),
+        padding: const EdgeInsets.only(top: 15),
         child: Column(
           children: [
-            SizedBox(
+            const SizedBox(
               height: 100,
             ),
-            Padding(
+            const Padding(
               padding: EdgeInsets.symmetric(horizontal: 50.0),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Expanded(
               child: Scrollbar(
                 child: GridView.builder(
                   shrinkWrap: true,
-                  physics: BouncingScrollPhysics(), // Enable scrolling for the GridView
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  physics: const BouncingScrollPhysics(), // Enable scrolling for the GridView
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 0.9,
                     crossAxisSpacing: 8,

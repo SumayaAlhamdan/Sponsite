@@ -33,20 +33,20 @@ class _Start extends State<eventDetail> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-  title: Text(
+  title: const Text(
     'Event Details',
     style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
   ),
-  backgroundColor: Color.fromARGB(255, 51, 45, 81),
+  backgroundColor: const Color.fromARGB(255, 51, 45, 81),
   elevation: 0, // Remove the shadow
-  shape: RoundedRectangleBorder(
+  shape: const RoundedRectangleBorder(
     borderRadius: BorderRadius.only(
       bottomLeft: Radius.circular(20),
       bottomRight: Radius.circular(20),
     ),
   ),
   leading: IconButton(
-    icon: Icon(Icons.arrow_back, color: Colors.white),
+    icon: const Icon(Icons.arrow_back, color: Colors.white),
     onPressed: () {
       Navigator.of(context).pop();
     },
@@ -82,12 +82,12 @@ class _Start extends State<eventDetail> {
                     color: Colors.grey.withOpacity(0.5),
                     spreadRadius: 5,
                     blurRadius: 7,
-                    offset: Offset(0, 3),
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
                 ),
@@ -99,29 +99,29 @@ class _Start extends State<eventDetail> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           Text(
                             widget.DetailKey,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 32,
                               color: Colors.black87,
                             ),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Text(
                             widget.Type,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 22,
                               color: Colors.black87,
                             ),
                           ),
-                          Divider(height: 30, thickness: 2),
+                          const Divider(height: 30, thickness: 2),
                           _buildInfoRow(Icons.location_on, widget.location, "Location"),
                           _buildInfoRow(Icons.calendar_today, "${widget.startDate} - ${widget.endDate}", "Date"),
                           _buildInfoRow(Icons.access_time,  "${widget.startTime}-${widget.endTime}", "Time"),
-                          _buildInfoRow(Icons.person, "${widget.NumberOfAttendees}", "Attendees"),
-                          Text(
+                          _buildInfoRow(Icons.person, widget.NumberOfAttendees, "Attendees"),
+                          const Text(
                             "Categories",
                             style: TextStyle(
                               fontSize: 28,
@@ -129,23 +129,23 @@ class _Start extends State<eventDetail> {
                               color: Colors.black87,
                             ),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Wrap(
                             spacing: 8,
                             children: widget.Category.split(',').map((category) {
                               return Chip(
                                 label: Text(category.trim()),
-                                backgroundColor: Color.fromARGB(255, 255, 255, 255),
-                                shadowColor: Color.fromARGB(255,91,79,158),
+                                backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                                shadowColor: const Color.fromARGB(255,91,79,158),
                                 elevation: 3,
-                                labelStyle: TextStyle(
+                                labelStyle: const TextStyle(
                                   color: Color.fromARGB(255,91,79,158),
                                 ),
                               );
                             }).toList(),
                           ),
-                          SizedBox(height: 20),
-                          Text(
+                          const SizedBox(height: 20),
+                          const Text(
                             "Benefits",
                             style: TextStyle(
                               fontSize: 28,
@@ -153,16 +153,16 @@ class _Start extends State<eventDetail> {
                               color: Colors.black87,
                             ),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Text(
                             widget.benefits ?? "No benefits available",
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 20,
                               color: Colors.black87,
                             ),
                           ),
-                          SizedBox(height: 20),
-                          Text(
+                          const SizedBox(height: 20),
+                          const Text(
                             "Notes",
                             style: TextStyle(
                               fontSize: 28,
@@ -170,12 +170,12 @@ class _Start extends State<eventDetail> {
                               color: Colors.black87,
                             ),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Text(
-                             (widget.notes != null && widget.notes.isNotEmpty)
+                             (widget.notes.isNotEmpty)
                                 ? widget.notes
                                 : "There are no notes available",
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 20,
                               color: Colors.black87,
                             ),
@@ -200,22 +200,22 @@ class _Start extends State<eventDetail> {
           Icon(
             icon,
             size: 40,
-            color: Color.fromARGB(255, 91, 79, 158),
+            color: const Color.fromARGB(255, 91, 79, 158),
           ),
-          SizedBox(width: 10), // Adjust the spacing as needed
+          const SizedBox(width: 10), // Adjust the spacing as needed
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   color: Colors.black54,
                 ),
               ),
               Text(
                 text,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 22,
                   color: Colors.black87,
                 ),

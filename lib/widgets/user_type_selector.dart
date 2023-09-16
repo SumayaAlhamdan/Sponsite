@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 enum eventType { current, past }
@@ -7,7 +6,7 @@ class SingleChoice extends StatefulWidget {
   final eventType initialSelection;
   final ValueChanged<eventType> onSelectionChanged;
 
-  SingleChoice({
+  const SingleChoice({super.key, 
     required this.initialSelection,
     required this.onSelectionChanged,
   });
@@ -31,7 +30,7 @@ class _SingleChoiceState extends State<SingleChoice> {
       segments: const <ButtonSegment<eventType>>[
         ButtonSegment<eventType>(
           value: eventType.current,
-          label: const Text("Current"),
+          label: Text("Current"),
         ),
         ButtonSegment<eventType>(
           value: eventType.past,

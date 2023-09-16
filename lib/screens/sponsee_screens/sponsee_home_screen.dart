@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:sponsite/widgets/bottom_navigation_bar.dart';
 import 'package:sponsite/screens/postEvent.dart';
-import 'package:sponsite/widgets/sponsee_bottom_navbar.dart';
 User? user = FirebaseAuth.instance.currentUser;
 String? sponseeID;
 void doSomething() {

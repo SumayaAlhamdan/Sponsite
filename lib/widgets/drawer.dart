@@ -67,7 +67,7 @@ class SideDrawer extends StatelessWidget {
           const SizedBox(
             height: 10,
           ),
-          Divider(),
+          const Divider(),
           ListTile(
             leading: const Icon(
               Icons.delete,

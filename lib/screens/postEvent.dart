@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
 import 'package:sponsite/main.dart';
 
 class MyApp extends StatelessWidget {
@@ -39,7 +37,7 @@ void check() {
 Widget _titleContainer(String myTitle) {
   return Text(
     myTitle,
-    style: TextStyle(
+    style: const TextStyle(
       color: Colors.black,
       fontSize: 24.0,
       fontWeight: FontWeight.bold,
@@ -52,11 +50,11 @@ class FilterChipWidget extends StatefulWidget {
   final Function(String) onChipCreated;
   final Function(String, bool) onChipSelected;
 
-  FilterChipWidget({
+  const FilterChipWidget({super.key, 
     required this.chipName,
     required this.onChipCreated,
     required this.onChipSelected,
-  }) : super();
+  });
 
   @override
   _FilterChipWidgetState createState() => _FilterChipWidgetState();
@@ -71,10 +69,10 @@ class _FilterChipWidgetState extends State<FilterChipWidget> {
     return FilterChip(
       label: Text(
         widget.chipName,
-        style: TextStyle(fontSize: 25),
+        style: const TextStyle(fontSize: 25),
       ),
-      labelStyle: TextStyle(
-        color: const Color(0xff6200ee),
+      labelStyle: const TextStyle(
+        color: Color(0xff6200ee),
         fontSize: 16.0,
         fontWeight: FontWeight.bold,
       ),
@@ -102,13 +100,13 @@ class _FilterChipWidgetState extends State<FilterChipWidget> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(
+          title: const Text(
             'Warning',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
           ),
-          backgroundColor: Color.fromARGB(255, 51, 45, 81),
+          backgroundColor: const Color.fromARGB(255, 51, 45, 81),
           elevation: 0, // Remove the shadow
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(20),
               bottomRight: Radius.circular(20),
@@ -123,13 +121,12 @@ class _FilterChipWidgetState extends State<FilterChipWidget> {
           ),
           actions: <Widget>[
             ElevatedButton(
-              child: Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
               style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(
-                      Color.fromARGB(255, 51, 45, 81)),
+                      const Color.fromARGB(255, 51, 45, 81)),
                   //Color.fromARGB(255, 207, 186, 224),), // Background color
                   textStyle: MaterialStateProperty.all<TextStyle>(
                       const TextStyle(fontSize: 16)), // Text style
@@ -146,6 +143,7 @@ class _FilterChipWidgetState extends State<FilterChipWidget> {
                   ),
                   minimumSize:
                       MaterialStateProperty.all<Size>(const Size(200, 50))),
+              child: const Text('OK'),
             ),
           ],
         );
@@ -159,7 +157,7 @@ class _FilterChipWidgetState extends State<FilterChipWidget> {
       builder: (BuildContext context) {
         String newChipName = "";
         return AlertDialog(
-          title: Text('Create new category'),
+          title: const Text('Create new category'),
           content: TextField(
             onChanged: (text) {
               newChipName = text;
@@ -205,7 +203,7 @@ class CustomRadioButton extends StatelessWidget {
   final double width; // New property for width
   final double height; // New property for height
 
-  CustomRadioButton({
+  const CustomRadioButton({super.key, 
     required this.value,
     required this.groupValue,
     required this.onChanged,
@@ -261,6 +259,7 @@ class _MyHomePageState extends State<MyHomePage> {
   File? _imageFile;
   List<String> eventTypesList = [];
 
+  @override
   void initState() {
     super.initState();
     check();
@@ -270,8 +269,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   bool areRequiredFieldsFilled() {
-    return _selectedEventType != null &&
-        EnameController.text.isNotEmpty &&
+    return EnameController.text.isNotEmpty &&
         selectedStartDate != null &&
         selectedEndDate != null &&
         selectedStartTime != null &&
@@ -308,10 +306,11 @@ class _MyHomePageState extends State<MyHomePage> {
     if (isValid) {
       try {
         final String imageUploadResult;
-        if (_imageFile != null)
+        if (_imageFile != null) {
           imageUploadResult = await _uploadImage(_imageFile!);
-        else
+        } else {
           imageUploadResult = '';
+        }
 
         dbref.child('sponseeEvents').push().set({
           'SponseeID': sponseeID,
@@ -372,9 +371,10 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {
           selectedStartDate = pickedDate;
           selectedStartTime = pickedTime;
-          if (selectedStartDate != null && selectedStartTime != null)
+          if (selectedStartDate != null && selectedStartTime != null) {
             _startDatetimeController.text =
                 '${selectedStartDate!.toLocal().toString().substring(0, 10)} , ${selectedStartTime!.format(context)}';
+          }
         });
       }
     }
@@ -413,9 +413,10 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {
           selectedEndDate = pickedDate;
           selectedEndTime = pickedTime;
-          if (selectedEndDate != null && selectedEndTime != null)
+          if (selectedEndDate != null && selectedEndTime != null) {
             _endDatetimeController.text =
                 '${selectedEndDate!.toLocal().toString().substring(0, 10)} , ${selectedEndTime!.format(context)}';
+          }
         });
       }
     }
@@ -544,7 +545,7 @@ class _MyHomePageState extends State<MyHomePage> {
       future: _fetchCategories(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (snapshot.hasData) {
@@ -566,7 +567,7 @@ class _MyHomePageState extends State<MyHomePage> {
             }).toList(),
           );
         } else {
-          return Text('No categories available.');
+          return const Text('No categories available.');
         }
       },
     );
@@ -577,11 +578,11 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(
+          title: const Text(
             "Cancel Event Post",
             style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
           ),
-          content: Text(
+          content: const Text(
             "Are you sure you want to cancel this event?",
           ),
           backgroundColor: Colors.white,
@@ -620,11 +621,11 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(
+          title: const Text(
             "Post Event",
             style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
           ),
-          content: Text(
+          content: const Text(
             "Are you sure you want to post this event?",
           ),
           backgroundColor: Colors.white,
@@ -689,11 +690,11 @@ class _MyHomePageState extends State<MyHomePage> {
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: (groupValue == value)
-                ? Color.fromARGB(255, 51, 45, 84)
+                ? const Color.fromARGB(255, 51, 45, 84)
                 : Colors.black,
           ),
           color: (groupValue == value)
-              ? Color.fromARGB(255, 51, 45, 84)
+              ? const Color.fromARGB(255, 51, 45, 84)
               : Colors.white,
         ),
         child: Center(
@@ -719,9 +720,9 @@ class _MyHomePageState extends State<MyHomePage> {
           children: eventTypesList.sublist(0, 4).map((eventType) {
             return Row(
               children: [
-                SizedBox(width: 8.0), // Add space between buttons
+                const SizedBox(width: 8.0), // Add space between buttons
                 Center(
-                    child: Container(
+                    child: SizedBox(
                         width: 150.0, // Custom width
                         height: 60.0, // Custom height
                         child: CustomRadioButton(
@@ -737,7 +738,7 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           }).toList(),
         ),
-        SizedBox(height: 25),
+        const SizedBox(height: 25),
         Row(
           mainAxisAlignment:
               MainAxisAlignment.center, // Center the children horizontally
@@ -745,9 +746,9 @@ class _MyHomePageState extends State<MyHomePage> {
           children: eventTypesList.sublist(4, 7).map((eventType) {
             return Row(
               children: [
-                SizedBox(width: 8.0), // Add space between buttons
+                const SizedBox(width: 8.0), // Add space between buttons
                 Center(
-                    child: Container(
+                    child: SizedBox(
                   width: 120.0, // Custom width
                   height: 60.0, // Custom height
                   child: CustomRadioButton(
@@ -777,8 +778,8 @@ class _MyHomePageState extends State<MyHomePage> {
           content: Container(
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
                   child: Text(
                     "About your event",
                     style: TextStyle(fontSize: 40),
@@ -787,12 +788,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 const SizedBox(
                   height: 50,
                 ),
-                Row(
+                const Row(
                     mainAxisAlignment: MainAxisAlignment
                         .center, // Center the children horizontally
                     children: [
                       Text("Event Type *", style: TextStyle(fontSize: 18)),
-                      const SizedBox(
+                      SizedBox(
                         height: 8,
                       ),
                     ]),
@@ -812,8 +813,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   width: MediaQuery.of(context).size.width * 0.6,
                   child: TextFormField(
                     controller: EnameController,
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
                       labelText: 'Event Name *',
                       prefixIcon: Icon(Icons.text_fields,
                           size: 24, color: Colors.black),
@@ -834,8 +835,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   width: MediaQuery.of(context).size.width * 0.6,
                   child: TextFormField(
                     controller: LocationController,
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
                       labelText: 'Event Address',
                       prefixIcon: Icon(Icons.location_pin,
                           size: 24, color: Colors.black),
@@ -893,8 +894,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   width: MediaQuery.of(context).size.width * 0.6,
                   child: TextFormField(
                     controller: numofAttendeesController,
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
                       labelText: 'Number of attendees *',
                       prefixIcon:
                           Icon(Icons.people, size: 24, color: Colors.black),
@@ -924,7 +925,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: TextFormField(
                         controller: _imageController,
                         readOnly: true,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Upload Image',
                           border: OutlineInputBorder(),
                           prefixIcon:
@@ -949,13 +950,13 @@ class _MyHomePageState extends State<MyHomePage> {
                       onPressed: () {
                         _deleteImage();
                       },
-                      icon: Icon(Icons.delete_outline_rounded),
-                      label: Text(
+                      icon: const Icon(Icons.delete_outline_rounded),
+                      label: const Text(
                         "Remove image",
                       )),
                 if (showRequiredValidationMessage)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
                     child: Text(
                       'Please fill all the required fields',
                       style: TextStyle(color: Colors.red),
@@ -977,8 +978,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           content: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   "What do you need from sponsors?",
                   style: TextStyle(fontSize: 40),
@@ -999,7 +1000,7 @@ class _MyHomePageState extends State<MyHomePage> {
               const SizedBox(
                 height: 50,
               ),
-              Text("Selected Categories:", style: TextStyle(fontSize: 20)),
+              const Text("Selected Categories:", style: TextStyle(fontSize: 20)),
               const SizedBox(
                 height: 30,
               ),
@@ -1010,7 +1011,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   readOnly: true, // Set the TextField to read-only
                   decoration: InputDecoration(
                     //hintText: "Selected Chips",
-                    border: OutlineInputBorder(
+                    border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10.0)),
                       borderSide: BorderSide(color: Colors.grey),
                     ),
@@ -1023,8 +1024,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 height: 50,
               ),
               if (showCategoryValidationMessage)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
                   child: Text(
                     'Please select at least one category',
                     style: TextStyle(color: Colors.red),
@@ -1043,8 +1044,8 @@ class _MyHomePageState extends State<MyHomePage> {
           content: Container(
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
                   child: Text(
                     "Sponsor Benefits",
                     style: TextStyle(fontSize: 40),
@@ -1086,11 +1087,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         _showpostconfirm();
                       }
                     },
-                    child: const Text("Post Event",
-                        style: TextStyle(fontSize: 20, color: Colors.white)),
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all<Color>(
-                            Color.fromARGB(255, 51, 45, 81)),
+                            const Color.fromARGB(255, 51, 45, 81)),
                         //Color.fromARGB(255, 207, 186, 224),), // Background color
                         textStyle: MaterialStateProperty.all<TextStyle>(
                             const TextStyle(fontSize: 16)), // Text style
@@ -1108,10 +1107,12 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
                         minimumSize: MaterialStateProperty.all<Size>(
-                            const Size(200, 50)))),
+                            const Size(200, 50))),
+                    child: const Text("Post Event",
+                        style: TextStyle(fontSize: 20, color: Colors.white))),
                 if (showRequiredValidationMessage)
                   const Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: EdgeInsets.all(8.0),
                     child: Text(
                       'Please fill all the required fields',
                       style: TextStyle(color: Colors.red),
@@ -1127,7 +1128,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _showSuccessSnackbar(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text(
           'Your event is posted to sponsors!',
           style: TextStyle(
@@ -1151,7 +1152,7 @@ class _MyHomePageState extends State<MyHomePage> {
         return Chip(
           label: Text(chipName), // Empty label for the chip
           deleteIcon:
-              Icon(Icons.cancel), // Add a delete (cancel) icon for each chip
+              const Icon(Icons.cancel), // Add a delete (cancel) icon for each chip
           onDeleted: () {
             _handleChipRemoval(chipName);
           },
@@ -1203,7 +1204,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
         appBar: AppBar(
           title: const Text('New Event'),
-          backgroundColor: Color.fromARGB(255, 51, 45, 81),
+          backgroundColor: const Color.fromARGB(255, 51, 45, 81),
         ),
         body: Form(
             key: _formKey,
@@ -1227,7 +1228,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           },
                           style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(
-                                  Color.fromARGB(255, 176, 176, 179)),
+                                  const Color.fromARGB(255, 176, 176, 179)),
                               //Color.fromARGB(255, 207, 186, 224),), // Background color
                               textStyle: MaterialStateProperty.all<TextStyle>(
                                   const TextStyle(fontSize: 16)), // Text style
@@ -1258,7 +1259,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           },
                           style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(
-                                  Color.fromARGB(255, 51, 45, 81)),
+                                  const Color.fromARGB(255, 51, 45, 81)),
                               //Color.fromARGB(255, 207, 186, 224),), // Background color
                               textStyle: MaterialStateProperty.all<TextStyle>(
                                   const TextStyle(fontSize: 16)), // Text style
@@ -1337,7 +1338,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           },
                           style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(
-                                  Color.fromARGB(255, 51, 45, 81)),
+                                  const Color.fromARGB(255, 51, 45, 81)),
                               //Color.fromARGB(255, 207, 186, 224),), // Background color
                               textStyle: MaterialStateProperty.all<TextStyle>(
                                   const TextStyle(fontSize: 16)), // Text style

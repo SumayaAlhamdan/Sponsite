@@ -21,7 +21,7 @@ class _pastevents extends State<pastevents> {
         backgroundColor: Colors.white,
         elevation: 0, // Remove the elevation shadow
       ),
-      body: SafeArea(
+      body: const SafeArea(
         child: Padding(
           padding: EdgeInsets.only(top: 10),
           child: Column(

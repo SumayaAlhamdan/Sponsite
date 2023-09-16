@@ -6,12 +6,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:path/path.dart';
+import 'package:sponsite/main.dart';
 import 'package:sponsite/screens/signIn_screen.dart';
-import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
-import 'package:sponsite/screens/sponsor_screens/sponsor_home_screen.dart';
-import 'package:sponsite/widgets/screen_logic.dart';
-import 'package:sponsite/widgets/sponsee_bottom_navbar.dart';
-import 'package:sponsite/widgets/sponsor_botton_navbar.dart';
 import '../FirebaseApi.dart';
 
 class SignUp extends StatefulWidget {
@@ -51,9 +47,9 @@ class _SignUpState extends State<SignUp> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(errMsg),
-        backgroundColor: Color.fromARGB(255, 91, 79, 158),
+        backgroundColor: const Color.fromARGB(255, 91, 79, 158),
         behavior: SnackBarBehavior.floating,
-        margin: EdgeInsets.all(50),
+        margin: const EdgeInsets.all(50),
         elevation: 30,
       ),
     );
@@ -96,10 +92,16 @@ class _SignUpState extends State<SignUp> {
         'Password': password,
         'authentication document': fileName, // Remove the extra colon
       });
-       await FirebaseAuth.instance.signOut();
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => const SignIn()
-                ));
+        await FirebaseAuth.instance.signOut();
+        Navigator.of(context).popUntil((route) => route.isFirst);
+    //     Navigator.push<void>(context, MaterialPageRoute<void>(
+    //   builder: (BuildContext context) =>  main(),
+    // ),)
+      // Navigator.of(context).pushReplacement(MaterialPageRoute(
+      //       builder: (context) => const SignIn()
+      //           ));
+    
+     
     
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -153,7 +155,7 @@ class _SignUpState extends State<SignUp> {
     final path = result.files.single.path!;
     final fileSize = File(path).lengthSync();
 
-     final fileSizeLimit = 1 * 1024 * 1024;
+     const fileSizeLimit = 1 * 1024 * 1024;
 
        if (fileSize > fileSizeLimit) {
       setState(() {
@@ -248,7 +250,7 @@ class _SignUpState extends State<SignUp> {
                               //     fontWeight: FontWeight.bold,
                               //   ),
                               // ),
-                              Container(
+                              SizedBox(
                                   height: 200,
                                   width: 300,
                                   child: Image.asset(
@@ -468,7 +470,7 @@ class _SignUpState extends State<SignUp> {
                                     padding: const EdgeInsets.only(top: 8.0),
                                     child: Text(
                                       errorMessage!,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Colors.red,
                                         fontSize: 16,
                                       ),
@@ -522,7 +524,7 @@ class _SignUpState extends State<SignUp> {
                                     style: ButtonStyle(
                                         backgroundColor:
                                             MaterialStateProperty.all<Color>(
-                                          Color.fromARGB(255, 51, 45, 81),
+                                          const Color.fromARGB(255, 51, 45, 81),
                                         ), // Background color
                                         textStyle: MaterialStateProperty.all<TextStyle>(
                                             const TextStyle(

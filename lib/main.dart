@@ -1,11 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:sponsite/screens/sponsor_screens/sponsor_profile_screen.dart';
 import 'package:sponsite/screens/signIn_screen.dart';
-import 'package:sponsite/screens/signUp_screen.dart';
 import 'package:sponsite/screens/splash_screen.dart';
-import 'package:sponsite/screens/sponsor_screens/sponsor_home_screen.dart';
 import 'package:sponsite/widgets/screen_logic.dart';
 
 void main() async {

@@ -3,11 +3,15 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:sponsite/main.dart';
+
 import 'package:sponsite/screens/first_choosing_screen.dart';
+import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
+import 'package:sponsite/screens/sponsor_screens/sponsor_home_screen.dart';
+import 'package:sponsite/widgets/sponsee_bottom_navbar.dart';
 
 import 'dart:io';
 
-import 'package:sponsite/screens/signUp_screen.dart';
+import 'package:sponsite/widgets/sponsor_botton_navbar.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -20,7 +24,7 @@ class SignIn extends StatefulWidget {
 
 class _SignInState extends State<SignIn> {
   bool _obscured = true;
-  var _isLogin = false;
+  final _isLogin = false;
   var _isAuthenticating = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -39,9 +43,9 @@ class _SignInState extends State<SignIn> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(errMsg),
-        backgroundColor: Color.fromARGB(255, 91, 79, 158),
+        backgroundColor: const Color.fromARGB(255, 91, 79, 158),
         behavior: SnackBarBehavior.floating,
-        margin: EdgeInsets.all(50),
+        margin: const EdgeInsets.all(50),
         elevation: 30,
       ),
     );
@@ -72,8 +76,34 @@ class _SignInState extends State<SignIn> {
 
       final userCredentials = await _firebase.signInWithEmailAndPassword(
           email: email, password: password);
+      // setState(() {});
+     
 
-       main();
+      // userCredentials.user!.reload();
+      // final userId = userCredentials.user!.uid;
+
+      // DatabaseReference sponsorsRef =
+      //     FirebaseDatabase.instance.reference().child('Sponsors').child(userId);
+      // DatabaseReference sponseesRef =
+      //     FirebaseDatabase.instance.reference().child('Sponsees').child(userId);
+
+      // DataSnapshot sponsorsSnapshot = await sponsorsRef.get();
+      // DataSnapshot sponseesSnapshot = await sponseesRef.get();
+
+      // if (sponsorsSnapshot.value != null) {
+      //    Navigator.pop(context);
+      //   Navigator.of(context).pushReplacement(MaterialPageRoute(
+      //       builder: (context) => Stack(
+      //             children: [SponsorHomePage(), const SponsorBottomNavBar()],
+      //           )));
+      // }
+      // if (sponseesSnapshot.value != null) {
+      //    Navigator.pop(context);
+      //   Navigator.of(context).pushReplacement(MaterialPageRoute(
+      //       builder: (context) => const Stack(
+      //             children: [SponseeHome(), SponseeBottomNavBar()],
+      //           )));
+      // }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
         setState(() {
@@ -255,7 +285,8 @@ class _SignInState extends State<SignIn> {
                                   style: ButtonStyle(
                                       backgroundColor:
                                           MaterialStateProperty.all<Color>(
-                                              Color.fromARGB(255, 51, 45, 81)),
+                                              const Color.fromARGB(
+                                                  255, 51, 45, 81)),
                                       //Color.fromARGB(255, 207, 186, 224),), // Background color
                                       textStyle:
                                           MaterialStateProperty.all<TextStyle>(
@@ -264,11 +295,9 @@ class _SignInState extends State<SignIn> {
                                       padding: MaterialStateProperty.all<
                                               EdgeInsetsGeometry>(
                                           const EdgeInsets.all(16)), // Padding
-                                      elevation:
-                                          MaterialStateProperty.all<double>(
-                                              1), // Elevation
-                                      shape:
-                                          MaterialStateProperty.all<OutlinedBorder>(
+                                      elevation: MaterialStateProperty.all<double>(
+                                          1), // Elevation
+                                      shape: MaterialStateProperty.all<OutlinedBorder>(
                                         RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
                                               30), // Border radius
@@ -278,7 +307,7 @@ class _SignInState extends State<SignIn> {
                                         ),
                                       ),
                                       minimumSize: MaterialStateProperty.all<Size>(const Size(200, 50))),
-                                  onPressed: () {
+                                  onPressed: () async {
                                     String email = _emailController.text;
                                     String password = _passwordController.text;
 
@@ -297,6 +326,31 @@ class _SignInState extends State<SignIn> {
                                     //     ),
                                     //   );
                                     //   return; // Return or perform any other necessary action
+                                    // }
+
+                                    // setState(() {});
+
+                                    // final userId = userCredentials.user!.uid;
+                                    // ScreenLogic.getUserHomeScreen(userId);
+                                    // DatabaseReference sponsorsRef =
+                                    //     FirebaseDatabase.instance.reference().child('Sponsors').child(userId);
+                                    // DatabaseReference sponseesRef =
+                                    //     FirebaseDatabase.instance.reference().child('Sponsees').child(userId);
+
+                                    // DataSnapshot sponsorsSnapshot = await sponsorsRef.get();
+                                    // DataSnapshot sponseesSnapshot = await sponseesRef.get();
+
+                                    // if (sponsorsSnapshot.value != null) {
+                                    //   Navigator.of(context).pushReplacement(MaterialPageRoute(
+                                    //       builder: (context) => Stack(
+                                    //             children: [SponsorHomePage(), const SponsorBottomNavBar()],
+                                    //           )));
+                                    // }
+                                    // if (sponseesSnapshot.value != null) {
+                                    //   Navigator.of(context).pushReplacement(MaterialPageRoute(
+                                    //       builder: (context) => const Stack(
+                                    //             children: [SponseeHome(), SponseeBottomNavBar()],
+                                    //           )));
                                     // }
 
                                     sendDatatoDB(context, email, password);

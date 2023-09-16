@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:sponsite/screens/signIn_screen.dart';
 import 'package:sponsite/screens/signUp_screen.dart';
 
 class FirstChoosing extends StatefulWidget {
@@ -20,8 +19,8 @@ class _FirstChoosingState extends State<FirstChoosing> {
   bool sponseeSelected = false;
   bool sponsorSelected = false;
 
-  MaterialColor _sponseeBorder = Colors.grey;
-  MaterialColor _sponsorBorder = Colors.grey;
+  final MaterialColor _sponseeBorder = Colors.grey;
+  final MaterialColor _sponsorBorder = Colors.grey;
 
   @override
   Widget build(BuildContext context) {

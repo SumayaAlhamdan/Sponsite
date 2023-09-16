@@ -1,7 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:sponsite/widgets/drawer.dart';
-import 'package:sponsite/widgets/sponsor_botton_navbar.dart';
 
 class SponsorProfile extends StatelessWidget {
   const SponsorProfile({Key? key}) : super(key: key);
@@ -11,8 +9,8 @@ class SponsorProfile extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Sign Out Confirmation'),
-          content: Text('Are you sure you want to sign out?                                   ',style: TextStyle(fontSize: 20),),
+          title: const Text('Sign Out Confirmation'),
+          content: const Text('Are you sure you want to sign out?                                   ',style: TextStyle(fontSize: 20),),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -40,7 +38,7 @@ class SponsorProfile extends StatelessWidget {
       //bottomNavigationBar: const SponsorBottomNavBar(),
       // endDrawer: const SideDrawer(),
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255,51,45,81),
+        backgroundColor: const Color.fromARGB(255,51,45,81),
         actions: [
           // Builder(
           //   builder: (BuildContext context) {
@@ -81,7 +79,7 @@ class SponsorProfile extends StatelessWidget {
             },
             itemBuilder: (BuildContext context) {
               return [
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: 'myAccount',
                   child: ListTile(
                     leading: Icon(
@@ -94,7 +92,7 @@ class SponsorProfile extends StatelessWidget {
                     ),
                   ),
                 ),
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: 'signOut',
                   child: ListTile(
                     leading: Icon(
@@ -144,11 +142,11 @@ class SponsorProfile extends StatelessWidget {
                     "Ksu CPC",
                     style: Theme.of(context)
                         .textTheme
-                        .headline6
+                        .titleLarge
                         ?.copyWith(fontWeight: FontWeight.bold, fontSize: 40),
                   ),
                   // const _ProfileInfoRow(),
-                  Container(
+                  SizedBox(
                     width: 600, // Set your desired width here
                     child: Card(
                       margin: const EdgeInsets.all(16.0),
@@ -177,14 +175,14 @@ class SponsorProfile extends StatelessWidget {
                             16.0), // Adjust the padding to control the size
                         child: FloatingActionButton.extended(
                           backgroundColor:
-                           Color.fromARGB(255,51,45,81),
+                           const Color.fromARGB(255,51,45,81),
                           //Color.fromARGB(255, 184, 163, 201),
                           onPressed: () {},
                           heroTag: 'Edit Profile',
                           elevation: 0,
-                          label: Text(
+                          label: const Text(
                             "Edit Profile",
-                            style: TextStyle(fontSize: 20, color: const Color.fromARGB(255, 255, 255, 255)),
+                            style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 255, 255, 255)),
                           ),
                           // icon: Icon(Icons.person),
                           shape: RoundedRectangleBorder(
@@ -259,7 +257,7 @@ class _ProfileInfoRow extends StatelessWidget {
           ),
           Text(
             item.title,
-            style: Theme.of(context).textTheme.caption,
+            style: Theme.of(context).textTheme.bodySmall,
           )
         ],
       );
