@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
+import 'package:sponsite/main.dart';
 
 // void main() async {
 //   WidgetsFlutterBinding.ensureInitialized();
@@ -301,8 +302,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return _selectedEventType != null &&
         EnameController.text.isNotEmpty &&
         selectedStartDate != null &&
-         selectedEndDate != null && 
-         selectedStartTime != null &&
+        selectedEndDate != null &&
+        selectedStartTime != null &&
         selectedEndTime != null &&
         numofAttendeesController.text.isNotEmpty &&
         selectedChips.isNotEmpty &&
@@ -347,9 +348,9 @@ class _MyHomePageState extends State<MyHomePage> {
           'EventName': eventName,
           'Location': location,
           'startDate': startDate,
-          'endDate' : endDate, 
+          'endDate': endDate,
           'startTime': startTime,
-          'endTime': endTime , 
+          'endTime': endTime,
           'NumberOfAttendees': numofAt,
           'Category': categ,
           'Benefits': benefits,
@@ -357,7 +358,11 @@ class _MyHomePageState extends State<MyHomePage> {
           'Notes': notes,
           'TimeStamp': timestamp,
         });
-        runApp(const SponseeHome());
+
+        ///_showSuccessSnackbar(context);
+        main();
+
+        //runApp(const SponseeHome());
         print('sent to database!');
         print(type);
         print(eventName);
@@ -404,45 +409,46 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-bool before = false;
+  bool before = false;
 
-Future<void> _selectEndDateAndTime(BuildContext context) async {
-  final pickedDate = await showDatePicker(
-    context: context,
-    initialDate: DateTime.now(),
-    firstDate: DateTime.now(),
-    lastDate: DateTime(2101),
-  );
-
-  if (pickedDate != null) {
-    final pickedTime = await showTimePicker(
+  Future<void> _selectEndDateAndTime(BuildContext context) async {
+    final pickedDate = await showDatePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2101),
     );
 
-    if (pickedTime != null) {
-      if (selectedStartDate != null) {
-        DateTime startDateTime = DateTime.parse(selectedStartDate.toString())
-            .add(Duration(hours: selectedStartTime!.hour, minutes: selectedStartTime!.minute));
-        DateTime endDateTime = pickedDate.add(Duration(hours: pickedTime.hour, minutes: pickedTime.minute));
+    if (pickedDate != null) {
+      final pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
 
-        if (endDateTime.isBefore(startDateTime)) {
-          before = true;
+      if (pickedTime != null) {
+        if (selectedStartDate != null) {
+          DateTime startDateTime = DateTime.parse(selectedStartDate.toString())
+              .add(Duration(
+                  hours: selectedStartTime!.hour,
+                  minutes: selectedStartTime!.minute));
+          DateTime endDateTime = pickedDate.add(
+              Duration(hours: pickedTime.hour, minutes: pickedTime.minute));
+
+          if (endDateTime.isBefore(startDateTime)) {
+            before = true;
+          }
         }
-      }
 
-      setState(() {
-        selectedEndDate = pickedDate;
-        selectedEndTime = pickedTime;
-        if (selectedEndDate != null && selectedEndTime != null)
-          _endDatetimeController.text =
-              '${selectedEndDate!.toLocal().toString().substring(0, 10)} , ${selectedEndTime!.format(context)}';
-      });
+        setState(() {
+          selectedEndDate = pickedDate;
+          selectedEndTime = pickedTime;
+          if (selectedEndDate != null && selectedEndTime != null)
+            _endDatetimeController.text =
+                '${selectedEndDate!.toLocal().toString().substring(0, 10)} , ${selectedEndTime!.format(context)}';
+        });
+      }
     }
   }
-}
-
-
 
   int _activeStepIndex = 0;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -458,7 +464,7 @@ Future<void> _selectEndDateAndTime(BuildContext context) async {
       TextEditingController(text: 'No image selected');
   final TextEditingController _startDatetimeController =
       TextEditingController(text: 'No start Date & Time selected');
-      final TextEditingController _endDatetimeController =
+  final TextEditingController _endDatetimeController =
       TextEditingController(text: 'No end Date & Time selected');
   TextEditingController textEditingController = TextEditingController();
 
@@ -601,7 +607,7 @@ Future<void> _selectEndDateAndTime(BuildContext context) async {
       builder: (context) {
         return AlertDialog(
           title: Text(
-            "Post Event",
+            "Cancel Event Post",
             style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
           ),
           content: Text(
@@ -628,7 +634,9 @@ Future<void> _selectEndDateAndTime(BuildContext context) async {
               child: const Text("Yes",
                   style: TextStyle(color: Color.fromARGB(255, 51, 45, 81))),
               onPressed: () {
-                runApp(const SponseeHome());
+                //runApp(const SponseeHome());
+                Navigator.of(context).pop();
+                main();
               },
             ),
           ],
@@ -636,6 +644,7 @@ Future<void> _selectEndDateAndTime(BuildContext context) async {
       },
     );
   }
+
 //HERE
   void _showpostconfirm() {
     showDialog(
@@ -676,15 +685,18 @@ Future<void> _selectEndDateAndTime(BuildContext context) async {
                 String startDate =
                     selectedStartDate!.toLocal().toString().substring(0, 10);
                 String startTime = selectedStartTime!.format(context);
-                 String endDate =
+                String endDate =
                     selectedEndDate!.toLocal().toString().substring(0, 10);
                 String endTime = selectedEndTime!.format(context);
                 String numOfAt = numofAttendeesController.text;
                 List<String> categ = selectedChips;
                 String benefits = benefitsController.text;
                 String notes = notesController.text;
-                _postNewEvent(type, ename, location, startDate, endDate, startTime,endTime, numOfAt, categ,
-                    benefits, notes);
+                _postNewEvent(type, ename, location, startDate, endDate,
+                    startTime, endTime, numOfAt, categ, benefits, notes);
+                Navigator.of(context).pop();
+                _showSuccessSnackbar(context);
+
                 //_showSuccessSnackbar(context);
               },
             ),
@@ -883,10 +895,9 @@ Future<void> _selectEndDateAndTime(BuildContext context) async {
                       onTap: () {
                         _selectStartDateAndTime(context);
                       },
-                      
                     )),
                 const SizedBox(height: 25.0),
-                  SizedBox(
+                SizedBox(
                     width: MediaQuery.of(context).size.width * 0.6,
                     child: TextFormField(
                       controller: _endDatetimeController,
@@ -901,16 +912,16 @@ Future<void> _selectEndDateAndTime(BuildContext context) async {
                         ),
                       ),
                       onTap: () {
-                        _selectEndDateAndTime(context); 
+                        _selectEndDateAndTime(context);
                       },
-                       validator: (Value) {
-                      if (before == true) {
-                        return 'The End Date Can Not Be Before The Start Date';
-                      }
-                      return null;
-                    },
+                      validator: (Value) {
+                        if (before == true) {
+                          return 'The End Date Can Not Be Before The Start Date';
+                        }
+                        return null;
+                      },
                     )),
-                    const SizedBox(height: 25.0),
+                const SizedBox(height: 25.0),
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.6,
                   child: TextFormField(
@@ -1104,8 +1115,9 @@ Future<void> _selectEndDateAndTime(BuildContext context) async {
                         setState(() {
                           showRequiredValidationMessage = true;
                         });
+                      } else {
+                        _showpostconfirm();
                       }
-                      _showpostconfirm();
                     },
                     child: const Text("Post Event",
                         style: TextStyle(fontSize: 20, color: Colors.white)),
@@ -1316,8 +1328,8 @@ Future<void> _selectEndDateAndTime(BuildContext context) async {
                                     EnameController.text.isEmpty ||
                                     _startDatetimeController.text ==
                                         'No start Date & Time selected' ||
-                                          _endDatetimeController.text == 
-                                            'No end Date & Time selected' ||
+                                    _endDatetimeController.text ==
+                                        'No end Date & Time selected' ||
                                     numofAttendeesController.text.isEmpty)
                                   {
                                     setState(() {
@@ -1397,6 +1409,4 @@ Future<void> _selectEndDateAndTime(BuildContext context) async {
               ),
             )));
   }
-
-  
 }
