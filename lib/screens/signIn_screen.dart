@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:sponsite/main.dart';
 import 'package:sponsite/screens/first_choosing_screen.dart';
 
 import 'dart:io';
@@ -71,6 +72,8 @@ class _SignInState extends State<SignIn> {
 
       final userCredentials = await _firebase.signInWithEmailAndPassword(
           email: email, password: password);
+
+       main();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
         setState(() {

@@ -15,16 +15,18 @@ class ScreenLogic {
 
     DataSnapshot sponsorsSnapshot = await sponsorsRef.get();
     DataSnapshot sponseesSnapshot = await sponseesRef.get();
-
+     print(sponsorsSnapshot.value);
+      print(sponseesSnapshot.value);
+      print('im hereeeeeeeeeeeeeeeeee');
     if (sponsorsSnapshot.value != null) {
-      print(sponsorsSnapshot.value);
+     
       return 
       //SponsorHomePage();
       Stack(
         children: [SponsorHomePage(), const SponsorBottomNavBar()],
       );
     } else if (sponseesSnapshot.value != null) {
-      print(sponseesSnapshot.value);
+     
       return 
       //const SponseeHome();
       const Stack(
