@@ -7,7 +7,7 @@ class SponsorOffersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-       body: Center(child: Text('No offers yet')),
+       body: Center(child: Text('No events yet')),
       
     );
   }
