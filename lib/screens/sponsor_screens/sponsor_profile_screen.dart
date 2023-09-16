@@ -12,7 +12,7 @@ class SponsorProfile extends StatelessWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Sign Out Confirmation'),
-          content: Text('Are you sure you want to sign out?',style: TextStyle(fontSize: 20),),
+          content: Text('Are you sure you want to sign out?                                   ',style: TextStyle(fontSize: 20),),
           actions: <Widget>[
             TextButton(
               onPressed: () {

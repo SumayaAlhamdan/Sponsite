@@ -96,17 +96,11 @@ class _SignUpState extends State<SignUp> {
         'Password': password,
         'authentication document': fileName, // Remove the extra colon
       });
-      if (theType == 'Sponsors') {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => Stack(
-                  children: [SponsorHomePage(), const SponsorBottomNavBar()],
-                )));
-      } else if (theType == 'Sponsees') {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => const Stack(
-                  children: [SponseeHome(), SponseeBottomNavBar()],
-                )));
-      }
+       await FirebaseAuth.instance.signOut();
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => const SignIn()
+                ));
+    
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         setState(() {
