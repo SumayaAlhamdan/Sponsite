@@ -30,8 +30,10 @@ class Event {
   final String EventType;
   final String location;
   final String imgURL;
-  final String date;
-  final String time;
+  final String startDate;
+  final String endDate;
+  final String startTime;
+  final String endTime;
   final List<String> Category;
   final String notes;
   final String? benefits;
@@ -45,8 +47,10 @@ class Event {
     required this.EventType,
     required this.location,
     required this.imgURL,
-    required this.date,
-    required this.time,
+    required this.startDate,
+    required this.endDate,
+    required this.startTime,
+    required this.endTime,
     required this.Category,
      required  this.notes,
     this.benefits,
@@ -116,15 +120,16 @@ void _loadEventsFromFirebase() {
                 .toList();
           }
           String timestampString = value['TimeStamp'] as String;
-          String eventDatestring = value['Date'];
-         DateTime? eventDate = DateTime.tryParse(eventDatestring as String);
-         
+          String eventStartDatestring = value['startDate'];
+          String eventEndtDatestring = value['endDate'];
+          DateTime? eventStartDate = DateTime.tryParse(eventStartDatestring as String);
+          DateTime? eventEndDate = DateTime.tryParse(eventEndtDatestring as String);
 
           // Simulate the current time (for testing purposes)
           DateTime currentTime = DateTime.now();
 
           // Check if the event was added in the last 3 days
-          if (eventDate!.isAfter(currentTime)) {
+          if (eventStartDate!.isAfter(currentTime)) {
             events.add(Event(
               EventId: key,
               sponseeId: value['SponseeID'] as String? ?? '',
@@ -132,8 +137,10 @@ void _loadEventsFromFirebase() {
               EventType: value['EventType'] as String? ?? '',
               location: value['Location'] as String? ?? '',
               imgURL: value['img'] as String? ?? 'https://png.pngtree.com/templates/sm/20180611/sm_5b1edb6d03c39.jpg',
-              date: value['Date'] as String? ?? '',
-              time: value['Time'] as String? ?? ' ',
+              startDate: value['startDate'] as String? ?? '',
+              endDate: value['endDate'] as String? ?? '',
+              startTime: value['startTime'] as String? ?? ' ',
+              endTime: value['endTime'] as String? ?? ' ',
               Category: categoryList,
               notes: value['Notes'] as String? ?? 'There are no notes available',
               benefits: value['Benefits'] as String?,
@@ -418,8 +425,7 @@ List<Widget> promoCards = List.generate(5, (index) {
       ),
     );
   },
-   child: Container(
-    color:Color.fromARGB(255, 255, 255, 255),
+
   child: Card(
   elevation: 5,
   shape: RoundedRectangleBorder(
@@ -429,7 +435,7 @@ List<Widget> promoCards = List.generate(5, (index) {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Container(
-        height: screenHeight * 0.19,
+        height: screenHeight * 0.15,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(16),
@@ -443,7 +449,7 @@ List<Widget> promoCards = List.generate(5, (index) {
         ),
       ),
       Container(
-        decoration: BoxDecoration(color: Colors.white ,borderRadius: BorderRadius.vertical(
+        decoration: BoxDecoration(borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(30),)),
         //color: Colors.white, // Set the background color to white
         padding: const EdgeInsets.all(8.0),
@@ -468,7 +474,7 @@ List<Widget> promoCards = List.generate(5, (index) {
                 ),
                 SizedBox(width: 4),
                 Text(
-                  "${event.date}",
+                  "${event.startDate}-${event.endDate}",
                   style: TextStyle(
                     fontSize: 18,
                     color: const Color.fromARGB(255, 0, 0, 0),
@@ -499,7 +505,9 @@ List<Widget> promoCards = List.generate(5, (index) {
               ],
             ),
             SizedBox(height: 10),
-            Wrap(
+            Container(
+             height: 100,
+            child: Wrap(
               spacing: 4,
               children: event.Category.map((category) {
                 return Chip(
@@ -513,7 +521,7 @@ List<Widget> promoCards = List.generate(5, (index) {
                   ),
                 );
               }).toList(),
-            ),
+            ),),
             SizedBox(height: 10), // Add some space
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -534,16 +542,12 @@ List<Widget> promoCards = List.generate(5, (index) {
               ],
             ),
              SizedBox(height: 20.5), // Add some space at the bottom
-              Container(
-                color: Colors.white, // Set the background color to white
-                height: 12, // Adjust the height as needed
-              ),
           ],
         ),
       ),
     ],
   ),
-)
+
 ));
 
               },
@@ -697,8 +701,8 @@ class RecentEventsDetails extends StatelessWidget {
                           Divider(height: 30, thickness: 2),
                           // Info Rows
                           _buildInfoRow(Icons.location_on, event.location, "Location"),
-                          _buildInfoRow(Icons.calendar_today, event.date, "Date"),
-                          _buildInfoRow(Icons.access_time, event.time, "Time"),
+                          _buildInfoRow(Icons.calendar_today, "${event.startDate}-${event.endDate}", "Date"),
+                          _buildInfoRow(Icons.access_time, "${event.startTime}-${event.endTime}", "Time"),
                           _buildInfoRow(Icons.person, "${event.NumberOfAttendees}", "Attendees"),
                           SizedBox(height: 20),
                   

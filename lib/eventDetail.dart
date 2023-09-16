@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 //import 'package:sponsite/Detail.dart';
 
 class eventDetail extends StatefulWidget {
-  const eventDetail({Key? key, required this.DetailKey, required this.img, required this.location, required this.fullDesc, required this.date, required this.Type , required this.Category , required this.time , required this.notes , this.benefits , required this.NumberOfAttendees}) : super(key: key);
+  const eventDetail({Key? key, required this.DetailKey, required this.img, required this.location, required this.fullDesc, required this.startDate,required this.endDate, required this.Type , required this.Category , required this.startTime , required this.endTime ,required this.notes , this.benefits , required this.NumberOfAttendees}) : super(key: key);
  final String img;
  final String location ;
- final String date;
+ final String startDate;
+  final String endDate;
   final String DetailKey;
   final String fullDesc ;
   final String Type ;
   final String Category ;
-  final String time ;
+  final String startTime ;
+    final String endTime ;
   final String notes ; 
   final String? benefits ;
   final String NumberOfAttendees ;
@@ -116,8 +118,8 @@ class _Start extends State<eventDetail> {
                           ),
                           Divider(height: 30, thickness: 2),
                           _buildInfoRow(Icons.location_on, widget.location, "Location"),
-                          _buildInfoRow(Icons.calendar_today, widget.date, "Date"),
-                          _buildInfoRow(Icons.access_time, widget.time, "Time"),
+                          _buildInfoRow(Icons.calendar_today, "${widget.startDate}-${widget.endDate}", "Date"),
+                          _buildInfoRow(Icons.access_time,  "${widget.startTime}-${widget.endTime}", "Time"),
                           _buildInfoRow(Icons.person, "${widget.NumberOfAttendees}", "Attendees"),
                           Text(
                             "Categories",

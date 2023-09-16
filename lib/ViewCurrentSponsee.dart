@@ -94,7 +94,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                       ),
                       SizedBox(width: 5),
                       Text(
-                        event.date,
+                        "${event.startDate}-${event.endDate}",
                         style: TextStyle(fontSize: 18),
                       ),
                     ],
@@ -151,10 +151,12 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                           location: event.location,
                           fullDesc: event.description,
                           img: event.imgURL,
-                          date: event.date,
+                          startDate: event.startDate,
+                          endDate: event.startDate,
                           Type: event.EventType,
                           Category: categoriesString,
-                          time: event.time,
+                          startTime: event.endTime,
+                          endTime: event.startTime,
                           notes: event.notes,
                           benefits: event.benefits,
                           NumberOfAttendees: event.NumberOfAttendees,
@@ -284,8 +286,10 @@ Widget build(BuildContext context) {
               location: value['Location'] as String? ?? '',
               description: value['Description'] as String? ?? '',
               imgURL: value['img'] as String? ?? 'https://png.pngtree.com/templates/sm/20180611/sm_5b1edb6d03c39.jpg' ,
-              date: value['Date'] as String? ?? '',
-              time: value['Time'] as String? ?? '',
+              startDate: value['startDate'] as String? ?? '',
+              endDate: value['endDate'] as String? ?? '',
+              startTime: value['startTime'] as String? ?? '',
+              endTime: value['endTime'] as String? ?? '',
               notes: value['Notes'] as String? ?? 'There are no notes available',
               benefits: value['Benefits'] as String? ?? '',
               NumberOfAttendees: value['NumberOfAttendees'] as String? ?? '' ,
@@ -307,8 +311,10 @@ class Event {
   final String location;
   final String description;
   final String imgURL;
-  final String date;
-  final String time;
+  final String startDate;
+  final String endDate;
+  final String startTime;
+  final String endTime;
   final String notes;
   final String? benefits;
   final String NumberOfAttendees ;
@@ -320,8 +326,10 @@ class Event {
     required this.location,
     required this.description,
     required this.imgURL,
-    required this.date,
-    required this.time,
+    required this.startDate,
+    required this.endDate,
+    required this.startTime,
+    required this.endTime,
     required this.Category, 
     required this.NumberOfAttendees,
      required this.notes,
