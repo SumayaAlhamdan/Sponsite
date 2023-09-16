@@ -157,11 +157,22 @@ class _SignUpState extends State<SignUp> {
 
     if (result == null) return;
     final path = result.files.single.path!;
+    final fileSize = File(path).lengthSync();
+
+     final fileSizeLimit = 1 * 1024 * 1024;
+
+       if (fileSize > fileSizeLimit) {
+      setState(() {
+        errorMessage = "The selected file exceeds the size limit (1MB).";
+      });
+      return;
+    }
 
     setState(() {
       file = File(path);
       fileName = file != null ? basename(file!.path) : 'No File Selected';
       _fileController.text = fileName;
+      errorMessage = null;
     });
   }
 
@@ -273,7 +284,7 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                   inputFormatters: [
                                     FilteringTextInputFormatter(
-                                        RegExp('^[A-Za-z\s]+\$'),
+                                        RegExp(r'^[A-Za-z0-9\s]+$'),
                                         allow: true)
                                   ],
                                   validator: (value) {
@@ -454,11 +465,22 @@ class _SignUpState extends State<SignUp> {
                                     if (value == 'No file selected') {
                                       return "Please select authentication document";
                                     }
+                                    
                                     return null;
                                   },
-                                ),
+                                ),),
+                                if (errorMessage != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      errorMessage!,
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 16,
+                                      ),
+                                    )
                               ),
-
+                              
                               const SizedBox(height: 25.0),
                               // Row(
                               //   children: [
