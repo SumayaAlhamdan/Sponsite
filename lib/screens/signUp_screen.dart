@@ -276,16 +276,16 @@ class _SignUpState extends State<SignUp> {
                                     labelText: 'Name',
                                     prefixIcon: Icon(Icons.person, size: 24),
                                   ),
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter(
-                                        RegExp(r'^[A-Za-z0-9\s]+$'),
-                                        allow: true)
-                                  ],
+                                  // inputFormatters: [
+                                  //   FilteringTextInputFormatter(
+                                  //       RegExp(r'^[A-Za-z0-9\s]+$'),
+                                  //       allow: true)
+                                  // ],
                                   validator: (value) {
                                     if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
                                             .hasMatch(value!) ||
                                         value.isEmpty) {
-                                      return "Please enter a valid name";
+                                      return "Please enter a valid name with no special characters";
                                     }
                                     if (value.length > 50) {
                                       return 'Name should be shorter than 50 characters';
@@ -646,3 +646,4 @@ class _SignUpState extends State<SignUp> {
     );
   }
 }
+
