@@ -9,12 +9,6 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
 import 'package:sponsite/main.dart';
 
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   await Firebase.initializeApp();
-//   runApp(const MyApp());
-// }
-
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -29,29 +23,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-//   Widget build(BuildContext context) {
-//     // const screenHeight =  MediaQuery.of(context).size.height;
-//     //const screenWidth =  MediaQuery.of(context).size.width;
-
-//     return Scaffold(
-//       backgroundColor: Colors.white,
-//       appBar: AppBar(
-//         title: Text(
-//           'New Event',
-//           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-//         ),
-//         backgroundColor: Color.fromARGB(255, 51, 45, 81),
-//         elevation: 0, // Remove the shadow
-//         shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.only(
-//             bottomLeft: Radius.circular(20),
-//             bottomRight: Radius.circular(20),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 User? user = FirebaseAuth.instance.currentUser;
 String? sponseeID;
@@ -616,9 +587,7 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundColor: Colors.white,
           elevation: 0, // Remove the shadow
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(20),
-              bottomRight: Radius.circular(20),
+            borderRadius: BorderRadius.all(Radius.circular(20)
             ),
           ),
 
@@ -661,9 +630,7 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundColor: Colors.white,
           elevation: 0, // Remove the shadow
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(20),
-              bottomRight: Radius.circular(20),
+            borderRadius: BorderRadius.all(Radius.circular(20)
             ),
           ),
 
@@ -1104,7 +1071,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Additional Notes',
-                      contentPadding: EdgeInsets.symmetric(vertical: 20.0)),
+                      contentPadding: EdgeInsets.fromLTRB(15,20,20,20)),
                 ),
                 const SizedBox(
                   height: 26,

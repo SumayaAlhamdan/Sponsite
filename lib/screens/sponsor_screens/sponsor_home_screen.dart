@@ -128,7 +128,7 @@ void _loadEventsFromFirebase() {
           // Simulate the current time (for testing purposes)
           DateTime currentTime = DateTime.now();
 
-          // Check if the event was added in the last 3 days
+      
           if (eventStartDate!.isAfter(currentTime)) {
             events.add(Event(
               EventId: key,
@@ -136,7 +136,7 @@ void _loadEventsFromFirebase() {
               EventName: value['EventName'] as String? ?? '',
               EventType: value['EventType'] as String? ?? '',
               location: value['Location'] as String? ?? '',
-              imgURL: value['img'] as String? ?? 'https://png.pngtree.com/templates/sm/20180611/sm_5b1edb6d03c39.jpg',
+              imgURL: value['img'] as String? ?? "",
               startDate: value['startDate'] as String? ?? '',
               endDate: value['endDate'] as String? ?? '',
               startTime: value['startTime'] as String? ?? ' ',
@@ -207,34 +207,6 @@ List<Widget> promoCards = List.generate(5, (index) {
         padding: EdgeInsets.fromLTRB(7, 5, 0, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          // children: [
-          //   Text(
-          //     ' ${event.EventName}',
-          //     style: TextStyle(
-          //       color: Color.fromARGB(255, 51, 45, 81),
-          //       fontSize: 24, // Increased title font size
-                
-          //     ),
-          //   ),
-          //   SizedBox(height: 12), // Increased the height between title and description
-          //   Text(
-          //     '${event.EventType}',
-          //     style: TextStyle(
-          //       color: Color.fromARGB(255, 51, 45, 81),
-          //       fontSize: 18, // Increased description font size
-          //     ),
-          //   ),
-          //   SizedBox(height: 12), // Increased the height between title and description
-          //   Text(
-          //     '${event.location}',
-          //     maxLines: 2, // Set the maximum number of lines
-          //     overflow: TextOverflow.ellipsis, // Add ellipsis (...) if text overflows
-          //     style: TextStyle(
-          //       color: Color.fromARGB(255, 51, 45, 81),
-          //       fontSize: 15, // Increased description font size
-          //     ),
-          //   ),
-          // ],
         ),
       ),));
     }).toList();
@@ -290,24 +262,6 @@ List<Widget> promoCards = List.generate(5, (index) {
                 ],
               ),
             ),
-            // SizedBox(height: ),
-            
-      //       Container(
-      //         padding: EdgeInsets.symmetric(horizontal: 16),
-      //         decoration: BoxDecoration(
-      //   borderRadius: BorderRadius.only(
-      //     bottomLeft: Radius.circular(150.0),
-      //     bottomRight: Radius.circular(150.0),
-      //   ),
-      //   gradient: LinearGradient(
-      //     begin: Alignment.bottomCenter,
-      //     end: Alignment.topCenter,
-      //     colors: [
-      //       Color.fromARGB(255, 91, 79, 158),
-      //       Color.fromARGB(255, 51, 45, 81),
-      //     ],
-      //   ),
-      // ),
       Stack(
   children: [
     Container(
@@ -399,7 +353,7 @@ List<Widget> promoCards = List.generate(5, (index) {
 ),
 
             // SizedBox(height: 3),
-              SizedBox(height: screenHeight-540,
+              SizedBox(height: screenHeight-590,
               child:   Scrollbar(// Set this to true to always show the scrollbar
               child: GridView.builder(
               padding: const EdgeInsets.fromLTRB(12,0,12.0,0), 

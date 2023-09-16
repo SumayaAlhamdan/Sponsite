@@ -7,17 +7,6 @@ import 'package:sponsite/eventDetail.dart';
 import 'package:sponsite/widgets/customAppBar.dart';
 import 'package:sponsite/widgets/user_type_selector.dart';
 
-User? user = FirebaseAuth.instance.currentUser;
-String? sponseeID;
-
-void check() {
-  if (user != null) {
-    sponseeID = user?.uid;
-    print('Sponsee ID: $sponseeID');
-  } else {
-    print('User is not logged in.');
-  }
-}
 
 class ViewCurrentSponsee extends StatefulWidget {
   const ViewCurrentSponsee({Key? key}) : super(key: key);
@@ -31,10 +20,21 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
   int selectedTabIndex = 0;
   final DatabaseReference dbRef =
       FirebaseDatabase.instance.reference().child('sponseeEvents');
+User? user = FirebaseAuth.instance.currentUser;
+String? sponseeID;
 
+void check() {
+  if (user != null) {
+    sponseeID = user?.uid;
+    print('Sponsee ID: $sponseeID');
+  } else {
+    print('User is not logged in.');
+  }
+}
   @override
   void initState() {
     super.initState();
+    check();
     _loadEventsFromFirebase();
   }
  Widget listItem({required Event event}) {
@@ -152,11 +152,11 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                           fullDesc: event.description,
                           img: event.imgURL,
                           startDate: event.startDate,
-                          endDate: event.startDate,
+                          endDate: event.endDate,
                           Type: event.EventType,
                           Category: categoriesString,
-                          startTime: event.endTime,
-                          endTime: event.startTime,
+                          startTime: event.startTime,
+                          endTime: event.endTime,
                           notes: event.notes,
                           benefits: event.benefits,
                           NumberOfAttendees: event.NumberOfAttendees,
