@@ -118,7 +118,7 @@ class _Start extends State<eventDetail> {
                           ),
                           Divider(height: 30, thickness: 2),
                           _buildInfoRow(Icons.location_on, widget.location, "Location"),
-                          _buildInfoRow(Icons.calendar_today, "${widget.startDate}-${widget.endDate}", "Date"),
+                          _buildInfoRow(Icons.calendar_today, "${widget.startDate} - ${widget.endDate}", "Date"),
                           _buildInfoRow(Icons.access_time,  "${widget.startTime}-${widget.endTime}", "Time"),
                           _buildInfoRow(Icons.person, "${widget.NumberOfAttendees}", "Attendees"),
                           Text(

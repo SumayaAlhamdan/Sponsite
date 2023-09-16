@@ -428,7 +428,7 @@ List<Widget> promoCards = List.generate(5, (index) {
                 ),
                 SizedBox(width: 4),
                 Text(
-                  "${event.startDate}-${event.endDate}",
+                  "${event.startDate} - ${event.endDate}",
                   style: TextStyle(
                     fontSize: 18,
                     color: const Color.fromARGB(255, 0, 0, 0),
@@ -655,7 +655,7 @@ class RecentEventsDetails extends StatelessWidget {
                           Divider(height: 30, thickness: 2),
                           // Info Rows
                           _buildInfoRow(Icons.location_on, event.location, "Location"),
-                          _buildInfoRow(Icons.calendar_today, "${event.startDate}-${event.endDate}", "Date"),
+                          _buildInfoRow(Icons.calendar_today, "${event.startDate} - ${event.endDate}", "Date"),
                           _buildInfoRow(Icons.access_time, "${event.startTime}-${event.endTime}", "Time"),
                           _buildInfoRow(Icons.person, "${event.NumberOfAttendees}", "Attendees"),
                           SizedBox(height: 20),

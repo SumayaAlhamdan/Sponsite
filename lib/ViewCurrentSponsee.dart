@@ -94,7 +94,7 @@ void check() {
                       ),
                       SizedBox(width: 5),
                       Text(
-                        "${event.startDate}-${event.endDate}",
+                        "${event.startDate} - ${event.endDate}",
                         style: TextStyle(fontSize: 18),
                       ),
                     ],
