@@ -277,8 +277,10 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-DateTime? selectedDate;
-TimeOfDay? selectedTime;
+DateTime? selectedStartDate;
+DateTime? selectedEndDate;
+TimeOfDay? selectedStartTime;
+TimeOfDay? selectedEndTime;
 List<String> eventTypesList = [];
 String? selectedEventType;
 List<String> selectedChips = [];
@@ -298,8 +300,10 @@ class _MyHomePageState extends State<MyHomePage> {
   bool areRequiredFieldsFilled() {
     return _selectedEventType != null &&
         EnameController.text.isNotEmpty &&
-        selectedDate != null &&
-        selectedTime != null &&
+        selectedStartDate != null &&
+         selectedEndDate != null && 
+         selectedStartTime != null &&
+        selectedEndTime != null &&
         numofAttendeesController.text.isNotEmpty &&
         selectedChips.isNotEmpty &&
         benefitsController.text.isNotEmpty;
@@ -319,8 +323,10 @@ class _MyHomePageState extends State<MyHomePage> {
     String type,
     String eventName,
     String location,
-    String date,
-    String time,
+    String startDate,
+    String endDate,
+    String startTime,
+    String endTime,
     String numofAt,
     List<String> categ,
     String benefits,
@@ -340,8 +346,10 @@ class _MyHomePageState extends State<MyHomePage> {
           'EventType': type,
           'EventName': eventName,
           'Location': location,
-          'Date': date,
-          'Time': time,
+          'startDate': startDate,
+          'endDate' : endDate, 
+          'startTime': startTime,
+          'endTime': endTime , 
           'NumberOfAttendees': numofAt,
           'Category': categ,
           'Benefits': benefits,
@@ -354,8 +362,10 @@ class _MyHomePageState extends State<MyHomePage> {
         print(type);
         print(eventName);
         print(location);
-        print(date);
-        print(time);
+        print(startDate);
+        print(endDate);
+        print(startTime);
+        print(endTime);
         print(numofAt);
         print(categ);
         print(benefits);
@@ -368,7 +378,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> _selectDateAndTime(BuildContext context) async {
+  Future<void> _selectStartDateAndTime(BuildContext context) async {
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -384,15 +394,55 @@ class _MyHomePageState extends State<MyHomePage> {
 
       if (pickedTime != null) {
         setState(() {
-          selectedDate = pickedDate;
-          selectedTime = pickedTime;
-          if (selectedDate != null && selectedTime != null)
-            _datetimeController.text =
-                '${selectedDate!.toLocal().toString().substring(0, 10)} , ${selectedTime!.format(context)}';
+          selectedStartDate = pickedDate;
+          selectedStartTime = pickedTime;
+          if (selectedStartDate != null && selectedStartTime != null)
+            _startDatetimeController.text =
+                '${selectedStartDate!.toLocal().toString().substring(0, 10)} , ${selectedStartTime!.format(context)}';
         });
       }
     }
   }
+
+bool before = false;
+
+Future<void> _selectEndDateAndTime(BuildContext context) async {
+  final pickedDate = await showDatePicker(
+    context: context,
+    initialDate: DateTime.now(),
+    firstDate: DateTime.now(),
+    lastDate: DateTime(2101),
+  );
+
+  if (pickedDate != null) {
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedTime != null) {
+      if (selectedStartDate != null) {
+        DateTime startDateTime = DateTime.parse(selectedStartDate.toString())
+            .add(Duration(hours: selectedStartTime!.hour, minutes: selectedStartTime!.minute));
+        DateTime endDateTime = pickedDate.add(Duration(hours: pickedTime.hour, minutes: pickedTime.minute));
+
+        if (endDateTime.isBefore(startDateTime)) {
+          before = true;
+        }
+      }
+
+      setState(() {
+        selectedEndDate = pickedDate;
+        selectedEndTime = pickedTime;
+        if (selectedEndDate != null && selectedEndTime != null)
+          _endDatetimeController.text =
+              '${selectedEndDate!.toLocal().toString().substring(0, 10)} , ${selectedEndTime!.format(context)}';
+      });
+    }
+  }
+}
+
+
 
   int _activeStepIndex = 0;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -406,8 +456,10 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController notesController = TextEditingController();
   final TextEditingController _imageController =
       TextEditingController(text: 'No image selected');
-  final TextEditingController _datetimeController =
-      TextEditingController(text: 'No Date & Time selected');
+  final TextEditingController _startDatetimeController =
+      TextEditingController(text: 'No start Date & Time selected');
+      final TextEditingController _endDatetimeController =
+      TextEditingController(text: 'No end Date & Time selected');
   TextEditingController textEditingController = TextEditingController();
 
   final DatabaseReference dbref = FirebaseDatabase.instance.reference();
@@ -584,7 +636,7 @@ class _MyHomePageState extends State<MyHomePage> {
       },
     );
   }
-
+//HERE
   void _showpostconfirm() {
     showDialog(
       context: context,
@@ -621,14 +673,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 String type = _selectedEventType;
                 String ename = EnameController.text;
                 String location = LocationController.text;
-                String date =
-                    selectedDate!.toLocal().toString().substring(0, 10);
-                String time = selectedTime!.format(context);
+                String startDate =
+                    selectedStartDate!.toLocal().toString().substring(0, 10);
+                String startTime = selectedStartTime!.format(context);
+                 String endDate =
+                    selectedEndDate!.toLocal().toString().substring(0, 10);
+                String endTime = selectedEndTime!.format(context);
                 String numOfAt = numofAttendeesController.text;
                 List<String> categ = selectedChips;
                 String benefits = benefitsController.text;
                 String notes = notesController.text;
-                _postNewEvent(type, ename, location, date, time, numOfAt, categ,
+                _postNewEvent(type, ename, location, startDate, endDate, startTime,endTime, numOfAt, categ,
                     benefits, notes);
                 //_showSuccessSnackbar(context);
               },
@@ -814,10 +869,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 SizedBox(
                     width: MediaQuery.of(context).size.width * 0.6,
                     child: TextFormField(
-                      controller: _datetimeController,
+                      controller: _startDatetimeController,
                       readOnly: true,
                       decoration: const InputDecoration(
-                        labelText: 'Select Date and Time *',
+                        labelText: 'Select start Date and Time *',
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(
                           Icons.calendar_month,
@@ -826,10 +881,36 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       onTap: () {
-                        _selectDateAndTime(context);
+                        _selectStartDateAndTime(context);
                       },
+                      
                     )),
                 const SizedBox(height: 25.0),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.6,
+                    child: TextFormField(
+                      controller: _endDatetimeController,
+                      readOnly: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Select end Date and Time *',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(
+                          Icons.calendar_month,
+                          size: 24,
+                          color: Colors.black,
+                        ),
+                      ),
+                      onTap: () {
+                        _selectEndDateAndTime(context); 
+                      },
+                       validator: (Value) {
+                      if (before == true) {
+                        return 'The End Date Can Not Be Before The Start Date';
+                      }
+                      return null;
+                    },
+                    )),
+                    const SizedBox(height: 25.0),
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.6,
                   child: TextFormField(
@@ -1233,8 +1314,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                 // Check if required fields are empty
                                 if (_selectedEventType.isEmpty ||
                                     EnameController.text.isEmpty ||
-                                    _datetimeController.text ==
-                                        'No Date & Time selected' ||
+                                    _startDatetimeController.text ==
+                                        'No start Date & Time selected' ||
+                                          _endDatetimeController.text == 
+                                            'No end Date & Time selected' ||
                                     numofAttendeesController.text.isEmpty)
                                   {
                                     setState(() {
@@ -1314,4 +1397,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             )));
   }
+
+  
 }
