@@ -440,6 +440,7 @@ List<Widget> promoCards = List.generate(5, (index) {
             const SizedBox(height: 4),
             Row(
               children: [
+                 if ( event.location != null &&  event.location.isNotEmpty)
                 const Icon(
                   Icons.location_on,
                   size: 21,
@@ -553,7 +554,7 @@ class RecentEventsDetails extends StatelessWidget {
   final Event event;
 
   const RecentEventsDetails({super.key, required this.event});
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -655,7 +656,7 @@ class RecentEventsDetails extends StatelessWidget {
                           ),
                           const Divider(height: 30, thickness: 2),
                           // Info Rows
-                          _buildInfoRow(Icons.location_on, event.location, "Location"),
+                        
                           _buildInfoRow(Icons.calendar_today, "${event.startDate} - ${event.endDate}", "Date"),
                           _buildInfoRow(Icons.access_time, "${event.startTime}-${event.endTime}", "Time"),
                           _buildInfoRow(Icons.person, event.NumberOfAttendees, "Attendees"),
@@ -778,6 +779,7 @@ class RecentEventsDetails extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Row(
         children: [
+          if (text != null && text.isNotEmpty)
           Icon(
             icon,
             size: 40,
@@ -787,6 +789,7 @@ class RecentEventsDetails extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (text != null && text.isNotEmpty)
               Text(
                 label,
                 style: const TextStyle(
@@ -794,6 +797,7 @@ class RecentEventsDetails extends StatelessWidget {
                   color: Colors.black54,
                 ),
               ),
+              if (text != null && text.isNotEmpty) 
               Text(
                 text,
                 style: const TextStyle(

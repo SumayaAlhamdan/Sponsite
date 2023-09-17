@@ -99,6 +99,7 @@ void check() {
                   ),
                   Row(
                     children: [
+                      if ( event.location != null &&  event.location.isNotEmpty)
                       const Icon(
                         Icons.location_on,
                         size: 24,

@@ -197,6 +197,7 @@ class _Start extends State<eventDetail> {
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Row(
         children: [
+          if (text != null && text.isNotEmpty)
           Icon(
             icon,
             size: 40,
@@ -206,6 +207,7 @@ class _Start extends State<eventDetail> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (text != null && text.isNotEmpty)
               Text(
                 label,
                 style: const TextStyle(
@@ -213,6 +215,7 @@ class _Start extends State<eventDetail> {
                   color: Colors.black54,
                 ),
               ),
+              if (text != null && text.isNotEmpty)
               Text(
                 text,
                 style: const TextStyle(

@@ -89,7 +89,6 @@ class _SignUpState extends State<SignUp> {
       await dbref.child(theType).child(userId).set({
         'Name': name,
         'Email': email,
-        'Password': password,
         'authentication document': fileName, // Remove the extra colon
       });
         await FirebaseAuth.instance.signOut();
