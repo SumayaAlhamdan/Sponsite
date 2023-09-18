@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
+import 'package:sponsite/screens/sponsor_screens/sendOffer.dart';
 
 String? sponsorID;
 class Offer {
@@ -375,8 +377,23 @@ List<Widget> promoCards = List.generate(5, (index) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            RecentEventsDetails(event: event),
+        builder: (context) => RecentEventsDetails(
+              sponsorID: sponsorID,
+              EventId: event.EventId,
+              sponseeId: event.sponseeId,
+              EventName:event.EventName,
+              EventType: event.EventType,
+              location:event.location,
+              imgURL: event.imgURL,
+              startDate: event.startDate,
+              endDate: event.endDate,
+              startTime:event.startTime,
+              endTime: event.endTime,
+              Category: event.Category,
+              notes:event.notes,
+              benefits: event.benefits,
+              NumberOfAttendees:event.NumberOfAttendees, 
+              timeStamp: event.timeStamp,),
       ),
     );
   },
@@ -404,9 +421,8 @@ List<Widget> promoCards = List.generate(5, (index) {
         ),
       ),
       Container(
-        decoration: const BoxDecoration(borderRadius: BorderRadius.vertical(
+        decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(30),)),
-        //color: Colors.white, // Set the background color to white
         padding: const EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -550,553 +566,563 @@ List<Widget> promoCards = List.generate(5, (index) {
   }
 }
 
-class RecentEventsDetails extends StatelessWidget {
-  final Event event;
+// class RecentEventsDetails extends StatelessWidget {
+//   final Event event;
 
-  const RecentEventsDetails({super.key, required this.event});
+//   const RecentEventsDetails({super.key, required this.event});
  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            alignment: Alignment.topLeft,
-            children: [
-              Container(
-                height: 440,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 51, 45, 81),
-                  image: DecorationImage(
-                    image: event.imgURL.isNotEmpty
-                        ? NetworkImage(event.imgURL)
-                        : const NetworkImage(
-                            'https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              Container(
-  decoration: const BoxDecoration(
-    color: Color.fromARGB(255, 51, 45, 81),
-    borderRadius: BorderRadius.only(
-      bottomLeft: Radius.circular(20),
-      bottomRight: Radius.circular(20),
-    ),
-  ),
-  height: 75,
-  padding: const EdgeInsets.fromLTRB(16, 0, 0, 0), // Adjust the padding as needed
-  child: Row(
-    children: [
-      IconButton(
-        icon: const Icon(Icons.arrow_back),
-        color: Colors.white,
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-      ),
-      const Text(
-        "Event Details",
-        style: TextStyle(
-          fontWeight: FontWeight.w500,
-          fontSize: 24,
-          color: Colors.white,
-        ),
-      ),
-      const SizedBox(width: 40), // Adjust the spacing as needed
-    ],
-  ),
-)
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Stack(
+//             alignment: Alignment.topLeft,
+//             children: [
+//               Container(
+//                 height: 440,
+//                 width: double.infinity,
+//                 decoration: BoxDecoration(
+//                   color: const Color.fromARGB(255, 51, 45, 81),
+//                   image: DecorationImage(
+//                     image: event.imgURL.isNotEmpty
+//                         ? NetworkImage(event.imgURL)
+//                         : const NetworkImage(
+//                             'https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
+//                     fit: BoxFit.cover,
+//                   ),
+//                 ),
+//               ),
+//               Container(
+//   decoration: const BoxDecoration(
+//     color: Color.fromARGB(255, 51, 45, 81),
+//     borderRadius: BorderRadius.only(
+//       bottomLeft: Radius.circular(20),
+//       bottomRight: Radius.circular(20),
+//     ),
+//   ),
+//   height: 75,
+//   padding: const EdgeInsets.fromLTRB(16, 0, 0, 0), // Adjust the padding as needed
+//   child: Row(
+//     children: [
+//       IconButton(
+//         icon: const Icon(Icons.arrow_back),
+//         color: Colors.white,
+//         onPressed: () {
+//           Navigator.of(context).pop();
+//         },
+//       ),
+//       const Text(
+//         "Event Details",
+//         style: TextStyle(
+//           fontWeight: FontWeight.w500,
+//           fontSize: 24,
+//           color: Colors.white,
+//         ),
+//       ),
+//       const SizedBox(width: 40), // Adjust the spacing as needed
+//     ],
+//   ),
+// )
 
-            ],
-          ),
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-                child: Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(16.0),
-                  child: Scrollbar(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 20),
-                          Text(
-                            event.EventName,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 32,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            event.EventType,
-                            style: const TextStyle(
-                              fontSize: 22,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const Divider(height: 30, thickness: 2),
-                          // Info Rows
+//             ],
+//           ),
+//           Expanded(
+//             child: Container(
+//               decoration: BoxDecoration(
+//                 boxShadow: [
+//                   BoxShadow(
+//                     color: Colors.grey.withOpacity(0.5),
+//                     spreadRadius: 5,
+//                     blurRadius: 7,
+//                     offset: const Offset(0, 3),
+//                   ),
+//                 ],
+//               ),
+//               child: ClipRRect(
+//                 borderRadius: const BorderRadius.only(
+//                   topLeft: Radius.circular(20),
+//                   topRight: Radius.circular(20),
+//                 ),
+//                 child: Container(
+//                   color: Colors.white,
+//                   padding: const EdgeInsets.all(16.0),
+//                   child: Scrollbar(
+//                     child: SingleChildScrollView(
+//                       child: Column(
+//                         crossAxisAlignment: CrossAxisAlignment.start,
+//                         children: [
+//                           const SizedBox(height: 20),
+//                           Text(
+//                             event.EventName,
+//                             style: const TextStyle(
+//                               fontWeight: FontWeight.bold,
+//                               fontSize: 32,
+//                               color: Colors.black87,
+//                             ),
+//                           ),
+//                           const SizedBox(height: 10),
+//                           Text(
+//                             event.EventType,
+//                             style: const TextStyle(
+//                               fontSize: 22,
+//                               color: Colors.black87,
+//                             ),
+//                           ),
+//                           const Divider(height: 30, thickness: 2),
+//                           // Info Rows
                         
-                          _buildInfoRow(Icons.calendar_today, "${event.startDate} - ${event.endDate}", "Date"),
-                          _buildInfoRow(Icons.access_time, "${event.startTime}-${event.endTime}", "Time"),
-                          _buildInfoRow(Icons.person, event.NumberOfAttendees, "Attendees"),
-                          const SizedBox(height: 20),
+//                           _buildInfoRow(Icons.calendar_today, "${event.startDate} - ${event.endDate}", "Date"),
+//                           _buildInfoRow(Icons.access_time, "${event.startTime}-${event.endTime}", "Time"),
+//                           _buildInfoRow(Icons.person, event.NumberOfAttendees, "Attendees"),
+//                           const SizedBox(height: 20),
                   
-                          const Text(
-                            "Categories",
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Wrap(
-                            spacing: 4,
-                            children: event.Category.map((category) {
-                              return Chip(
-                                label: Text(category),
-                                backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-                                shadowColor: const Color.fromARGB(255, 91, 79, 158),
-                                elevation: 3,
-                                labelStyle: const TextStyle(
-                                  color: Color.fromARGB(255, 91, 79, 158),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                          const SizedBox(height: 20),
+//                           const Text(
+//                             "Categories",
+//                             style: TextStyle(
+//                               fontSize: 28,
+//                               fontWeight: FontWeight.bold,
+//                               color: Colors.black87,
+//                             ),
+//                           ),
+//                           const SizedBox(height: 10),
+//                           Wrap(
+//                             spacing: 4,
+//                             children: event.Category.map((category) {
+//                               return Chip(
+//                                 label: Text(category),
+//                                 backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+//                                 shadowColor: const Color.fromARGB(255, 91, 79, 158),
+//                                 elevation: 3,
+//                                 labelStyle: const TextStyle(
+//                                   color: Color.fromARGB(255, 91, 79, 158),
+//                                 ),
+//                               );
+//                             }).toList(),
+//                           ),
+//                           const SizedBox(height: 20),
                   
-                          const Text(
-                            "Benefits",
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            event.benefits ?? "No benefits available",
-                            style: const TextStyle(
-                              fontSize: 20,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
+//                           const Text(
+//                             "Benefits",
+//                             style: TextStyle(
+//                               fontSize: 28,
+//                               fontWeight: FontWeight.bold,
+//                               color: Colors.black87,
+//                             ),
+//                           ),
+//                           const SizedBox(height: 10),
+//                           Text(
+//                             event.benefits ?? "No benefits available",
+//                             style: const TextStyle(
+//                               fontSize: 20,
+//                               color: Colors.black87,
+//                             ),
+//                           ),
+//                           const SizedBox(height: 20),
                   
-                          const Text(
-                            "Notes",
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            (event.notes.isNotEmpty)
-                                ? event.notes
-                                : "There are no notes available",
-                            style: const TextStyle(
-                              fontSize: 20,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
+//                           const Text(
+//                             "Notes",
+//                             style: TextStyle(
+//                               fontSize: 28,
+//                               fontWeight: FontWeight.bold,
+//                               color: Colors.black87,
+//                             ),
+//                           ),
+//                           const SizedBox(height: 10),
+//                           Text(
+//                             (event.notes.isNotEmpty)
+//                                 ? event.notes
+//                                 : "There are no notes available",
+//                             style: const TextStyle(
+//                               fontSize: 20,
+//                               color: Colors.black87,
+//                             ),
+//                           ),
+//                           const SizedBox(height: 20),
                   
-                          Center(
-                            child: SizedBox(
-                              height: 55, //height of button
-                              width: 190,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return CustomDialog(
-                                        event: event,
-                                        parentContext: context,
-                                        sponsorId: sponsorID,
-                                      );
-                                    },
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                 backgroundColor: const Color.fromARGB(255, 91, 79, 158),
-                                //  primary: Color(0xFF6A62B6),
-                                  elevation: 10,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Send offer',
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+//                           Center(
+//                             child: SizedBox(
+//                               height: 55, //height of button
+//                               width: 190,
+//                               child: ElevatedButton(
+//                                 onPressed: () {
+//                                   // showDialog(
+//                                   //   context: context,
+//                                     // builder: (BuildContext context) {
+//                                     //   return CustomDialog(
+//                                     //     event: event,
+//                                     //     parentContext: context,
+//                                     //     sponsorId: sponsorID,
+//                                     //   );
+//                                     // }
+//                                     Navigator.push(
+//                                       context,
+//                                       MaterialPageRoute(
+//                                         builder: (_) => sendOffer(
+//                                         EventId: event.EventId,
+//                                         sponsorId: sponsorID,
+//                                         sponseeId: event.sponseeId,
+//                                         Category: event.Category,
+//                                         ),
+//                                       ),
+//                                     );
+//                                   },
+//                                 style: ElevatedButton.styleFrom(
+//                                  backgroundColor: const Color.fromARGB(255, 91, 79, 158),
+//                                 //  primary: Color(0xFF6A62B6),
+//                                   elevation: 10,
+//                                   shape: RoundedRectangleBorder(
+//                                     borderRadius: BorderRadius.circular(30),
+//                                   ),
+//                                 ),
+//                                 child: const Text(
+//                                   'Send offer',
+//                                   style: TextStyle(
+//                                     fontSize: 25,
+//                                     color: Colors.white,
+//                                   ),
+//                                 ),
+//                               ),
+//                             ),
+//                           ),
+//                           const SizedBox(height: 20),
+//                         ],
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
-  Widget _buildInfoRow(IconData icon, String text, String label) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Row(
-        children: [
-          if (text != null && text.isNotEmpty)
-          Icon(
-            icon,
-            size: 40,
-            color: const Color.fromARGB(255, 91, 79, 158),
-          ),
-          const SizedBox(width: 10), // Adjust the spacing as needed
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (text != null && text.isNotEmpty)
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black54,
-                ),
-              ),
-              if (text != null && text.isNotEmpty) 
-              Text(
-                text,
-                style: const TextStyle(
-                  fontSize: 22,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
+//   Widget _buildInfoRow(IconData icon, String text, String label) {
+//     return Padding(
+//       padding: const EdgeInsets.only(bottom: 16.0),
+//       child: Row(
+//         children: [
+//           if (text != null && text.isNotEmpty)
+//           Icon(
+//             icon,
+//             size: 40,
+//             color: const Color.fromARGB(255, 91, 79, 158),
+//           ),
+//           const SizedBox(width: 10), // Adjust the spacing as needed
+//           Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               if (text != null && text.isNotEmpty)
+//               Text(
+//                 label,
+//                 style: const TextStyle(
+//                   fontSize: 16,
+//                   color: Colors.black54,
+//                 ),
+//               ),
+//               if (text != null && text.isNotEmpty) 
+//               Text(
+//                 text,
+//                 style: const TextStyle(
+//                   fontSize: 22,
+//                   color: Colors.black87,
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 
 
 
 
 
-class CustomDialog extends StatefulWidget {
-  final Event event;
-  final BuildContext? parentContext;
-  final String? sponsorId;
+// class CustomDialog extends StatefulWidget {
+//   final Event event;
+//   final BuildContext? parentContext;
+//   final String? sponsorId;
 
-  const CustomDialog({super.key, 
-    required this.event,
-    this.parentContext,
-    required this.sponsorId,
-  });
+//   const CustomDialog({super.key, 
+//     required this.event,
+//     this.parentContext,
+//     required this.sponsorId,
+//   });
 
-  @override
-  _CustomDialogState createState() => _CustomDialogState();
-}
+//   @override
+//   _CustomDialogState createState() => _CustomDialogState();
+// }
 
-class _CustomDialogState extends State<CustomDialog> {
-  Set<String> filters = <String>{};
-  TextEditingController notesController = TextEditingController();
+// class _CustomDialogState extends State<CustomDialog> {
+//   Set<String> filters = <String>{};
+//   TextEditingController notesController = TextEditingController();
 
-  final DatabaseReference database = FirebaseDatabase.instance.ref();
+//   final DatabaseReference database = FirebaseDatabase.instance.ref();
 
-  @override
-  void dispose() {
-    notesController.dispose();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     notesController.dispose();
+//     super.dispose();
+//   }
 
-  void _showEmptyFormAlert() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Theme(
-            data: Theme.of(context).copyWith(dialogBackgroundColor: Colors.white),
-            child:
-      AlertDialog(
-          title: const Text('Empty Offer'),
-          // backgroundColor: Colors.white,
-          content: const Text(
-              'Please select at least one category before sending the offer',style: TextStyle(fontSize: 20),),
-          actions: [
-             TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child:const  Text('OK',style: TextStyle(color:Color.fromARGB(255,51,45,81), fontSize: 20),),
-            ),
-          ],
-        ));
-      },
-    );
-  }
+//   void _showEmptyFormAlert() {
+//     showDialog(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return Theme(
+//             data: Theme.of(context).copyWith(dialogBackgroundColor: Colors.white),
+//             child:
+//       AlertDialog(
+//           title: const Text('Empty Offer'),
+//           // backgroundColor: Colors.white,
+//           content: const Text(
+//               'Please select at least one category before sending the offer',style: TextStyle(fontSize: 20),),
+//           actions: [
+//              TextButton(
+//               onPressed: () async {
+//                 Navigator.of(context).pop(); // Close the dialog
+//               },
+//               child:const  Text('OK',style: TextStyle(color:Color.fromARGB(255,51,45,81), fontSize: 20),),
+//             ),
+//           ],
+//         ));
+//       },
+//     );
+//   }
 
-  void _sendOffer() async {
-    if (filters.isEmpty) {
-      _showEmptyFormAlert();
-    } else {
-      List<String> selectedCategories = filters
-          .map((category) => category.toString().split('.').last)
-          .toList();
+//   void _sendOffer() async {
+//     if (filters.isEmpty) {
+//       _showEmptyFormAlert();
+//     } else {
+//       List<String> selectedCategories = filters
+//           .map((category) => category.toString().split('.').last)
+//           .toList();
 
-      // Create an Offer object
-      Offer offer = Offer(
-        EventId: widget.event.EventId,
-        sponseeId: widget.event.sponseeId,
-        sponsorId: widget.sponsorId ?? "", // Replace with the actual sponsor ID
-        notes: notesController.text,
-        Category: selectedCategories,
-      );
+//       // Create an Offer object
+//       Offer offer = Offer(
+//         EventId: widget.event.EventId,
+//         sponseeId: widget.event.sponseeId,
+//         sponsorId: widget.sponsorId ?? "", // Replace with the actual sponsor ID
+//         notes: notesController.text,
+//         Category: selectedCategories,
+//       );
 
-      // Save the offer to the database
-      DatabaseReference offersRef = database.child('offers');
-      DatabaseReference newOfferRef = offersRef.push();
+//       // Save the offer to the database
+//       DatabaseReference offersRef = database.child('offers');
+//       DatabaseReference newOfferRef = offersRef.push();
 
-      await newOfferRef.set({
-        "eventID": offer.EventId,
-        "sponseeId": offer.sponseeId,
-        "sponsorId": offer.sponsorId,
-        "notes": offer.notes,
-        "Filter": offer.Category,
-      });
+//       await newOfferRef.set({
+//         "eventID": offer.EventId,
+//         "sponseeId": offer.sponseeId,
+//         "sponsorId": offer.sponsorId,
+//         "notes": offer.notes,
+//         "Filter": offer.Category,
+//       });
 
-      setState(() {
-        filters.clear();
-      });
-      Navigator.of(context).pop();
-      showDialog(
-                      context: context,
-                      builder: (context) {
-                        Future.delayed(const Duration(seconds: 3), () {
-                          Navigator.of(context).pop(true);
-                        });
-                        return Theme(
-            data: Theme.of(context).copyWith(dialogBackgroundColor: Colors.white),
-            child: const AlertDialog(
-                          content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.check_circle,
-                                    color: Color.fromARGB(255, 91, 79, 158),
-                                    size: 48,
-                                  ),
-                                  SizedBox(height: 16),
-                                  Text(
-                                    'Your offer was sent successfully!',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                        ));
-                      }); 
-                      child: const Text(
-                        'Send Offer',
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      );
-    }
-  }
+//       setState(() {
+//         filters.clear();
+//       });
+//       Navigator.of(context).pop();
+//       showDialog(
+//                       context: context,
+//                       builder: (context) {
+//                         Future.delayed(const Duration(seconds: 3), () {
+//                           Navigator.of(context).pop(true);
+//                         });
+//                         return Theme(
+//             data: Theme.of(context).copyWith(dialogBackgroundColor: Colors.white),
+//             child: const AlertDialog(
+//                           content: Column(
+//                                 mainAxisSize: MainAxisSize.min,
+//                                 children: [
+//                                   Icon(
+//                                     Icons.check_circle,
+//                                     color: Color.fromARGB(255, 91, 79, 158),
+//                                     size: 48,
+//                                   ),
+//                                   SizedBox(height: 16),
+//                                   Text(
+//                                     'Your offer was sent successfully!',
+//                                     style: TextStyle(
+//                                       color: Colors.black,
+//                                       fontSize: 20,
+//                                     ),
+//                                   ),
+//                                 ],
+//                               ),
+//                         ));
+//                       }); 
+//                       child: const Text(
+//                         'Send Offer',
+//                         style: TextStyle(
+//                           fontSize: 20,
+//                         ),
+//                       );
+//     }
+//   }
 
-@override
-Widget build(BuildContext context) {
-  return Dialog(
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20),
-    ),
-    child: SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 51, 45, 81),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Text(
-                    'Offer',
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  color: Colors.white,
-                ),
-              ],
-            ),
-          ),
-          Container(
-            decoration: const BoxDecoration(
-              color: Colors.white, // Changed to white
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Row(children: [
-                  Text(
-                    'What do you want to offer?',
-                    style: TextStyle(
-                      fontSize: 23,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(width: 5),
-                  Text(
-                    '(*)',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 51, 45, 81),
-                      fontSize: 18 ,
-                    ),
-                  ),],),
-                  Wrap(
-                    spacing: 9.0,
-                    children: widget.event.Category.map((category) {
-                      return FilterChip(
-                        label: Text(
-                          category,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        selected: filters.contains(category),
-                        onSelected: (bool selected) {
-                          setState(() {
-                            if (selected) {
-                              filters.add(category);
-                            } else {
-                              filters.remove(category);
-                            }
-                          });
-                        },
-                        backgroundColor: const Color.fromARGB(255, 202, 202, 204),
-                        labelStyle: const TextStyle(
-                          color: Color(0xFF4A42A1),
-                        ),
-                        elevation: 3,
-                        selectedColor: const Color(0xFF4A42A1),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 17),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.grey,
-                        width: 1.0,
+// @override
+// Widget build(BuildContext context) {
+//   return Dialog(
+//     shape: RoundedRectangleBorder(
+//       borderRadius: BorderRadius.circular(20),
+//     ),
+//     child: SingleChildScrollView(
+//       child: Column(
+//         mainAxisSize: MainAxisSize.min,
+//         children: [
+//           Container(
+//             decoration: const BoxDecoration(
+//               color: Color.fromARGB(255, 51, 45, 81),
+//               borderRadius: BorderRadius.only(
+//                 topLeft: Radius.circular(20),
+//                 topRight: Radius.circular(20),
+//               ),
+//             ),
+//             child: Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//               children: [
+//                 const Padding(
+//                   padding: EdgeInsets.all(20),
+//                   child: Text(
+//                     'Offer',
+//                     style: TextStyle(
+//                       fontSize: 30,
+//                       fontWeight: FontWeight.bold,
+//                       color: Colors.white,
+//                     ),
+//                   ),
+//                 ),
+//                 IconButton(
+//                   icon: const Icon(Icons.close),
+//                   onPressed: () {
+//                     Navigator.of(context).pop();
+//                   },
+//                   color: Colors.white,
+//                 ),
+//               ],
+//             ),
+//           ),
+//           Container(
+//             decoration: const BoxDecoration(
+//               color: Colors.white, // Changed to white
+//               borderRadius: BorderRadius.only(
+//                 bottomLeft: Radius.circular(20),
+//                 bottomRight: Radius.circular(20),
+//               ),
+//             ),
+//             child: Padding(
+//               padding: const EdgeInsets.all(20),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.stretch,
+//                 children: [
+//                   const Row(children: [
+//                   Text(
+//                     'What do you want to offer?',
+//                     style: TextStyle(
+//                       fontSize: 23,
+//                       color: Colors.black,
+//                     ),
+//                   ),
+//                   SizedBox(width: 5),
+//                   Text(
+//                     '(*)',
+//                     style: TextStyle(
+//                       color: Color.fromARGB(255, 51, 45, 81),
+//                       fontSize: 18 ,
+//                     ),
+//                   ),],),
+//                   Wrap(
+//                     spacing: 9.0,
+//                     children: widget.event.Category.map((category) {
+//                       return FilterChip(
+//                         label: Text(
+//                           category,
+//                           style: const TextStyle(color: Colors.white),
+//                         ),
+//                         selected: filters.contains(category),
+//                         onSelected: (bool selected) {
+//                           setState(() {
+//                             if (selected) {
+//                               filters.add(category);
+//                             } else {
+//                               filters.remove(category);
+//                             }
+//                           });
+//                         },
+//                         backgroundColor: const Color.fromARGB(255, 202, 202, 204),
+//                         labelStyle: const TextStyle(
+//                           color: Color(0xFF4A42A1),
+//                         ),
+//                         elevation: 3,
+//                         selectedColor: const Color(0xFF4A42A1),
+//                       );
+//                     }).toList(),
+//                   ),
+//                   const SizedBox(height: 17),
+//                   Container(
+//                     decoration: BoxDecoration(
+//                       border: Border.all(
+//                         color: Colors.grey,
+//                         width: 1.0,
                         
-                      ),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: TextField(
-                        controller: notesController,
-                        maxLength: 600,
-                        decoration: const InputDecoration(
-                          hintText: 'Enter notes or additional information',
-                          border: InputBorder.none,
-                        ),
-                        style: const TextStyle(fontSize: 20),
-                        maxLines: 9,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _sendOffer();
-                          },
-                      style: ElevatedButton.styleFrom(
-                         foregroundColor: Colors.white, backgroundColor: const Color.fromARGB(255, 91, 79, 158),
-                        elevation: 20,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: const Text(
-                        'Send Offer',
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
+//                       ),
+//                       borderRadius: BorderRadius.circular(5),
+//                     ),
+//                     child: Padding(
+//                       padding: const EdgeInsets.symmetric(horizontal: 8),
+//                       child: TextField(
+//                         controller: notesController,
+//                         maxLength: 600,
+//                         decoration: const InputDecoration(
+//                           hintText: 'Enter notes or additional information',
+//                           border: InputBorder.none,
+//                         ),
+//                         style: const TextStyle(fontSize: 20),
+//                         maxLines: 9,
+//                       ),
+//                     ),
+//                   ),
+//                   const SizedBox(height: 20),
+//                   Center(
+//                     child: ElevatedButton(
+//                       onPressed: () {
+//                         _sendOffer();
+//                           },
+//                       style: ElevatedButton.styleFrom(
+//                          foregroundColor: Colors.white, backgroundColor: const Color.fromARGB(255, 91, 79, 158),
+//                         elevation: 20,
+//                         shape: RoundedRectangleBorder(
+//                           borderRadius: BorderRadius.circular(30),
+//                         ),
+//                       ),
+//                       child: const Text(
+//                         'Send Offer',
+//                         style: TextStyle(
+//                           fontSize: 20,
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     ),
+//   );
+// }
 
 
 
-}
+// }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

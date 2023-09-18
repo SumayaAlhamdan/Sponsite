@@ -197,7 +197,6 @@ class _Start extends State<eventDetail> {
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Row(
         children: [
-          if (text != null && text.isNotEmpty)
           Icon(
             icon,
             size: 40,
