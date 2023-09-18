@@ -2,16 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:sponsite/main.dart';
-
 import 'package:sponsite/screens/first_choosing_screen.dart';
-import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
-import 'package:sponsite/screens/sponsor_screens/sponsor_home_screen.dart';
-import 'package:sponsite/widgets/sponsee_bottom_navbar.dart';
-
 import 'dart:io';
-
-import 'package:sponsite/widgets/sponsor_botton_navbar.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -23,8 +15,6 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-  bool _obscured = true;
-  final _isLogin = false;
   var _isAuthenticating = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -32,24 +22,12 @@ class _SignInState extends State<SignIn> {
   final TextEditingController _passwordController = TextEditingController();
   final DatabaseReference dbref = FirebaseDatabase.instance.reference();
   final _firebase = FirebaseAuth.instance;
-  var type;
-
-  String? errorMessage;
+  bool _obscured = true;
+  bool wrongEmailOrPass = false;
+  bool invalidEmail = false;
 
   UploadTask? task;
   File? file;
-
-  void _displayError(context, String errMsg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(errMsg),
-        backgroundColor: const Color.fromARGB(255, 91, 79, 158),
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(50),
-        elevation: 30,
-      ),
-    );
-  }
 
   void _toggleObscured() {
     setState(() {
@@ -61,10 +39,6 @@ class _SignInState extends State<SignIn> {
     final isValid = _formKey.currentState!.validate();
 
     if (!isValid) {
-      setState(() {
-        _displayError(context, "Please make sure to fill all fields correctly");
-      });
-
       return;
     }
     _formKey.currentState!.save();
@@ -76,57 +50,17 @@ class _SignInState extends State<SignIn> {
 
       final userCredentials = await _firebase.signInWithEmailAndPassword(
           email: email, password: password);
-      // setState(() {});
-     
-
-      // userCredentials.user!.reload();
-      // final userId = userCredentials.user!.uid;
-
-      // DatabaseReference sponsorsRef =
-      //     FirebaseDatabase.instance.reference().child('Sponsors').child(userId);
-      // DatabaseReference sponseesRef =
-      //     FirebaseDatabase.instance.reference().child('Sponsees').child(userId);
-
-      // DataSnapshot sponsorsSnapshot = await sponsorsRef.get();
-      // DataSnapshot sponseesSnapshot = await sponseesRef.get();
-
-      // if (sponsorsSnapshot.value != null) {
-      //    Navigator.pop(context);
-      //   Navigator.of(context).pushReplacement(MaterialPageRoute(
-      //       builder: (context) => Stack(
-      //             children: [SponsorHomePage(), const SponsorBottomNavBar()],
-      //           )));
-      // }
-      // if (sponseesSnapshot.value != null) {
-      //    Navigator.pop(context);
-      //   Navigator.of(context).pushReplacement(MaterialPageRoute(
-      //       builder: (context) => const Stack(
-      //             children: [SponseeHome(), SponseeBottomNavBar()],
-      //           )));
-      // }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
         setState(() {
           _isAuthenticating = false;
-          print(e);
-          _displayError(context, 'Wrong email or password');
-
+          wrongEmailOrPass = true;
           return;
         });
       } else if (e.code == 'invalid-email') {
         setState(() {
           _isAuthenticating = false;
-          print(e);
-          _displayError(context, 'Please enter a valid email');
-
-          return;
-        });
-      } else {
-        print(e);
-        setState(() {
-          _isAuthenticating = false;
-          _displayError(context, "Error occured");
-
+          invalidEmail = true;
           return;
         });
       }
@@ -134,8 +68,6 @@ class _SignInState extends State<SignIn> {
       print(e);
       setState(() {
         _isAuthenticating = false;
-        _displayError(context, "Error occured");
-
         return;
       });
     }
@@ -182,7 +114,6 @@ class _SignInState extends State<SignIn> {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Form(
-                          // autovalidateMode: AutovalidateMode.always,
                           key: _formKey,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -216,6 +147,8 @@ class _SignInState extends State<SignIn> {
                                     0.6, // Set the desired width
                                 child: TextFormField(
                                   controller: _emailController,
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
                                   decoration: const InputDecoration(
                                     border: OutlineInputBorder(),
                                     labelText: 'Email Address',
@@ -228,6 +161,8 @@ class _SignInState extends State<SignIn> {
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
                                       return "Please enter email address";
+                                    } else if (invalidEmail) {
+                                      return 'Please enter a valid email';
                                     }
                                     return null;
                                   },
@@ -239,6 +174,8 @@ class _SignInState extends State<SignIn> {
                                     0.6, // Set the desired width
                                 child: TextFormField(
                                   controller: _passwordController,
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
                                   decoration: InputDecoration(
                                     border: const OutlineInputBorder(),
                                     labelText: 'Password',
@@ -264,19 +201,20 @@ class _SignInState extends State<SignIn> {
                                       return 'Please enter password';
                                     }
                                     return null;
-                                    // if (value == null ||
-                                    //     value.trim().length < 6) {
-                                    //   return "Password must be at least 6 characters long";
-                                    // } else if (value.length > 15) {
-                                    //   return "Password should not be greater than 15 characters";
-                                    // } else {
-                                    //   return null;
-                                    // } //Color.fromARGB(235, 160, 122, 192)
                                   },
                                 ),
                               ),
                               const SizedBox(height: 10.0),
                               const SizedBox(height: 8),
+                              if (wrongEmailOrPass)
+                                Text(
+                                  'Wrong email or password',
+                                  style: TextStyle(
+                                      fontStyle: FontStyle.normal,
+                                      fontSize: 13,
+                                      color: Colors.red[700],
+                                      height: 0.5),
+                                ),
                               const SizedBox(height: 25),
                               if (_isAuthenticating)
                                 const CircularProgressIndicator(),
@@ -308,50 +246,11 @@ class _SignInState extends State<SignIn> {
                                       ),
                                       minimumSize: MaterialStateProperty.all<Size>(const Size(200, 50))),
                                   onPressed: () async {
-                                    String email = _emailController.text;
-                                    String password = _passwordController.text;
+                                    String email = _emailController.text.trim();
+                                    String password = _passwordController.text.trim();
 
                                     print('Email: $email');
                                     print('Password: $password');
-
-                                    // if (errorMessage != null) {
-                                    //   ScaffoldMessenger.of(context)
-                                    //       .showSnackBar(
-                                    //     SnackBar(
-                                    //       content: Text(errorMessage!),
-                                    //       backgroundColor: Color.fromARGB(255, 91, 79, 158),
-                                    //       behavior: SnackBarBehavior.floating,
-                                    //       margin: EdgeInsets.all(50),
-                                    //       elevation: 30,
-                                    //     ),
-                                    //   );
-                                    //   return; // Return or perform any other necessary action
-                                    // }
-
-                                    // setState(() {});
-
-                                    // final userId = userCredentials.user!.uid;
-                                    // ScreenLogic.getUserHomeScreen(userId);
-                                    // DatabaseReference sponsorsRef =
-                                    //     FirebaseDatabase.instance.reference().child('Sponsors').child(userId);
-                                    // DatabaseReference sponseesRef =
-                                    //     FirebaseDatabase.instance.reference().child('Sponsees').child(userId);
-
-                                    // DataSnapshot sponsorsSnapshot = await sponsorsRef.get();
-                                    // DataSnapshot sponseesSnapshot = await sponseesRef.get();
-
-                                    // if (sponsorsSnapshot.value != null) {
-                                    //   Navigator.of(context).pushReplacement(MaterialPageRoute(
-                                    //       builder: (context) => Stack(
-                                    //             children: [SponsorHomePage(), const SponsorBottomNavBar()],
-                                    //           )));
-                                    // }
-                                    // if (sponseesSnapshot.value != null) {
-                                    //   Navigator.of(context).pushReplacement(MaterialPageRoute(
-                                    //       builder: (context) => const Stack(
-                                    //             children: [SponseeHome(), SponseeBottomNavBar()],
-                                    //           )));
-                                    // }
 
                                     sendDatatoDB(context, email, password);
                                   },
@@ -383,10 +282,11 @@ class _SignInState extends State<SignIn> {
                                       child: const Text(
                                         'Sign Up',
                                         style: TextStyle(
-                                          fontSize: 17,
-                                          color:
-                                              Color.fromARGB(255, 91, 79, 158),
-                                        ),
+                                            fontSize: 17,
+                                            color: Color.fromARGB(
+                                                255, 91, 79, 158),
+                                            decoration:
+                                                TextDecoration.underline),
                                       ),
                                     )
                                   ],

@@ -47,7 +47,12 @@ class _SponseeBottomNavBarState extends State<SponseeBottomNavBar> {
               color: Colors.white,
             ),
             label: 'Home',
-            backgroundColor: Color.fromARGB(255, 51, 45, 81)
+            backgroundColor: Color.fromARGB(255, 51, 45, 81),
+            activeIcon:  Icon(
+              Icons.home_rounded,
+              size: 40,
+              color: Color.fromARGB(255, 91, 79, 158),
+            ),
           ),
           BottomNavigationBarItem(
             icon: Icon(
@@ -56,6 +61,11 @@ class _SponseeBottomNavBarState extends State<SponseeBottomNavBar> {
               color: Colors.white,
             ),
             label: 'Events',
+            activeIcon:  Icon(
+              Icons.calendar_month_rounded,
+              size: 40,
+              color: Color.fromARGB(255, 91, 79, 158),
+            ),
           ),
           BottomNavigationBarItem(
             icon: Icon(
@@ -64,6 +74,11 @@ class _SponseeBottomNavBarState extends State<SponseeBottomNavBar> {
               color: Colors.white,
             ),
             label: 'Post',
+             activeIcon:  Icon(
+              Icons.add_circle_rounded,
+              size: 40,
+              color: Color.fromARGB(255, 91, 79, 158),
+            ),
           ),
           BottomNavigationBarItem(
             icon: Icon(
@@ -72,14 +87,25 @@ class _SponseeBottomNavBarState extends State<SponseeBottomNavBar> {
               color: Colors.white,
             ),
             label: 'Chat',
+            activeIcon:  Icon(
+              Icons.chat_bubble,
+              size: 40,
+              color: Color.fromARGB(255, 91, 79, 158),
+            ),
           ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.account_circle,
               size: 40,
               color: Colors.white,
+              
             ),
             label: 'Account',
+            activeIcon:  Icon(
+              Icons.account_circle,
+              size: 40,
+              color: Color.fromARGB(255, 91, 79, 158),
+            ),
           )
         ],
         currentIndex: currentPageIndex,

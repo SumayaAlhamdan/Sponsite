@@ -6,8 +6,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:path/path.dart';
-import 'package:sponsite/main.dart';
-import 'package:sponsite/screens/signIn_screen.dart';
 import '../FirebaseApi.dart';
 
 class SignUp extends StatefulWidget {
@@ -35,25 +33,18 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController _passwordController = TextEditingController();
   final DatabaseReference dbref = FirebaseDatabase.instance.reference();
   final _firebase = FirebaseAuth.instance;
-
+  bool weakPass = false;
+  bool emailUsed = false;
+  bool invalidEmail = false;
+  bool bigFile = false;
   var fileName = 'No File Selected';
 
-  String? errorMessage;
+
 
   UploadTask? task;
   File? file;
 
-  void _displayError(context, String errMsg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(errMsg),
-        backgroundColor: const Color.fromARGB(255, 91, 79, 158),
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(50),
-        elevation: 30,
-      ),
-    );
-  }
+ 
 
   void _toggleObscured() {
     setState(() {
@@ -66,10 +57,6 @@ class _SignUpState extends State<SignUp> {
     final isValid = _formKey.currentState!.validate();
 
     if (!isValid) {
-      setState(() {
-        _displayError(context, "Please make sure to fill all fields correctly");
-      });
-
       return;
     }
     _formKey.currentState!.save();
@@ -91,57 +78,31 @@ class _SignUpState extends State<SignUp> {
         'Email': email,
         'authentication document': fileName, // Remove the extra colon
       });
-        await FirebaseAuth.instance.signOut();
-        Navigator.of(context).popUntil((route) => route.isFirst);
-    //     Navigator.push<void>(context, MaterialPageRoute<void>(
-    //   builder: (BuildContext context) =>  main(),
-    // ),)
-      // Navigator.of(context).pushReplacement(MaterialPageRoute(
-      //       builder: (context) => const SignIn()
-      //           ));
-    
-     
-    
+      await FirebaseAuth.instance.signOut();
+      Navigator.of(context).popUntil((route) => route.isFirst);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         setState(() {
           _isAuthenticating = false;
-          _displayError(context, 'The password provided is too weak');
-
+          weakPass = true;
           return;
         });
       } else if (e.code == 'email-already-in-use') {
         setState(() {
           _isAuthenticating = false;
-
-          _displayError(context, 'Email already in use');
-
+          emailUsed = true;
           return;
         });
       } else if (e.code == 'invalid-email') {
         setState(() {
           _isAuthenticating = false;
-          print(e);
-          _displayError(context, 'Please enter a valid email');
-
-          return;
-        });
-      } else {
-        print(e);
-        setState(() {
-          _isAuthenticating = false;
-          _displayError(context, "Error occured");
-
+          invalidEmail = true;
           return;
         });
       }
     } catch (e) {
-      print(e);
       setState(() {
         _isAuthenticating = false;
-
-        _displayError(context, 'Error occured');
-
         return;
       });
     }
@@ -154,11 +115,12 @@ class _SignUpState extends State<SignUp> {
     final path = result.files.single.path!;
     final fileSize = File(path).lengthSync();
 
-     const fileSizeLimit = 1 * 1024 * 1024;
+    const fileSizeLimit = 1 * 1024 * 1024;
 
-       if (fileSize > fileSizeLimit) {
+    if (fileSize > fileSizeLimit) {
       setState(() {
-        errorMessage = "The selected file exceeds the size limit (1MB).";
+        bigFile=true;
+
       });
       return;
     }
@@ -167,7 +129,7 @@ class _SignUpState extends State<SignUp> {
       file = File(path);
       fileName = file != null ? basename(file!.path) : 'No File Selected';
       _fileController.text = fileName;
-      errorMessage = null;
+    
     });
   }
 
@@ -241,21 +203,12 @@ class _SignUpState extends State<SignUp> {
                                 height: 50,
                               ),
                               SizedBox(height: screenHeight * .01),
-
-                              // const Text(
-                              //   'Welcome,',
-                              //   style: TextStyle(
-                              //     fontSize: 40,
-                              //     fontWeight: FontWeight.bold,
-                              //   ),
-                              // ),
                               SizedBox(
                                   height: 200,
                                   width: 300,
                                   child: Image.asset(
                                       'assets/Spo_site__1_-removebg-preview.png')),
                               SizedBox(height: screenHeight * .03),
-
                               Text(
                                 'Sign up to continue',
                                 style: TextStyle(
@@ -266,11 +219,12 @@ class _SignUpState extends State<SignUp> {
                               const SizedBox(
                                 height: 30,
                               ),
-
                               SizedBox(
                                 width: MediaQuery.of(context).size.width *
                                     0.6, // Set the desired width
                                 child: TextFormField(
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
                                   controller: _nameController,
                                   decoration: const InputDecoration(
                                     border: OutlineInputBorder(),
@@ -288,19 +242,20 @@ class _SignUpState extends State<SignUp> {
                                         value.isEmpty) {
                                       return "Please enter a valid name with no special characters";
                                     }
-                                    if (value.length > 50) {
-                                      return 'Name should be shorter than 50 characters';
+                                    if (value.length > 30) {
+                                      return 'Name should not exceed 30 characters';
                                     }
                                     return null;
                                   },
                                 ),
                               ),
-
                               const SizedBox(height: 25.0),
                               SizedBox(
                                 width: MediaQuery.of(context).size.width *
                                     0.6, // Set the desired width
                                 child: TextFormField(
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
                                   controller: _emailController,
                                   decoration: const InputDecoration(
                                     border: OutlineInputBorder(),
@@ -323,6 +278,12 @@ class _SignUpState extends State<SignUp> {
                                         value.isEmpty) {
                                       return 'Please enter a valid email address';
                                     }
+                                    if (emailUsed) {
+                                      return 'Email already in use';
+                                    }
+                                    if (invalidEmail) {
+                                      return 'Please enter a valid email';
+                                    }
                                     return null; // Add this line to handle valid input
                                   },
                                 ),
@@ -333,6 +294,8 @@ class _SignUpState extends State<SignUp> {
                                     0.6, // Set the desired width
                                 child: TextFormField(
                                   controller: _passwordController,
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
                                   decoration: InputDecoration(
                                     border: const OutlineInputBorder(),
                                     labelText: 'Password',
@@ -369,88 +332,28 @@ class _SignUpState extends State<SignUp> {
                                     if (value.length < 6 || value.length > 15) {
                                       return 'Password must between 6 and 15 characters';
                                     }
+                                    if (weakPass) {
+                                      return 'The password provided is too weak';
+                                    }
 
                                     return null;
                                   },
                                 ),
                               ),
                               const SizedBox(height: 25.0),
-
                               SizedBox(
                                 width: MediaQuery.of(context).size.width *
                                     0.6, // Set the desired width
                                 child: TextFormField(
                                   controller: _fileController,
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
                                   readOnly: true, // Link the controller
                                   decoration: const InputDecoration(
                                     border: OutlineInputBorder(),
                                     labelText: 'Authentication document',
                                     prefixIcon:
                                         Icon(Icons.attach_file_sharp, size: 24),
-                                    // suffixIcon: Padding(
-                                    //   padding:
-                                    // const EdgeInsets.fromLTRB(0, 0, 4, 0),
-                                    // child: ElevatedButton.icon(
-                                    //   style: ButtonStyle(
-                                    //     // overlayColor: MaterialStateProperty.all(Colors.red),
-                                    //     backgroundColor:
-                                    //         MaterialStateProperty.all<Color>(
-                                    //       const Color.fromARGB(
-                                    //           255, 87, 11, 117),
-                                    //     ), // Background color
-                                    //     textStyle: MaterialStateProperty.all<
-                                    //         TextStyle>(
-                                    //       const TextStyle(fontSize: 0),
-                                    //     ), // Text style
-                                    //     padding: MaterialStateProperty.all<
-                                    //         EdgeInsetsGeometry>(
-                                    //       const EdgeInsets.symmetric(
-                                    //           vertical: 8,
-                                    //           horizontal: 10), // Padding
-                                    //     ), // Padding
-                                    //     elevation:
-                                    //         MaterialStateProperty.all<double>(
-                                    //             1), // Elevation
-                                    //     shape: MaterialStateProperty.all<
-                                    //         OutlinedBorder>(
-                                    //       RoundedRectangleBorder(
-                                    //         borderRadius: BorderRadius.circular(
-                                    //             30), // Border radius
-                                    //         side: const BorderSide(
-                                    //           color: Color.fromARGB(
-                                    //               255, 255, 255, 255),
-                                    //         ), // Border color
-                                    //       ),
-                                    //     ),
-                                    //     minimumSize:
-                                    //         MaterialStateProperty.all<Size>(
-                                    //             const Size(3, 3)),
-                                    //   ),
-                                    //   onPressed: () {
-                                    //     selectFile();
-                                    //   },
-                                    //   icon: const Icon(
-                                    //     Icons.attach_file,
-                                    //     color:
-                                    //         Color.fromARGB(255, 255, 255, 255),
-                                    //   ),
-                                    //   label: const Text(
-                                    //     '',
-                                    //     style: TextStyle(
-                                    //         color: Color.fromARGB(
-                                    //             255, 255, 255, 255)),
-                                    //   ),
-                                    //   // child: const Text(
-                                    //   //     'Attatch File',
-                                    //   //     style: TextStyle(
-                                    //   //         color: Color.fromARGB(
-                                    //   //             255, 255, 255, 255)),
-                                    //   //   ),
-                                    //   // const Icon(
-                                    //   //   Icons.attach_file,
-                                    //   //   size: 24,
-                                    //   // ),
-                                    // ),
                                   ),
                                   onTap: () {
                                     selectFile();
@@ -460,62 +363,18 @@ class _SignUpState extends State<SignUp> {
                                     if (value == 'No file selected') {
                                       return "Please select authentication document";
                                     }
-                                    
+                                    if(bigFile){
+                                      return "The selected file exceeds the size limit (1MB).";
+                                    }
+
                                     return null;
                                   },
-                                ),),
-                                if (errorMessage != null)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8.0),
-                                    child: Text(
-                                      errorMessage!,
-                                      style: const TextStyle(
-                                        color: Colors.red,
-                                        fontSize: 16,
-                                      ),
-                                    )
+                                ),
                               ),
-                              
+                             
                               const SizedBox(height: 25.0),
-                              // Row(
-                              //   children: [
-                              //
-                              //       ElevatedButton.icon(
-                              //         onPressed: selectFile,
-                              //         icon: const Icon(Icons.attach_file),
-                              //         label: const Text(
-                              //             'Attach authentication document'),
-                              //       ),
-                              //     const SizedBox(
-                              //       width: 40,
-                              //     ),
-                              //
-                              //       Container(
-                              //         color: const Color.fromARGB(
-                              //             116, 159, 172, 178),
-                              //         child: Text(
-                              //           fileName,
-                              //           style: const TextStyle(
-                              //             fontSize: 18,
-                              //             fontWeight: FontWeight.w500,
-                              //           ),
-                              //         ),
-                              //       ),
-                              //   ],
-                              // ),
                               const SizedBox(height: 8),
-
-                              // Center(
-                              //   child: Text(
-                              //     errorMessage!, // Display the custom error message
-                              //     style: const TextStyle(
-                              //       color: Color.fromARGB(255, 97, 9, 3),
-                              //       fontSize: 20,
-                              //     ),
-                              //   ),
-                              // ),
                               const SizedBox(height: 10),
-
                               if (_isAuthenticating)
                                 const CircularProgressIndicator(),
                               if (!_isAuthenticating)
@@ -549,9 +408,9 @@ class _SignUpState extends State<SignUp> {
                                     onPressed: () {
                                       //autovalidateMode: AutovalidateMode.always;
                                       String name = _nameController.text;
-                                      String email = _emailController.text;
+                                      String email = _emailController.text.trim();
                                       String password =
-                                          _passwordController.text;
+                                          _passwordController.text.trim();
 
                                       print('Name: $name');
                                       print('Email: $email');
@@ -559,45 +418,10 @@ class _SignUpState extends State<SignUp> {
                                       print(
                                           'authentication document: $fileName');
 
-                                      // if (errorMessage != null) {
-                                      //   ScaffoldMessenger.of(context)
-                                      //       .showSnackBar(
-                                      //     SnackBar(
-                                      //       content: Text(errorMessage!),
-                                      //       backgroundColor: Color.fromARGB(
-                                      //           255, 91, 79, 158),
-                                      //       behavior: SnackBarBehavior.floating,
-                                      //       margin: EdgeInsets.all(50),
-                                      //       elevation: 30,
-                                      //     ),
-                                      //   );
-                                      //   return;
-                                      //   // Return or perform any other necessary action
-                                      // }
-
                                       uploadFile();
 
                                       sendDatatoDB(name, email, password,
                                           fileName, context);
-
-                                      /*   Navigator.of(context).pushReplacement(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const SignIn()),
-                                      ); */
-                                      // if (errorMessage != null) {
-                                      //   ScaffoldMessenger.of(context).showSnackBar(
-                                      //     SnackBar(
-                                      //       content: Text(errorMessage!),
-                                      //       backgroundColor: const Color.fromARGB(
-                                      //           255, 87, 11, 117),
-                                      //       behavior: SnackBarBehavior.floating,
-                                      //       margin: EdgeInsets.all(50),
-                                      //       elevation: 30,
-                                      //     ),
-                                      //   );
-                                      //   return; // Return or perform any other necessary action
-                                      // }
                                     },
                                     child: const Text(
                                       'Sign Up',
@@ -616,20 +440,17 @@ class _SignUpState extends State<SignUp> {
                                     const Text('I already have an account'),
                                     TextButton(
                                       onPressed: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                const SignIn(),
-                                          ),
-                                        );
+                                        Navigator.of(context)
+                                            .popUntil((route) => route.isFirst);
                                       },
                                       child: const Text(
                                         'Sign In',
                                         style: TextStyle(
-                                          fontSize: 17,
-                                          color:
-                                              Color.fromARGB(255, 91, 79, 158),
-                                        ),
+                                            fontSize: 17,
+                                            color: Color.fromARGB(
+                                                255, 91, 79, 158),
+                                            decoration:
+                                                TextDecoration.underline),
                                       ),
                                     )
                                   ],
@@ -647,4 +468,3 @@ class _SignUpState extends State<SignUp> {
     );
   }
 }
-
