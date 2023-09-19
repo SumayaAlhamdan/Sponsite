@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:sponsite/main.dart';
+import 'dart:typed_data';
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -50,7 +51,8 @@ class FilterChipWidget extends StatefulWidget {
   final Function(String) onChipCreated;
   final Function(String, bool) onChipSelected;
 
-  const FilterChipWidget({super.key, 
+  const FilterChipWidget({
+    super.key,
     required this.chipName,
     required this.onChipCreated,
     required this.onChipSelected,
@@ -203,7 +205,8 @@ class CustomRadioButton extends StatelessWidget {
   final double width; // New property for width
   final double height; // New property for height
 
-  const CustomRadioButton({super.key, 
+  const CustomRadioButton({
+    super.key,
     required this.value,
     required this.groupValue,
     required this.onChanged,
@@ -446,16 +449,17 @@ class _MyHomePageState extends State<MyHomePage> {
   bool showCategoryValidationMessage = false;
   bool showRequiredValidationMessage = false;
 
-  Future<void> _deleteImage() async {
+  Future<void> _removeImage() async {
     setState(() {
       _imageFile = null;
-      _selectedImagePath = null;
-      _imageController.text = 'No image selected';
+      _selectedImageBytes = null;
+
       print('image deleted');
     });
   }
 
   String? _selectedImagePath;
+  Uint8List? _selectedImageBytes;
 
   Future<void> _pickImage() async {
     final imagePicker = ImagePicker();
@@ -463,6 +467,8 @@ class _MyHomePageState extends State<MyHomePage> {
         await imagePicker.getImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
+      final File imageFile = File(pickedFile.path);
+      _selectedImageBytes = await convertImageToBytes(imageFile);
       setState(() {
         _imageFile = File(pickedFile.path);
         _selectedImagePath = pickedFile.path;
@@ -493,6 +499,21 @@ class _MyHomePageState extends State<MyHomePage> {
       print('Error uploading image: $e');
       return '';
     }
+  }
+
+  Future<Uint8List?> convertImageToBytes(File? imageFile) async {
+    Uint8List? bytes;
+    if (imageFile != null) {
+      // Read the file as bytes
+      List<int> imageBytes = await imageFile.readAsBytes();
+      // Convert the list of ints to Uint8List
+      bytes = Uint8List.fromList(imageBytes);
+    }
+    return bytes;
+  }
+
+  String getButtonLabel() {
+    return _selectedImageBytes != null ? 'Change Image' : 'Upload Image';
   }
 
   Future<List<String>> _fetchCategories() async {
@@ -588,8 +609,7 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundColor: Colors.white,
           elevation: 0, // Remove the shadow
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20)
-            ),
+            borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
 
           actions: [
@@ -631,8 +651,7 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundColor: Colors.white,
           elevation: 0, // Remove the shadow
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20)
-            ),
+            borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
 
           actions: [
@@ -812,7 +831,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.6,
                   child: TextFormField(
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     controller: EnameController,
+                    maxLength: 20,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Event Name *',
@@ -860,6 +881,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           color: Colors.black,
                         ),
                       ),
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       onTap: () {
                         _selectStartDateAndTime(context);
                       },
@@ -882,6 +904,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       onTap: () {
                         _selectEndDateAndTime(context);
                       },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       validator: (Value) {
                         if (before == true) {
                           return 'The End Date Can Not Be Before The Start Date';
@@ -900,6 +923,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       prefixIcon:
                           Icon(Icons.people, size: 24, color: Colors.black),
                     ),
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Number of attendees is required';
@@ -921,39 +945,68 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 const SizedBox(height: 25.0),
                 SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.6,
-                    child: TextFormField(
-                        controller: _imageController,
-                        readOnly: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Upload Image',
-                          border: OutlineInputBorder(),
-                          prefixIcon:
-                              Icon(Icons.image, size: 24, color: Colors.black),
-                          // suffixIcon: InkWell(
-                          //   onTap: () {
-                          //     _deleteImage();
-                          //     print('image deleted');
-                          //   },
-                          //   child: Row(children: [
-                          //     Spacer(),
-                          //     Icon(Icons.cancel),
-                          //     SizedBox(width: 8)
-                          //   ]),
-                          // ),
+                  width: MediaQuery.of(context).size.width * 0.6,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (_selectedImageBytes != null)
+                          Image.memory(
+                            _selectedImageBytes!,
+                            width: 400,
+                            height: 500,
+                          )
+                        else
+                          Container(), // Placeholder if no image is selected
+                        SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            ElevatedButton(
+                                onPressed: _selectedImageBytes != null
+                                    ? _pickImage
+                                    : _pickImage,
+                                child: Text(getButtonLabel()),
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all<Color>(
+                                        const Color.fromARGB(255, 51, 45, 81)),
+                                    //Color.fromARGB(255, 207, 186, 224),), // Background color
+                                    textStyle:
+                                        MaterialStateProperty.all<TextStyle>(
+                                            const TextStyle(
+                                                fontSize: 16)), // Text style
+                                    padding: MaterialStateProperty.all<
+                                            EdgeInsetsGeometry>(
+                                        const EdgeInsets.all(16)), // Padding
+                                    elevation:
+                                        MaterialStateProperty.all<double>(
+                                            1), // Elevation
+                                    shape:
+                                        MaterialStateProperty.all<OutlinedBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            30), // Border radius
+                                        side: const BorderSide(
+                                            color: Color.fromARGB(255, 255, 255,
+                                                255)), // Border color
+                                      ),
+                                    ),
+                                    minimumSize: MaterialStateProperty.all<Size>(const Size(200, 50))) // Dynamically set the button labelText('Upload Image'),
+                                ),
+                            SizedBox(height: 10),
+                            if (_selectedImageBytes != null)
+                              TextButton.icon(
+                                icon: Icon(Icons.delete_forever_outlined),
+                                onPressed: _removeImage,
+                                label: Text(''),
+                                //child: Text('Remove Image'),
+                              ),
+                          ],
                         ),
-                        onTap: () {
-                          _pickImage();
-                        })),
-                if (_imageController.text != "No image selected")
-                  TextButton.icon(
-                      onPressed: () {
-                        _deleteImage();
-                      },
-                      icon: const Icon(Icons.delete_outline_rounded),
-                      label: const Text(
-                        "Remove image",
-                      )),
+                      ],
+                    ),
+                  ),
+                ),
                 if (showRequiredValidationMessage)
                   const Padding(
                     padding: EdgeInsets.all(8.0),
@@ -1000,7 +1053,8 @@ class _MyHomePageState extends State<MyHomePage> {
               const SizedBox(
                 height: 50,
               ),
-              const Text("Selected Categories:", style: TextStyle(fontSize: 20)),
+              const Text("Selected Categories:",
+                  style: TextStyle(fontSize: 20)),
               const SizedBox(
                 height: 30,
               ),
@@ -1053,10 +1107,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 TextFormField(
                   controller: benefitsController,
+                  maxLength: 200,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Benefits to the sponsor *',
                   ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Benefits to the sponsor is required';
@@ -1069,47 +1125,48 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 TextFormField(
                   controller: notesController,
+                  maxLength: 200,
                   decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Additional Notes',
-                      contentPadding: EdgeInsets.fromLTRB(15,20,20,20)),
+                      contentPadding: EdgeInsets.fromLTRB(15, 20, 20, 20)),
                 ),
                 const SizedBox(
                   height: 26,
                 ),
-                ElevatedButton(
-                    onPressed: () {
-                      if (benefitsController.text.isEmpty) {
-                        setState(() {
-                          showRequiredValidationMessage = true;
-                        });
-                      } else {
-                        _showpostconfirm();
-                      }
-                    },
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            const Color.fromARGB(255, 51, 45, 81)),
-                        //Color.fromARGB(255, 207, 186, 224),), // Background color
-                        textStyle: MaterialStateProperty.all<TextStyle>(
-                            const TextStyle(fontSize: 16)), // Text style
-                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                            const EdgeInsets.all(16)), // Padding
-                        elevation:
-                            MaterialStateProperty.all<double>(1), // Elevation
-                        shape: MaterialStateProperty.all<OutlinedBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(30), // Border radius
-                            side: const BorderSide(
-                                color: Color.fromARGB(
-                                    255, 255, 255, 255)), // Border color
-                          ),
-                        ),
-                        minimumSize: MaterialStateProperty.all<Size>(
-                            const Size(200, 50))),
-                    child: const Text("Post Event",
-                        style: TextStyle(fontSize: 20, color: Colors.white))),
+                // ElevatedButton(
+                //     onPressed: () {
+                //       if (benefitsController.text.isEmpty) {
+                //         setState(() {
+                //           showRequiredValidationMessage = true;
+                //         });
+                //       } else {
+                //         _showpostconfirm();
+                //       }
+                //     },
+                //     style: ButtonStyle(
+                //         backgroundColor: MaterialStateProperty.all<Color>(
+                //             const Color.fromARGB(255, 51, 45, 81)),
+                //         //Color.fromARGB(255, 207, 186, 224),), // Background color
+                //         textStyle: MaterialStateProperty.all<TextStyle>(
+                //             const TextStyle(fontSize: 16)), // Text style
+                //         padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                //             const EdgeInsets.all(16)), // Padding
+                //         elevation:
+                //             MaterialStateProperty.all<double>(1), // Elevation
+                //         shape: MaterialStateProperty.all<OutlinedBorder>(
+                //           RoundedRectangleBorder(
+                //             borderRadius:
+                //                 BorderRadius.circular(30), // Border radius
+                //             side: const BorderSide(
+                //                 color: Color.fromARGB(
+                //                     255, 255, 255, 255)), // Border color
+                //           ),
+                //         ),
+                //         minimumSize: MaterialStateProperty.all<Size>(
+                //             const Size(200, 50))),
+                //     child: const Text("Post Event",
+                //         style: TextStyle(fontSize: 20, color: Colors.white))),
                 if (showRequiredValidationMessage)
                   const Padding(
                     padding: EdgeInsets.all(8.0),
@@ -1151,8 +1208,8 @@ class _MyHomePageState extends State<MyHomePage> {
       children: selectedChips.map((chipName) {
         return Chip(
           label: Text(chipName), // Empty label for the chip
-          deleteIcon:
-              const Icon(Icons.cancel), // Add a delete (cancel) icon for each chip
+          deleteIcon: const Icon(
+              Icons.cancel), // Add a delete (cancel) icon for each chip
           onDeleted: () {
             _handleChipRemoval(chipName);
           },
@@ -1228,7 +1285,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           },
                           style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(
-                                  const Color.fromARGB(255, 176, 176, 179)),
+                                  const Color.fromARGB(255, 51, 45, 81)),
                               //Color.fromARGB(255, 207, 186, 224),), // Background color
                               textStyle: MaterialStateProperty.all<TextStyle>(
                                   const TextStyle(fontSize: 16)), // Text style
@@ -1280,7 +1337,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               minimumSize: MaterialStateProperty.all<Size>(
                                   const Size(200, 50))),
                           child: const Text(
-                            'CANCEL POST',
+                            'CANCEL',
                           ),
                         ),
                       const SizedBox(
@@ -1363,6 +1420,43 @@ class _MyHomePageState extends State<MyHomePage> {
                             'NEXT',
                           ),
                         )
+                      else if (_activeStepIndex == stepList().length - 1)
+                        ElevatedButton(
+                            onPressed: () {
+                              if (benefitsController.text.isEmpty) {
+                                setState(() {
+                                  showRequiredValidationMessage = true;
+                                });
+                              } else {
+                                _showpostconfirm();
+                              }
+                            },
+                            style: ButtonStyle(
+                                backgroundColor: MaterialStateProperty.all<Color>(
+                                    const Color.fromARGB(255, 51, 45, 81)),
+                                //Color.fromARGB(255, 207, 186, 224),), // Background color
+                                textStyle: MaterialStateProperty.all<TextStyle>(
+                                    const TextStyle(
+                                        fontSize: 16)), // Text style
+                                padding:
+                                    MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                        const EdgeInsets.all(16)), // Padding
+                                elevation: MaterialStateProperty.all<double>(
+                                    1), // Elevation
+                                shape:
+                                    MaterialStateProperty.all<OutlinedBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        30), // Border radius
+                                    side: const BorderSide(
+                                        color: Color.fromARGB(255, 255, 255,
+                                            255)), // Border color
+                                  ),
+                                ),
+                                minimumSize: MaterialStateProperty.all<Size>(
+                                    const Size(200, 50))),
+                            child: const Text("Post Event",
+                                style: TextStyle(fontSize: 20, color: Colors.white))),
                     ],
                   );
                 },
