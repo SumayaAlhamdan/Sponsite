@@ -42,8 +42,14 @@ class _ChatPageState extends State<ChatPage> {
               ),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  final messages = snapshot.data!;
+                  List<Msg> messages = snapshot.data!;
+
+                  // Sort the messages by timestamp in ascending order
+                  messages.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
                   return ListView.builder(
+                    reverse:
+                        true, // Reverse the ListView to show messages in ascending order
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
                       final message = messages[index];
@@ -53,12 +59,14 @@ class _ChatPageState extends State<ChatPage> {
                       return ListTile(
                         title: Align(
                           alignment: isCurrentUser
-                              ? Alignment.centerRight
-                              : Alignment.centerLeft,
+                              ? Alignment.centerLeft
+                              : Alignment.centerRight,
                           child: Container(
                             padding: EdgeInsets.all(8.0),
                             decoration: BoxDecoration(
-                              color: isCurrentUser ? Colors.blue : Colors.grey,
+                              color: isCurrentUser
+                                  ? Colors.grey
+                                  : Colors.deepPurple,
                               borderRadius: BorderRadius.circular(10.0),
                             ),
                             child: Text(
