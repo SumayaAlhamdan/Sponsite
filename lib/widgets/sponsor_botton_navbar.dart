@@ -3,6 +3,7 @@ import 'package:sponsite/screens/sponsor_screens/sponsor_chat_screen.dart';
 import 'package:sponsite/screens/sponsor_screens/sponsor_home_screen.dart';
 import 'package:sponsite/screens/sponsor_screens/sponsor_offers.dart';
 import 'package:sponsite/screens/sponsor_screens/sponsor_post.dart';
+import 'package:sponsite/screens/sponsor_screens/ViewOffersSponsor.dart';
 import 'package:sponsite/screens/sponsor_screens/sponsor_profile_screen.dart';
 
 class SponsorBottomNavBar extends StatefulWidget {
@@ -17,7 +18,7 @@ class _SponseeBottomNavBarState extends State<SponsorBottomNavBar> {
 
   final List<Widget> _widgetOptions = [
       SponsorHomePage(),
-    const SponsorOffersScreen(),
+    const ViewOffersSponsor(),
     const SponsorPost(),
     const SponsorChat(),
     const SponsorProfile()

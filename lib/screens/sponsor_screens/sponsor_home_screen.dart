@@ -115,7 +115,7 @@ void _loadEventsFromFirebase() {
             event.snapshot.value as Map<dynamic, dynamic>;
 
         eventData.forEach((key, value) {
-          // Check if value['Category'] is a list
+          // Check if value['Category'] is a listي
           List<String> categoryList = [];
           if (value['Category'] is List<dynamic>) {
             categoryList = (value['Category'] as List<dynamic>)
@@ -421,9 +421,11 @@ List<Widget> promoCards = List.generate(5, (index) {
         ),
       ),
       Container(
-        decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(30),)),
-        padding: const EdgeInsets.all(8.0),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+         borderRadius: BorderRadius.vertical(
+        bottom: Radius.circular(30),)),
+        padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -513,7 +515,7 @@ List<Widget> promoCards = List.generate(5, (index) {
                 ),
               ],
             ),
-             const SizedBox(height: 20.5), // Add some space at the bottom
+             const SizedBox(height: 25.5), // Add some space at the bottom
           ],
         ),
       ),
