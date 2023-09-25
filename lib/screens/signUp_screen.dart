@@ -20,7 +20,7 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   _SignUpState(type) {
     theType = type;
-    print(theType);
+    
   }
   bool _obscured = true;
   var theType;

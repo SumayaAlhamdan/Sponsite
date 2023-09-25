@@ -20,7 +20,7 @@ class _SponseeBottomNavBarState extends State<SponseeBottomNavBar> {
     const ViewCurrentSponsee(),
     const MyApp(),
     const SponseeChat(),
-    const SponseeProfile()
+     SponseeProfile()
   ];
 
 

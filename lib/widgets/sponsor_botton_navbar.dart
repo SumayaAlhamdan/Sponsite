@@ -21,7 +21,7 @@ class _SponseeBottomNavBarState extends State<SponsorBottomNavBar> {
     const ViewOffersSponsor(),
     const SponsorPost(),
     const SponsorChat(),
-    const SponsorProfile()
+     SponsorProfile()
   ];
 
 

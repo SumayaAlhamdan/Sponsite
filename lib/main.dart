@@ -30,7 +30,7 @@ void main() async {
                 return const SplashScreen();
               } else if (homeScreenSnapshot.hasData) {
                 // Return the determined home screen widget.
-                print('11111111111111111111');
+               
                 return homeScreenSnapshot.data!;
               } else {
                 // If no data is available, show the AuthScreen.
