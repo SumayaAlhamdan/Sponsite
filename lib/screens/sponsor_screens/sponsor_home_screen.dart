@@ -415,7 +415,7 @@ List<Widget> promoCards = List.generate(5, (index) {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Container(
-        height: screenHeight * 0.15,
+        height: screenHeight * 0.14,
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(16),

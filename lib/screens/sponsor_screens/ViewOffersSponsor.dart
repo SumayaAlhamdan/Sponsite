@@ -242,9 +242,27 @@ Widget build(BuildContext context) {
                   ),
                   itemCount: events.length,
                   itemBuilder: (BuildContext context, int index) {
-                    Event event = events[index];
-                    Offer offer = offers[index];
+                        Event event = events[index];
+                        Offer? offer;
+
+                        for (Offer o in offers) {
+                          if (o.EventId == event.EventId) {
+                            offer = o;
+                            break;
+                          }
+                        }
+                   if (offer != null) {
                     return listItem(event: event, offer: offer);
+                  } else {
+                    // Handle the case when no offer is found for the event
+                    return listItem(event: event, offer: Offer(
+                      EventId: event.EventId, // You might want to set other default values here
+                      sponseeId: '',
+                      sponsorId: '',
+                      Category: [],
+                      notes: '',
+                    ));
+                  }
                   },
                 ),
               ),
@@ -305,7 +323,6 @@ dbOffers.onValue.listen((offer) {
             ));
           }
 
-     });
   final DatabaseReference database = FirebaseDatabase.instance.ref();
   database.child('sponseeEvents').onValue.listen((event) {
     if (event.snapshot.value != null) {
@@ -330,10 +347,10 @@ dbOffers.onValue.listen((offer) {
 
           // Simulate the current time (for testing purposes)
           DateTime currentTime = DateTime.now();
-
       
-          if (eventStartDate!.isAfter(currentTime)) {
+          if (eventStartDate!.isAfter(currentTime) && _isEventAssociatedWithSponsor(key, sponsorID)) {
             events.add(Event(
+              EventId: key,
               EventName: value['EventName'] as String? ?? '',
               EventType: value['EventType'] as String? ?? '',
               location: value['Location'] as String? ?? '',
@@ -351,18 +368,24 @@ dbOffers.onValue.listen((offer) {
             ));
           }
         });
-
+      });}
         // Sort events based on the timeStamp (descending order)
         events.sort((a, b) => b.timeStamp.compareTo(a.timeStamp));
       });
     }
-  });
+      );
   } );}});
+}
+bool _isEventAssociatedWithSponsor(String eventId, String? sponsorID) {
+  // Check if there is an offer with the specified EventId and sponsorId
+  return offers.any((offer) =>
+      offer.EventId == eventId && offer.sponsorId == sponsorID);
 }
 }
 
 
 class Event {
+  final String EventId;
   final String EventName;
   final String EventType;
   final String location;
@@ -379,6 +402,7 @@ class Event {
   final String timeStamp;
 
   Event({
+    required this.EventId,
     required this.EventName,
     required this.EventType,
     required this.location,
