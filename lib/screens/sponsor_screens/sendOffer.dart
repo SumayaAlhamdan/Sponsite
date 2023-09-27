@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:ffi';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:http/http.dart' as http;
 class Event {
   final String EventId;
   final String sponseeId;
@@ -356,9 +358,40 @@ class sendOffer extends StatefulWidget {
 class _sendOfferState extends State<sendOffer> {
   Set<String> filters = <String>{};
   TextEditingController notesController = TextEditingController();
-
   final DatabaseReference database = FirebaseDatabase.instance.ref();
+  User? user = FirebaseAuth.instance.currentUser;
+  
+  String? get sponseeId => null;
+@override
+  void initState() {
+    super.initState();
+   // requestPermission();
+    FirebaseMessaging.onMessage.listen(_onMessageHandler);
+  }
+  Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Handle the background message (optional)
+}
 
+Future<void> _onMessageHandler(RemoteMessage message) async {
+  // Handle the message when the app is in the foreground
+}
+ /* void requestPermission() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+    );
+    if(settings.authorizationStatus==AuthorizationStatus.authorized){
+      print('User granted permission');
+    } else if(settings.authorizationStatus==AuthorizationStatus.provisional){
+      print('User declined or has granted permission');
+    }
+  }*/
   @override
   void dispose() {
     notesController.dispose();
@@ -389,6 +422,16 @@ class _sendOfferState extends State<sendOffer> {
       },
     );
   }
+  Future<String?> _retrieveSponseeToken(String id) async {
+  final DatabaseReference databaseReference = FirebaseDatabase.instance.reference();
+  final DataSnapshot dataSnapshot = (await databaseReference.child('userTokens').child(id).once()).snapshot;
+   final Map<dynamic, dynamic>? data = dataSnapshot.value as Map<dynamic, dynamic>?;
+  if (data != null && data.containsKey('token')) {
+    return data['token'].toString();
+  }
+  
+  return null;
+}
 
 void _sendOffer() async {
   DatabaseReference offersRef = database.child('offers');
@@ -454,7 +497,7 @@ void _sendOffer() async {
           "Category": offer.Category,
           "notes": offer.notes,
         });
-
+await sendNotification(offer.sponseeId);
         setState(() {
           filters.clear();
         });
@@ -519,7 +562,7 @@ void _sendOffer() async {
         "Category": offer.Category,
         "notes": offer.notes,
       });
-
+sendNotification(offer.sponseeId);
       setState(() {
         filters.clear();
       });
@@ -557,6 +600,33 @@ void _sendOffer() async {
         },
       );
     }
+  }
+}
+   Future<void> sendNotification(String id) async {
+    String? mtoken = await _retrieveSponseeToken(id);
+    print('im here deema!!!!!!!!!!!!!');
+  final Uri url = Uri.parse('https://fcm.googleapis.com/fcm/send');
+  final Map<String, dynamic> data = {
+    'notification': {
+      'title': 'New Offer',
+      'body': 'You received a new offer for an event.'
+    },
+    'to': mtoken
+  };
+  print('$mtoken');
+
+  final response = await http.post(url,
+    headers: {
+      'Authorization': 'key=AAAAw5lT-Yg:APA91bE4EbR1XYHUoMl-qZYAFVsrtCtcznSsh7RSCSZ-yJKR2_bdX8f9bIaQgDrZlEaEaYQlEpsdN6B6ccEj5qStijSCDN_i0szRxhap-vD8fINcJAA-nK11z7WPzdZ53EhbYF5cp-ql',
+      'Content-Type': 'application/json',
+    },
+    body: json.encode(data),
+  );
+
+  if (response.statusCode == 200) {
+    print('Notification sent successfully.');
+  } else {
+    print('Failed to send notification: ${response.reasonPhrase}');
   }
 }
 
