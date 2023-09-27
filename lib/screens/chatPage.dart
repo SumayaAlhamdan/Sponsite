@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:sponsite/screens/chat_service.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class ChatPage extends StatefulWidget {
   final String receiverUserEmail;
   final String receiverUserID;
   final String receiverUserName;
+  final String? pic;
 
   const ChatPage({
     Key? key,
     required this.receiverUserEmail,
     required this.receiverUserID,
     required this.receiverUserName,
+    this.pic,
   }) : super(key: key);
 
   @override
@@ -20,6 +23,8 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
   final ChatService chatService = ChatService();
+  String senderPic =
+      'assets/placeholder_image.png'; // Default profile picture URL
 
   @override
   void initState() {
@@ -30,7 +35,34 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.receiverUserName),
+        title: Row(
+          children: [
+            SizedBox(width: 8.0),
+            Image.network(
+              widget.pic ?? senderPic,
+              width: 60, // Set the desired width
+              height: 60, // Set the desired height
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Image.asset(
+                  'assets/placeholder_image.png',
+                  width: 60,
+                  height: 60,
+                  fit: BoxFit.cover,
+                );
+              },
+            ),
+            SizedBox(width: 8.0), // Add some space between the image and text
+            Text(
+              widget.receiverUserName,
+              style: TextStyle(
+                color: Colors.deepPurple,
+                fontSize: 25,
+                fontWeight: FontWeight.bold,
+              ),
+            )
+          ],
+        ),
       ),
       body: Column(
         children: [
@@ -67,11 +99,14 @@ class _ChatPageState extends State<ChatPage> {
                               color: isCurrentUser
                                   ? Colors.grey
                                   : Colors.deepPurple,
-                              borderRadius: BorderRadius.circular(10.0),
+                              borderRadius: BorderRadius.circular(30.0),
                             ),
                             child: Text(
                               message.msg,
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 25,
+                              ),
                             ),
                           ),
                         ),
@@ -91,15 +126,18 @@ class _ChatPageState extends State<ChatPage> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: "Type your message...",
+                  child: SizedBox(
+                    child: TextField(
+                      style: TextStyle(fontSize: 25), // Set the font size here
+                      controller: _messageController,
+                      decoration: InputDecoration(
+                        hintText: "Type your message...",
+                      ),
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.send),
+                  icon: const Icon(Icons.send),
                   onPressed: () {
                     final message = _messageController.text.trim();
                     if (message.isNotEmpty) {
