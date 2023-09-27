@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -50,6 +51,16 @@ class _SignInState extends State<SignIn> {
 
       final userCredentials = await _firebase.signInWithEmailAndPassword(
           email: email, password: password);
+           // Check if the user's token is stored
+    final currentUser = FirebaseAuth.instance.currentUser;
+    await _storeUserToken(currentUser?.uid);
+
+    //if (userToken == null) {
+      // The user's token is not stored yet, handle this case by retrieving and storing the token
+    // await _storeUserToken(currentUser?.uid);
+   // }
+
+
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
         setState(() {
@@ -72,6 +83,66 @@ class _SignInState extends State<SignIn> {
       });
     }
   }
+   Future<void> _storeUserToken(String? userId) async {
+  if (userId != null) {
+    final newToken = await obtainNewTokenUsingFCM(userId);
+    await saveTokenToDatabase(userId, newToken as String);
+    //final token = await _retrieveUserToken(userId);
+    /*
+    if (token != null) {
+      // The token is available, proceed with storing it in your database
+      await saveTokenToDatabase(userId, token);
+    } else {
+      final newToken = await obtainNewTokenUsingFCM(userId);
+      if (newToken != null) {
+        await saveTokenToDatabase(userId, newToken);
+      } else {
+        print("User's token is not available yet. Handle this case as needed.");
+      }
+    }*/
+  }
+}
+
+Future<String?> _retrieveUserToken(String? userId) async {
+  if (userId != null) {
+    final dataSnapshot = await dbref.child('userTokens').child(userId).once();
+    
+    if (dataSnapshot.snapshot.value != null) {
+      final Map<String, dynamic> data = dataSnapshot.snapshot.value as Map<String, dynamic>;
+
+      if (data != null && data['token'] != null) {
+        return data['token'].toString();
+      }
+    }
+  }
+  return null;
+}
+
+
+
+Future<void> saveTokenToDatabase(String userId, String token) async {
+  await dbref.child('userTokens').child(userId).set({
+    'token': token,
+  });
+}
+Future<String?> obtainNewTokenUsingFCM(String userId) async {
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+
+  try {
+    // Request a new FCM token
+    String? newToken = await _firebaseMessaging.getToken();
+
+    if (newToken != null) {
+      return newToken;
+    } else {
+       print("Error obtaining FCM token");
+      return null; // Unable to obtain a new token
+    }
+  } catch (e) {
+    print("Error obtaining FCM token: $e");
+    return null; // Handle any errors that occur while obtaining the token
+  }
+}
 
   @override
   void dispose() {
