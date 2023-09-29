@@ -562,7 +562,7 @@ await sendNotification(offer.sponseeId);
         "Category": offer.Category,
         "notes": offer.notes,
       });
-sendNotification(offer.sponseeId);
+await sendNotification(offer.sponseeId);
       setState(() {
         filters.clear();
       });
@@ -605,17 +605,20 @@ sendNotification(offer.sponseeId);
    Future<void> sendNotification(String id) async {
     String? mtoken = await _retrieveSponseeToken(id);
     print('im here deema!!!!!!!!!!!!!');
-  final Uri url = Uri.parse('https://fcm.googleapis.com/fcm/send');
-  final Map<String, dynamic> data = {
-    'notification': {
-      'title': 'New Offer',
-      'body': 'You received a new offer for an event.'
+  //final Uri url = Uri.parse('https://fcm.googleapis.com/fcm/send');
+  var data = {
+    'message': {
+      'token': mtoken,
+      'notification':{
+        'title': 'New Offer!',
+        'body': 'You recieved a new offer for your event',
+        'priority' : 'high',
     },
-    'to': mtoken
-  };
+  }};
   print('$mtoken');
 
-  final response = await http.post(url,
+  //var response = await http.post(Uri.parse(url));
+  await http.post(Uri.parse('https://fcm.googleapis.com/fcm/send'),
     headers: {
       'Authorization': 'key=AAAAw5lT-Yg:APA91bE4EbR1XYHUoMl-qZYAFVsrtCtcznSsh7RSCSZ-yJKR2_bdX8f9bIaQgDrZlEaEaYQlEpsdN6B6ccEj5qStijSCDN_i0szRxhap-vD8fINcJAA-nK11z7WPzdZ53EhbYF5cp-ql',
       'Content-Type': 'application/json',
@@ -623,11 +626,11 @@ sendNotification(offer.sponseeId);
     body: json.encode(data),
   );
 
-  if (response.statusCode == 200) {
+  /*if (response.statusCode == 200) {
     print('Notification sent successfully.');
   } else {
     print('Failed to send notification: ${response.reasonPhrase}');
-  }
+  }*/
 }
 
 
