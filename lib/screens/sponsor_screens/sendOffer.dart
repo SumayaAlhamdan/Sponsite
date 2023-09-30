@@ -47,6 +47,7 @@ class Offer {
   final String sponsorId;
   final List<String> Category;
   final String notes;
+  final String TimeStamp;
 
   Offer({
     required this.EventId,
@@ -54,6 +55,7 @@ class Offer {
     required this.sponsorId,
     required this.Category,
     required this.notes,
+    required this.TimeStamp, 
   });
 }
 class RecentEventsDetails extends StatelessWidget {
@@ -260,7 +262,8 @@ class RecentEventsDetails extends StatelessWidget {
                                         EventId: EventId,
                                         sponsorId: sponsorID,
                                         sponseeId: sponseeId,
-                                        Category: Category,
+                                        Category: Category, 
+                                        TimeStamp: timeStamp,
                                         );
                                     },
                                   );
@@ -342,6 +345,7 @@ class sendOffer extends StatefulWidget {
   final String sponseeId;
   final String? sponsorId;
   final List<String> Category;
+  final String TimeStamp;
 
 
   const sendOffer({super.key, 
@@ -349,6 +353,7 @@ class sendOffer extends StatefulWidget {
     required this.sponseeId,
     required this.sponsorId,
     required this.Category,
+     required this.TimeStamp, 
   });
 
   @override
@@ -485,6 +490,7 @@ void _sendOffer() async {
           sponsorId: widget.sponsorId ?? "",
           notes: notesController.text,
           Category: selectedCategories,
+          TimeStamp: widget.TimeStamp ,
         );
 
         // Save the offer to the database
@@ -496,6 +502,7 @@ void _sendOffer() async {
           "sponsorId": offer.sponsorId,
           "Category": offer.Category,
           "notes": offer.notes,
+          "TimeStamp": offer.TimeStamp,
         });
 await sendNotification(offer.sponseeId);
         setState(() {
@@ -550,6 +557,7 @@ await sendNotification(offer.sponseeId);
         sponsorId: widget.sponsorId ?? "",
         notes: notesController.text,
         Category: selectedCategories,
+       TimeStamp: widget.TimeStamp ,
       );
 
       // Save the offer to the database
@@ -561,6 +569,8 @@ await sendNotification(offer.sponseeId);
         "sponsorId": offer.sponsorId,
         "Category": offer.Category,
         "notes": offer.notes,
+        "TimeStamp": offer.TimeStamp,
+        
       });
 await sendNotification(offer.sponseeId);
       setState(() {
