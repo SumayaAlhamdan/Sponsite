@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:sponsite/eventDetail.dart';
 import 'package:sponsite/screens/sponsee_screens/SponseeOffersList.dart';
-import 'package:sponsite/widgets/customAppBar.dart'; // Import the correct CustomAppBar widget
+import 'package:sponsite/widgets/customAppBar.dart';
 import 'package:sponsite/widgets/user_type_selector.dart';
-
 
 class ViewCurrentSponsee extends StatefulWidget {
   const ViewCurrentSponsee({Key? key}) : super(key: key);
@@ -21,7 +20,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
       FirebaseDatabase.instance.ref().child('sponseeEvents');
   User? user = FirebaseAuth.instance.currentUser;
   String? sponseeID;
-  String? EVENTid; // Declare EVENTid at the class level
+  String? EVENTid;
 
   void check() {
     if (user != null) {
@@ -31,7 +30,6 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
       print('User is not logged in.');
     }
   }
-//Here is the code for the Reading ??? 
 
   @override
   void initState() {
@@ -52,9 +50,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
             var categoryList = (value['Category'] as List<dynamic>)
                 .map((category) => category.toString())
                 .toList();
-            
 
-            // Check if the event belongs to the current user (sponsee)
             if (value['SponseeID'] == sponseeID) {
               EVENTid = key;
               events.add(Event(
@@ -89,7 +85,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
         color: const Color.fromARGB(255, 255, 255, 255),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2), // Add a blurred shadow
+            color: Colors.black.withOpacity(0.2),
             blurRadius: 10,
             spreadRadius: 2,
           ),
@@ -98,10 +94,9 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Smaller picture on the top
           SizedBox(
             width: double.infinity,
-            height: 140, // Adjust the height as needed
+            height: 140,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Image.network(
@@ -112,9 +107,8 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
               ),
             ),
           ),
-          // Event details below the image
           Padding(
-            padding: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.only(top: 1),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -211,7 +205,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                         ),
                       );
                     },
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
@@ -224,7 +218,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                         ),
                         Icon(
                           Icons.arrow_forward,
-                          size: 16, // Adjust the size as needed
+                          size: 16,
                           color: Color.fromARGB(255, 91, 79, 158),
                         ),
                       ],
@@ -232,7 +226,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                   ),
                 ),
                 Align(
-                  alignment: Alignment.center, // Align the button to the center horizontally
+                  alignment: Alignment.center,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 91, 79, 158),
@@ -242,14 +236,15 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                       ),
                     ),
                     onPressed: () {
-                      // Navigate to the SponseeOffersListPage class when the button is pressed
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => SponseeOffersList(EVENTid : EVENTid, EventName : event.EventName) , 
+                          builder: (context) => SponseeOffersList(
+                            EVENTid: EVENTid,
+                            EventName: event.EventName,
+                          ),
                         ),
                       );
-                      // Handle button press here
                     },
                     child: Text(
                       'View Offers',
@@ -269,85 +264,101 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: Text(
-            'My Events',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-          ),
-          backgroundColor: Color.fromARGB(255, 51, 45, 81),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(20),
-              bottomRight: Radius.circular(20),
-            ),
-          ),
-        ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 15),
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 100,
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 50.0),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Expanded(
-                child: Scrollbar(
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    physics: const BouncingScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.9,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
-                    ),
-                    itemCount: events.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      Event event = events[index];
-                      return listItem(event: event);
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+Widget build(BuildContext context) {
+  return DefaultTabController(
+  length: 2, // Number of tabs (Current and Past)
+  child: Scaffold(
+    backgroundColor: Colors.white,
+    appBar: AppBar(
+      title: Text(
+        'My Events',
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(top: 170),
-        child: SizedBox(
-          width: 250,
-          height: 50,
-          child: SingleChoice(
-            initialSelection: selectedTabIndex == 0 ? eventType.current : eventType.past,
-            onSelectionChanged: (eventType selection) {
-              setState(() {
-                selectedTabIndex = selection == eventType.current ? 0 : 1;
-                if (selectedTabIndex == eventType.current) {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => const ViewCurrentSponsee()),
-                  );
-                } else {
-                  // Handle the case when "Past" is selected
-                }
-              });
-            },
-          ),
+      backgroundColor: Color.fromARGB(255, 51, 45, 81),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(20),
+          bottomRight: Radius.circular(20),
+        ),
+      ),),
+    body:Column(
+          children: [ Container(
+      color: Color.fromARGB(255, 255, 255, 255),
+              padding: const EdgeInsets.only(bottom: 20, top: 50),
+      child: TabBar( // Move the TabBar to the appBar's bottom property
+          indicatorColor: Color.fromARGB(255, 51, 45, 81),
+          tabs: const [
+            Tab(
+              child: Text(
+                'Current',
+                style: TextStyle(fontSize: 22),
+              ),
+            ),
+            Tab(
+              child: Text(
+                'Past',
+                style: TextStyle(fontSize: 22),
+              ),
+            ),
+          ],
+        ),
+    ),Expanded(
+              child: TabBarView(
+                children: [
+                  _buildCurrentEventsPage(),
+                  _buildPastEventsPage(),
+                ],
+              ),
+            ),
+        ],
         ),
       ),
     );
-  }
+}
+
+
+  Widget _buildCurrentEventsPage() {
+  return Padding(
+    padding: const EdgeInsets.only(top: 1),
+    child: Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 50.0),
+        ),
+        Expanded(
+          child: Scrollbar(
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.9,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+              ),
+              itemCount: events.length,
+              itemBuilder: (BuildContext context, int index) {
+                Event event = events[index];
+                return listItem(event: event);
+              },
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildPastEventsPage() {
+  return Center(
+    child: Text(
+      'No past events available',
+      style: TextStyle(fontSize: 20, color: Colors.grey),
+    ),
+  );
+}
+
 }
 
 class Event {
