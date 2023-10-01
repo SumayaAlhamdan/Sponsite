@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:sponsite/local_notifications.dart';
 
 class Msg {
   final String senderID;
@@ -82,6 +83,13 @@ class ChatService extends ChangeNotifier {
           .child('messages')
           .push()
           .set(newMsg.toMap());
+            if (currentUserId == receiverID) {
+        // Modify this part to use your notification service
+        NotificationService().showNotification(
+          title: 'New Message',
+          body: 'You have received a new message.',
+        );
+      }
     }
   }
 
