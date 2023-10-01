@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
+import 'package:sponsite/local_notifications.dart';
 
 class Offer {
   String eventId;
@@ -57,6 +58,8 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     // Retrieve offers
     database.child('offers').onValue.listen((offer) {
       if (offer.snapshot.value != null) {
+         NotificationService()
+              .showNotification(title: 'You got a new message', body: 'It works!');
         print(offer.snapshot.value) ; 
         Map<dynamic, dynamic> offerData =
             offer.snapshot.value as Map<dynamic, dynamic>;
