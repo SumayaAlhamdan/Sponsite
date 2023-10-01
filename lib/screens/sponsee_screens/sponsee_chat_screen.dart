@@ -59,22 +59,63 @@ class _SponseeChatState extends State<SponseeChat> {
   Widget buildUserListItem(String key, Map<dynamic, dynamic> data) {
     String name = data['Name'] ?? 'No name available';
     String email = data['Email'] ?? 'No email available';
-
-    return ListTile(
-      title: Text(name),
-      subtitle: Text(email),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatPage(
-              receiverUserEmail: email,
-              receiverUserID: key, // Pass the clicked user's ID here
-              receiverUserName: name,
+    String pic = data['Picture'] ?? 'No picture available';
+    return Card(
+      color: Colors.deepPurple,
+      child: ListTile(
+        leading: Container(
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            shape: BoxShape.circle,
+          ),
+          child: CircleAvatar(
+            radius: 30,
+            backgroundImage:
+                NetworkImage(pic), // Use the passed profile picture
+            backgroundColor: Colors.transparent,
+            child: Image.network(
+              pic,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Image.asset(
+                  'assets/placeholder_image.png',
+                  width: 60,
+                  height: 60,
+                  fit: BoxFit.cover,
+                );
+              },
             ),
           ),
-        );
-      },
+        ),
+        title: Text(
+          name,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(
+          email,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 17,
+          ),
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatPage(
+                receiverUserEmail: email,
+                receiverUserID: key, // Pass the clicked user's ID here
+                receiverUserName: name,
+                pic: pic,
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
