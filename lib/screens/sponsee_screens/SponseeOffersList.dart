@@ -23,7 +23,8 @@ class Offer {
     required this.sponsorImage,
     required this.timeStamp,
   });
-    int get timeStampAsInt => int.tryParse(timeStamp) ?? 0;
+
+  int get timeStampAsInt => int.tryParse(timeStamp) ?? 0;
 }
 
 class SponseeOffersList extends StatefulWidget {
@@ -39,6 +40,9 @@ class SponseeOffersList extends StatefulWidget {
 
 class _SponseeOffersListState extends State<SponseeOffersList> {
   List<Offer> offers = [];
+  List<Offer> acceptedOffers = [];
+  bool accepted = false;
+  bool showActions = true;
 
   void initState() {
     super.initState();
@@ -49,18 +53,15 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     final DatabaseReference database = FirebaseDatabase.instance.ref();
     offers.clear();
 
-    // Declare variables to store offers, sponsor names, and timestamps
     List<Offer> loadedOffers = [];
     Map<String, String> sponsorNames = {};
     Map<String, String> sponsorImages = {};
-    Map<String, int> offerTimestamps = {};
 
-    // Retrieve offers
     database.child('offers').onValue.listen((offer) {
       if (offer.snapshot.value != null) {
-         NotificationService()
-              .showNotification(title: 'You got a new message', body: 'It works!');
-        print(offer.snapshot.value) ; 
+        NotificationService()
+            .showNotification(title: 'You got a new message', body: 'It works!');
+        print(offer.snapshot.value);
         Map<dynamic, dynamic> offerData =
             offer.snapshot.value as Map<dynamic, dynamic>;
 
@@ -72,29 +73,21 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                 .toList();
           }
           if (value['EventId'] == widget.EVENTid) {
-          String timestampString = value['TimeStamp'] as String? ?? '';
+            String timestampString = value['TimeStamp'] as String? ?? '';
 
-
-        loadedOffers.add(Offer(
-  eventId: key,
-  sponseeId: value['sponseeId'] as String? ?? '',
-  categories: categoryList,
-  notes: value['notes'] as String? ?? 'There are no notes available',
-  sponsorId: value['sponsorId'] as String? ?? '',
-  sponsorName: 'krkr',
-  sponsorImage: '',
-  timeStamp: timestampString, // Use the correct timestamp field name
-));
-
-
-
-
-
-
+            loadedOffers.add(Offer(
+              eventId: key,
+              sponseeId: value['sponseeId'] as String? ?? '',
+              categories: categoryList,
+              notes: value['notes'] as String? ?? 'There are no notes available',
+              sponsorId: value['sponsorId'] as String? ?? '',
+              sponsorName: 'krkr',
+              sponsorImage: '',
+              timeStamp: timestampString,
+            ));
           }
         });
 
-        // Retrieve sponsor names
         database.child('Sponsors').onValue.listen((spons) {
           if (spons.snapshot.value != null) {
             Map<dynamic, dynamic> sponsorData =
@@ -105,13 +98,11 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
               sponsorImages[key] = value['Picture'] as String? ?? '';
             });
 
-            // Update the 'sponsorName' and 'sponsorImage' properties for each offer
             for (var offer in loadedOffers) {
               offer.sponsorName = sponsorNames[offer.sponsorId] ?? '';
               offer.sponsorImage = sponsorImages[offer.sponsorId] ?? '';
             }
 
-            // Update the state with the loaded offers
             setState(() {
               offers = loadedOffers;
             });
@@ -131,7 +122,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     } else if (difference < Duration.hoursPerDay) {
       final hours = difference ~/ Duration.millisecondsPerHour;
       return '$hours hrs ago';
-    } else if (difference < 7)  { //DAYS PER WEEK
+    } else if (difference < 7) {
       final days = difference ~/ Duration.millisecondsPerDay;
       return '$days days ago';
     } else {
@@ -215,17 +206,23 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
   }
 
   Widget _buildSponsorsPage() {
-    return Center(
-      child: Text(
-        'Sponsors Page',
-        style: TextStyle(fontSize: 24),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          for (Offer offer in acceptedOffers)
+            _buildOfferCard(offer),
+          Center(
+            child: Text(
+              'Sponsors Page',
+              style: TextStyle(fontSize: 24),
+            ),
+          ),
+        ],
       ),
     );
   }
 
  Widget _buildOfferCard(Offer offer) {
-   print("Building offer card for ${offer.eventId}");
-  // Parse the timestamp string and convert it to milliseconds since epoch
   final timestamp = DateTime.parse(offer.timeStamp).millisecondsSinceEpoch;
 
   return Card(
@@ -257,70 +254,152 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
         ],
       ),
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Categories",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Categories",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
               ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 4,
-                children: offer.categories.map((category) {
-                  return Chip(
-                    label: Text(category),
-                    backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-                    shadowColor: const Color.fromARGB(255, 91, 79, 158),
-                    elevation: 3,
-                    labelStyle: const TextStyle(
-                      color: Color.fromARGB(255, 91, 79, 158),
-                    ),
-                  );
-                }).toList(),
-              ),
-              SizedBox(height: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Notes:',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      color: Colors.black87,
-                    ),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 4,
+              children: offer.categories.map((category) {
+                return Chip(
+                  label: Text(category),
+                  backgroundColor: Color.fromARGB(255, 91, 79, 158),
+                  shadowColor: Colors.white,
+                  elevation: 3,
+                  labelStyle: TextStyle(
+                    color: Colors.white,
                   ),
-                  SizedBox(height: 4),
-                  Text(
-                    offer.notes,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
+                );
+              }).toList(),
+            ),
+            Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Notes:',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                        color: Colors.black87,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Posted: ${formatTimeAgo(timestamp)}', // Use the parsed timestamp
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
+                    const SizedBox(height: 4),
+                    Text(
+                      offer.notes,
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
                 ),
+                Spacer(), // Add space to push buttons to the right
+                if (showActions) // Only show actions if showActions is true
+                  Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          _showConfirmationDialog("Accept", offer);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.green,
+                          minimumSize: Size(120, 50), // Adjust button size
+                          padding: EdgeInsets.symmetric(horizontal: 10), // Adjust padding
+                        ),
+                        child: Text(
+                          'Accept',
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        ),
+                      ),
+                      SizedBox(width: 5), // Add space of width 5
+                      ElevatedButton(
+                        onPressed: () {
+                          _showConfirmationDialog("Reject", offer);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.red,
+                          minimumSize: Size(120, 50), // Adjust button size
+                          padding: EdgeInsets.symmetric(horizontal: 10), // Adjust padding
+                        ),
+                        child: Text(
+                          'Reject',
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Posted: ${formatTimeAgo(timestamp)}',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ],
     ),
   );
 }
 
+
+
+
+  void _showConfirmationDialog(String action, Offer offer) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      final uniqueKey = GlobalKey();
+      return AlertDialog(
+        key: uniqueKey,
+        title: Text('Confirm $action'),
+        content: Text('Are you sure you want to $action this offer?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                showActions = false; // Hide actions after rejecting
+              });
+              if (action == "Accept") {
+                acceptedOffers.add(offer);
+                offers.remove(offer);
+              } else {
+                offers.remove(offer);
+              }
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('Confirm'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
+
+
+
+  void _navigateToSponsorsTab() {
+    DefaultTabController.of(context)?.animateTo(1);
+  }
 }
