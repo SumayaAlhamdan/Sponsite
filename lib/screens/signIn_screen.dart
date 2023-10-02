@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:sponsite/reset_passwords.dart';
 import 'package:sponsite/screens/first_choosing_screen.dart';
 import 'dart:io';
 
@@ -18,7 +19,7 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
   var _isAuthenticating = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
+final GlobalKey<FormState> _formKey2 = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final DatabaseReference dbref = FirebaseDatabase.instance.reference();
@@ -26,6 +27,7 @@ class _SignInState extends State<SignIn> {
   bool _obscured = true;
   bool wrongEmailOrPass = false;
   bool invalidEmail = false;
+  
 
   UploadTask? task;
   File? file;
@@ -76,7 +78,6 @@ class _SignInState extends State<SignIn> {
         });
       }
     } catch (e) {
-     
       setState(() {
         _isAuthenticating = false;
         return;
@@ -275,6 +276,30 @@ Future<String?> obtainNewTokenUsingFCM(String userId) async {
                                   },
                                 ),
                               ),
+                              const SizedBox(height: 20.0),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  GestureDetector(
+                                    child: const Text(
+                                      'Forgot password?',
+                                      style: TextStyle(
+                                          decoration: TextDecoration.underline,
+                                          color:
+                                              Color.fromARGB(255, 91, 79, 158),
+                                          fontSize: 17),
+                                    ),
+                                    onTap: () {
+                                        Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => resetPassword(),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 115.0),
+                                ],
+                              ),
                               const SizedBox(height: 10.0),
                               const SizedBox(height: 8),
                               if (wrongEmailOrPass)
@@ -318,10 +343,12 @@ Future<String?> obtainNewTokenUsingFCM(String userId) async {
                                       minimumSize: MaterialStateProperty.all<Size>(const Size(200, 50))),
                                   onPressed: () async {
                                     String email = _emailController.text.trim();
-                                    String password = _passwordController.text.trim();
-
-                                   
-
+                                    String password =
+                                        _passwordController.text.trim();
+                                    setState(() {
+                                      wrongEmailOrPass=false;
+                                      invalidEmail=false;
+                                    });
                                     sendDatatoDB(context, email, password);
                                   },
                                   child: const Text(
@@ -373,4 +400,6 @@ Future<String?> obtainNewTokenUsingFCM(String userId) async {
       ),
     );
   }
+
+  
 }

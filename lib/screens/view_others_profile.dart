@@ -9,31 +9,37 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sponsite/widgets/user_image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class SponseeProfile extends StatefulWidget {
-  SponseeProfile({Key? key}) : super(key: key);
-  State<SponseeProfile> createState() => _SponseeProfileState();
+class ViewOthersProfile extends StatefulWidget {
+  ViewOthersProfile(this.type,this.otherID,{Key? key}) : super(key: key);
+  final otherID;
+  final type;
+  State<ViewOthersProfile> createState() => _ViewOthersProfileState(type,otherID);
 }
 
-class _SponseeProfileState extends State<SponseeProfile> {
-  User? user = FirebaseAuth.instance.currentUser;
-  String? sponseeID;
+class _ViewOthersProfileState extends State<ViewOthersProfile> {
+  var otherID;
+  var type;
+  _ViewOthersProfileState(t,otherId){
+    otherID=otherId;
+    type=t;
+  }
   // late String name;
-  List<SponseeProfileInfo> sponseeList = [];
+  List<ViewOthersProfileInfo> sponseeList = [];
   File? _selectedImage;
 
-  void check() {
-    if (user != null) {
-      sponseeID = user?.uid;
-      print('Sponsee ID: $sponseeID');
-    } else {
-      print('User is not logged in.');
-    }
-  }
+  // void check() {
+  //   if (user != null) {
+  //     otherID = user?.uid;
+  //     print('Sponsee ID: $otherID');
+  //   } else {
+  //     print('User is not logged in.');
+  //   }
+  // }
 
   void _loadProfileFromFirebase() async {
-    check();
+  //  check();
     DatabaseReference dbRef =
-        FirebaseDatabase.instance.ref().child('Sponsees').child(sponseeID!);
+        FirebaseDatabase.instance.ref().child(type).child(otherID!);
      // user.updatePassword(newPassword)
     // user.reauthenticateWithCredential(credential)
     
@@ -63,7 +69,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
           // print(socialMediaAccounts[0].title);
           // print(sponseeData);
           // Create a Sponsee object and add it to the list
-          SponseeProfileInfo sponsee = SponseeProfileInfo(
+          ViewOthersProfileInfo sponsee = ViewOthersProfileInfo(
               name: sponseeData['Name'] as String? ?? '',
               bio: sponseeData['Bio'] as String? ?? '',
               pic: sponseeData['Picture'] as String? ?? '',
@@ -82,7 +88,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
 
   void initState() {
     super.initState();
-    check();
+   // check();
     _loadProfileFromFirebase();
   }
 
@@ -129,76 +135,76 @@ class _SponseeProfileState extends State<SponseeProfile> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 51, 45, 81),
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(
-              Icons.more_horiz,
-              color: Color.fromARGB(255, 255, 255, 255),
-              size: 70,
-            ),
-            onSelected: (value) {
-              // Handle menu item selection here
-              switch (value) {
-                case 'myAccount':
-                  // Navigator.of(context).push(
-                  //                       MaterialPageRoute(
-                  //                         builder: (context) => MyAccount(),
-                  //                       ));
-                  break;
-                case 'signOut':
-                  _showSignOutConfirmationDialog(context);
-                  break;
-                // case 'deleteAccount':
-                //   // Handle Delete Account selection
-                //   // You can add your logic here
-                //   break;
-              }
-            },
-            itemBuilder: (BuildContext context) {
-              return [
-                const PopupMenuItem<String>(
-                  value: 'myAccount',
-                  child: ListTile(
-                    leading: Icon(
-                      Icons.perm_identity,
-                      size: 30,
-                    ),
-                    title: Text(
-                      'My Account',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ),
-                ),
-                const PopupMenuItem<String>(
-                  value: 'signOut',
-                  child: ListTile(
-                    leading: Icon(
-                      Icons.exit_to_app,
-                      size: 30,
-                    ),
-                    title: Text(
-                      'Sign out',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ),
-                ),
-                // PopupMenuItem<String>(
-                //   value: 'deleteAccount',
-                //   child: ListTile(
-                //     leading: Icon(
-                //       Icons.delete,
-                //       size: 30,
-                //     ),
-                //     title: Text(
-                //       'Delete account',
-                //       style: TextStyle(fontSize: 20),
-                //     ),
-                //   ),
-                // ),
-              ];
-            },
-          ),
-        ],
+        // actions: [
+        //   PopupMenuButton<String>(
+        //     icon: const Icon(
+        //       Icons.more_horiz,
+        //       color: Color.fromARGB(255, 255, 255, 255),
+        //       size: 70,
+        //     ),
+        //     onSelected: (value) {
+        //       // Handle menu item selection here
+        //       switch (value) {
+        //         case 'myAccount':
+        //           Navigator.of(context).push(
+        //                                 MaterialPageRoute(
+        //                                   builder: (context) => MyAccount(),
+        //                                 ));
+        //           break;
+        //         case 'signOut':
+        //           _showSignOutConfirmationDialog(context);
+        //           break;
+        //         // case 'deleteAccount':
+        //         //   // Handle Delete Account selection
+        //         //   // You can add your logic here
+        //         //   break;
+        //       }
+        //     },
+        //     itemBuilder: (BuildContext context) {
+        //       return [
+        //         const PopupMenuItem<String>(
+        //           value: 'myAccount',
+        //           child: ListTile(
+        //             leading: Icon(
+        //               Icons.perm_identity,
+        //               size: 30,
+        //             ),
+        //             title: Text(
+        //               'My Account',
+        //               style: TextStyle(fontSize: 20),
+        //             ),
+        //           ),
+        //         ),
+        //         const PopupMenuItem<String>(
+        //           value: 'signOut',
+        //           child: ListTile(
+        //             leading: Icon(
+        //               Icons.exit_to_app,
+        //               size: 30,
+        //             ),
+        //             title: Text(
+        //               'Sign out',
+        //               style: TextStyle(fontSize: 20),
+        //             ),
+        //           ),
+        //         ),
+        //         // PopupMenuItem<String>(
+        //         //   value: 'deleteAccount',
+        //         //   child: ListTile(
+        //         //     leading: Icon(
+        //         //       Icons.delete,
+        //         //       size: 30,
+        //         //     ),
+        //         //     title: Text(
+        //         //       'Delete account',
+        //         //       style: TextStyle(fontSize: 20),
+        //         //     ),
+        //         //   ),
+        //         // ),
+        //       ];
+        //     },
+        //   ),
+        // ],
       ),
       body: Column(
         children: [
@@ -242,25 +248,25 @@ class _SponseeProfileState extends State<SponseeProfile> {
                                     ),
                               ),
                             ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: CircleAvatar(
-                                radius: 25,
-                                backgroundColor:
-                                    Color.fromARGB(255, 224, 224, 224),
-                                child: GestureDetector(
-                                  child: const Icon(
-                                    Icons.edit,
-                                    size: 30,
-                                    color: Color.fromARGB(255, 91, 79, 158),
-                                  ),
-                                  onTap: () {
-                                    showModalBottomSheet(
-                                        context: context, builder: buildSheet);
-                                  },
-                                )),
-                          ),
+                          // Positioned(
+                          //   bottom: 0,
+                          //   right: 0,
+                          //   child: CircleAvatar(
+                          //       radius: 25,
+                          //       backgroundColor:
+                          //           Color.fromARGB(255, 224, 224, 224),
+                          //       child: GestureDetector(
+                          //         child: const Icon(
+                          //           Icons.edit,
+                          //           size: 30,
+                          //           color: Color.fromARGB(255, 91, 79, 158),
+                          //         ),
+                          //         onTap: () {
+                          //           showModalBottomSheet(
+                          //               context: context, builder: buildSheet);
+                          //         },
+                          //       )),
+                          // ),
                         ],
                       ),
                     ),
@@ -320,7 +326,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       SizedBox(width: 20,),
-                       Text('My Posts',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),),
+                       Text('Posts',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),),
                     ],
                   )
                 ],
@@ -332,49 +338,49 @@ class _SponseeProfileState extends State<SponseeProfile> {
     );
   }
 
-  Widget buildSheet(context) {
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        AppBar(
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
-          title: Text('Edit profile'),
-          centerTitle: true,
-          leading: TextButton(
-              onPressed: () => Navigator.pop(context), child: Text('Cancel')),
-          leadingWidth: 100,
-          actions: [
-            TextButton(onPressed: () => save(), child: Text(' Save ')),
-          ],
-        ),
-        Center(
-          child: UserImagePicker(
-            sponseeList.first.pic,
-            onPickImage: (pickedImage) {
-              _selectedImage = pickedImage;
-            },
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget buildSheet(context) {
+  //   return Column(
+  //     mainAxisSize: MainAxisSize.max,
+  //     children: [
+  //       AppBar(
+  //         shape: const RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+  //         title: Text('Edit profile'),
+  //         centerTitle: true,
+  //         leading: TextButton(
+  //             onPressed: () => Navigator.pop(context), child: Text('Cancel')),
+  //         leadingWidth: 100,
+  //         actions: [
+  //           TextButton(onPressed: () => save(), child: Text(' Save ')),
+  //         ],
+  //       ),
+  //       Center(
+  //         child: UserImagePicker(
+  //           sponseeList.first.pic,
+  //           onPickImage: (pickedImage) {
+  //             _selectedImage = pickedImage;
+  //           },
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
-  void save() async {
-    final storageRef = FirebaseStorage.instance
-        .ref()
-        .child('user_images')
-        .child(sponseeID!)
-        .child('$sponseeID.jpg');
+  // void save() async {
+  //   final storageRef = FirebaseStorage.instance
+  //       .ref()
+  //       .child('user_images')
+  //       .child(otherID!)
+  //       .child('$otherID.jpg');
 
-    await storageRef.putFile(_selectedImage!);
-    final imageUrl = await storageRef.getDownloadURL();
-    DatabaseReference dbRef =
-        FirebaseDatabase.instance.ref().child('Sponsees').child(sponseeID!);
-    dbRef.update({'Picture': imageUrl});
-    _loadProfileFromFirebase();
-    Navigator.pop(context);
-  }
+  //   await storageRef.putFile(_selectedImage!);
+  //   final imageUrl = await storageRef.getDownloadURL();
+  //   DatabaseReference dbRef =
+  //       FirebaseDatabase.instance.ref().child('Sponsees').child(otherID!);
+  //   dbRef.update({'Picture': imageUrl});
+  //   _loadProfileFromFirebase();
+  //   Navigator.pop(context);
+  // }
 }
 
 class _ProfileInfoRow extends StatelessWidget {
@@ -442,13 +448,13 @@ class _ProfileInfoRow extends StatelessWidget {
   }
 }
 
-class SponseeProfileInfo {
+class ViewOthersProfileInfo {
   final String name;
   final String bio;
   final String pic;
   List<SocialMediaAccount> social;
 
-  SponseeProfileInfo(
+  ViewOthersProfileInfo(
       {required this.name,
       required this.bio,
       required this.pic,

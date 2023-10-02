@@ -304,12 +304,20 @@ class _SponsorProfileState extends State<SponsorProfile> {
                         ),
                       ),
                     ),
-                  const Divider(
-                    indent: 100,
-                    endIndent: 100,
-                  ),
-                  if (sponsorList.isNotEmpty)
+                  
+                   if (sponsorList.isNotEmpty)
                     _ProfileInfoRow(sponsorList.first.social),
+                     const Divider(
+                    // indent: 100,
+                    // endIndent: 100,
+                  ),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(width: 20,),
+                       Text('My Posts',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),),
+                    ],
+                  )
                 ],
               ),
             ),
@@ -357,7 +365,7 @@ class _SponsorProfileState extends State<SponsorProfile> {
     await storageRef.putFile(_selectedImage!);
     final imageUrl = await storageRef.getDownloadURL();
     DatabaseReference dbRef =
-        FirebaseDatabase.instance.ref().child('sponsors').child(sponsorID!);
+        FirebaseDatabase.instance.ref().child('Sponsors').child(sponsorID!);
     dbRef.update({'Picture': imageUrl});
     _loadProfileFromFirebase();
     Navigator.pop(context);
