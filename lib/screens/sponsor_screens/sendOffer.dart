@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 class Event {
   final String EventId;
@@ -359,6 +360,19 @@ class sendOffer extends StatefulWidget {
   @override
   _sendOfferState createState() => _sendOfferState();
 }
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'high_importance_channel', // id
+    'High Importance Notifications', // title
+    importance: Importance.high,
+    playSound: true);
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('A bg message just showed up :  ${message.messageId}');
+}
 
 class _sendOfferState extends State<sendOffer> {
   Set<String> filters = <String>{};
@@ -366,20 +380,38 @@ class _sendOfferState extends State<sendOffer> {
   final DatabaseReference database = FirebaseDatabase.instance.ref();
   User? user = FirebaseAuth.instance.currentUser;
   
-  String? get sponseeId => null;
 @override
-  void initState() {
+  Future<void> initState() async {
     super.initState();
    // requestPermission();
-    FirebaseMessaging.onMessage.listen(_onMessageHandler);
-  }
-  Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // Handle the background message (optional)
-}
+     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
 
-Future<void> _onMessageHandler(RemoteMessage message) async {
-  // Handle the message when the app is in the foreground
-}
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      if (android != null) {
+        flutterLocalNotificationsPlugin.show(
+            notification.hashCode,
+            notification!.title,
+            notification.body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                  channel.id, channel.name,
+                  playSound: true,
+                  icon: '@mipmap/sponsitelogodark'),
+            ));
+      }
+    }); 
+  }
  /* void requestPermission() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     NotificationSettings settings = await messaging.requestPermission(
@@ -504,7 +536,7 @@ void _sendOffer() async {
           "notes": offer.notes,
           "TimeStamp": offer.TimeStamp,
         });
-await sendNotification(offer.sponseeId);
+//await sendNotification(offer.sponseeId);
         setState(() {
           filters.clear();
         });
@@ -572,7 +604,12 @@ await sendNotification(offer.sponseeId);
         "TimeStamp": offer.TimeStamp,
         
       });
-await sendNotification(offer.sponseeId);
+      pushNotificationsSpecificDevice(
+                            title: 'New Offer',
+                            body: 'You got a new offer for your event',
+                            token: _retrieveSponseeToken(offer.sponseeId) as String
+                          );
+//await sendNotification(offer.sponseeId);
       setState(() {
         filters.clear();
       });
@@ -612,7 +649,7 @@ await sendNotification(offer.sponseeId);
     }
   }
 }
-   Future<void> sendNotification(String id) async {
+   /*Future<void> sendNotification(String id) async {
     String? mtoken = await _retrieveSponseeToken(id);
     print('im here deema!!!!!!!!!!!!!');
   //final Uri url = Uri.parse('https://fcm.googleapis.com/fcm/send');
@@ -642,8 +679,29 @@ await sendNotification(offer.sponseeId);
   } else {
     print('Failed to send notification: ${response.reasonPhrase}');
   }*/
-}
+}*/
+Future<bool> pushNotificationsSpecificDevice({
+    required String token,
+    required String title,
+    required String body,
+  }) async {
+    String dataNotifications = '{ "to" : "$token",'
+        ' "notification" : {'
+        ' "title":"$title",'
+        '"body":"$body"'
+        ' }'
+        ' }';
 
+    await http.post(
+      Uri.parse('https://fcm.googleapis.com/fcm/send'),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': 'key= AAAAw5lT-Yg:APA91bE4EbR1XYHUoMl-qZYAFVsrtCtcznSsh7RSCSZ-yJKR2_bdX8f9bIaQgDrZlEaEaYQlEpsdN6B6ccEj5qStijSCDN_i0szRxhap-vD8fINcJAA-nK11z7WPzdZ53EhbYF5cp-ql',
+      },
+      body: dataNotifications,
+    );
+    return true;
+  }
 
 @override
 Widget build(BuildContext context) {
