@@ -59,9 +59,10 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
 
     database.child('offers').onValue.listen((offer) {
       if (offer.snapshot.value != null) {
+        print("hi Majd ! Firebase offers data: ${offer.snapshot.value}");
         NotificationService()
             .showNotification(title: 'You got a new message', body: 'It works!');
-        print(offer.snapshot.value);
+      
         Map<dynamic, dynamic> offerData =
             offer.snapshot.value as Map<dynamic, dynamic>;
 
@@ -72,7 +73,12 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                 .map((category) => category.toString())
                 .toList();
           }
+          print('cheeck'+ value['EventId']) ; 
+          print("hi again Widget EVENTid: ${widget.EVENTid}"); 
+
           if (value['EventId'] == widget.EVENTid) {
+        
+
             String timestampString = value['TimeStamp'] as String? ?? '';
 
             loadedOffers.add(Offer(
@@ -86,6 +92,8 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
               timeStamp: timestampString,
             ));
           }
+          else
+          print('all null :( )') ; 
         });
 
         database.child('Sponsors').onValue.listen((spons) {
@@ -112,25 +120,19 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     });
   }
 
-  String formatTimeAgo(int timestamp) {
-    final now = DateTime.now().millisecondsSinceEpoch;
-    final difference = now - timestamp;
+ 
+String formatTimeAgo(int timestamp) {
+  final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
 
-    if (difference < Duration.minutesPerHour) {
-      final minutes = difference ~/ Duration.millisecondsPerMinute;
-      return '$minutes min ago';
-    } else if (difference < Duration.hoursPerDay) {
-      final hours = difference ~/ Duration.millisecondsPerHour;
-      return '$hours hrs ago';
-    } else if (difference < 7) {
-      final days = difference ~/ Duration.millisecondsPerDay;
-      return '$days days ago';
-    } else {
-      final dateFormat = DateFormat('MMM d, y');
-      final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-      return dateFormat.format(date);
-    }
-  }
+  final day = DateFormat.d().format(date);
+  final month = DateFormat.MMM().format(date);
+  final year = DateFormat.y().format(date);
+  final hour = DateFormat.jm().format(date);
+
+  final formattedTime = 'Posted: $day - $month - $year at $hour';
+
+  return formattedTime;
+}
 
   @override
   Widget build(BuildContext context) {
@@ -224,7 +226,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
 
  Widget _buildOfferCard(Offer offer) {
   final timestamp = DateTime.parse(offer.timeStamp).millisecondsSinceEpoch;
-
+ print("Building offer card for ${offer.sponsorName}");
   return Card(
     margin: EdgeInsets.all(10),
     color: Colors.white,
