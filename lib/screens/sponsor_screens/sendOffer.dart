@@ -617,14 +617,15 @@ await sendNotification(offer.sponseeId);
     print('im here deema!!!!!!!!!!!!!');
   //final Uri url = Uri.parse('https://fcm.googleapis.com/fcm/send');
   var data = {
-    'message': {
-      'token': mtoken,
-      'notification':{
-        'title': 'New Offer!',
-        'body': 'You recieved a new offer for your event',
-        'priority' : 'high',
+    'notification': {
+      'title': 'New Offer!',
+      'body': 'You received a new offer for your event',
     },
-  }};
+    'data': {
+      // Add any additional data you want to send
+    },
+    'to': '/topics/$id',
+  };
   print('$mtoken');
 
   //var response = await http.post(Uri.parse(url));
