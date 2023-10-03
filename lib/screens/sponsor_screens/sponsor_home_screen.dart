@@ -41,6 +41,8 @@ class Event {
   final String? benefits;
   final String  NumberOfAttendees ; 
   final String timeStamp;
+    String sponseeImage ; 
+    String sponseeName ; 
 
   Event({
     required this.EventId,
@@ -58,6 +60,8 @@ class Event {
     this.benefits,
     required this.NumberOfAttendees, 
     required this.timeStamp, 
+     required this.sponseeImage ,
+    required this.sponseeName ,
   });
 }
 class CurveClipper extends CustomClipper<Path> {
@@ -113,33 +117,33 @@ void setUpPushNotifications() async {
     _loadEventsFromFirebase();
   }
 
-void _loadEventsFromFirebase() {
+void _loadEventsFromFirebase() async {
   final DatabaseReference database = FirebaseDatabase.instance.ref();
-  database.child('sponseeEvents').onValue.listen((event) {
-    if (event.snapshot.value != null) {
-      setState(() {
-        events.clear();
-        Map<dynamic, dynamic> eventData =
-            event.snapshot.value as Map<dynamic, dynamic>;
+  Map<String, String> sponseeNames = {};
+  Map<String, String> sponseeImages = {};
 
-        eventData.forEach((key, value) {
-          // Check if value['Category'] is a list
-          List<String> categoryList = [];
-          if (value['Category'] is List<dynamic>) {
-            categoryList = (value['Category'] as List<dynamic>)
-                .map((category) => category.toString())
-                .toList();
-          }
-          String timestampString = value['TimeStamp'] as String;
+   database.child('sponseeEvents').onValue.listen((event) {
+    if (event.snapshot.value != null) {
+        setState(() {
+        events.clear();
+      Map<dynamic, dynamic> eventData =
+          event.snapshot.value as Map<dynamic, dynamic>;
+
+     eventData.forEach((key, value) {
+        List<String> categoryList = [];
+        if (value['Category'] is List<dynamic>) {
+          categoryList = (value['Category'] as List<dynamic>)
+              .map((category) => category.toString())
+              .toList();
+        }
+        String timestampString = value['TimeStamp'] as String;
           String eventStartDatestring = value['startDate'];
           String eventEndtDatestring = value['endDate'];
           DateTime? eventStartDate = DateTime.tryParse(eventStartDatestring);
           DateTime? eventEndDate = DateTime.tryParse(eventEndtDatestring);
 
-          // Simulate the current time (for testing purposes)
           DateTime currentTime = DateTime.now();
 
-      
           if (eventStartDate!.isAfter(currentTime)) {
             events.add(Event(
               EventId: key,
@@ -156,17 +160,34 @@ void _loadEventsFromFirebase() {
               notes: value['Notes'] as String? ?? 'There are no notes available',
               benefits: value['Benefits'] as String?,
               NumberOfAttendees: value['NumberOfAttendees'] as String? ?? '',
-              timeStamp: timestampString, // Store the timestamp
+              timeStamp: timestampString, 
+              sponseeImage: '',
+              sponseeName: '', 
             ));
           }
-        });
-
-        // Sort events based on the timeStamp (descending order)
-        events.sort((a, b) => b.timeStamp.compareTo(a.timeStamp));
       });
-    }
-  });
-}
+          events.sort((a, b) => b.timeStamp.compareTo(a.timeStamp));
+        });
+        database.child('Sponsees').onValue.listen((sponsee) {
+          if (sponsee.snapshot.value != null) {
+            Map<dynamic, dynamic> sponsorData =
+                sponsee.snapshot.value as Map<dynamic, dynamic>;
+
+            sponsorData.forEach((key, value) {
+              sponseeNames[key] = value['Name'] as String? ?? '';
+              sponseeImages[key] = value['Picture'] as String? ?? '';
+            });
+
+            for (var event in events) {
+              event.sponseeName = sponseeNames[event.sponseeId] ?? '';
+              event.sponseeImage = sponseeImages[event.sponseeId] ?? '';
+            } 
+          }
+        });
+      }
+    });
+  }
+
 
 
 
@@ -401,7 +422,10 @@ List<Widget> promoCards = List.generate(5, (index) {
               notes:event.notes,
               benefits: event.benefits,
               NumberOfAttendees:event.NumberOfAttendees, 
-              timeStamp: event.timeStamp,),
+              timeStamp: event.timeStamp,
+              sponseeImage : event.sponseeImage,
+              sponseeName : event.sponseeName,
+              ),
       ),
     );
   },
@@ -415,7 +439,7 @@ List<Widget> promoCards = List.generate(5, (index) {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Container(
-        height: screenHeight * 0.15,
+        height: screenHeight * 0.14,
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(16),

@@ -26,6 +26,8 @@ class _SponseeHomeState extends State<SponseeHome> {
 void setUpPushNotifications() async {
 final fcm = FirebaseMessaging.instance ;
   await fcm.requestPermission();
+  fcm
+     .subscribeToTopic(user!.uid);
 }
  @override
   void initState() {

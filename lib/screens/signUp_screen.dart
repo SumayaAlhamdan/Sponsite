@@ -76,6 +76,8 @@ class _SignUpState extends State<SignUp> {
       await dbref.child(theType).child(userId).set({
         'Name': name,
         'Email': email,
+        //'Social Media':,
+        'Picture':'https://firebasestorage.googleapis.com/v0/b/sponsite-6a696.appspot.com/o/user_images%2FqScutQFNgJbHBKzbrq2Ot45ax9M2%2FqScutQFNgJbHBKzbrq2Ot45ax9M2.jpg?alt=media&token=f526e77f-20de-4042-8905-623547216a4a',
         'authentication document': fileName, // Remove the extra colon
       });
       await FirebaseAuth.instance.signOut();
@@ -419,7 +421,11 @@ class _SignUpState extends State<SignUp> {
                                           'authentication document: $fileName');
 
                                       uploadFile();
-
+                                      setState(() {
+                                        weakPass=false;
+                                        invalidEmail=false;
+                                        emailUsed=false;
+                                      });
                                       sendDatatoDB(name, email, password,
                                           fileName, context);
                                     },

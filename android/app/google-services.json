@@ -13,32 +13,15 @@
           "package_name": "com.example.sponsite"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "840091040136-q5n8mr3oqf810bgcto9tsvdh03170r7b.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCbA1V-xYec5iwaAEc4BCUmhvIiJrRioUM"
+          "current_key": "AIzaSyDQjIgvYP638edbq-rY4nb7hyxQ6vsMI9A"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "840091040136-q5n8mr3oqf810bgcto9tsvdh03170r7b.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "840091040136-be499kn53k0up1nvs05fcajdilknmtkm.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.demo.RunnerTests"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

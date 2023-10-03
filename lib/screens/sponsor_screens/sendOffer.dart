@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
+import 'package:sponsite/screens/prepNotfication.dart' ;
 class Event {
   final String EventId;
   final String sponseeId;
@@ -75,11 +77,13 @@ class RecentEventsDetails extends StatelessWidget {
   final String? benefits;
   final String  NumberOfAttendees ; 
   final String timeStamp;
+    final String  sponseeName ; 
+  final String  sponseeImage ; 
 
 
-  const RecentEventsDetails({super.key,required this.sponsorID, required this.EventId, required this.sponseeId, required this.EventName, required this.EventType, required this.location, required this.imgURL, required this.startDate, required this.endDate, required this.startTime, required this.endTime, required this.Category, required  this.notes, required this.benefits, required this.NumberOfAttendees, required this.timeStamp});
+  const RecentEventsDetails({super.key,required this.sponsorID, required this.EventId, required this.sponseeId, required this.EventName, required this.EventType, required this.location, required this.imgURL, required this.startDate, required this.endDate, required this.startTime, required this.endTime, required this.Category, required  this.notes, required this.benefits, required this.NumberOfAttendees, required this.timeStamp, required this.sponseeImage, required  this.sponseeName});
  
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
@@ -161,7 +165,6 @@ class RecentEventsDetails extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 20),
                           Text(
                             EventName,
                             style: const TextStyle(
@@ -170,15 +173,36 @@ class RecentEventsDetails extends StatelessWidget {
                               color: Colors.black87,
                             ),
                           ),
-                          const SizedBox(height: 10),
+                        
                           Text(
                             EventType,
                             style: const TextStyle(
-                              fontSize: 22,
-                              color: Colors.black87,
+                              fontSize: 20,
+                              color: Color.fromARGB(146, 0, 0, 0),
                             ),
                           ),
+                           const SizedBox(height: 10),
+                          Row(
+  children: [
+    CircleAvatar(
+      radius: 25,
+      backgroundImage: NetworkImage(sponseeImage),
+      backgroundColor: Colors.transparent,
+    ),
+    SizedBox(width: 10), // Add some space between the CircleAvatar and Text
+    Expanded(
+      child: Text(
+        sponseeName,
+        style: const TextStyle(
+          fontSize: 22,
+          color: Colors.black87,
+        ),
+      ),
+    ),
+  ],
+),
                           const Divider(height: 30, thickness: 2),
+
                           // Info Rows
                         
                           _buildInfoRow(Icons.calendar_today, "${startDate} - ${endDate}", "Date"),
@@ -359,27 +383,18 @@ class sendOffer extends StatefulWidget {
   @override
   _sendOfferState createState() => _sendOfferState();
 }
-
 class _sendOfferState extends State<sendOffer> {
   Set<String> filters = <String>{};
   TextEditingController notesController = TextEditingController();
   final DatabaseReference database = FirebaseDatabase.instance.ref();
   User? user = FirebaseAuth.instance.currentUser;
   
-  String? get sponseeId => null;
 @override
-  void initState() {
+  initState() {
     super.initState();
+    AppNotifications.setupNotification();
    // requestPermission();
-    FirebaseMessaging.onMessage.listen(_onMessageHandler);
   }
-  Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // Handle the background message (optional)
-}
-
-Future<void> _onMessageHandler(RemoteMessage message) async {
-  // Handle the message when the app is in the foreground
-}
  /* void requestPermission() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     NotificationSettings settings = await messaging.requestPermission(
@@ -504,9 +519,13 @@ void _sendOffer() async {
           "notes": offer.notes,
           "TimeStamp": offer.TimeStamp,
         });
-await sendNotification(offer.sponseeId);
+ final sponseeToken = await _retrieveSponseeToken(offer.sponseeId);
+  if (sponseeToken != null) {
+    sendNotificationToSponsee1(sponseeToken);
+  }
         setState(() {
           filters.clear();
+          bool offerSent = true ;
         });
   Navigator.of(context).pop();
         // Show a success message
@@ -572,7 +591,9 @@ await sendNotification(offer.sponseeId);
         "TimeStamp": offer.TimeStamp,
         
       });
-await sendNotification(offer.sponseeId);
+     sendNotificationToSponsee1(_retrieveSponseeToken(offer.sponseeId) as String);
+
+//await sendNotification(offer.sponseeId);
       setState(() {
         filters.clear();
       });
@@ -612,19 +633,20 @@ await sendNotification(offer.sponseeId);
     }
   }
 }
-   Future<void> sendNotification(String id) async {
+   /*Future<void> sendNotification(String id) async {
     String? mtoken = await _retrieveSponseeToken(id);
     print('im here deema!!!!!!!!!!!!!');
   //final Uri url = Uri.parse('https://fcm.googleapis.com/fcm/send');
   var data = {
-    'message': {
-      'token': mtoken,
-      'notification':{
-        'title': 'New Offer!',
-        'body': 'You recieved a new offer for your event',
-        'priority' : 'high',
+    'notification': {
+      'title': 'New Offer!',
+      'body': 'You received a new offer for your event',
     },
-  }};
+    'data': {
+      // Add any additional data you want to send
+    },
+    'to': '/topics/$id',
+  };
   print('$mtoken');
 
   //var response = await http.post(Uri.parse(url));
@@ -641,8 +663,7 @@ await sendNotification(offer.sponseeId);
   } else {
     print('Failed to send notification: ${response.reasonPhrase}');
   }*/
-}
-
+}*/
 
 @override
 Widget build(BuildContext context) {
@@ -771,6 +792,7 @@ Widget build(BuildContext context) {
                     child: ElevatedButton(
                       onPressed: () {
                         _sendOffer();
+                        sendNotificationToSponsee1(_retrieveSponseeToken(widget.sponseeId) as String);
                           },
                       style: ElevatedButton.styleFrom(
                          foregroundColor: Colors.white, backgroundColor: const Color.fromARGB(255, 91, 79, 158),
@@ -796,5 +818,46 @@ Widget build(BuildContext context) {
     ),
   );
 }
+Future<void> sendNotificationToSponsee1(String sponseeToken) async {
+  final String serverKey = 'AAAAw5lT-Yg:APA91bE4EbR1XYHUoMl-qZYAFVsrtCtcznSsh7RSCSZ-yJKR2_bdX8f9bIaQgDrZlEaEaYQlEpsdN6B6ccEj5qStijSCDN_i0szRxhap-vD8fINcJAA-nK11z7WPzdZ53EhbYF5cp-ql'; //
+  final String fcmUrl = 'https://fcm.googleapis.com/fcm/send';
 
+  final Map<String, dynamic> notification = {
+    'body': 'You have a new Offer from a sponsee.',
+    'title': 'New Offer',
+    'sound': 'default',
+  };
+
+  final Map<String, dynamic> data = {
+    'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+    // Add any additional data you want to send
+  };
+
+  final Map<String, dynamic> body = {
+    'notification': notification,
+    'data': data,
+    'to': sponseeToken, // The FCM token of the service provider
+  };
+
+  final headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'key=$serverKey',
+  };
+
+  try {
+    final response = await http.post(
+      Uri.parse(fcmUrl),
+      headers: headers,
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode == 200) {
+      print('Notification sent successfully.');
+    } else {
+      print('Error sending notification. Status code: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error sending notification: $e');
+  }
+}
 }
