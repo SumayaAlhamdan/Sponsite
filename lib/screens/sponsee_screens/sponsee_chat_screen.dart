@@ -18,7 +18,14 @@ class _SponseeChatState extends State<SponseeChat> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat'),
+        title: Text(
+          'Chat', // The text content of the widget
+          style: TextStyle(
+              color: Colors.deepPurple, // Text color (deep purple)
+              fontWeight: FontWeight.bold,
+              fontSize: 40 // Text fontWeight (bold)
+              ),
+        ),
       ),
       body: buildUserList(),
     );
