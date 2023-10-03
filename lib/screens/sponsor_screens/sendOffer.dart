@@ -76,11 +76,13 @@ class RecentEventsDetails extends StatelessWidget {
   final String? benefits;
   final String  NumberOfAttendees ; 
   final String timeStamp;
+    final String  sponseeName ; 
+  final String  sponseeImage ; 
 
 
-  const RecentEventsDetails({super.key,required this.sponsorID, required this.EventId, required this.sponseeId, required this.EventName, required this.EventType, required this.location, required this.imgURL, required this.startDate, required this.endDate, required this.startTime, required this.endTime, required this.Category, required  this.notes, required this.benefits, required this.NumberOfAttendees, required this.timeStamp});
+  const RecentEventsDetails({super.key,required this.sponsorID, required this.EventId, required this.sponseeId, required this.EventName, required this.EventType, required this.location, required this.imgURL, required this.startDate, required this.endDate, required this.startTime, required this.endTime, required this.Category, required  this.notes, required this.benefits, required this.NumberOfAttendees, required this.timeStamp, required this.sponseeImage, required  this.sponseeName});
  
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
@@ -162,7 +164,6 @@ class RecentEventsDetails extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 20),
                           Text(
                             EventName,
                             style: const TextStyle(
@@ -171,15 +172,36 @@ class RecentEventsDetails extends StatelessWidget {
                               color: Colors.black87,
                             ),
                           ),
-                          const SizedBox(height: 10),
+                        
                           Text(
                             EventType,
                             style: const TextStyle(
-                              fontSize: 22,
-                              color: Colors.black87,
+                              fontSize: 20,
+                              color: Color.fromARGB(146, 0, 0, 0),
                             ),
                           ),
+                           const SizedBox(height: 10),
+                          Row(
+  children: [
+    CircleAvatar(
+      radius: 25,
+      backgroundImage: NetworkImage(sponseeImage),
+      backgroundColor: Colors.transparent,
+    ),
+    SizedBox(width: 10), // Add some space between the CircleAvatar and Text
+    Expanded(
+      child: Text(
+        sponseeName,
+        style: const TextStyle(
+          fontSize: 22,
+          color: Colors.black87,
+        ),
+      ),
+    ),
+  ],
+),
                           const Divider(height: 30, thickness: 2),
+
                           // Info Rows
                         
                           _buildInfoRow(Icons.calendar_today, "${startDate} - ${endDate}", "Date"),
