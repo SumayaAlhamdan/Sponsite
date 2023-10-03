@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,35 @@ class ChatService extends ChangeNotifier {
   String get currentUserId {
     final User? currentUser = auth.currentUser;
     return currentUser?.uid ?? '';
+  }
+
+  Future<void> sendFile(String receiverID, PlatformFile file) async {
+    final User? currentUser = auth.currentUser;
+
+    if (currentUser != null) {
+      final String currentUserId = currentUser.uid;
+
+      List<String> ids = [receiverID, currentUserId];
+      ids.sort();
+      String chatRoomID = ids.join('_');
+
+      // You can customize this logic to store the file in Firebase Storage or send it through another method.
+      // For simplicity, we'll just store the file path in the database.
+      final Map<String, dynamic> fileData = {
+        'senderID': currentUserId,
+        'receiverID': receiverID,
+        'fileName': file.name,
+        'filePath': file.path,
+        'timestamp': ServerValue.timestamp,
+      };
+
+      await _database
+          .child('chatrooms')
+          .child(chatRoomID)
+          .child('files')
+          .push()
+          .set(fileData);
+    }
   }
 
   Future<void> sendMsg(String receiverID, String msg) async {
