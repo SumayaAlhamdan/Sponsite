@@ -49,52 +49,48 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     _loadOffersFromFirebase();
   }
 
-  void _loadOffersFromFirebase() async {
-    final DatabaseReference database = FirebaseDatabase.instance.ref();
-    offers.clear();
+void _loadOffersFromFirebase() async {
+  final DatabaseReference database = FirebaseDatabase.instance.ref();
+  offers.clear();
 
-    List<Offer> loadedOffers = [];
-    Map<String, String> sponsorNames = {};
-    Map<String, String> sponsorImages = {};
+  List<Offer> loadedOffers = [];
+  Map<String, String> sponsorNames = {};
+  Map<String, String> sponsorImages = {};
 
-    database.child('offers').onValue.listen((offer) {
-      if (offer.snapshot.value != null) {
-        print("hi Majd ! Firebase offers data: ${offer.snapshot.value}");
-        NotificationService()
-            .showNotification(title: 'You got a new message', body: 'It works!');
-      
-        Map<dynamic, dynamic> offerData =
-            offer.snapshot.value as Map<dynamic, dynamic>;
+  database.child('offers').onValue.listen((offer) {
+    if (offer.snapshot.value != null) {
+      print("Firebase offers data: ${offer.snapshot.value}");
+      NotificationService()
+          .showNotification(title: 'You got a new message', body: 'It works!');
 
-        offerData.forEach((key, value) {
-          List<String> categoryList = [];
-          if (value['Category'] is List<dynamic>) {
-            categoryList = (value['Category'] as List<dynamic>)
-                .map((category) => category.toString())
-                .toList();
-          }
-          print('cheeck'+ value['EventId']) ; 
-          print("hi again Widget EVENTid: ${widget.EVENTid}"); 
+      Map<dynamic, dynamic> offerData =
+          offer.snapshot.value as Map<dynamic, dynamic>;
 
-          if (value['EventId'] == widget.EVENTid) {
-        
+      offerData.forEach((key, value) {
+        List<String> categoryList = [];
+        if (value['Category'] is List<dynamic>) {
+          categoryList = (value['Category'] as List<dynamic>)
+              .map((category) => category.toString())
+              .toList();
+        }
+        print('Check EventId: ${value['EventId']}');
+        print("Widget EVENTid: ${widget.EVENTid}");
 
-            String timestampString = value['TimeStamp'] as String? ?? '';
+        if (value['EventId'] == widget.EVENTid) {
+          String timestampString = value['TimeStamp'] as String? ?? '';
 
-            loadedOffers.add(Offer(
-              eventId: key,
-              sponseeId: value['sponseeId'] as String? ?? '',
-              categories: categoryList,
-              notes: value['notes'] as String? ?? 'There are no notes available',
-              sponsorId: value['sponsorId'] as String? ?? '',
-              sponsorName: 'krkr',
-              sponsorImage: '',
-              timeStamp: timestampString,
-            ));
-          }
-          else
-          print('all null :( )') ; 
-        });
+          loadedOffers.add(Offer(
+            eventId: key,
+            sponseeId: value['sponseeId'] as String? ?? '',
+            categories: categoryList,
+            notes: value['notes'] as String? ?? 'There are no notes available',
+            sponsorId: value['sponsorId'] as String? ?? '',
+            sponsorName: 'krkr',
+            sponsorImage: '',
+            timeStamp: timestampString,
+          ));
+        } 
+      });
 
         database.child('Sponsors').onValue.listen((spons) {
           if (spons.snapshot.value != null) {
@@ -120,7 +116,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     });
   }
 
- 
+
 String formatTimeAgo(int timestamp) {
   final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
 
@@ -141,7 +137,7 @@ String formatTimeAgo(int timestamp) {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            '${widget.EventName} Event Offers',
+            '${widget.EventName}Event Offers',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
           ),
           backgroundColor: Color.fromARGB(255, 51, 45, 81),
@@ -208,156 +204,219 @@ String formatTimeAgo(int timestamp) {
   }
 
   Widget _buildSponsorsPage() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          for (Offer offer in acceptedOffers)
-            _buildOfferCard(offer),
-          Center(
-            child: Text(
-              'Sponsors Page',
-              style: TextStyle(fontSize: 24),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
- Widget _buildOfferCard(Offer offer) {
-  final timestamp = DateTime.parse(offer.timeStamp).millisecondsSinceEpoch;
- print("Building offer card for ${offer.sponsorName}");
-  return Card(
-    margin: EdgeInsets.all(10),
-    color: Colors.white,
-    child: ExpansionTile(
-      initiallyExpanded: false,
-      title: Row(
-        children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              image: DecorationImage(
-                image: NetworkImage(offer.sponsorImage),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          SizedBox(width: 10),
-          Text(
-            'Sponsor: ${offer.sponsorName}',
-            style: TextStyle(
-              fontSize: 25,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
+  return SingleChildScrollView(
+    child: Column(
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Categories",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 4,
-              children: offer.categories.map((category) {
-                return Chip(
-                  label: Text(category),
-                  backgroundColor: Color.fromARGB(255, 91, 79, 158),
-                  shadowColor: Colors.white,
-                  elevation: 3,
-                  labelStyle: TextStyle(
-                    color: Colors.white,
-                  ),
-                );
-              }).toList(),
-            ),
-            Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Notes:',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      offer.notes,
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-                Spacer(), // Add space to push buttons to the right
-                if (showActions) // Only show actions if showActions is true
-                  Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          _showConfirmationDialog("Accept", offer);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.green,
-                          minimumSize: Size(120, 50), // Adjust button size
-                          padding: EdgeInsets.symmetric(horizontal: 10), // Adjust padding
-                        ),
-                        child: Text(
-                          'Accept',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                      ),
-                      SizedBox(width: 5), // Add space of width 5
-                      ElevatedButton(
-                        onPressed: () {
-                          _showConfirmationDialog("Reject", offer);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.red,
-                          minimumSize: Size(120, 50), // Adjust button size
-                          padding: EdgeInsets.symmetric(horizontal: 10), // Adjust padding
-                        ),
-                        child: Text(
-                          'Reject',
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                      ),
-                    ],
-                  ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Posted: ${formatTimeAgo(timestamp)}',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
-            ),
-          ],
+        for (Offer offer in acceptedOffers)
+          _buildOfferCard(offer),
+        Center(
+          child: Text(
+            'Sponsors Page',
+            style: TextStyle(fontSize: 24),
+          ),
         ),
       ],
     ),
   );
 }
 
+Widget _buildOfferCard(Offer offer) {
+  final timestamp = DateTime.parse(offer.timeStamp).millisecondsSinceEpoch;
 
+  return Container(
+    //height: 600, // Adjust the height as needed
+    child: Card(
+      margin: EdgeInsets.all(10),
+      elevation: 5,
+      color: Color.fromARGB(255, 255, 255, 255),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+        child: ExpansionTile(
+      tilePadding: EdgeInsets.all(0),
+      expandedAlignment: Alignment.topLeft,
+      childrenPadding: EdgeInsets.all(22),
+      trailing: SizedBox.shrink(),
+        title: Stack(
+          children: [
+            Align(
+              alignment: Alignment.topCenter,
+              child: 
+             Container(
+  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 7), // Adjust vertical padding
+  decoration: BoxDecoration(
+    color: Color.fromARGB(255, 51, 45, 81).withOpacity(0.7),
+    borderRadius: BorderRadius.only(
+      topLeft: Radius.circular(20),    // Adjust these values as needed
+      topRight: Radius.circular(20),   // Adjust these values as needed
+      bottomLeft: Radius.circular(0),  // No radius at the bottom left
+      bottomRight: Radius.circular(0), // No radius at the bottom right
+    ),
+  ),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(
+        'Posted: ${formatTimeAgo(timestamp)}',
+        style: TextStyle(
+          fontSize: 14,
+          color: Colors.grey,
+        ),
+      ),
+    ],
+  ),
+),
+
+            ),
+           Row(
+  children: [
+    Container(
+      margin: EdgeInsets.only(top: 35), // Move the image 30 units lower
+      width: 120,
+      height: 120,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        image: DecorationImage(
+          image: NetworkImage(offer.sponsorImage),
+          fit: BoxFit.cover,
+        ),
+      ),
+    ),
+    SizedBox(width: 12), // Add some space between the image and text
+    Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Sponsor',
+          style: TextStyle(
+            fontSize: 25,
+          ),
+        ),
+        Text(
+          offer.sponsorName,
+          style: TextStyle(
+            fontSize: 20,
+          fontWeight: FontWeight.bold,
+
+          ),
+        ),
+      ],
+    ),
+  ],
+),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 36,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+          ],
+        ),
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 8),
+              Text(
+                "Categories",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 4,
+                children: offer.categories.map((category) {
+                  return Chip(
+                    label: Text(category),
+                    backgroundColor: Color.fromARGB(255, 91, 79, 158),
+                    shadowColor: Colors.white,
+                    elevation: 3,
+                    labelStyle: TextStyle(
+                      color: Colors.white,
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Notes:',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                offer.notes,
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  // Add your action buttons here if needed
+                  if (showActions)
+                    Row(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            _showConfirmationDialog("Accept", offer);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.green,
+                            minimumSize: Size(120, 50),
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                          ),
+                          child: Text(
+                            'Accept',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 5),
+                        ElevatedButton(
+                          onPressed: () {
+                            _showConfirmationDialog("Reject", offer);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.red,
+                            minimumSize: Size(120, 50),
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                          ),
+                          child: Text(
+                            'Reject',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
 
   void _showConfirmationDialog(String action, Offer offer) {
