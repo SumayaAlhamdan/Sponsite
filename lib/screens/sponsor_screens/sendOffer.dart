@@ -519,7 +519,10 @@ void _sendOffer() async {
           "notes": offer.notes,
           "TimeStamp": offer.TimeStamp,
         });
-sendNotificationToSponsee1(_retrieveSponseeToken(offer.sponseeId) as String);
+ final sponseeToken = await _retrieveSponseeToken(offer.sponseeId);
+  if (sponseeToken != null) {
+    sendNotificationToSponsee1(sponseeToken);
+  }
         setState(() {
           filters.clear();
           bool offerSent = true ;
