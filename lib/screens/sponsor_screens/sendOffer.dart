@@ -207,7 +207,9 @@ class RecentEventsDetails extends StatelessWidget {
                         
                           _buildInfoRow(Icons.calendar_today, "${startDate} - ${endDate}", "Date"),
                           _buildInfoRow(Icons.access_time, "${startTime}-${endTime}", "Time"),
+                          _buildInfoRow(Icons.location_on, NumberOfAttendees, "Location"),
                           _buildInfoRow(Icons.person, NumberOfAttendees, "Attendees"),
+                          
                           const SizedBox(height: 20),
                   
                           const Text(
