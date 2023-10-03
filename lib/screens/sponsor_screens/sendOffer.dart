@@ -7,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
+import 'package:sponsite/screens/prepNotfication.dart' ;
 class Event {
   final String EventId;
   final String sponseeId;
@@ -382,20 +383,6 @@ class sendOffer extends StatefulWidget {
   @override
   _sendOfferState createState() => _sendOfferState();
 }
-const AndroidNotificationChannel channel = AndroidNotificationChannel(
-    'high_importance_channel', // id
-    'High Importance Notifications', // title
-    importance: Importance.high,
-    playSound: true);
-
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  print('A bg message just showed up :  ${message.messageId}');
-}
-
 class _sendOfferState extends State<sendOffer> {
   Set<String> filters = <String>{};
   TextEditingController notesController = TextEditingController();
@@ -403,36 +390,10 @@ class _sendOfferState extends State<sendOffer> {
   User? user = FirebaseAuth.instance.currentUser;
   
 @override
-  Future<void> initState() async {
+  initState() {
     super.initState();
+    AppNotifications.setupNotification();
    // requestPermission();
-     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channel);
-
-  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
-      if (android != null) {
-        flutterLocalNotificationsPlugin.show(
-            notification.hashCode,
-            notification!.title,
-            notification.body,
-            NotificationDetails(
-              android: AndroidNotificationDetails(
-                  channel.id, channel.name,
-                  playSound: true,
-                  icon: '@mipmap/sponsitelogodark'),
-            ));
-      }
-    }); 
   }
  /* void requestPermission() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -558,9 +519,10 @@ void _sendOffer() async {
           "notes": offer.notes,
           "TimeStamp": offer.TimeStamp,
         });
-//await sendNotification(offer.sponseeId);
+sendNotificationToSponsee1(_retrieveSponseeToken(offer.sponseeId) as String);
         setState(() {
           filters.clear();
+          bool offerSent = true ;
         });
   Navigator.of(context).pop();
         // Show a success message
@@ -626,11 +588,8 @@ void _sendOffer() async {
         "TimeStamp": offer.TimeStamp,
         
       });
-      pushNotificationsSpecificDevice(
-                            title: 'New Offer',
-                            body: 'You got a new offer for your event',
-                            token: _retrieveSponseeToken(offer.sponseeId) as String
-                          );
+     sendNotificationToSponsee1(_retrieveSponseeToken(offer.sponseeId) as String);
+
 //await sendNotification(offer.sponseeId);
       setState(() {
         filters.clear();
@@ -702,28 +661,6 @@ void _sendOffer() async {
     print('Failed to send notification: ${response.reasonPhrase}');
   }*/
 }*/
-Future<bool> pushNotificationsSpecificDevice({
-    required String token,
-    required String title,
-    required String body,
-  }) async {
-    String dataNotifications = '{ "to" : "$token",'
-        ' "notification" : {'
-        ' "title":"$title",'
-        '"body":"$body"'
-        ' }'
-        ' }';
-
-    await http.post(
-      Uri.parse('https://fcm.googleapis.com/fcm/send'),
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-        'Authorization': 'key= AAAAw5lT-Yg:APA91bE4EbR1XYHUoMl-qZYAFVsrtCtcznSsh7RSCSZ-yJKR2_bdX8f9bIaQgDrZlEaEaYQlEpsdN6B6ccEj5qStijSCDN_i0szRxhap-vD8fINcJAA-nK11z7WPzdZ53EhbYF5cp-ql',
-      },
-      body: dataNotifications,
-    );
-    return true;
-  }
 
 @override
 Widget build(BuildContext context) {
@@ -852,6 +789,7 @@ Widget build(BuildContext context) {
                     child: ElevatedButton(
                       onPressed: () {
                         _sendOffer();
+                        sendNotificationToSponsee1(_retrieveSponseeToken(widget.sponseeId) as String);
                           },
                       style: ElevatedButton.styleFrom(
                          foregroundColor: Colors.white, backgroundColor: const Color.fromARGB(255, 91, 79, 158),
@@ -877,5 +815,46 @@ Widget build(BuildContext context) {
     ),
   );
 }
+Future<void> sendNotificationToSponsee1(String sponseeToken) async {
+  final String serverKey = 'AAAAw5lT-Yg:APA91bE4EbR1XYHUoMl-qZYAFVsrtCtcznSsh7RSCSZ-yJKR2_bdX8f9bIaQgDrZlEaEaYQlEpsdN6B6ccEj5qStijSCDN_i0szRxhap-vD8fINcJAA-nK11z7WPzdZ53EhbYF5cp-ql'; //
+  final String fcmUrl = 'https://fcm.googleapis.com/fcm/send';
 
+  final Map<String, dynamic> notification = {
+    'body': 'You have a new Offer from a sponsee.',
+    'title': 'New Offer',
+    'sound': 'default',
+  };
+
+  final Map<String, dynamic> data = {
+    'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+    // Add any additional data you want to send
+  };
+
+  final Map<String, dynamic> body = {
+    'notification': notification,
+    'data': data,
+    'to': sponseeToken, // The FCM token of the service provider
+  };
+
+  final headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'key=$serverKey',
+  };
+
+  try {
+    final response = await http.post(
+      Uri.parse(fcmUrl),
+      headers: headers,
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode == 200) {
+      print('Notification sent successfully.');
+    } else {
+      print('Error sending notification. Status code: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error sending notification: $e');
+  }
+}
 }
