@@ -8,6 +8,10 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'package:sponsite/local_notifications.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_webservice/places.dart';
+import 'package:geocoding/geocoding.dart';
+
 class Event {
   final String EventId;
   final String sponseeId;
@@ -22,7 +26,7 @@ class Event {
   final List<String> Category;
   final String notes;
   final String? benefits;
-  final String  NumberOfAttendees ; 
+  final String NumberOfAttendees;
   final String timeStamp;
 
   Event({
@@ -37,12 +41,13 @@ class Event {
     required this.startTime,
     required this.endTime,
     required this.Category,
-     required  this.notes,
+    required this.notes,
     this.benefits,
-    required this.NumberOfAttendees, 
-    required this.timeStamp, 
+    required this.NumberOfAttendees,
+    required this.timeStamp,
   });
 }
+
 class Offer {
   final String EventId;
   final String sponseeId;
@@ -57,9 +62,10 @@ class Offer {
     required this.sponsorId,
     required this.Category,
     required this.notes,
-    required this.TimeStamp, 
+    required this.TimeStamp,
   });
 }
+
 class RecentEventsDetails extends StatelessWidget {
   final String? sponsorID;
   final String EventId;
@@ -75,16 +81,108 @@ class RecentEventsDetails extends StatelessWidget {
   final List<String> Category;
   final String notes;
   final String? benefits;
-  final String  NumberOfAttendees ; 
+  final String NumberOfAttendees;
   final String timeStamp;
-    final String  sponseeName ; 
-  final String  sponseeImage ; 
+  final String sponseeName;
+  final String sponseeImage;
 
+  const RecentEventsDetails(
+      {super.key,
+      required this.sponsorID,
+      required this.EventId,
+      required this.sponseeId,
+      required this.EventName,
+      required this.EventType,
+      required this.location,
+      required this.imgURL,
+      required this.startDate,
+      required this.endDate,
+      required this.startTime,
+      required this.endTime,
+      required this.Category,
+      required this.notes,
+      required this.benefits,
+      required this.NumberOfAttendees,
+      required this.timeStamp,
+      required this.sponseeImage,
+      required this.sponseeName});
 
-  const RecentEventsDetails({super.key,required this.sponsorID, required this.EventId, required this.sponseeId, required this.EventName, required this.EventType, required this.location, required this.imgURL, required this.startDate, required this.endDate, required this.startTime, required this.endTime, required this.Category, required  this.notes, required this.benefits, required this.NumberOfAttendees, required this.timeStamp, required this.sponseeImage, required  this.sponseeName});
- 
- @override
+  @override
   Widget build(BuildContext context) {
+    GoogleMapController? mapController;
+    List<String> parts = location.split(',');
+    double latitude = double.parse(parts[0]);
+    double longitude = double.parse(parts[1]);
+    LatLng loc = LatLng(latitude, longitude);
+
+    Widget buildMap() {
+      print("here!!");
+      return Stack(
+        children: [
+          Container(
+            height: 500,
+            child: GoogleMap(
+              onMapCreated: (controller) {
+                // setState(() {
+                mapController = controller;
+                // });
+              },
+              initialCameraPosition: CameraPosition(
+                target: loc, // Initial map location
+                zoom: 15.0,
+                // Initial zoom level
+              ),
+              markers: {
+                Marker(
+                  markerId: MarkerId(
+                      "EventLoc"), // A unique identifier for the marker
+                  position:
+                      loc, // Coordinates where the marker should be placed
+                  infoWindow: InfoWindow(
+                      title: "Event Location"), // Optional info window
+                ),
+              },
+            ),
+          ),
+        ],
+      );
+    }
+
+    Future<String> getAddressFromCoordinates(
+        double latitude, double longitude) async {
+      try {
+        List<Placemark> placemarks =
+            await placemarkFromCoordinates(latitude, longitude);
+
+        if (placemarks.isNotEmpty) {
+          Placemark placemark = placemarks[0];
+          String address =
+              '${placemark.street}, ${placemark.locality}, ${placemark.administrativeArea}, ${placemark.country}';
+          ; // You can access various fields like street, city, country, etc.
+          return address;
+        } else {
+          return "Address not found";
+        }
+      } catch (e) {
+        print("Error retrieving address: $e");
+        return "Error retrieving address";
+      }
+    }
+
+    String address = "Event address description not available";
+
+    Future<void> someFunction() async {
+      // Assuming this is where you are calling _buildInfoRow
+      address = await getAddressFromCoordinates(latitude, longitude);
+      print("!!!!!" + address + "!!!!!!");
+    }
+
+    String getAddress() {
+      someFunction();
+      print("!!!!!" + address + "!!!!!!");
+      return address;
+    }
+
     return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,37 +205,37 @@ class RecentEventsDetails extends StatelessWidget {
                 ),
               ),
               Container(
-  decoration: const BoxDecoration(
-    color: Color.fromARGB(255, 51, 45, 81),
-    borderRadius: BorderRadius.only(
-      bottomLeft: Radius.circular(20),
-      bottomRight: Radius.circular(20),
-    ),
-  ),
-  height: 75,
-  padding: const EdgeInsets.fromLTRB(16, 0, 0, 0), // Adjust the padding as needed
-  child: Row(
-    children: [
-      IconButton(
-        icon: const Icon(Icons.arrow_back),
-        color: Colors.white,
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-      ),
-      const Text(
-        "Event Details",
-        style: TextStyle(
-          fontWeight: FontWeight.w500,
-          fontSize: 24,
-          color: Colors.white,
-        ),
-      ),
-      const SizedBox(width: 40), // Adjust the spacing as needed
-    ],
-  ),
-)
-
+                decoration: const BoxDecoration(
+                  color: Color.fromARGB(255, 51, 45, 81),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  ),
+                ),
+                height: 75,
+                padding: const EdgeInsets.fromLTRB(
+                    16, 0, 0, 0), // Adjust the padding as needed
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      color: Colors.white,
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    const Text(
+                      "Event Details",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 24,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 40), // Adjust the spacing as needed
+                  ],
+                ),
+              )
             ],
           ),
           Expanded(
@@ -173,7 +271,7 @@ class RecentEventsDetails extends StatelessWidget {
                               color: Colors.black87,
                             ),
                           ),
-                        
+
                           Text(
                             EventType,
                             style: const TextStyle(
@@ -181,37 +279,117 @@ class RecentEventsDetails extends StatelessWidget {
                               color: Color.fromARGB(146, 0, 0, 0),
                             ),
                           ),
-                           const SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Row(
-  children: [
-    CircleAvatar(
-      radius: 25,
-      backgroundImage: NetworkImage(sponseeImage),
-      backgroundColor: Colors.transparent,
-    ),
-    SizedBox(width: 10), // Add some space between the CircleAvatar and Text
-    Expanded(
-      child: Text(
-        sponseeName,
-        style: const TextStyle(
-          fontSize: 22,
-          color: Colors.black87,
-        ),
-      ),
-    ),
-  ],
-),
+                            children: [
+                              CircleAvatar(
+                                radius: 25,
+                                backgroundImage: NetworkImage(sponseeImage),
+                                backgroundColor: Colors.transparent,
+                              ),
+                              SizedBox(
+                                  width:
+                                      10), // Add some space between the CircleAvatar and Text
+                              Expanded(
+                                child: Text(
+                                  sponseeName,
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                           const Divider(height: 30, thickness: 2),
 
                           // Info Rows
-                        
-                          _buildInfoRow(Icons.calendar_today, "${startDate} - ${endDate}", "Date"),
-                          _buildInfoRow(Icons.access_time, "${startTime}-${endTime}", "Time"),
-                          _buildInfoRow(Icons.location_on, location, "Location"),
-                          _buildInfoRow(Icons.person, NumberOfAttendees, "Attendees"),
-                          
+
+                          _buildInfoRow(Icons.calendar_today,
+                              "${startDate} - ${endDate}", "Date"),
+                          _buildInfoRow(Icons.access_time,
+                              "${startTime}-${endTime}", "Time"),
+                          // _buildInfoRow(
+                          //     Icons.location_on, getAddress(), "Location"),
+
+                          // FutureBuilder<String>(
+                          //   future:
+                          //       getAddressFromCoordinates(latitude, longitude),
+                          //   builder: (context, snapshot) {
+                          //     if (snapshot.connectionState ==
+                          //         ConnectionState.waiting) {
+                          //       return CircularProgressIndicator(); // Show a loading indicator while waiting for the result.
+                          //     } else if (snapshot.hasError) {
+                          //       return Text("Error: ${snapshot.error}");
+                          //     } else if (!snapshot.hasData) {
+                          //       return Text("Address not found");
+                          //     } else {
+                          //       return _buildInfoRow(
+                          //         Icons.location_on,
+                          //         snapshot.data ?? "",
+                          //         "Location",
+                          //       );
+                          //     }
+                          //   },
+                          // ),
+                          // Text(
+                          //   "Location",
+                          //   style: const TextStyle(
+                          //     fontSize: 16,
+                          //     color: Colors.black54,
+                          //   ),
+                          // ),
+                          FutureBuilder<String>(
+                            future:
+                                getAddressFromCoordinates(latitude, longitude),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                return Text("Error: ${snapshot.error}");
+                              } else if (!snapshot.hasData) {
+                                return Text("Address not found");
+                              } else {
+                                return Row(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Icon(
+                                        Icons
+                                            .location_on, // Replace with the desired icon
+                                        color: const Color.fromARGB(255, 91, 79,
+                                            158), // Customize the icon color
+                                        size: 40.0, // Customize the icon size
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Container(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Text(
+                                          snapshot.data ?? "",
+                                          style: TextStyle(
+                                            fontSize: 22.0,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }
+                            },
+                          ),
+
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.6,
+                            child: buildMap(),
+                          ),
+
+                          _buildInfoRow(
+                              Icons.person, NumberOfAttendees, "Attendees"),
+
                           const SizedBox(height: 20),
-                  
+
                           const Text(
                             "Categories",
                             style: TextStyle(
@@ -226,8 +404,10 @@ class RecentEventsDetails extends StatelessWidget {
                             children: Category.map((category) {
                               return Chip(
                                 label: Text(category),
-                                backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-                                shadowColor: const Color.fromARGB(255, 91, 79, 158),
+                                backgroundColor:
+                                    const Color.fromARGB(255, 255, 255, 255),
+                                shadowColor:
+                                    const Color.fromARGB(255, 91, 79, 158),
                                 elevation: 3,
                                 labelStyle: const TextStyle(
                                   color: Color.fromARGB(255, 91, 79, 158),
@@ -236,7 +416,7 @@ class RecentEventsDetails extends StatelessWidget {
                             }).toList(),
                           ),
                           const SizedBox(height: 20),
-                  
+
                           const Text(
                             "Benefits",
                             style: TextStyle(
@@ -254,7 +434,7 @@ class RecentEventsDetails extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 20),
-                  
+
                           const Text(
                             "Notes",
                             style: TextStyle(
@@ -274,7 +454,7 @@ class RecentEventsDetails extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 20),
-                  
+
                           Center(
                             child: SizedBox(
                               height: 55, //height of button
@@ -288,16 +468,16 @@ class RecentEventsDetails extends StatelessWidget {
                                         EventId: EventId,
                                         sponsorId: sponsorID,
                                         sponseeId: sponseeId,
-                                        Category: Category, 
+                                        Category: Category,
                                         TimeStamp: timeStamp,
-                                        );
+                                      );
                                     },
                                   );
-                                    },
-                        
+                                },
                                 style: ElevatedButton.styleFrom(
-                                 backgroundColor: const Color.fromARGB(255, 91, 79, 158),
-                                //  primary: Color(0xFF6A62B6),
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 91, 79, 158),
+                                  //  primary: Color(0xFF6A62B6),
                                   elevation: 10,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30),
@@ -333,31 +513,31 @@ class RecentEventsDetails extends StatelessWidget {
       child: Row(
         children: [
           if (text != null && text.isNotEmpty)
-          Icon(
-            icon,
-            size: 40,
-            color: const Color.fromARGB(255, 91, 79, 158),
-          ),
+            Icon(
+              icon,
+              size: 40,
+              color: const Color.fromARGB(255, 91, 79, 158),
+            ),
           const SizedBox(width: 10), // Adjust the spacing as needed
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (text != null && text.isNotEmpty)
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black54,
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.black54,
+                  ),
                 ),
-              ),
-              if (text != null && text.isNotEmpty) 
-              Text(
-                text,
-                style: const TextStyle(
-                  fontSize: 22,
-                  color: Colors.black87,
+              if (text != null && text.isNotEmpty)
+                Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    color: Colors.black87,
+                  ),
                 ),
-              ),
             ],
           ),
         ],
@@ -373,31 +553,33 @@ class sendOffer extends StatefulWidget {
   final List<String> Category;
   final String TimeStamp;
 
-
-  const sendOffer({super.key, 
+  const sendOffer({
+    super.key,
     required this.EventId,
     required this.sponseeId,
     required this.sponsorId,
     required this.Category,
-     required this.TimeStamp, 
+    required this.TimeStamp,
   });
 
   @override
   _sendOfferState createState() => _sendOfferState();
 }
+
 class _sendOfferState extends State<sendOffer> {
   Set<String> filters = <String>{};
   TextEditingController notesController = TextEditingController();
   final DatabaseReference database = FirebaseDatabase.instance.ref();
   User? user = FirebaseAuth.instance.currentUser;
-  
-@override
+
+  @override
   initState() {
     super.initState();
-   // AppNotifications.setupNotification();
-   // requestPermission();
+    // AppNotifications.setupNotification();
+    // requestPermission();
   }
- /* void requestPermission() async {
+
+  /* void requestPermission() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     NotificationSettings settings = await messaging.requestPermission(
     alert: true,
@@ -425,80 +607,166 @@ class _sendOfferState extends State<sendOffer> {
       context: context,
       builder: (BuildContext context) {
         return Theme(
-            data: Theme.of(context).copyWith(dialogBackgroundColor: Colors.white),
-            child:
-      AlertDialog(
-          title: const Text('Empty Offer'),
-          // backgroundColor: Colors.white,
-          content: const Text(
-              'Please select at least one category before sending the offer',style: TextStyle(fontSize: 20),),
-          actions: [
-             TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child:const  Text('OK',style: TextStyle(color:Color.fromARGB(255,51,45,81), fontSize: 20),),
-            ),
-          ],
-        ));
+            data:
+                Theme.of(context).copyWith(dialogBackgroundColor: Colors.white),
+            child: AlertDialog(
+              title: const Text('Empty Offer'),
+              // backgroundColor: Colors.white,
+              content: const Text(
+                'Please select at least one category before sending the offer',
+                style: TextStyle(fontSize: 20),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(
+                        color: Color.fromARGB(255, 51, 45, 81), fontSize: 20),
+                  ),
+                ),
+              ],
+            ));
       },
     );
   }
+
   Future<String?> _retrieveSponseeToken(String id) async {
-  final DatabaseReference databaseReference = FirebaseDatabase.instance.reference();
-  final DataSnapshot dataSnapshot = (await databaseReference.child('userTokens').child(id).once()).snapshot;
-   final Map<dynamic, dynamic>? data = dataSnapshot.value as Map<dynamic, dynamic>?;
-  if (data != null && data.containsKey('token')) {
-    return data['token'].toString();
+    final DatabaseReference databaseReference =
+        FirebaseDatabase.instance.reference();
+    final DataSnapshot dataSnapshot =
+        (await databaseReference.child('userTokens').child(id).once()).snapshot;
+    final Map<dynamic, dynamic>? data =
+        dataSnapshot.value as Map<dynamic, dynamic>?;
+    if (data != null && data.containsKey('token')) {
+      return data['token'].toString();
+    }
+
+    return null;
   }
-  
-  return null;
-}
 
-void _sendOffer() async {
-  DatabaseReference offersRef = database.child('offers');
-  DatabaseEvent dataSnapshot = await offersRef.once();
+  void _sendOffer() async {
+    DatabaseReference offersRef = database.child('offers');
+    DatabaseEvent dataSnapshot = await offersRef.once();
 
-  if (dataSnapshot.snapshot.value != null) {
-    Map<dynamic, dynamic> offersData = dataSnapshot.snapshot.value as Map<dynamic, dynamic>;
-    bool offerExists = offersData.values.any((offer) {
-      return offer["EventId"] == widget.EventId &&
-             offer["sponsorId"] == widget.sponsorId;
-    });
+    if (dataSnapshot.snapshot.value != null) {
+      Map<dynamic, dynamic> offersData =
+          dataSnapshot.snapshot.value as Map<dynamic, dynamic>;
+      bool offerExists = offersData.values.any((offer) {
+        return offer["EventId"] == widget.EventId &&
+            offer["sponsorId"] == widget.sponsorId;
+      });
 
-    if (offerExists) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Offer Already Sent'),
-            content: const Text(
-              'You have already sent an offer for this event.',
-              style: TextStyle(fontSize: 20),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () async {
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-                child: const Text(
-                  'OK',
-                  style: TextStyle(
-                    color: Color.fromARGB(255, 51, 45, 81),
-                    fontSize: 20,
+      if (offerExists) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Offer Already Sent'),
+              content: const Text(
+                'You have already sent an offer for this event.',
+                style: TextStyle(fontSize: 20),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 51, 45, 81),
+                      fontSize: 20,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            );
+          },
+        );
+      } else {
+        if (filters.isEmpty) {
+          _showEmptyFormAlert();
+        } else {
+          // Filters are not empty, so proceed to send the offer
+          List<String> selectedCategories =
+              filters.toList(); // Convert set to list
+
+          // Create an Offer object
+          Offer offer = Offer(
+            EventId: widget.EventId,
+            sponseeId: widget.sponseeId,
+            sponsorId: widget.sponsorId ?? "",
+            notes: notesController.text,
+            Category: selectedCategories,
+            TimeStamp: widget.TimeStamp,
           );
-        },
-      );
+
+          // Save the offer to the database
+          DatabaseReference newOfferRef = offersRef.push();
+
+          await newOfferRef.set({
+            "EventId": offer.EventId,
+            "sponseeId": offer.sponseeId,
+            "sponsorId": offer.sponsorId,
+            "Category": offer.Category,
+            "notes": offer.notes,
+            "TimeStamp": offer.TimeStamp,
+            "Status": "Pending",
+          });
+          final sponseeToken = await _retrieveSponseeToken(offer.sponseeId);
+          if (sponseeToken != null && user!.uid == offer.sponsorId) {
+            sendNotificationToSponsee1(sponseeToken);
+          }
+          setState(() {
+            filters.clear();
+            bool offerSent = true;
+          });
+          Navigator.of(context).pop();
+          // Show a success message
+          showDialog(
+            context: context,
+            builder: (context) {
+              Future.delayed(const Duration(seconds: 3), () {
+                Navigator.of(context).pop(true);
+              });
+              return Theme(
+                data: Theme.of(context)
+                    .copyWith(dialogBackgroundColor: Colors.white),
+                child: AlertDialog(
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: Color.fromARGB(255, 91, 79, 158),
+                        size: 48,
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'Your offer was sent successfully!',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        }
+      }
     } else {
       if (filters.isEmpty) {
         _showEmptyFormAlert();
       } else {
         // Filters are not empty, so proceed to send the offer
-        List<String> selectedCategories = filters.toList(); // Convert set to list
+        List<String> selectedCategories =
+            filters.toList(); // Convert set to list
 
         // Create an Offer object
         Offer offer = Offer(
@@ -507,7 +775,7 @@ void _sendOffer() async {
           sponsorId: widget.sponsorId ?? "",
           notes: notesController.text,
           Category: selectedCategories,
-          TimeStamp: widget.TimeStamp ,
+          TimeStamp: widget.TimeStamp,
         );
 
         // Save the offer to the database
@@ -521,15 +789,17 @@ void _sendOffer() async {
           "notes": offer.notes,
           "TimeStamp": offer.TimeStamp,
         });
- final sponseeToken = await _retrieveSponseeToken(offer.sponseeId);
-  if (sponseeToken != null && user!.uid==offer.sponsorId ) {
-    sendNotificationToSponsee1(sponseeToken);
-  }
+        final sponseeToken = await _retrieveSponseeToken(offer.sponseeId);
+        if (sponseeToken != null) {
+          if (user!.uid == offer.sponsorId) {
+            sendNotificationToSponsee1(sponseeToken);
+          }
+        }
+//await sendNotification(offer.sponseeId);
         setState(() {
           filters.clear();
-          bool offerSent = true ;
         });
-  Navigator.of(context).pop();
+        Navigator.of(context).pop();
         // Show a success message
         showDialog(
           context: context,
@@ -538,14 +808,15 @@ void _sendOffer() async {
               Navigator.of(context).pop(true);
             });
             return Theme(
-              data: Theme.of(context).copyWith(dialogBackgroundColor: Colors.white),
+              data: Theme.of(context)
+                  .copyWith(dialogBackgroundColor: Colors.white),
               child: AlertDialog(
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
                       Icons.check_circle,
-                      color: Color.fromARGB(255, 91, 79, 158),
+                      color: Color.fromARGB(255, 51, 45, 81),
                       size: 48,
                     ),
                     SizedBox(height: 16),
@@ -564,80 +835,8 @@ void _sendOffer() async {
         );
       }
     }
-  } else {
-    if (filters.isEmpty) {
-      _showEmptyFormAlert();
-    } else {
-      // Filters are not empty, so proceed to send the offer
-      List<String> selectedCategories = filters.toList(); // Convert set to list
-
-      // Create an Offer object
-      Offer offer = Offer(
-        EventId: widget.EventId,
-        sponseeId: widget.sponseeId,
-        sponsorId: widget.sponsorId ?? "",
-        notes: notesController.text,
-        Category: selectedCategories,
-       TimeStamp: widget.TimeStamp ,
-      );
-
-      // Save the offer to the database
-      DatabaseReference newOfferRef = offersRef.push();
-
-      await newOfferRef.set({
-        "EventId": offer.EventId,
-        "sponseeId": offer.sponseeId,
-        "sponsorId": offer.sponsorId,
-        "Category": offer.Category,
-        "notes": offer.notes,
-        "TimeStamp": offer.TimeStamp,
-        
-      });
-     final sponseeToken = await _retrieveSponseeToken(offer.sponseeId);
-  if (sponseeToken != null ) {
-    if(user!.uid==offer.sponsorId){ sendNotificationToSponsee1(sponseeToken);}
   }
-//await sendNotification(offer.sponseeId);
-      setState(() {
-        filters.clear();
-      });
-  Navigator.of(context).pop();
-      // Show a success message
-      showDialog(
-        context: context,
-        builder: (context) {
-          Future.delayed(const Duration(seconds: 3), () {
-            Navigator.of(context).pop(true);
-          });
-          return Theme(
-            data: Theme.of(context).copyWith(dialogBackgroundColor: Colors.white),
-            child: AlertDialog(
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.check_circle,
-                    color: Color.fromARGB(255, 51, 45, 81),
-                    size: 48,
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Your offer was sent successfully!',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-    }
-  }
-}
-   /*Future<void> sendNotification(String id) async {
+  /*Future<void> sendNotification(String id) async {
     String? mtoken = await _retrieveSponseeToken(id);
     print('im here deema!!!!!!!!!!!!!');
   //final Uri url = Uri.parse('https://fcm.googleapis.com/fcm/send');
@@ -669,199 +868,209 @@ void _sendOffer() async {
   }*/
 }*/
 
-@override
-Widget build(BuildContext context) {
-  return Dialog(
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20),
-    ),
-    child: SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 51, 45, 81),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Text(
-                    'Offer',
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 51, 45, 81),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  color: Colors.white,
-                ),
-              ],
-            ),
-          ),
-          Container(
-            decoration: const BoxDecoration(
-              color: Colors.white, // Changed to white
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
               ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Row(children: [
-                  Text(
-                    'What do you want to offer?',
-                    style: TextStyle(
-                      fontSize: 23,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(width: 5),
-                  Text(
-                    '*',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 51, 45, 81),
-                      fontSize: 20 ,
-                    ),
-                  ),],),
-                  Wrap(
-                    spacing: 9.0,
-                    children: widget.Category.map((category) {
-                      return FilterChip(
-                        label: Text(
-                          category,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        selected: filters.contains(category),
-                        onSelected: (bool selected) {
-                          setState(() {
-                            if (selected) {
-                              filters.add(category);
-                            } else {
-                              filters.remove(category);
-                            }
-                          });
-                        },
-                        backgroundColor: const Color.fromARGB(255, 202, 202, 204),
-                        labelStyle: const TextStyle(
-                          color: Color(0xFF4A42A1),
-                        ),
-                        elevation: 3,
-                        selectedColor: const Color(0xFF4A42A1),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 17),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.grey,
-                        width: 1.0,
-                        
-                      ),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: TextField(
-                        controller: notesController,
-                        maxLength: 600,
-                        decoration: const InputDecoration(
-                          hintText: 'Enter notes or additional information',
-                          border: InputBorder.none,
-                        ),
-                        style: const TextStyle(fontSize: 20),
-                        maxLines: 9,
+                  const Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Text(
+                      'Offer',
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _sendOffer();
-                        sendNotificationToSponsee1(_retrieveSponseeToken(widget.sponseeId) as String);
-                          },
-                      style: ElevatedButton.styleFrom(
-                         foregroundColor: Colors.white, backgroundColor: const Color.fromARGB(255, 91, 79, 158),
-                        elevation: 20,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: const Text(
-                        'Send Offer',
-                        style: TextStyle(
-                          fontSize: 20,
-                        ),
-                      ),
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    color: Colors.white,
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+            Container(
+              decoration: const BoxDecoration(
+                color: Colors.white, // Changed to white
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Row(
+                      children: [
+                        Text(
+                          'What do you want to offer?',
+                          style: TextStyle(
+                            fontSize: 23,
+                            color: Colors.black,
+                          ),
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          '*',
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 51, 45, 81),
+                            fontSize: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Wrap(
+                      spacing: 9.0,
+                      children: widget.Category.map((category) {
+                        return FilterChip(
+                          label: Text(
+                            category,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          selected: filters.contains(category),
+                          onSelected: (bool selected) {
+                            setState(() {
+                              if (selected) {
+                                filters.add(category);
+                              } else {
+                                filters.remove(category);
+                              }
+                            });
+                          },
+                          backgroundColor:
+                              const Color.fromARGB(255, 202, 202, 204),
+                          labelStyle: const TextStyle(
+                            color: Color(0xFF4A42A1),
+                          ),
+                          elevation: 3,
+                          selectedColor: const Color(0xFF4A42A1),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 17),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: TextField(
+                          controller: notesController,
+                          maxLength: 600,
+                          decoration: const InputDecoration(
+                            hintText: 'Enter notes or additional information',
+                            border: InputBorder.none,
+                          ),
+                          style: const TextStyle(fontSize: 20),
+                          maxLines: 9,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _sendOffer();
+                          // sendNotificationToSponsee1(
+                          //   _retrieveSponseeToken(widget.sponseeId)
+                          //     as String);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor:
+                              const Color.fromARGB(255, 91, 79, 158),
+                          elevation: 20,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: const Text(
+                          'Send Offer',
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
-Future<void> sendNotificationToSponsee1(String sponseeToken) async {
-  final String serverKey = 'AAAAw5lT-Yg:APA91bE4EbR1XYHUoMl-qZYAFVsrtCtcznSsh7RSCSZ-yJKR2_bdX8f9bIaQgDrZlEaEaYQlEpsdN6B6ccEj5qStijSCDN_i0szRxhap-vD8fINcJAA-nK11z7WPzdZ53EhbYF5cp-ql'; //
-  final String fcmUrl = 'https://fcm.googleapis.com/fcm/send';
-
-  final Map<String, dynamic> notification = {
-    'body': 'You have a new Offer from a sponsor.',
-    'title': 'New Offer',
-    'sound': 'default',
-  };
-
-  final Map<String, dynamic> data = {
-    'click_action': 'FLUTTER_NOTIFICATION_CLICK',
-    // Add any additional data you want to send
-  };
-
-  final Map<String, dynamic> body = {
-    'notification': notification,
-    'data': data,
-    'to': sponseeToken, // The FCM token of the service provider
-  };
-
-  final headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'key=$serverKey',
-  };
-
-  try {
-    final response = await http.post(
-      Uri.parse(fcmUrl),
-      headers: headers,
-      body: jsonEncode(body),
     );
-
-    if (response.statusCode == 200) {
-      print('Notification sent successfully.');
-    } else {
-      print('Error sending notification. Status code: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('Error sending notification: $e');
   }
-}
+
+  Future<void> sendNotificationToSponsee1(String sponseeToken) async {
+    final String serverKey =
+        'AAAAw5lT-Yg:APA91bE4EbR1XYHUoMl-qZYAFVsrtCtcznSsh7RSCSZ-yJKR2_bdX8f9bIaQgDrZlEaEaYQlEpsdN6B6ccEj5qStijSCDN_i0szRxhap-vD8fINcJAA-nK11z7WPzdZ53EhbYF5cp-ql'; //
+    final String fcmUrl = 'https://fcm.googleapis.com/fcm/send';
+
+    final Map<String, dynamic> notification = {
+      'body': 'You have a new Offer from a sponsor.',
+      'title': 'New Offer',
+      'sound': 'default',
+    };
+
+    final Map<String, dynamic> data = {
+      'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+      // Add any additional data you want to send
+    };
+
+    final Map<String, dynamic> body = {
+      'notification': notification,
+      'data': data,
+      'to': sponseeToken, // The FCM token of the service provider
+    };
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'key=$serverKey',
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(fcmUrl),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        print('Notification sent successfully.');
+      } else {
+        print(
+            'Error sending notification. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error sending notification: $e');
+    }
+  }
 }

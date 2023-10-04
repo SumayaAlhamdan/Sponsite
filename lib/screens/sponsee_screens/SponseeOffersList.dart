@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 
+final DatabaseReference dbref = FirebaseDatabase.instance.reference();
+
 class Offer {
   String eventId;
   String sponseeId;
@@ -83,7 +85,8 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
               eventId: key,
               sponseeId: value['sponseeId'] as String? ?? '',
               categories: categoryList,
-              notes: value['notes'] as String? ?? 'There are no notes available',
+              notes:
+                  value['notes'] as String? ?? 'There are no notes available',
               sponsorId: value['sponsorId'] as String? ?? '',
               sponsorName: 'krkr',
               sponsorImage: '',
@@ -443,8 +446,11 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                 });
                 if (action == "Accept") {
                   offer.accepted = true; // Mark the offer as accepted
+                  dbref.child('offers').push().set({'Status': "Accepted"});
+                  print("accepted?");
                 } else {
                   offers.remove(offer);
+                  dbref.child('offers').push().set({'Status': "Rejected"});
                 }
                 Navigator.of(context).pop(); // Close the dialog
               },
