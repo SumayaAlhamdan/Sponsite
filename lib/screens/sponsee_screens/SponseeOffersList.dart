@@ -48,7 +48,7 @@ class SponseeOffersList extends StatefulWidget {
 class _SponseeOffersListState extends State<SponseeOffersList> {
   List<Offer> offers = [];
   List<Offer> acceptedOffers = [];
-  bool showActions = true;
+  bool showActions = true; //buttons 
 
   @override
   void initState() {
@@ -70,7 +70,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
 
     database.child('offers').onValue.listen((offer) {
       if (offer.snapshot.value != null) {
-        print("Firebase offers data: ${offer.snapshot.value}");
+     //   print("Firebase offers data: ${offer.snapshot.value}");
 
         Map<dynamic, dynamic> offerData =
             offer.snapshot.value as Map<dynamic, dynamic>;
@@ -82,8 +82,8 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                 .map((category) => category.toString())
                 .toList();
           }
-          print('Check EventId: ${value['EventId']}');
-          print("Widget EVENTid: ${widget.EVENTid}");
+         // print('Check EventId: ${value['EventId']}');
+          //print("Widget EVENTid: ${widget.EVENTid}");
 
           if (value['EventId'] == widget.EVENTid) {
             String timestampString = value['TimeStamp'] as String? ?? '';
@@ -128,16 +128,19 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
   }
 
   void _loadAcceptedOffersFromStorage() async {
+    
     final prefs = await SharedPreferences.getInstance();
     final acceptedOfferIds = prefs.getStringList('acceptedOffers') ?? [];
 
     setState(() {
+    
       acceptedOffers = offers
           .where((offer) =>
               acceptedOfferIds.contains(offer.eventId) &&
               offer.status == 'Accepted')
           .toList();
     });
+    print(acceptedOffers);
   }
 
   String formatTimeAgo(int timestamp) {
@@ -221,7 +224,6 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
 
   Widget _buildCurrentOffersPage() {
     final currentOffers = offers.where((offer) => offer.status == 'Pending').toList();
- 
     return SingleChildScrollView(
       child: Column(
         children: currentOffers.map((offer) {
@@ -232,11 +234,11 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
   }
 
   Widget _buildSponsorsPage() {
-    final acceptedOffers = offers.where((offer) => offer.status == 'Accepted').toList();
+   // final acceptedOffers = offers.where((offer) => offer.status == 'Accepted').toList();
     return SingleChildScrollView(
       child: Column(
         children: [
-          for (Offer offer in acceptedOffers) _buildOfferCard(offer),
+         for (Offer offer in acceptedOffers) _buildOfferCard(offer),
           Center(
             child: Text(
               'Sponsors Page',

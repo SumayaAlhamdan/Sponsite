@@ -53,9 +53,9 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
             if (value['SponseeID'] == sponseeID) {
               // Use key as EVENTid for the current event
               String EVENTid = key;
-              print("The key value is " + key);
-              print("the var value is : ");
-              print(EVENTid);
+            //  print("The key value is " + key);
+              //print("the var value is : ");
+              //print(EVENTid);
 
 
             String timestampString = value['TimeStamp'] as String;
