@@ -234,7 +234,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
   }
 
   Widget _buildSponsorsPage() {
-   // final acceptedOffers = offers.where((offer) => offer.status == 'Accepted').toList();
+    final acceptedOffers = offers.where((offer) => offer.status == 'Accepted').toList();
     return SingleChildScrollView(
       child: Column(
         children: [
