@@ -412,7 +412,7 @@ class Event {
     required this.notes,
     this.benefits,
     required this.EVENTid,
-     required this.timeStamp, 
+     required this.timeStamp,   
     
   });
 }
