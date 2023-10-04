@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:sponsite/ViewCurrentSponsee.dart';
+import 'package:sponsite/screens/sponsee_screens/ViewCurrentSponsee.dart';
 import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
 
 class BottomNavBar extends StatefulWidget {
