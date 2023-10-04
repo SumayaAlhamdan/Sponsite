@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final DatabaseReference dbref = FirebaseDatabase.instance.reference();
 
@@ -13,7 +14,7 @@ class Offer {
   String sponsorName;
   String sponsorImage;
   String timeStamp;
-  bool accepted;
+  String status; // New field to track the offer status
 
   Offer({
     required this.eventId,
@@ -24,7 +25,7 @@ class Offer {
     required this.sponsorName,
     required this.sponsorImage,
     required this.timeStamp,
-    this.accepted = false,
+    this.status = 'Pending', // Default status is 'Pending'
   });
 
   int get timeStampAsInt => int.tryParse(timeStamp) ?? 0;
@@ -46,11 +47,14 @@ class SponseeOffersList extends StatefulWidget {
 
 class _SponseeOffersListState extends State<SponseeOffersList> {
   List<Offer> offers = [];
+  List<Offer> acceptedOffers = [];
   bool showActions = true;
 
+  @override
   void initState() {
     super.initState();
     _loadOffersFromFirebase();
+    _loadAcceptedOffersFromStorage();
   }
 
   void _loadOffersFromFirebase() async {
@@ -60,6 +64,9 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     List<Offer> loadedOffers = [];
     Map<String, String> sponsorNames = {};
     Map<String, String> sponsorImages = {};
+
+    // Clear acceptedOffers when loading new offers
+    acceptedOffers.clear();
 
     database.child('offers').onValue.listen((offer) {
       if (offer.snapshot.value != null) {
@@ -91,6 +98,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
               sponsorName: 'krkr',
               sponsorImage: '',
               timeStamp: timestampString,
+              status: value['Status'] as String? ?? 'Pending', // Read status from the database
             ));
           }
         });
@@ -119,6 +127,19 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     });
   }
 
+  void _loadAcceptedOffersFromStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final acceptedOfferIds = prefs.getStringList('acceptedOffers') ?? [];
+
+    setState(() {
+      acceptedOffers = offers
+          .where((offer) =>
+              acceptedOfferIds.contains(offer.eventId) &&
+              offer.status == 'Accepted')
+          .toList();
+    });
+  }
+
   String formatTimeAgo(int timestamp) {
     final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
 
@@ -139,7 +160,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            '${widget.EventName}Event Offers',
+            '${widget.EventName} Event Offers',
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w500,
@@ -199,7 +220,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
   }
 
   Widget _buildCurrentOffersPage() {
-    final currentOffers = offers.where((offer) => !offer.accepted).toList();
+    final currentOffers = offers.where((offer) => offer.status == 'Pending').toList();
 
     return SingleChildScrollView(
       child: Column(
@@ -211,8 +232,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
   }
 
   Widget _buildSponsorsPage() {
-    final acceptedOffers = offers.where((offer) => offer.accepted).toList();
-
+    final acceptedOffers = offers.where((offer) => offer.status == 'Accepted').toList();
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -232,7 +252,6 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     final timestamp = DateTime.parse(offer.timeStamp).millisecondsSinceEpoch;
 
     return Container(
-      //height: 600, // Adjust the height as needed
       child: Card(
         margin: EdgeInsets.all(10),
         elevation: 5,
@@ -372,7 +391,6 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    // Add your action buttons here if needed
                     if (showActions)
                       Row(
                         children: [
@@ -441,18 +459,29 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
             ),
             TextButton(
               onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+
+                if (action == "Accept") {
+                  // Mark the offer as accepted
+                  offer.status = 'Accepted';
+
+                  // Save accepted offers to storage
+                  _saveAcceptedOffersToStorage();
+
+                  setState(() {
+                    acceptedOffers.add(offer);
+                  });
+
+                  // Push the accepted status to the database
+                  dbref.child('offers').child(offer.eventId).update({'Status': "Accepted"});
+                } else {
+                  // Push the rejected status to the database
+                  dbref.child('offers').child(offer.eventId).update({'Status': "Rejected"});
+                }
+
                 setState(() {
                   showActions = false; // Hide actions after rejecting
                 });
-                if (action == "Accept") {
-                  offer.accepted = true; // Mark the offer as accepted
-                  dbref.child('offers').push().set({'Status': "Accepted"});
-                  print("accepted?");
-                } else {
-                  offers.remove(offer);
-                  dbref.child('offers').push().set({'Status': "Rejected"});
-                }
-                Navigator.of(context).pop(); // Close the dialog
               },
               child: Text('Confirm'),
             ),
@@ -462,7 +491,22 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     );
   }
 
+  void _saveAcceptedOffersToStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final acceptedOfferIds = acceptedOffers.map((offer) => offer.eventId).toList();
+    prefs.setStringList('acceptedOffers', acceptedOfferIds);
+  }
+
   void _navigateToSponsorsTab() {
     DefaultTabController.of(context)?.animateTo(1);
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: SponseeOffersList(
+      EVENTid: "your_event_id_here",
+      EventName: "Your Event Name",
+    ),
+  ));
 }
