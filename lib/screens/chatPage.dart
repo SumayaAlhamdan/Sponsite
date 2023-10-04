@@ -1,8 +1,16 @@
+import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:path/path.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:sponsite/screens/chat_service.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
+import '../FirebaseApi.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sponsite/chatDetail.dart';
-
 
 class ChatPage extends StatefulWidget {
   final String receiverUserEmail;
@@ -25,12 +33,52 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
   final ChatService chatService = ChatService();
-  String senderPic =
-      'assets/placeholder_image.png'; // Default profile picture URL
+  String senderPic = 'assets/placeholder_image.png';
 
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<String?> downloadFile(String fileName) async {
+    try {
+      final Reference storageRef =
+          FirebaseStorage.instance.ref().child('chatsFile/$fileName');
+      final String downloadURL = await storageRef.getDownloadURL();
+      print(downloadURL);
+      return downloadURL;
+    } catch (e) {
+      print('Error downloading file: $e');
+      return null;
+    }
+  }
+
+  void sendFile() async {
+    final result = await FilePicker.platform.pickFiles(allowMultiple: false);
+
+    if (result == null) {
+      return;
+    }
+
+    final path = result.files.single.path;
+
+    if (path == null) {
+      return;
+    }
+
+    final fileName = basename(path);
+    final destination = 'chatsFile/$fileName';
+
+    final uploadTask = FirebaseApi.uploadFile(destination, File(path));
+    chatService.sendFile(widget.receiverUserID, result);
+    uploadTask?.snapshotEvents.listen((TaskSnapshot snapshot) {
+      if (snapshot.state == TaskState.success) {
+        final urlDownload = snapshot.ref.getDownloadURL();
+        print('Download-Link: $urlDownload');
+      } else if (snapshot.state == TaskState.error) {
+        print('File upload failed: ${TaskState.error}');
+      }
+    });
   }
 
   @override
@@ -42,8 +90,8 @@ class _ChatPageState extends State<ChatPage> {
             SizedBox(width: 8.0),
             Image.network(
               widget.pic ?? senderPic,
-              width: 60, // Set the desired width
-              height: 60, // Set the desired height
+              width: 60,
+              height: 60,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Image.asset(
@@ -54,7 +102,7 @@ class _ChatPageState extends State<ChatPage> {
                 );
               },
             ),
-            SizedBox(width: 8.0), // Add some space between the image and text
+            SizedBox(width: 8.0),
             Text(
               widget.receiverUserName,
               style: TextStyle(
@@ -64,15 +112,14 @@ class _ChatPageState extends State<ChatPage> {
               ),
             ),
             IconButton(
-            icon: Icon(Icons.more_horiz, size: 50),// You can change the icon as needed
-            onPressed: () {
-              // Navigate to the chatDetails() page
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) =>  MyApp(),
-                ),
-              );
-            }
+              icon: Icon(Icons.more_horiz, size: 50),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => MyApp(),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -80,50 +127,91 @@ class _ChatPageState extends State<ChatPage> {
       body: Column(
         children: [
           Expanded(
-            child: StreamBuilder<List<Msg>>(
-              stream: chatService.getMsg(
-                chatService.currentUserId, // Current user's ID
-                widget.receiverUserID, // Receiver's ID
+            child: StreamBuilder<List<Map<String, dynamic>>>(
+              stream: chatService.getMsgAndFile(
+                chatService.currentUserId,
+                widget.receiverUserID,
               ),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  List<Msg> messages = snapshot.data!;
+                  List<Map<String, dynamic>> messagesAndFiles = snapshot.data!;
+                  messagesAndFiles.sort((a, b) {
+                    final int timestampA = a['data']['timestamp'];
+                    final int timestampB = b['data']['timestamp'];
 
-                  // Sort the messages by timestamp in ascending order
-                  messages.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+                    final DateTime dateTimeA =
+                        DateTime.fromMillisecondsSinceEpoch(timestampA);
+                    final DateTime dateTimeB =
+                        DateTime.fromMillisecondsSinceEpoch(timestampB);
+
+                    return dateTimeA.compareTo(dateTimeB);
+                  });
 
                   return ListView.builder(
-                    reverse:
-                        true, // Reverse the ListView to show messages in ascending order
-                    itemCount: messages.length,
+                    itemCount: messagesAndFiles.length,
                     itemBuilder: (context, index) {
-                      final message = messages[index];
-                      final isCurrentUser =
-                          message.senderID == widget.receiverUserID;
+                      final chatItem = messagesAndFiles[index];
 
-                      return ListTile(
-                        title: Align(
-                          alignment: isCurrentUser
-                              ? Alignment.centerLeft
-                              : Alignment.centerRight,
-                          child: Container(
-                            padding: EdgeInsets.all(8.0),
-                            decoration: BoxDecoration(
-                              color: isCurrentUser
-                                  ? Colors.grey
-                                  : Colors.deepPurple,
-                              borderRadius: BorderRadius.circular(30.0),
-                            ),
-                            child: Text(
-                              message.msg,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 25,
+                      final type = chatItem['type'] as String;
+                      final data = chatItem['data'] as Map<String, dynamic>;
+                      final isCurrentUser =
+                          data['senderID'] == chatService.currentUserId;
+
+                      if (type == 'MessageType.Message') {
+                        final message = data['msg'] as String;
+                        return ListTile(
+                          title: Align(
+                            alignment: isCurrentUser
+                                ? Alignment.centerRight
+                                : Alignment.centerLeft,
+                            child: Container(
+                              padding: EdgeInsets.all(8.0),
+                              decoration: BoxDecoration(
+                                color: isCurrentUser
+                                    ? Colors.grey
+                                    : Colors.deepPurple,
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                              child: Text(
+                                message,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 25,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
+                        );
+                      } else if (type == 'MessageType.File') {
+                        final fileName = data['fileName'] as String;
+                        return ListTile(
+                          title: Align(
+                            alignment: isCurrentUser
+                                ? Alignment.centerRight
+                                : Alignment.centerLeft,
+                            child: GestureDetector(
+                              onTap: () async {
+                                String? downloadURL =
+                                    await downloadFile(fileName);
+                                if (downloadURL != null) {
+                                  launchUrl(Uri.parse(downloadURL));
+                                } else {
+                                  // Handle the case where an error occurred during the download
+                                }
+                              },
+                              child: Text(
+                                fileName,
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        return SizedBox();
+                      }
                     },
                   );
                 } else if (snapshot.hasError) {
@@ -141,7 +229,7 @@ class _ChatPageState extends State<ChatPage> {
                 Expanded(
                   child: SizedBox(
                     child: TextField(
-                      style: TextStyle(fontSize: 25), // Set the font size here
+                      style: TextStyle(fontSize: 25),
                       controller: _messageController,
                       decoration: InputDecoration(
                         hintText: "Type your message...",
@@ -150,11 +238,20 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.send),
+                  onPressed: () {
+                    sendFile(); // Call sendFile function to send a file
+                  },
+                  icon:
+                      Icon(Icons.attach_file_rounded, color: Colors.deepPurple),
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.send,
+                    color: Colors.deepPurple,
+                  ),
                   onPressed: () {
                     final message = _messageController.text.trim();
                     if (message.isNotEmpty) {
-                      // Send the message using the ChatService
                       chatService.sendMsg(
                         widget.receiverUserID,
                         message,
@@ -177,4 +274,3 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 }
-
