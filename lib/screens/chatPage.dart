@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:sponsite/screens/chat_service.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:sponsite/screens/chatDetail.dart';
+
 
 class ChatPage extends StatefulWidget {
   final String receiverUserEmail;
@@ -62,7 +62,18 @@ class _ChatPageState extends State<ChatPage> {
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
               ),
-            )
+            ),
+            IconButton(
+            icon: Icon(Icons.more_horiz, size: 50),// You can change the icon as needed
+            onPressed: () {
+              // Navigate to the chatDetails() page
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) =>  MyApp(),
+                ),
+              );
+            }
+            ),
           ],
         ),
       ),
@@ -139,27 +150,6 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                 ),
                 IconButton(
-                  onPressed: () async {
-                    try {
-                      final result = await FilePicker.platform.pickFiles();
-                      if (result != null) {
-                        final platformFile = result.files.first;
-                        if (platformFile != null) {
-                          // You can handle the selected file here, e.g., send it to the receiver.
-                          // platformFile.path contains the file path, and platformFile.name contains the file name.
-                          chatService.sendFile(
-                              widget.receiverUserID, platformFile);
-                        }
-                      }
-                    } on PlatformException catch (e) {
-                      print('Error picking a file: $e');
-                    }
-                  },
-                  icon: Icon(Icons.attach_file_rounded,
-                      color: Colors
-                          .deepPurple), // Use the Icon widget and specify the color
-                ),
-                IconButton(
                   icon: const Icon(Icons.send),
                   onPressed: () {
                     final message = _messageController.text.trim();
@@ -187,3 +177,4 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 }
+
