@@ -9,7 +9,6 @@ import 'package:sponsite/main.dart';
 import 'dart:typed_data';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
-//import 'package:uuid/uuid.dart';
 import 'package:geocoding/geocoding.dart' as geocoding;
 
 class MyApp extends StatelessWidget {
@@ -716,7 +715,10 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 String type = _selectedEventType;
                 String ename = EnameController.text;
-                String location = selectedLocation.toString();
+                String location = selectedLocation
+                    .toString()
+                    .replaceAll('LatLng(', '')
+                    .replaceAll(')', '');
                 String startDate =
                     selectedStartDate!.toLocal().toString().substring(0, 10);
                 String startTime = selectedStartTime!.format(context);
@@ -885,7 +887,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 const SizedBox(
-                  height: 50,
+                  height: 25,
                 ),
                 const Row(
                     mainAxisAlignment: MainAxisAlignment
@@ -932,18 +934,51 @@ class _MyHomePageState extends State<MyHomePage> {
                 const SizedBox(
                   height: 25.0,
                 ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.6,
-                  //  child: Column(
-                  // children: [
-                  //Expanded(
-                  // child: showMap ?
-                  child: buildMap(),
-                  //: buildChooseLocationButton(),
-                  // ),
-                  //],
+                Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.center, // Align children to the start
+                  children: [
+                    Text(
+                      "Event Location",
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    SizedBox(height: 10.0),
+                    if (selectedLocation != null)
+                      Row(
+                        children: [
+                          if (selectedAddressDescription != null)
+                            Container(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.place, // Replace with the desired icon
+                                color: Color.fromARGB(255, 51, 45,
+                                    81), // Customize the icon color
+                                size: 24.0, // Customize the icon size
+                              ),
+                            ),
+                          if (selectedAddressDescription != null)
+                            Expanded(
+                              child: Container(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text(
+                                  selectedAddressDescription!,
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    const SizedBox(
+                      height: 10.0,
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      child: buildMap(),
+                    ),
+                  ],
                 ),
-                //),
                 const SizedBox(
                   height: 25.0,
                 ),
@@ -996,6 +1031,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.6,
                   child: TextFormField(
+                    maxLength: 6,
                     controller: numofAttendeesController,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
@@ -1020,10 +1056,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 ),
-                const SizedBox(
-                  height: 8,
-                ),
-                const SizedBox(height: 25.0),
+                // const SizedBox(
+                //   height: 10,
+                // ),
+                // const SizedBox(height: 25.0),
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.6,
                   child: Center(
@@ -1042,11 +1078,12 @@ class _MyHomePageState extends State<MyHomePage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            ElevatedButton(
+                            ElevatedButton.icon(
+                                icon: Icon(Icons.image_outlined),
                                 onPressed: _selectedImageBytes != null
                                     ? _pickImage
                                     : _pickImage,
-                                child: Text(getButtonLabel()),
+                                label: Text(getButtonLabel()),
                                 style: ButtonStyle(
                                     backgroundColor: MaterialStateProperty.all<Color>(
                                         const Color.fromARGB(255, 51, 45, 81)),
@@ -1607,56 +1644,21 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ),
-        if (selectedLocation != null)
-          Positioned(
-            bottom: 16.0,
-            left: 16.0,
-            right: 16.0,
-            child: Container(
-              color: Colors.white, // Background color set to white
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  if (selectedAddressDescription != null)
-                    Container(
-                      color: Colors.white, // Background color set to white
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        'Selected Address:',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  if (selectedAddressDescription != null)
-                    Container(
-                      color: Colors.white, // Background color set to white
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        selectedAddressDescription!,
-                        style: TextStyle(
-                          fontSize: 16.0,
-                        ),
-                      ),
-                    ),
-                  // ElevatedButton(
-                  //   onPressed: () async {
-                  //     final addressDescription = await navigateToConfirmation();
-                  //     if (addressDescription != null) {
-                  //       setState(() {
-                  //         showMap = false;
-                  //         // selectedLocation = null;
-                  //         selectedPrediction = null;
-                  //         selectedAddressDescription = addressDescription;
-                  //       });
-                  //     }
-                  //   },
-                  //   child: Text('Confirm'),
-                  // ),
-                ],
-              ),
-            ),
-          ),
+
+        // ElevatedButton(
+        //   onPressed: () async {
+        //     final addressDescription = await navigateToConfirmation();
+        //     if (addressDescription != null) {
+        //       setState(() {
+        //         showMap = false;
+        //         // selectedLocation = null;
+        //         selectedPrediction = null;
+        //         selectedAddressDescription = addressDescription;
+        //       });
+        //     }
+        //   },
+        //   child: Text('Confirm'),
+        // ),
 
         // Positioned(
         //   top: 16.0,
