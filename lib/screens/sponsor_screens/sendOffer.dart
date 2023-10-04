@@ -7,7 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
-import 'package:sponsite/screens/prepNotfication.dart' ;
+import 'package:sponsite/local_notifications.dart';
 class Event {
   final String EventId;
   final String sponseeId;
@@ -207,7 +207,9 @@ class RecentEventsDetails extends StatelessWidget {
                         
                           _buildInfoRow(Icons.calendar_today, "${startDate} - ${endDate}", "Date"),
                           _buildInfoRow(Icons.access_time, "${startTime}-${endTime}", "Time"),
+                          _buildInfoRow(Icons.location_on, location, "Location"),
                           _buildInfoRow(Icons.person, NumberOfAttendees, "Attendees"),
+                          
                           const SizedBox(height: 20),
                   
                           const Text(
@@ -392,7 +394,7 @@ class _sendOfferState extends State<sendOffer> {
 @override
   initState() {
     super.initState();
-    AppNotifications.setupNotification();
+   // AppNotifications.setupNotification();
    // requestPermission();
   }
  /* void requestPermission() async {
@@ -520,7 +522,7 @@ void _sendOffer() async {
           "TimeStamp": offer.TimeStamp,
         });
  final sponseeToken = await _retrieveSponseeToken(offer.sponseeId);
-  if (sponseeToken != null) {
+  if (sponseeToken != null && user!.uid==offer.sponsorId ) {
     sendNotificationToSponsee1(sponseeToken);
   }
         setState(() {
@@ -591,8 +593,10 @@ void _sendOffer() async {
         "TimeStamp": offer.TimeStamp,
         
       });
-     sendNotificationToSponsee1(_retrieveSponseeToken(offer.sponseeId) as String);
-
+     final sponseeToken = await _retrieveSponseeToken(offer.sponseeId);
+  if (sponseeToken != null ) {
+    if(user!.uid==offer.sponsorId){ sendNotificationToSponsee1(sponseeToken);}
+  }
 //await sendNotification(offer.sponseeId);
       setState(() {
         filters.clear();
@@ -823,7 +827,7 @@ Future<void> sendNotificationToSponsee1(String sponseeToken) async {
   final String fcmUrl = 'https://fcm.googleapis.com/fcm/send';
 
   final Map<String, dynamic> notification = {
-    'body': 'You have a new Offer from a sponsee.',
+    'body': 'You have a new Offer from a sponsor.',
     'title': 'New Offer',
     'sound': 'default',
   };

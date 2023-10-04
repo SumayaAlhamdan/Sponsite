@@ -4,7 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:sponsite/eventDetail.dart';
 import 'package:sponsite/screens/sponsee_screens/SponseeOffersList.dart';
 import 'package:sponsite/widgets/customAppBar.dart';
-import 'package:sponsite/widgets/user_type_selector.dart';
+import 'package:sponsite/widgets/user_type_selector.dart'  ;
 
 class ViewCurrentSponsee extends StatefulWidget {
   const ViewCurrentSponsee({Key? key}) : super(key: key);
@@ -20,7 +20,6 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
       FirebaseDatabase.instance.ref().child('sponseeEvents');
   User? user = FirebaseAuth.instance.currentUser;
   String? sponseeID;
-  String? EVENTid;
 
   void check() {
     if (user != null) {
@@ -52,7 +51,16 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                 .toList();
 
             if (value['SponseeID'] == sponseeID) {
-              EVENTid = key;
+              // Use key as EVENTid for the current event
+              String EVENTid = key;
+              print("The key value is " + key);
+              print("the var value is : ");
+              print(EVENTid);
+
+
+            String timestampString = value['TimeStamp'] as String;
+           
+
               events.add(Event(
                 EventName: value['EventName'] as String? ?? '',
                 EventType: value['EventType'] as String? ?? '',
@@ -68,9 +76,14 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                 benefits: value['Benefits'] as String? ?? '',
                 NumberOfAttendees: value['NumberOfAttendees'] as String? ?? '',
                 Category: categoryList,
+                EVENTid: EVENTid,
+                 timeStamp: timestampString, 
+                 // Assign the EVENTid to the Event object
               ));
             }
           });
+                    events.sort((a, b) => b.timeStamp.compareTo(a.timeStamp));
+
         });
       }
     });
@@ -96,7 +109,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
         children: [
           SizedBox(
             width: double.infinity,
-            height: 140,
+            height: 140  ,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Image.network(
@@ -236,11 +249,13 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                       ),
                     ),
                     onPressed: () {
+                      print("This id from deema's class : ");
+                      print(event.EVENTid);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => SponseeOffersList(
-                            EVENTid: EVENTid,
+                            EVENTid: event.EVENTid,
                             EventName: event.EventName,
                           ),
                         ),
@@ -264,46 +279,50 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return DefaultTabController(
-  length: 2, // Number of tabs (Current and Past)
-  child: Scaffold(
-    backgroundColor: Colors.white,
-    appBar: AppBar(
-      title: Text(
-        'My Events',
-        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-      ),
-      backgroundColor: Color.fromARGB(255, 51, 45, 81),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20),
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2, // Number of tabs (Current and Past)
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: Text(
+            'My Events',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+          ),
+          backgroundColor: Color.fromARGB(255, 51, 45, 81),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
+          ),
         ),
-      ),),
-    body:Column(
-          children: [ Container(
-      color: Color.fromARGB(255, 255, 255, 255),
+        body: Column(
+          children: [
+            Container(
+              color: Color.fromARGB(255, 255, 255, 255),
               padding: const EdgeInsets.only(bottom: 20, top: 50),
-      child: TabBar( // Move the TabBar to the appBar's bottom property
-          indicatorColor: Color.fromARGB(255, 51, 45, 81),
-          tabs: const [
-            Tab(
-              child: Text(
-                'Current',
-                style: TextStyle(fontSize: 22),
+              child: TabBar(
+                // Move the TabBar to the appBar's bottom property
+                indicatorColor: Color.fromARGB(255, 51, 45, 81),
+                tabs: const [
+                  Tab(
+                    child: Text(
+                      'Current',
+                      style: TextStyle(fontSize: 22),
+                    ),
+                  ),
+                  Tab(
+                    child: Text(
+                      'Past',
+                      style: TextStyle(fontSize: 22),
+                    ),
+                  ),
+                ],
               ),
             ),
-            Tab(
-              child: Text(
-                'Past',
-                style: TextStyle(fontSize: 22),
-              ),
-            ),
-          ],
-        ),
-    ),Expanded(
+            Expanded(
               child: TabBarView(
                 children: [
                   _buildCurrentEventsPage(),
@@ -311,54 +330,52 @@ Widget build(BuildContext context) {
                 ],
               ),
             ),
-        ],
+          ],
         ),
       ),
     );
-}
-
+  }
 
   Widget _buildCurrentEventsPage() {
-  return Padding(
-    padding: const EdgeInsets.only(top: 1),
-    child: Column(
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 50.0),
-        ),
-        Expanded(
-          child: Scrollbar(
-            child: GridView.builder(
-              shrinkWrap: true,
-              physics: const BouncingScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.9,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
+    return Padding(
+      padding: const EdgeInsets.only(top: 1),
+      child: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 50.0),
+          ),
+          Expanded(
+            child: Scrollbar(
+              child: GridView.builder(
+                shrinkWrap: true,
+                physics: const BouncingScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.9,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                ),
+                itemCount: events.length,
+                itemBuilder: (BuildContext context, int index) {
+                  Event event = events[index];
+                  return listItem(event: event);
+                },
               ),
-              itemCount: events.length,
-              itemBuilder: (BuildContext context, int index) {
-                Event event = events[index];
-                return listItem(event: event);
-              },
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
-Widget _buildPastEventsPage() {
-  return Center(
-    child: Text(
-      'No past events available',
-      style: TextStyle(fontSize: 20, color: Colors.grey),
-    ),
-  );
-}
-
+  Widget _buildPastEventsPage() {
+    return Center(
+      child: Text(
+        'No past events available',
+        style: TextStyle(fontSize: 20, color: Colors.grey),
+      ),
+    );
+  }
 }
 
 class Event {
@@ -375,6 +392,10 @@ class Event {
   final String? benefits;
   final String NumberOfAttendees;
   final List<String> Category;
+  final String EVENTid;
+  final String timeStamp;
+ 
+  
 
   Event({
     required this.EventName,
@@ -390,5 +411,8 @@ class Event {
     required this.NumberOfAttendees,
     required this.notes,
     this.benefits,
+    required this.EVENTid,
+     required this.timeStamp,   
+    
   });
 }

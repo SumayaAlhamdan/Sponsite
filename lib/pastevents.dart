@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sponsite/ViewCurrentSponsee.dart';
+import 'package:sponsite/screens/sponsee_screens/ViewCurrentSponsee.dart';
 import 'package:sponsite/widgets/user_type_selector.dart';
 
 class pastevents extends StatefulWidget {

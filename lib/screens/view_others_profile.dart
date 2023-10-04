@@ -135,6 +135,7 @@ class _ViewOthersProfileState extends State<ViewOthersProfile> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 51, 45, 81),
+        iconTheme: IconThemeData(color: Colors.white),
         // actions: [
         //   PopupMenuButton<String>(
         //     icon: const Icon(
