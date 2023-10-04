@@ -109,7 +109,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
         children: [
           SizedBox(
             width: double.infinity,
-            height: 140,
+            height: 140  ,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Image.network(
