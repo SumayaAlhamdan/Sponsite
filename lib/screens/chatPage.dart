@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sponsite/screens/chat_service.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:sponsite/screens/chatDetail.dart';
+import 'package:sponsite/chatDetail.dart';
 
 
 class ChatPage extends StatefulWidget {
