@@ -221,7 +221,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
 
   Widget _buildCurrentOffersPage() {
     final currentOffers = offers.where((offer) => offer.status == 'Pending').toList();
-
+ 
     return SingleChildScrollView(
       child: Column(
         children: currentOffers.map((offer) {
