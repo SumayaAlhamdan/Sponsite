@@ -129,7 +129,7 @@ class _SponsorChatState extends State<SponsorChat> {
     String email = data['Email'] ?? 'No email available';
     String pic = data['Picture'] ?? 'No picture available';
     return Card(
-      color: Color.fromARGB(255, 51, 45, 81),
+      color: Color.fromARGB(255, 255, 255, 255),
       child: ListTile(
         leading: Container(
           decoration: BoxDecoration(
@@ -157,7 +157,7 @@ class _SponsorChatState extends State<SponsorChat> {
         title: Text(
           name,
           style: const TextStyle(
-            color: Colors.white,
+            color: Color.fromARGB(255, 51, 45, 81),
             fontSize: 25,
             fontWeight: FontWeight.bold,
           ),
@@ -165,7 +165,7 @@ class _SponsorChatState extends State<SponsorChat> {
         subtitle: Text(
           email,
           style: const TextStyle(
-            color: Colors.white,
+            color: Color.fromARGB(255, 51, 45, 81),
             fontSize: 17,
           ),
         ),
