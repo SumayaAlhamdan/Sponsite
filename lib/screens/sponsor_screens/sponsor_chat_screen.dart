@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -19,12 +21,12 @@ class _SponsorChatState extends State<SponsorChat> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Chat', // The text content of the widget
+          'Chat',
           style: TextStyle(
-              color: Colors.deepPurple, // Text color (deep purple)
-              fontWeight: FontWeight.bold,
-              fontSize: 40 // Text fontWeight (bold)
-              ),
+            color: Colors.deepPurple,
+            fontWeight: FontWeight.bold,
+            fontSize: 40,
+          ),
         ),
       ),
       body: buildUserList(),
@@ -32,8 +34,16 @@ class _SponsorChatState extends State<SponsorChat> {
   }
 
   Widget buildUserList() {
+    // Replace 'your_sponsor_id' with the ID of the current sponsor
+    String currentSponsorId = auth.currentUser!.uid;
+    print('HERE SPONSOR ID');
+    print(currentSponsorId);
     return StreamBuilder(
-      stream: _database.child('Sponsees').onValue,
+      stream: _database
+          .child('offers')
+          .orderByChild('sponsorId')
+          .equalTo(currentSponsorId)
+          .onValue,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text('ERROR');
@@ -47,20 +57,59 @@ class _SponsorChatState extends State<SponsorChat> {
           return Text('No data available');
         }
 
-        Map<dynamic, dynamic> sponseeData =
+        Map<dynamic, dynamic> offerData =
             snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
-        List<MapEntry<dynamic, dynamic>> sponsees =
-            sponseeData.entries.toList();
+        List<MapEntry<dynamic, dynamic>> offers = offerData.entries.toList();
 
-        return ListView(
-          children: sponsees.map((entry) {
-            String key = entry.key.toString();
-            Map<dynamic, dynamic> data = entry.value as Map<dynamic, dynamic>;
-            return buildUserListItem(key, data);
-          }).toList(),
+        // Extract sponsee IDs from the offers
+        List sponseeIds = offers.map((entry) {
+          Map<dynamic, dynamic> data = entry.value as Map<dynamic, dynamic>;
+          return data['sponseeId'] ?? '';
+        }).toList();
+
+        return ListView.builder(
+          itemCount: sponseeIds.length,
+          itemBuilder: (context, index) {
+            String sponseeId = sponseeIds[index];
+            // Use sponseeId to fetch sponsee details from your 'Sponsees' node
+            // Then, build and return a list item for each sponsee
+            return FutureBuilder(
+              future:
+                  _fetchSponseeDetails(sponseeId), // Implement this function
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasData) {
+                    Map<dynamic, dynamic> sponseeData =
+                        snapshot.data as Map<dynamic, dynamic>;
+                    return buildUserListItem(sponseeId, sponseeData);
+                  }
+                }
+                return SizedBox(); // Return an empty widget while loading
+              },
+            );
+          },
         );
       },
     );
+  }
+
+  Future<Map<dynamic, dynamic>> _fetchSponseeDetails(String sponseeId) async {
+    DatabaseReference sponseeRef = _database.child('Sponsees').child(sponseeId);
+    print('INSIDE FETCH METHOD');
+    return sponseeRef.onValue.map((event) {
+      DataSnapshot dataSnapshot = event.snapshot;
+
+      if (dataSnapshot.value != null) {
+        Map<dynamic, dynamic>? dataMap = dataSnapshot.value as Map?;
+        print(dataMap);
+        if (dataMap != null) {
+          return dataMap;
+        }
+      }
+
+      print('Snapshot or data is null for sponseeId: $sponseeId');
+      return {}; // Return an empty map or handle it differently based on your needs
+    }).first; // Listen for the first event and then cancel the stream
   }
 
   Widget buildUserListItem(String key, Map<dynamic, dynamic> data) {
@@ -77,8 +126,7 @@ class _SponsorChatState extends State<SponsorChat> {
           ),
           child: CircleAvatar(
             radius: 30,
-            backgroundImage:
-                NetworkImage(pic), // Use the passed profile picture
+            backgroundImage: NetworkImage(pic),
             backgroundColor: Colors.transparent,
             child: Image.network(
               pic,
@@ -126,6 +174,8 @@ class _SponsorChatState extends State<SponsorChat> {
     );
   }
 }
+
+
 
 
 // Make sure to initialize Firebase in your app (main.dart or appropriate location):

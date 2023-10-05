@@ -19,12 +19,12 @@ class _SponseeChatState extends State<SponseeChat> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Chat', // The text content of the widget
+          'Chat',
           style: TextStyle(
-              color: Colors.deepPurple, // Text color (deep purple)
-              fontWeight: FontWeight.bold,
-              fontSize: 40 // Text fontWeight (bold)
-              ),
+            color: Colors.deepPurple,
+            fontWeight: FontWeight.bold,
+            fontSize: 40,
+          ),
         ),
       ),
       body: buildUserList(),
@@ -32,8 +32,15 @@ class _SponseeChatState extends State<SponseeChat> {
   }
 
   Widget buildUserList() {
+    // Replace 'your_sponsee_id' with the ID of the current sponsee
+    String currentSponseeId = auth.currentUser!.uid;
+
     return StreamBuilder(
-      stream: _database.child('Sponsors').onValue,
+      stream: _database
+          .child('offers')
+          .orderByChild('sponseeId')
+          .equalTo(currentSponseeId)
+          .onValue,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text('ERROR');
@@ -47,20 +54,56 @@ class _SponseeChatState extends State<SponseeChat> {
           return Text('No data available');
         }
 
-        Map<dynamic, dynamic> sponseeData =
+        Map<dynamic, dynamic> offerData =
             snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
-        List<MapEntry<dynamic, dynamic>> sponsees =
-            sponseeData.entries.toList();
+        List<MapEntry<dynamic, dynamic>> offers = offerData.entries.toList();
 
-        return ListView(
-          children: sponsees.map((entry) {
-            String key = entry.key.toString();
-            Map<dynamic, dynamic> data = entry.value as Map<dynamic, dynamic>;
-            return buildUserListItem(key, data);
-          }).toList(),
+        // Extract sponsor IDs from the offers
+        List sponsorIds = offers.map((entry) {
+          Map<dynamic, dynamic> data = entry.value as Map<dynamic, dynamic>;
+          return data['sponsorId'] ?? '';
+        }).toList();
+
+        return ListView.builder(
+          itemCount: sponsorIds.length,
+          itemBuilder: (context, index) {
+            String sponsorId = sponsorIds[index];
+            // Use sponsorId to fetch sponsor details from your 'Sponsors' node
+            // Then, build and return a list item for each sponsor
+            return FutureBuilder<Map<dynamic, dynamic>>(
+              future: _fetchSponsorDetails(sponsorId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasData) {
+                    Map<dynamic, dynamic> sponsorData = snapshot.data!;
+                    return buildUserListItem(sponsorId, sponsorData);
+                  }
+                }
+                return SizedBox(); // Return an empty widget while loading
+              },
+            );
+          },
         );
       },
     );
+  }
+
+  Future<Map<dynamic, dynamic>> _fetchSponsorDetails(String sponsorId) async {
+    DatabaseReference sponsorRef = _database.child('Sponsors').child(sponsorId);
+
+    return sponsorRef.onValue.map((event) {
+      DataSnapshot dataSnapshot = event.snapshot;
+
+      if (dataSnapshot.value != null) {
+        Map<dynamic, dynamic>? dataMap = dataSnapshot.value as Map?;
+        if (dataMap != null) {
+          return dataMap;
+        }
+      }
+
+      print('Snapshot or data is null for sponsorId: $sponsorId');
+      return {}; // Return an empty map or handle it differently based on your needs
+    }).first; // Listen for the first event and then cancel the stream
   }
 
   Widget buildUserListItem(String key, Map<dynamic, dynamic> data) {
@@ -77,8 +120,7 @@ class _SponseeChatState extends State<SponseeChat> {
           ),
           child: CircleAvatar(
             radius: 30,
-            backgroundImage:
-                NetworkImage(pic), // Use the passed profile picture
+            backgroundImage: NetworkImage(pic),
             backgroundColor: Colors.transparent,
             child: Image.network(
               pic,
