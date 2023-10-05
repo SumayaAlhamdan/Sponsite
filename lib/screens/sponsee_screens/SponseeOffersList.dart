@@ -472,18 +472,6 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                 ],
               ),
             ),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  isExpanded = !isExpanded;
-                });
-              },
-              child: Icon(
-                isExpanded
-                    ? Icons.keyboard_arrow_up
-                    : Icons.keyboard_arrow_down,
-              ),
-            ),
             if (isExpanded)
               Container(
                 child: Column(
@@ -575,6 +563,18 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                   ],
                 ),
               ),
+              GestureDetector(
+              onTap: () {
+                setState(() {
+                  isExpanded = !isExpanded;
+                });
+              },
+              child: Icon(
+                isExpanded
+                    ? Icons.keyboard_arrow_up
+                    : Icons.keyboard_arrow_down,
+              ),
+            ),
           ],
         ),
       ),
