@@ -11,6 +11,7 @@ import 'package:sponsite/local_notifications.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:sponsite/screens/view_others_profile.dart';
 
 class Event {
   final String EventId;
@@ -277,22 +278,38 @@ class RecentEventsDetails extends StatelessWidget {
                           const SizedBox(height: 10),
                           Row(
                             children: [
-                              CircleAvatar(
-                                radius: 25,
-                                backgroundImage: NetworkImage(sponseeImage),
-                                backgroundColor: Colors.transparent,
+                              GestureDetector(
+                                child: CircleAvatar(
+                                  radius: 25,
+                                  backgroundImage: NetworkImage(sponseeImage),
+                                  backgroundColor: Colors.transparent,
+                                ),
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => ViewOthersProfile(
+                                        'Sponsees', sponseeId),
+                                  ));
+                                },
                               ),
-                              SizedBox(
-                                  width:
-                                      10), // Add some space between the CircleAvatar and Text
-                              Expanded(
-                                child: Text(
-                                  sponseeName,
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    color: Colors.black87,
+
+                              SizedBox(width: 10),
+                              // Add some space between the CircleAvatar and Text
+                              GestureDetector(
+                                child: Expanded(
+                                  child: Text(
+                                    sponseeName,
+                                    style: const TextStyle(
+                                      fontSize: 22,
+                                      color: Colors.black87,
+                                    ),
                                   ),
                                 ),
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => ViewOthersProfile(
+                                        'Sponsees', sponseeId),
+                                  ));
+                                },
                               ),
                             ],
                           ),

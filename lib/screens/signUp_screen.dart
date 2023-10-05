@@ -77,7 +77,7 @@ class _SignUpState extends State<SignUp> {
         'Name': name,
         'Email': email,
         //'Social Media':,
-        'Picture':'https://firebasestorage.googleapis.com/v0/b/sponsite-6a696.appspot.com/o/user_images%2FqScutQFNgJbHBKzbrq2Ot45ax9M2%2FqScutQFNgJbHBKzbrq2Ot45ax9M2.jpg?alt=media&token=f526e77f-20de-4042-8905-623547216a4a',
+        'Picture':'https://firebasestorage.googleapis.com/v0/b/sponsite-6a696.appspot.com/o/user_images%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1.jpg?alt=media&token=4e08e9f5-d526-4d2c-817b-11f9208e9b52',
         'authentication document': fileName, // Remove the extra colon
       });
       await FirebaseAuth.instance.signOut();
