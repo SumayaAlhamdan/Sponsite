@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sponsite/screens/chatPage.dart';
 
 class SponseeChat extends StatefulWidget {
@@ -21,7 +22,7 @@ class _SponseeChatState extends State<SponseeChat> {
         title: Text(
           'Chat',
           style: TextStyle(
-            color: Colors.deepPurple,
+            color: Color.fromARGB(255, 51, 45, 81),
             fontWeight: FontWeight.bold,
             fontSize: 40,
           ),
@@ -34,6 +35,8 @@ class _SponseeChatState extends State<SponseeChat> {
   Widget buildUserList() {
     // Replace 'your_sponsee_id' with the ID of the current sponsee
     String currentSponseeId = auth.currentUser!.uid;
+    print('HERE SPONSEE ID');
+    print(currentSponseeId);
 
     return StreamBuilder(
       stream: _database
@@ -58,16 +61,37 @@ class _SponseeChatState extends State<SponseeChat> {
             snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
         List<MapEntry<dynamic, dynamic>> offers = offerData.entries.toList();
 
-        // Extract sponsor IDs from the offers
-        List sponsorIds = offers.map((entry) {
+        // Extract sponsor IDs from the offers and check if they are still active
+        List<String> activeSponsorIds = [];
+        Set<String> uniqueSponsorIds = Set<String>(); // To ensure uniqueness
+        // Get the current Unix timestamp
+        DateTime currentTimestamp = DateTime.now();
+
+        for (var entry in offers) {
           Map<dynamic, dynamic> data = entry.value as Map<dynamic, dynamic>;
-          return data['sponsorId'] ?? '';
-        }).toList();
+          String sponsorId = data['sponsorId'] ?? '';
+          String offerTimestampStr = data['TimeStamp'] ?? '0';
+          DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+          DateTime OFFERdateTime = dateFormat.parse(offerTimestampStr);
+          // Get the current Unix timestamp
+          int currentTimestampINT = DateTime.now().millisecondsSinceEpoch;
+          //   print('IM HEREEEE');
+          //  print(sponsorId);
+          // print(offerTimestampStr);
+          // print(currentTimestamp);
+          // print(OFFERdateTime);
+          // Check if the offer is active based on the timestamp
+          if (OFFERdateTime.isBefore(currentTimestamp) &&
+              !uniqueSponsorIds.contains(sponsorId)) {
+            activeSponsorIds.add(sponsorId);
+            uniqueSponsorIds.add(sponsorId);
+          }
+        }
 
         return ListView.builder(
-          itemCount: sponsorIds.length,
+          itemCount: activeSponsorIds.length,
           itemBuilder: (context, index) {
-            String sponsorId = sponsorIds[index];
+            String sponsorId = activeSponsorIds[index];
             // Use sponsorId to fetch sponsor details from your 'Sponsors' node
             // Then, build and return a list item for each sponsor
             return FutureBuilder<Map<dynamic, dynamic>>(
@@ -111,7 +135,7 @@ class _SponseeChatState extends State<SponseeChat> {
     String email = data['Email'] ?? 'No email available';
     String pic = data['Picture'] ?? 'No picture available';
     return Card(
-      color: Colors.deepPurple,
+      color: Color.fromARGB(255, 51, 45, 81),
       child: ListTile(
         leading: Container(
           decoration: BoxDecoration(

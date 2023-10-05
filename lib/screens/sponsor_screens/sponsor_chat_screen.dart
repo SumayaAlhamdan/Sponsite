@@ -1,8 +1,7 @@
-import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sponsite/screens/chatPage.dart';
 
 class SponsorChat extends StatefulWidget {
@@ -23,7 +22,7 @@ class _SponsorChatState extends State<SponsorChat> {
         title: Text(
           'Chat',
           style: TextStyle(
-            color: Colors.deepPurple,
+            color: Color.fromARGB(255, 51, 45, 81),
             fontWeight: FontWeight.bold,
             fontSize: 40,
           ),
@@ -38,6 +37,7 @@ class _SponsorChatState extends State<SponsorChat> {
     String currentSponsorId = auth.currentUser!.uid;
     print('HERE SPONSOR ID');
     print(currentSponsorId);
+
     return StreamBuilder(
       stream: _database
           .child('offers')
@@ -61,26 +61,39 @@ class _SponsorChatState extends State<SponsorChat> {
             snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
         List<MapEntry<dynamic, dynamic>> offers = offerData.entries.toList();
 
-        // Extract sponsee IDs from the offers
-        List sponseeIds = offers.map((entry) {
+        // Extract sponsee IDs from the offers and check if they are still active
+        List<String> activeSponseeIds = [];
+        Set<String> uniqueSponseeIds = Set<String>(); // To ensure uniqueness
+        // Get the current Unix timestamp
+        DateTime currentTimestamp = DateTime.now();
+
+        for (var entry in offers) {
           Map<dynamic, dynamic> data = entry.value as Map<dynamic, dynamic>;
-          return data['sponseeId'] ?? '';
-        }).toList();
+          String sponseeId = data['sponseeId'] ?? '';
+          String offerTimestampStr = data['TimeStamp'] ?? '0';
+          DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+          DateTime offerDateTime = dateFormat.parse(offerTimestampStr);
+
+          // Check if the offer is active based on the timestamp
+          if (offerDateTime.isBefore(currentTimestamp) &&
+              !uniqueSponseeIds.contains(sponseeId)) {
+            activeSponseeIds.add(sponseeId);
+            uniqueSponseeIds.add(sponseeId);
+          }
+        }
 
         return ListView.builder(
-          itemCount: sponseeIds.length,
+          itemCount: activeSponseeIds.length,
           itemBuilder: (context, index) {
-            String sponseeId = sponseeIds[index];
+            String sponseeId = activeSponseeIds[index];
             // Use sponseeId to fetch sponsee details from your 'Sponsees' node
             // Then, build and return a list item for each sponsee
-            return FutureBuilder(
-              future:
-                  _fetchSponseeDetails(sponseeId), // Implement this function
+            return FutureBuilder<Map<dynamic, dynamic>>(
+              future: _fetchSponseeDetails(sponseeId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasData) {
-                    Map<dynamic, dynamic> sponseeData =
-                        snapshot.data as Map<dynamic, dynamic>;
+                    Map<dynamic, dynamic> sponseeData = snapshot.data!;
                     return buildUserListItem(sponseeId, sponseeData);
                   }
                 }
@@ -95,13 +108,12 @@ class _SponsorChatState extends State<SponsorChat> {
 
   Future<Map<dynamic, dynamic>> _fetchSponseeDetails(String sponseeId) async {
     DatabaseReference sponseeRef = _database.child('Sponsees').child(sponseeId);
-    print('INSIDE FETCH METHOD');
+
     return sponseeRef.onValue.map((event) {
       DataSnapshot dataSnapshot = event.snapshot;
 
       if (dataSnapshot.value != null) {
         Map<dynamic, dynamic>? dataMap = dataSnapshot.value as Map?;
-        print(dataMap);
         if (dataMap != null) {
           return dataMap;
         }
@@ -117,7 +129,7 @@ class _SponsorChatState extends State<SponsorChat> {
     String email = data['Email'] ?? 'No email available';
     String pic = data['Picture'] ?? 'No picture available';
     return Card(
-      color: Colors.deepPurple,
+      color: Color.fromARGB(255, 51, 45, 81),
       child: ListTile(
         leading: Container(
           decoration: BoxDecoration(
@@ -174,6 +186,7 @@ class _SponsorChatState extends State<SponsorChat> {
     );
   }
 }
+
 
 
 

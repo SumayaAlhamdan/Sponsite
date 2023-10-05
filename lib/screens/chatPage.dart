@@ -106,14 +106,14 @@ class _ChatPageState extends State<ChatPage> {
             Text(
               widget.receiverUserName,
               style: TextStyle(
-                color: Colors.deepPurple,
+                color: Color.fromARGB(255, 51, 45, 81),
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ],
-            ),
-     actions: [
+        ),
+        actions: [
           PopupMenuButton<String>(
             icon: const Icon(
               Icons.more_horiz,
@@ -125,49 +125,56 @@ class _ChatPageState extends State<ChatPage> {
               switch (value) {
                 case 'Profile':
 // Initialize the Realtime Database reference
-final DatabaseReference databaseReference = FirebaseDatabase.instance.reference();
+                  final DatabaseReference databaseReference =
+                      FirebaseDatabase.instance.reference();
 
 // Replace "currentUserId" with the ID of the current user
-String currentUserId = chatService.currentUserId;
+                  String currentUserId = chatService.currentUserId;
 
 // Fetch sponsors
-databaseReference.child("Sponsors").onValue.listen((event) {
-  if (event.snapshot.value != null) {
-  Map<dynamic, dynamic> sponsorsData = event.snapshot.value as Map<dynamic, dynamic>;
-  
-  if (sponsorsData != null && sponsorsData.containsKey(currentUserId)) {
-    // The current user is a sponsor, navigate to the sponsor's profile
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => ViewOthersProfile("Sponsees", widget.receiverUserID),
-      ),
-    );
-    return;
-  }
-  }
-});
-databaseReference.child("Sponsees").onValue.listen((event) {
-  if (event.snapshot.value != null) {
-  Map<dynamic, dynamic> sponseesData = event.snapshot.value as Map<dynamic, dynamic>;
-  
-  if (sponseesData != null && sponseesData.containsKey(currentUserId)) {
-    // The current user is a sponsor, navigate to the sponsor's profile
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => ViewOthersProfile("Sponsors", widget.receiverUserID),
-      ),
-    );
-     return;
-  }
-  }
-});
+                  databaseReference.child("Sponsors").onValue.listen((event) {
+                    if (event.snapshot.value != null) {
+                      Map<dynamic, dynamic> sponsorsData =
+                          event.snapshot.value as Map<dynamic, dynamic>;
+
+                      if (sponsorsData != null &&
+                          sponsorsData.containsKey(currentUserId)) {
+                        // The current user is a sponsor, navigate to the sponsor's profile
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ViewOthersProfile(
+                                "Sponsees", widget.receiverUserID),
+                          ),
+                        );
+                        return;
+                      }
+                    }
+                  });
+                  databaseReference.child("Sponsees").onValue.listen((event) {
+                    if (event.snapshot.value != null) {
+                      Map<dynamic, dynamic> sponseesData =
+                          event.snapshot.value as Map<dynamic, dynamic>;
+
+                      if (sponseesData != null &&
+                          sponseesData.containsKey(currentUserId)) {
+                        // The current user is a sponsor, navigate to the sponsor's profile
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ViewOthersProfile(
+                                "Sponsors", widget.receiverUserID),
+                          ),
+                        );
+                        return;
+                      }
+                    }
+                  });
                   break;
                 case 'Meeting':
-                Navigator.of(context).push(
-                     MaterialPageRoute(
-                     builder: (context) =>  createEvent(),
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => createEvent(),
                     ),
-                   );
+                  );
                   break;
               }
             },
@@ -202,7 +209,7 @@ databaseReference.child("Sponsees").onValue.listen((event) {
               ];
             },
           ),
-          ],
+        ],
       ),
       body: Column(
         children: [
@@ -249,7 +256,7 @@ databaseReference.child("Sponsees").onValue.listen((event) {
                               decoration: BoxDecoration(
                                 color: isCurrentUser
                                     ? Colors.grey
-                                    : Colors.deepPurple,
+                                    : Color.fromARGB(255, 51, 45, 81),
                                 borderRadius: BorderRadius.circular(30.0),
                               ),
                               child: Text(
@@ -321,13 +328,13 @@ databaseReference.child("Sponsees").onValue.listen((event) {
                   onPressed: () {
                     sendFile(); // Call sendFile function to send a file
                   },
-                  icon:
-                      Icon(Icons.attach_file_rounded, color: Colors.deepPurple),
+                  icon: Icon(Icons.attach_file_rounded,
+                      color: Color.fromARGB(255, 51, 45, 81)),
                 ),
                 IconButton(
                   icon: const Icon(
                     Icons.send,
-                    color: Colors.deepPurple,
+                    color: Color.fromARGB(255, 51, 45, 81),
                   ),
                   onPressed: () {
                     final message = _messageController.text.trim();
