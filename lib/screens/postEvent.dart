@@ -725,9 +725,28 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.of(context).pop();
               },
             ),
-            TextButton(
+            ElevatedButton(
               child: const Text("Yes",
-                  style: TextStyle(color: Color.fromARGB(255, 51, 45, 81))),
+                  style: TextStyle(color: Color.fromARGB(255, 255, 255, 255))),
+              style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                      const Color.fromARGB(255, 51, 45, 81)),
+                  //Color.fromARGB(255, 207, 186, 224),), // Background color
+                  textStyle: MaterialStateProperty.all<TextStyle>(
+                      const TextStyle(fontSize: 16)), // Text style
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                      const EdgeInsets.all(16)), // Padding
+                  elevation: MaterialStateProperty.all<double>(1), // Elevation
+                  shape: MaterialStateProperty.all<OutlinedBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10), // Border radius
+                      side: const BorderSide(
+                          color: Color.fromARGB(
+                              255, 255, 255, 255)), // Border color
+                    ),
+                  ),
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(200, 50))),
               onPressed: () {
                 //runApp(const SponseeHome());
                 Navigator.of(context).pop();
@@ -766,9 +785,28 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.of(context).pop();
               },
             ),
-            TextButton(
+            ElevatedButton(
               child: const Text("Post",
-                  style: TextStyle(color: Color.fromARGB(255, 51, 45, 81))),
+                  style: TextStyle(color: Color.fromARGB(255, 242, 241, 241))),
+              style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                      const Color.fromARGB(255, 51, 45, 81)),
+                  //Color.fromARGB(255, 207, 186, 224),), // Background color
+                  textStyle: MaterialStateProperty.all<TextStyle>(
+                      const TextStyle(fontSize: 16)), // Text style
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                      const EdgeInsets.all(16)), // Padding
+                  elevation: MaterialStateProperty.all<double>(1), // Elevation
+                  shape: MaterialStateProperty.all<OutlinedBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10), // Border radius
+                      side: const BorderSide(
+                          color: Color.fromARGB(
+                              255, 255, 255, 255)), // Border color
+                    ),
+                  ),
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(200, 50))),
               onPressed: () {
                 String type = _selectedEventType;
                 String ename = EnameController.text;
@@ -1426,189 +1464,49 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('New Event'),
-          backgroundColor: const Color.fromARGB(255, 51, 45, 81),
-        ),
-        body:
-            // Column(children: [
-            //   Expanded(
-            //     child: showMap ? buildMap() : buildChooseLocationButton(),
-            //   ),
-            Form(
-                key: _formKey,
-                // child: IgnorePointer(
-                //   ignoring: true, // Make the steps unclickable
-                child: GestureDetector(
-                  onTap: () {},
-                  child: Stepper(
-                    controlsBuilder: (context, onStepContinue) {
-                      return Row(
-                        children: <Widget>[
-                          if (_activeStepIndex != 0)
-                            ElevatedButton(
-                              onPressed: () {
-                                if (_activeStepIndex == 0) {
-                                  return;
-                                }
-                                setState(() {
-                                  _activeStepIndex -= 1;
-                                });
-                              },
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all<Color>(
-                                      const Color.fromARGB(255, 51, 45, 81)),
-                                  //Color.fromARGB(255, 207, 186, 224),), // Background color
-                                  textStyle: MaterialStateProperty.all<TextStyle>(
-                                      const TextStyle(
-                                          fontSize: 16)), // Text style
-                                  padding: MaterialStateProperty.all<
-                                          EdgeInsetsGeometry>(
-                                      const EdgeInsets.all(16)), // Padding
-                                  elevation: MaterialStateProperty.all<double>(
-                                      1), // Elevation
-                                  shape:
-                                      MaterialStateProperty.all<OutlinedBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          30), // Border radius
-                                      side: const BorderSide(
-                                          color: Color.fromARGB(255, 255, 255,
-                                              255)), // Border color
-                                    ),
-                                  ),
-                                  minimumSize: MaterialStateProperty.all<Size>(
-                                      const Size(200, 50))),
-                              child: const Text(
-                                'BACK',
-                              ),
-                            )
-                          else if (_activeStepIndex == 0)
-                            ElevatedButton(
-                              onPressed: () {
-                                _showpostcancel();
-                              },
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all<Color>(
-                                      const Color.fromARGB(255, 51, 45, 81)),
-                                  //Color.fromARGB(255, 207, 186, 224),), // Background color
-                                  textStyle: MaterialStateProperty.all<TextStyle>(
-                                      const TextStyle(
-                                          fontSize: 16)), // Text style
-                                  padding: MaterialStateProperty.all<
-                                          EdgeInsetsGeometry>(
-                                      const EdgeInsets.all(16)), // Padding
-                                  elevation: MaterialStateProperty.all<double>(
-                                      1), // Elevation
-                                  shape:
-                                      MaterialStateProperty.all<OutlinedBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          30), // Border radius
-                                      side: const BorderSide(
-                                          color: Color.fromARGB(255, 255, 255,
-                                              255)), // Border color
-                                    ),
-                                  ),
-                                  minimumSize: MaterialStateProperty.all<Size>(
-                                      const Size(200, 50))),
-                              child: const Text(
-                                'CANCEL',
-                              ),
-                            ),
-                          const SizedBox(
-                            width: 350,
-                          ),
-                          if (_activeStepIndex != (stepList().length - 1))
-                            ElevatedButton(
-                              onPressed: () => {
-                                if (_activeStepIndex == 0)
-                                  {
-                                    // Check if required fields are empty
-                                    if (_selectedEventType.isEmpty ||
-                                        EnameController.text.isEmpty ||
-                                        _startDatetimeController.text ==
-                                            'No start Date & Time selected' ||
-                                        _endDatetimeController.text ==
-                                            'No end Date & Time selected' ||
-                                        numofAttendeesController.text.isEmpty)
-                                      {
-                                        setState(() {
-                                          showRequiredValidationMessage = true;
-                                        })
-                                      }
-                                    else
-                                      {
-                                        setState(() {
-                                          _activeStepIndex += 1;
-                                          showRequiredValidationMessage = false;
-                                        })
-                                      }
-                                  }
-                                else if (_activeStepIndex == 1)
-                                  {
-                                    if (selectedChips.isEmpty)
-                                      {
-                                        setState(() {
-                                          showCategoryValidationMessage = true;
-                                        })
-                                      }
-                                    else
-                                      {
-                                        setState(() {
-                                          _activeStepIndex += 1;
-                                          showCategoryValidationMessage = false;
-                                        })
-                                      }
-                                  }
-                                else
-                                  {
-                                    // No additional validation for the last step, simply increment
-                                    setState(() {
-                                      _activeStepIndex += 1;
-                                    })
-                                  }
-                              },
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all<Color>(
-                                      const Color.fromARGB(255, 51, 45, 81)),
-                                  //Color.fromARGB(255, 207, 186, 224),), // Background color
-                                  textStyle: MaterialStateProperty.all<TextStyle>(
-                                      const TextStyle(
-                                          fontSize: 16)), // Text style
-                                  padding: MaterialStateProperty.all<
-                                          EdgeInsetsGeometry>(
-                                      const EdgeInsets.all(16)), // Padding
-                                  elevation: MaterialStateProperty.all<double>(
-                                      1), // Elevation
-                                  shape:
-                                      MaterialStateProperty.all<OutlinedBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          30), // Border radius
-                                      side: const BorderSide(
-                                          color: Color.fromARGB(255, 255, 255,
-                                              255)), // Border color
-                                    ),
-                                  ),
-                                  minimumSize: MaterialStateProperty.all<Size>(
-                                      const Size(200, 50))),
-                              //),
-                              child: const Text(
-                                'NEXT',
-                              ),
-                            )
-                          else if (_activeStepIndex == stepList().length - 1)
-                            ElevatedButton(
+    return DefaultTabController(
+      length: 2, // Number of tabs (Current and Past)
+      child: Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            title: Text(
+              'New Event',
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+            ),
+            backgroundColor: Color.fromARGB(255, 51, 45, 81),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+            ),
+          ),
+          body:
+              // Column(children: [
+              //   Expanded(
+              //     child: showMap ? buildMap() : buildChooseLocationButton(),
+              //   ),
+              Form(
+                  key: _formKey,
+                  // child: IgnorePointer(
+                  //   ignoring: true, // Make the steps unclickable
+                  child: GestureDetector(
+                    onTap: () {},
+                    child: Stepper(
+                      controlsBuilder: (context, onStepContinue) {
+                        return Row(
+                          children: <Widget>[
+                            if (_activeStepIndex != 0)
+                              ElevatedButton(
                                 onPressed: () {
-                                  if (benefitsController.text.isEmpty) {
-                                    setState(() {
-                                      showRequiredValidationMessage = true;
-                                    });
-                                  } else {
-                                    _showpostconfirm();
+                                  if (_activeStepIndex == 0) {
+                                    return;
                                   }
+                                  setState(() {
+                                    _activeStepIndex -= 1;
+                                  });
                                 },
                                 style: ButtonStyle(
                                     backgroundColor: MaterialStateProperty.all<Color>(
@@ -1633,22 +1531,180 @@ class _MyHomePageState extends State<MyHomePage> {
                                     ),
                                     minimumSize: MaterialStateProperty.all<Size>(
                                         const Size(200, 50))),
-                                child: const Text("Post Event", style: TextStyle(fontSize: 20, color: Colors.white))),
-                        ],
-                      );
-                    },
-                    type: StepperType.horizontal,
-                    currentStep: _activeStepIndex,
-                    steps: stepList(),
-                    onStepTapped: null, //(int index) {
-                    //setState(() {
-                    //   _activeStepIndex = index;
-                    // });
-                    // },
-                  ),
-                ))
-        // ])
-        );
+                                child: const Text(
+                                  'BACK',
+                                ),
+                              )
+                            else if (_activeStepIndex == 0)
+                              ElevatedButton(
+                                onPressed: () {
+                                  _showpostcancel();
+                                },
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all<Color>(
+                                        const Color.fromARGB(255, 51, 45, 81)),
+                                    //Color.fromARGB(255, 207, 186, 224),), // Background color
+                                    textStyle: MaterialStateProperty.all<TextStyle>(
+                                        const TextStyle(
+                                            fontSize: 16)), // Text style
+                                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                        const EdgeInsets.all(16)), // Padding
+                                    elevation: MaterialStateProperty.all<double>(
+                                        1), // Elevation
+                                    shape: MaterialStateProperty.all<
+                                        OutlinedBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            30), // Border radius
+                                        side: const BorderSide(
+                                            color: Color.fromARGB(255, 255, 255,
+                                                255)), // Border color
+                                      ),
+                                    ),
+                                    minimumSize: MaterialStateProperty.all<Size>(
+                                        const Size(200, 50))),
+                                child: const Text(
+                                  'CANCEL',
+                                ),
+                              ),
+                            const SizedBox(
+                              width: 350,
+                            ),
+                            if (_activeStepIndex != (stepList().length - 1))
+                              ElevatedButton(
+                                onPressed: () => {
+                                  if (_activeStepIndex == 0)
+                                    {
+                                      // Check if required fields are empty
+                                      if (_selectedEventType.isEmpty ||
+                                          EnameController.text.isEmpty ||
+                                          _startDatetimeController.text ==
+                                              'No start Date & Time selected' ||
+                                          _endDatetimeController.text ==
+                                              'No end Date & Time selected' ||
+                                          numofAttendeesController.text.isEmpty)
+                                        {
+                                          setState(() {
+                                            showRequiredValidationMessage =
+                                                true;
+                                          })
+                                        }
+                                      else
+                                        {
+                                          setState(() {
+                                            _activeStepIndex += 1;
+                                            showRequiredValidationMessage =
+                                                false;
+                                          })
+                                        }
+                                    }
+                                  else if (_activeStepIndex == 1)
+                                    {
+                                      if (selectedChips.isEmpty)
+                                        {
+                                          setState(() {
+                                            showCategoryValidationMessage =
+                                                true;
+                                          })
+                                        }
+                                      else
+                                        {
+                                          setState(() {
+                                            _activeStepIndex += 1;
+                                            showCategoryValidationMessage =
+                                                false;
+                                          })
+                                        }
+                                    }
+                                  else
+                                    {
+                                      // No additional validation for the last step, simply increment
+                                      setState(() {
+                                        _activeStepIndex += 1;
+                                      })
+                                    }
+                                },
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all<Color>(
+                                        const Color.fromARGB(255, 51, 45, 81)),
+                                    //Color.fromARGB(255, 207, 186, 224),), // Background color
+                                    textStyle: MaterialStateProperty.all<TextStyle>(
+                                        const TextStyle(
+                                            fontSize: 16)), // Text style
+                                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                        const EdgeInsets.all(16)), // Padding
+                                    elevation: MaterialStateProperty.all<double>(
+                                        1), // Elevation
+                                    shape: MaterialStateProperty.all<
+                                        OutlinedBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            30), // Border radius
+                                        side: const BorderSide(
+                                            color: Color.fromARGB(255, 255, 255,
+                                                255)), // Border color
+                                      ),
+                                    ),
+                                    minimumSize: MaterialStateProperty.all<Size>(
+                                        const Size(200, 50))),
+                                //),
+                                child: const Text(
+                                  'NEXT',
+                                ),
+                              )
+                            else if (_activeStepIndex == stepList().length - 1)
+                              ElevatedButton(
+                                  onPressed: () {
+                                    if (benefitsController.text.isEmpty) {
+                                      setState(() {
+                                        showRequiredValidationMessage = true;
+                                      });
+                                    } else {
+                                      _showpostconfirm();
+                                    }
+                                  },
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                              const Color.fromARGB(
+                                                  255, 51, 45, 81)),
+                                      //Color.fromARGB(255, 207, 186, 224),), // Background color
+                                      textStyle:
+                                          MaterialStateProperty.all<TextStyle>(
+                                              const TextStyle(
+                                                  fontSize: 16)), // Text style
+                                      padding: MaterialStateProperty.all<
+                                              EdgeInsetsGeometry>(
+                                          const EdgeInsets.all(16)), // Padding
+                                      elevation: MaterialStateProperty.all<double>(
+                                          1), // Elevation
+                                      shape: MaterialStateProperty.all<OutlinedBorder>(
+                                        RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              30), // Border radius
+                                          side: const BorderSide(
+                                              color: Color.fromARGB(255, 255,
+                                                  255, 255)), // Border color
+                                        ),
+                                      ),
+                                      minimumSize: MaterialStateProperty.all<Size>(const Size(200, 50))),
+                                  child: const Text("Post Event", style: TextStyle(fontSize: 20, color: Colors.white))),
+                          ],
+                        );
+                      },
+                      type: StepperType.horizontal,
+                      currentStep: _activeStepIndex,
+                      steps: stepList(),
+                      onStepTapped: null, //(int index) {
+                      //setState(() {
+                      //   _activeStepIndex = index;
+                      // });
+                      // },
+                    ),
+                  ))
+          // ])
+          ),
+    );
   }
 
   bool isMapExpanded = false;
