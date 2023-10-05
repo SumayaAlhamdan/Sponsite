@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 
 final DatabaseReference dbref = FirebaseDatabase.instance.reference();
 
@@ -14,7 +14,7 @@ class Offer {
   String sponsorName;
   String sponsorImage;
   String timeStamp;
-  String status; // New field to track the offer status
+  String status; 
 
   Offer({
     required this.eventId,
@@ -25,7 +25,7 @@ class Offer {
     required this.sponsorName,
     required this.sponsorImage,
     required this.timeStamp,
-    this.status = 'Pending', // Default status is 'Pending'
+    this.status = 'Pending',
   });
 
   int get timeStampAsInt => int.tryParse(timeStamp) ?? 0;
@@ -47,14 +47,12 @@ class SponseeOffersList extends StatefulWidget {
 
 class _SponseeOffersListState extends State<SponseeOffersList> {
   List<Offer> offers = [];
-  List<Offer> acceptedOffers = [];
-  bool showActions = true; //buttons 
+  bool showActions = true;
 
   @override
   void initState() {
     super.initState();
     _loadOffersFromFirebase();
-    _loadAcceptedOffersFromStorage();
   }
 
   void _loadOffersFromFirebase() async {
@@ -65,25 +63,15 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     Map<String, String> sponsorNames = {};
     Map<String, String> sponsorImages = {};
 
-    // Clear acceptedOffers when loading new offers
-    acceptedOffers.clear();
-
     database.child('offers').onValue.listen((offer) {
       if (offer.snapshot.value != null) {
-     //   print("Firebase offers data: ${offer.snapshot.value}");
-
-        Map<dynamic, dynamic> offerData =
-            offer.snapshot.value as Map<dynamic, dynamic>;
+        Map<dynamic, dynamic> offerData = offer.snapshot.value as Map<dynamic, dynamic>;
 
         offerData.forEach((key, value) {
           List<String> categoryList = [];
           if (value['Category'] is List<dynamic>) {
-            categoryList = (value['Category'] as List<dynamic>)
-                .map((category) => category.toString())
-                .toList();
+            categoryList = (value['Category'] as List<dynamic>).map((category) => category.toString()).toList();
           }
-         // print('Check EventId: ${value['EventId']}');
-          //print("Widget EVENTid: ${widget.EVENTid}");
 
           if (value['EventId'] == widget.EVENTid) {
             String timestampString = value['TimeStamp'] as String? ?? '';
@@ -92,21 +80,19 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
               eventId: key,
               sponseeId: value['sponseeId'] as String? ?? '',
               categories: categoryList,
-              notes:
-                  value['notes'] as String? ?? 'There are no notes available',
+              notes: value['notes'] as String? ?? 'There are no notes available',
               sponsorId: value['sponsorId'] as String? ?? '',
               sponsorName: 'krkr',
               sponsorImage: '',
               timeStamp: timestampString,
-              status: value['Status'] as String? ?? 'Pending', // Read status from the database
+              status: value['Status'] as String? ?? 'Pending',
             ));
           }
         });
 
         database.child('Sponsors').onValue.listen((spons) {
           if (spons.snapshot.value != null) {
-            Map<dynamic, dynamic> sponsorData =
-                spons.snapshot.value as Map<dynamic, dynamic>;
+            Map<dynamic, dynamic> sponsorData = spons.snapshot.value as Map<dynamic, dynamic>;
 
             sponsorData.forEach((key, value) {
               sponsorNames[key] = value['Name'] as String? ?? '';
@@ -125,22 +111,6 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
         });
       }
     });
-  }
-
-  void _loadAcceptedOffersFromStorage() async {
-    
-    final prefs = await SharedPreferences.getInstance();
-    final acceptedOfferIds = prefs.getStringList('acceptedOffers') ?? [];
-
-    setState(() {
-    
-      acceptedOffers = offers
-          .where((offer) =>
-              acceptedOfferIds.contains(offer.eventId) &&
-              offer.status == 'Accepted')
-          .toList();
-    });
-    print(acceptedOffers);
   }
 
   String formatTimeAgo(int timestamp) {
@@ -222,8 +192,36 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     );
   }
 
-  Widget _buildCurrentOffersPage() {
-    final currentOffers = offers.where((offer) => offer.status == 'Pending').toList();
+ Widget _buildCurrentOffersPage() {
+  final currentOffers = offers.where((offer) => offer.status == 'Pending').toList();
+
+  if (currentOffers.isEmpty) {
+    // If there are no pending offers, display the empty state message
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 282,
+          height: 284,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/Add Files (1).png'),
+              fit: BoxFit.fitWidth,
+            ),
+          ),
+        ),
+        SizedBox(height: 20), // Adjust the spacing as needed
+        Text(
+          'There Are No New Offers Yet',
+          style: TextStyle(
+            fontSize: 24, // Adjust the font size as needed
+          ),
+        ),
+      ],
+    );
+  } else {
+    // If there are pending offers, display them
     return SingleChildScrollView(
       child: Column(
         children: currentOffers.map((offer) {
@@ -232,23 +230,50 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
       ),
     );
   }
+}
+
+
 
   Widget _buildSponsorsPage() {
-    final acceptedOffers = offers.where((offer) => offer.status == 'Accepted').toList();
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-         for (Offer offer in acceptedOffers) _buildOfferCard(offer),
-          Center(
-            child: Text(
-              'Sponsors Page',
-              style: TextStyle(fontSize: 24),
+  final accepted = offers.where((offer) => offer.status == 'Accepted').toList();
+
+  if (accepted.isEmpty) {
+    // If there are no accepted offers, display the empty state message with the image
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 282,
+          height: 284,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/NoSponsorsIcon.png'),
+              fit: BoxFit.fitWidth,
             ),
           ),
-        ],
+        ),
+        SizedBox(height: 20), // Adjust the spacing as needed
+        Text(
+          'There Are No Accepted Offers Yet',
+          style: TextStyle(
+            fontSize: 24, // Adjust the font size as needed
+          ),
+        ),
+      ],
+    );
+  } else {
+    // If there are accepted offers, display them
+    return SingleChildScrollView(
+      child: Column(
+        children: accepted.map((offer) {
+          return _buildOfferCard(offer);
+        }).toList(),
       ),
     );
   }
+}
+
 
   Widget _buildOfferCard(Offer offer) {
     final timestamp = DateTime.parse(offer.timeStamp).millisecondsSinceEpoch;
@@ -455,34 +480,28 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop(); 
               },
               child: Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop(); 
 
                 if (action == "Accept") {
-                  // Mark the offer as accepted
                   offer.status = 'Accepted';
 
-                  // Save accepted offers to storage
-                  _saveAcceptedOffersToStorage();
-
                   setState(() {
-                    acceptedOffers.add(offer);
+                      offers.clear();
                   });
 
-                  // Push the accepted status to the database
                   dbref.child('offers').child(offer.eventId).update({'Status': "Accepted"});
                 } else {
-                  // Push the rejected status to the database
                   dbref.child('offers').child(offer.eventId).update({'Status': "Rejected"});
                 }
 
                 setState(() {
-                  showActions = false; // Hide actions after rejecting
+                  showActions = false;
                 });
               },
               child: Text('Confirm'),
@@ -493,22 +512,6 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     );
   }
 
-  void _saveAcceptedOffersToStorage() async {
-    final prefs = await SharedPreferences.getInstance();
-    final acceptedOfferIds = acceptedOffers.map((offer) => offer.eventId).toList();
-    prefs.setStringList('acceptedOffers', acceptedOfferIds);
-  }
 
-  void _navigateToSponsorsTab() {
-    DefaultTabController.of(context)?.animateTo(1);
-  }
 }
 
-void main() {
-  runApp(MaterialApp(
-    home: SponseeOffersList(
-      EVENTid: "your_event_id_here",
-      EventName: "Your Event Name",
-    ),
-  ));
-}
