@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
@@ -123,11 +124,43 @@ class _ChatPageState extends State<ChatPage> {
               // Handle menu item selection here
               switch (value) {
                 case 'Profile':
-                  Navigator.of(context).push(
-                     MaterialPageRoute(
-                     builder: (context) =>  ViewOthersProfile("Sponsees",widget.receiverUserID),
-                    ),
-                   );
+// Initialize the Realtime Database reference
+final DatabaseReference databaseReference = FirebaseDatabase.instance.reference();
+
+// Replace "currentUserId" with the ID of the current user
+String currentUserId = chatService.currentUserId;
+
+// Fetch sponsors
+databaseReference.child("Sponsors").onValue.listen((event) {
+  if (event.snapshot.value != null) {
+  Map<dynamic, dynamic> sponsorsData = event.snapshot.value as Map<dynamic, dynamic>;
+  
+  if (sponsorsData != null && sponsorsData.containsKey(currentUserId)) {
+    // The current user is a sponsor, navigate to the sponsor's profile
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ViewOthersProfile("Sponsees", widget.receiverUserID),
+      ),
+    );
+    return;
+  }
+  }
+});
+databaseReference.child("Sponsees").onValue.listen((event) {
+  if (event.snapshot.value != null) {
+  Map<dynamic, dynamic> sponseesData = event.snapshot.value as Map<dynamic, dynamic>;
+  
+  if (sponseesData != null && sponseesData.containsKey(currentUserId)) {
+    // The current user is a sponsor, navigate to the sponsor's profile
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ViewOthersProfile("Sponsors", widget.receiverUserID),
+      ),
+    );
+     return;
+  }
+  }
+});
                   break;
                 case 'Meeting':
                 Navigator.of(context).push(

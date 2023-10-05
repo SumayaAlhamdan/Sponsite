@@ -105,42 +105,7 @@ class _createEventState extends State<createEvent> {
       print(error);
   }
 }
-// Future<void> _showErrorDialog(String errorMessage) async {
-//   await showDialog(
-//     context: context,
-//     builder: (BuildContext context) {
-//       return AlertDialog(
-//         title: Text(
-//           'Invalid Date and Time',
-//           style: TextStyle(fontSize: 24), // Adjust the font size as needed
-//         ),
-//         content: SingleChildScrollView(
-//           child: ListBody(
-//             children: <Widget>[
-//               Padding(
-//                 padding: EdgeInsets.all(16.0), // Add more padding
-//                 child: Text("Enter valid start and end date & time",
-//                   style: TextStyle(fontSize: 20), // Adjust the font size as needed
-//                 ),
-//                 ),
-//             ],
-//           ),
-//         ),
-//         actions: <Widget>[
-//           TextButton(
-//             onPressed: () {
-//               Navigator.of(context).pop();
-//             },
-//             child: Text(
-//               'OK',
-//               style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 51, 45, 81)), // Adjust the font size as needed
-//             ),
-//           ),
-//         ],
-//       );
-//     },
-//   );
-// }
+
 
 
   Future<auth.AuthClient> _createAuthClient(
@@ -351,6 +316,7 @@ Future<void> _showSummaryDialog() async {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
+              Navigator.of(context).pop(); 
             },
             child: Text(
               'OK',
@@ -543,7 +509,7 @@ Future<void> _showSummaryDialog() async {
                       controller: _startDatetimeController,
                       readOnly: true,
                       decoration: const InputDecoration(
-                        labelText: 'Select start Date and Time',
+                        labelText: 'Select Start Date and Time',
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(
                           Icons.calendar_month,
@@ -563,7 +529,7 @@ Future<void> _showSummaryDialog() async {
                       controller: _endDatetimeController,
                       readOnly: true,
                       decoration: const InputDecoration(
-                        labelText: 'Select end Date and Time',
+                        labelText: 'Select End Date and Time',
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(
                           Icons.calendar_month,
@@ -690,7 +656,7 @@ Container(
                     children: [
                        SizedBox(width:450),
                         InkWell(
-                        child: Text('Go to Google Meet', style: TextStyle(fontSize: 17, color: Color.fromARGB(255, 24, 103, 221), decoration: TextDecoration.underline,)),
+                        child: Text('Go To Google Meet', style: TextStyle(fontSize: 17, color: Color.fromARGB(255, 24, 103, 221), decoration: TextDecoration.underline,)),
                         onTap: () => launch('https://meet.google.com/'),
                       ),
                     ],
