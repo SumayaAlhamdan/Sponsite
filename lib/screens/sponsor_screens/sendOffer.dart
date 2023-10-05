@@ -110,11 +110,15 @@ class RecentEventsDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     GoogleMapController? mapController;
-    List<String> parts = location.split(',');
-    double latitude = double.parse(parts[0]);
-    double longitude = double.parse(parts[1]);
+    double latitude = 0;
+    double longitude = 0;
     LatLng loc = LatLng(latitude, longitude);
-
+    if (location != "null") {
+      List<String> parts = location.split(',');
+      latitude = double.parse(parts[0]);
+      longitude = double.parse(parts[1]);
+      loc = LatLng(latitude, longitude);
+    }
     Widget buildMap() {
       print("here!!");
       return Stack(
@@ -167,20 +171,6 @@ class RecentEventsDetails extends StatelessWidget {
         print("Error retrieving address: $e");
         return "Error retrieving address";
       }
-    }
-
-    String address = "Event address description not available";
-
-    Future<void> someFunction() async {
-      // Assuming this is where you are calling _buildInfoRow
-      address = await getAddressFromCoordinates(latitude, longitude);
-      print("!!!!!" + address + "!!!!!!");
-    }
-
-    String getAddress() {
-      someFunction();
-      print("!!!!!" + address + "!!!!!!");
-      return address;
     }
 
     return Scaffold(
@@ -309,84 +299,59 @@ class RecentEventsDetails extends StatelessWidget {
                               "${startDate} - ${endDate}", "Date"),
                           _buildInfoRow(Icons.access_time,
                               "${startTime}-${endTime}", "Time"),
-                          // _buildInfoRow(
-                          //     Icons.location_on, getAddress(), "Location"),
+                          _buildInfoRow(
+                              Icons.person, NumberOfAttendees, "Attendees"),
 
-                          // FutureBuilder<String>(
-                          //   future:
-                          //       getAddressFromCoordinates(latitude, longitude),
-                          //   builder: (context, snapshot) {
-                          //     if (snapshot.connectionState ==
-                          //         ConnectionState.waiting) {
-                          //       return CircularProgressIndicator(); // Show a loading indicator while waiting for the result.
-                          //     } else if (snapshot.hasError) {
-                          //       return Text("Error: ${snapshot.error}");
-                          //     } else if (!snapshot.hasData) {
-                          //       return Text("Address not found");
-                          //     } else {
-                          //       return _buildInfoRow(
-                          //         Icons.location_on,
-                          //         snapshot.data ?? "",
-                          //         "Location",
-                          //       );
-                          //     }
-                          //   },
-                          // ),
-                          // Text(
-                          //   "Location",
-                          //   style: const TextStyle(
-                          //     fontSize: 16,
-                          //     color: Colors.black54,
-                          //   ),
-                          // ),
-                          FutureBuilder<String>(
-                            future:
-                                getAddressFromCoordinates(latitude, longitude),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return CircularProgressIndicator();
-                              } else if (snapshot.hasError) {
-                                return Text("Error: ${snapshot.error}");
-                              } else if (!snapshot.hasData) {
-                                return Text("Address not found");
-                              } else {
-                                return Row(
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: Icon(
-                                        Icons
-                                            .location_on, // Replace with the desired icon
-                                        color: const Color.fromARGB(255, 91, 79,
-                                            158), // Customize the icon color
-                                        size: 40.0, // Customize the icon size
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Container(
+                          if (location != "null")
+                            FutureBuilder<String>(
+                              future: getAddressFromCoordinates(
+                                  latitude, longitude),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return CircularProgressIndicator();
+                                } else if (snapshot.hasError) {
+                                  return Text("Error: ${snapshot.error}");
+                                } else if (!snapshot.hasData) {
+                                  return Text("Address not found");
+                                } else {
+                                  return Row(
+                                    children: [
+                                      Container(
                                         padding: EdgeInsets.all(8.0),
-                                        child: Text(
-                                          snapshot.data ?? "",
-                                          style: TextStyle(
-                                            fontSize: 22.0,
+                                        child: Icon(
+                                          Icons
+                                              .location_on, // Replace with the desired icon
+                                          color: const Color.fromARGB(
+                                              255,
+                                              91,
+                                              79,
+                                              158), // Customize the icon color
+                                          size: 40.0, // Customize the icon size
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Container(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Text(
+                                            snapshot.data ?? "",
+                                            style: TextStyle(
+                                              fontSize: 22.0,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                );
-                              }
-                            },
-                          ),
+                                    ],
+                                  );
+                                }
+                              },
+                            ),
 
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.6,
-                            child: buildMap(),
-                          ),
-
-                          _buildInfoRow(
-                              Icons.person, NumberOfAttendees, "Attendees"),
+                          if (location != "null")
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.6,
+                              child: buildMap(),
+                            ),
 
                           const SizedBox(height: 20),
 

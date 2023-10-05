@@ -4,7 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:sponsite/eventDetail.dart';
 import 'package:sponsite/screens/sponsee_screens/SponseeOffersList.dart';
 import 'package:sponsite/widgets/customAppBar.dart';
-import 'package:sponsite/widgets/user_type_selector.dart'  ;
+import 'package:sponsite/widgets/user_type_selector.dart';
 
 class ViewCurrentSponsee extends StatefulWidget {
   const ViewCurrentSponsee({Key? key}) : super(key: key);
@@ -53,13 +53,11 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
             if (value['SponseeID'] == sponseeID) {
               // Use key as EVENTid for the current event
               String EVENTid = key;
-            //  print("The key value is " + key);
+              //  print("The key value is " + key);
               //print("the var value is : ");
               //print(EVENTid);
 
-
-            String timestampString = value['TimeStamp'] as String;
-           
+              String timestampString = value['TimeStamp'] as String;
 
               events.add(Event(
                 EventName: value['EventName'] as String? ?? '',
@@ -72,18 +70,18 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                 endDate: value['endDate'] as String? ?? '',
                 startTime: value['startTime'] as String? ?? '',
                 endTime: value['endTime'] as String? ?? '',
-                notes: value['Notes'] as String? ?? 'There are no notes available',
+                notes:
+                    value['Notes'] as String? ?? 'There are no notes available',
                 benefits: value['Benefits'] as String? ?? '',
                 NumberOfAttendees: value['NumberOfAttendees'] as String? ?? '',
                 Category: categoryList,
                 EVENTid: EVENTid,
-                 timeStamp: timestampString, 
-                 // Assign the EVENTid to the Event object
+                timeStamp: timestampString,
+                // Assign the EVENTid to the Event object
               ));
             }
           });
-                    events.sort((a, b) => b.timeStamp.compareTo(a.timeStamp));
-
+          events.sort((a, b) => b.timeStamp.compareTo(a.timeStamp));
         });
       }
     });
@@ -109,7 +107,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
         children: [
           SizedBox(
             width: double.infinity,
-            height: 140  ,
+            height: 140,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Image.network(
@@ -127,8 +125,8 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
               children: [
                 Text(
                   event.EventName,
-                  style:
-                      const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(
                   height: 5,
@@ -152,17 +150,17 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                     ),
                     Row(
                       children: [
-                        if (event.location != null &&
-                            event.location.isNotEmpty)
+                        if (event.NumberOfAttendees != null &&
+                            event.NumberOfAttendees.isNotEmpty)
                           const Icon(
-                            Icons.location_on,
+                            Icons.people,
                             size: 24,
                             color: Color.fromARGB(255, 91, 79, 158),
                           ),
                         const SizedBox(width: 5),
                         Expanded(
                           child: Text(
-                            event.location,
+                            event.NumberOfAttendees,
                             style: const TextStyle(fontSize: 18),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -179,8 +177,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                   children: event.Category.map((category) {
                     return Chip(
                       label: Text(category.trim()),
-                      backgroundColor:
-                          const Color.fromARGB(255, 255, 255, 255),
+                      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                       shadowColor: const Color.fromARGB(255, 91, 79, 158),
                       elevation: 3,
                       labelStyle: const TextStyle(
@@ -394,8 +391,6 @@ class Event {
   final List<String> Category;
   final String EVENTid;
   final String timeStamp;
- 
-  
 
   Event({
     required this.EventName,
@@ -412,7 +407,6 @@ class Event {
     required this.notes,
     this.benefits,
     required this.EVENTid,
-     required this.timeStamp,   
-    
+    required this.timeStamp,
   });
 }
