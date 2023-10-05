@@ -47,15 +47,19 @@ class _Start extends State<eventDetail> {
   @override
   Widget build(BuildContext context) {
     GoogleMapController? mapController;
+
     double latitude = 0;
     double longitude = 0;
     LatLng loc = LatLng(latitude, longitude);
-    if (widget.location != "null") {
+
+    void getloc() {
       List<String> parts = widget.location.split(',');
-      double latitude = double.parse(parts[0]);
-      double longitude = double.parse(parts[1]);
-      LatLng loc = LatLng(latitude, longitude);
+      latitude = double.parse(parts[0]);
+      longitude = double.parse(parts[1]);
+      loc = LatLng(latitude, longitude);
     }
+
+    if (widget.location != "null") getloc();
     Widget buildMap() {
       print("here!!");
       return Stack(
@@ -206,7 +210,7 @@ class _Start extends State<eventDetail> {
                               "Date"),
                           _buildInfoRow(Icons.access_time,
                               "${widget.startTime}-${widget.endTime}", "Time"),
-                          _buildInfoRow(Icons.person, widget.NumberOfAttendees,
+                          _buildInfoRow(Icons.people, widget.NumberOfAttendees,
                               "Attendees"),
                           if (widget.location != "null")
                             FutureBuilder<String>(

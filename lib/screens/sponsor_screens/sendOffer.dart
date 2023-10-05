@@ -86,7 +86,7 @@ class RecentEventsDetails extends StatelessWidget {
   final String sponseeName;
   final String sponseeImage;
 
-  const RecentEventsDetails(
+  RecentEventsDetails(
       {super.key,
       required this.sponsorID,
       required this.EventId,
@@ -110,15 +110,20 @@ class RecentEventsDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     GoogleMapController? mapController;
+
     double latitude = 0;
     double longitude = 0;
     LatLng loc = LatLng(latitude, longitude);
-    if (location != "null") {
+
+    void getloc() {
       List<String> parts = location.split(',');
       latitude = double.parse(parts[0]);
       longitude = double.parse(parts[1]);
       loc = LatLng(latitude, longitude);
     }
+
+    if (location != "null") getloc();
+
     Widget buildMap() {
       print("here!!");
       return Stack(
@@ -300,8 +305,7 @@ class RecentEventsDetails extends StatelessWidget {
                           _buildInfoRow(Icons.access_time,
                               "${startTime}-${endTime}", "Time"),
                           _buildInfoRow(
-                              Icons.person, NumberOfAttendees, "Attendees"),
-
+                              Icons.people, NumberOfAttendees, "Attendees"),
                           if (location != "null")
                             FutureBuilder<String>(
                               future: getAddressFromCoordinates(
