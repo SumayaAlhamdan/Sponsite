@@ -492,9 +492,9 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
             TextButton(
               onPressed: () async {
                 Navigator.of(context).pop(); 
-final sponseeToken = await _retrieveSponsorToken(offer.sponseeId);
-          if (sponseeToken != null && user!.uid == offer.sponsorId) {
-            sendNotificationToSponsor1(sponseeToken);
+final sponsorToken = await _retrieveSponsorToken(offer.sponsorId);
+          if (sponsorToken != null && user!.uid == offer.sponseeId) {
+            sendNotificationToSponsor1(sponsorToken);
           }
                 if (action == "Accept") {
                   offer.status = 'Accepted';
