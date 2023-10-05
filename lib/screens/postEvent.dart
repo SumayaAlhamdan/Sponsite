@@ -731,10 +731,41 @@ class _MyHomePageState extends State<MyHomePage> {
                 String notes = notesController.text;
                 _postNewEvent(type, ename, location, startDate, endDate,
                     startTime, endTime, numOfAt, categ, benefits, notes);
-                Navigator.of(context).pop();
-                _showSuccessSnackbar(context);
 
-                //_showSuccessSnackbar(context);
+                Navigator.of(context).pop();
+
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    Future.delayed(const Duration(seconds: 3), () {
+                      Navigator.of(context).pop(true);
+                    });
+                    return Theme(
+                      data: Theme.of(context)
+                          .copyWith(dialogBackgroundColor: Colors.white),
+                      child: AlertDialog(
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              color: Color.fromARGB(255, 91, 79, 158),
+                              size: 48,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'Your Event was posted successfully!',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
               },
             ),
           ],
@@ -1266,20 +1297,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ];
 
   List<String> selectedChips = [];
-
-  void _showSuccessSnackbar(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Your event is posted to sponsors!',
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.green, // Set the background color
-      ),
-    );
-  }
 
   Widget _buildSelectedChipsWidget() {
     if (selectedChips.isEmpty) {
