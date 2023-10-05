@@ -1,16 +1,15 @@
 import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:path/path.dart';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:sponsite/screens/chat_service.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:http/http.dart' as http;
+import 'package:sponsite/screens/createGoogleCalendarEvent.dart';
+import 'package:sponsite/screens/view_others_profile.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../FirebaseApi.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:sponsite/chatDetail.dart';
 
 class ChatPage extends StatefulWidget {
   final String receiverUserEmail;
@@ -111,18 +110,66 @@ class _ChatPageState extends State<ChatPage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            IconButton(
-              icon: Icon(Icons.more_horiz, size: 50),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => MyApp(),
-                  ),
-                );
-              },
-            ),
           ],
-        ),
+            ),
+     actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(
+              Icons.more_horiz,
+              color: Color.fromARGB(255, 51, 45, 81),
+              size: 70,
+            ),
+            onSelected: (value) {
+              // Handle menu item selection here
+              switch (value) {
+                case 'Profile':
+                  Navigator.of(context).push(
+                     MaterialPageRoute(
+                     builder: (context) =>  ViewOthersProfile("Sponsees",widget.receiverUserID),
+                    ),
+                   );
+                  break;
+                case 'Meeting':
+                Navigator.of(context).push(
+                     MaterialPageRoute(
+                     builder: (context) =>  createEvent(),
+                    ),
+                   );
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                const PopupMenuItem<String>(
+                  value: 'Profile',
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.perm_identity,
+                      size: 30,
+                    ),
+                    title: Text(
+                      'Profile',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'Meeting',
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.video_call,
+                      size: 30,
+                    ),
+                    title: Text(
+                      'Schedule Meeting',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                ),
+              ];
+            },
+          ),
+          ],
       ),
       body: Column(
         children: [
