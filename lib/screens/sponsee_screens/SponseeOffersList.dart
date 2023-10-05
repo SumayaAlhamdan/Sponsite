@@ -431,7 +431,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) =>
-                              ViewOthersProfile('Sponsors', sponsorID)));
+                              ViewOthersProfile('Sponsors', offer.sponsorId)));
                     },
                   ),
                   Column(
@@ -457,7 +457,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                         onTap: () {
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) =>
-                                  ViewOthersProfile('Sponsors', sponsorID)));
+                                  ViewOthersProfile('Sponsors', offer.sponsorId)));
                         },
                       ),
                       Text(
