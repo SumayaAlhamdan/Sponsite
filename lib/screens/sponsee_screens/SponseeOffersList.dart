@@ -1,6 +1,10 @@
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 
 final DatabaseReference dbref = FirebaseDatabase.instance.reference();
@@ -48,6 +52,7 @@ class SponseeOffersList extends StatefulWidget {
 class _SponseeOffersListState extends State<SponseeOffersList> {
   List<Offer> offers = [];
   bool showActions = true;
+  User? user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -132,28 +137,31 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            '${widget.EventName} Event Offers',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          backgroundColor: Color.fromARGB(255, 51, 45, 81),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(20),
-              bottomRight: Radius.circular(20),
-            ),
-          ),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ),
+  backgroundColor: Color.fromARGB(255, 51, 45, 81),
+  elevation: 0,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.only(
+      bottomLeft: Radius.circular(20),
+      bottomRight: Radius.circular(20),
+    ),
+  ),
+  leading: IconButton(
+    icon: Icon(Icons.arrow_back, color: Colors.white),
+    onPressed: () {
+      Navigator.of(context).pop();
+    },
+  ),
+  title: Center(
+    child: Text(
+      '${widget.EventName} Event Offers',
+      style: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.w500,
+      ),
+    ),
+  ),
+),
+
         backgroundColor: Colors.white,
         body: Column(
           children: [
@@ -275,198 +283,209 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
 }
 
 
-  Widget _buildOfferCard(Offer offer) {
-    final timestamp = DateTime.parse(offer.timeStamp).millisecondsSinceEpoch;
+bool isExpanded = false;
 
-    return Container(
-      child: Card(
-        margin: EdgeInsets.all(10),
-        elevation: 5,
-        color: Color.fromARGB(255, 255, 255, 255),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: ExpansionTile(
-          tilePadding: EdgeInsets.all(0),
-          expandedAlignment: Alignment.topLeft,
-          childrenPadding: EdgeInsets.all(22),
-          trailing: SizedBox.shrink(),
-          title: Stack(
-            children: [
-              Align(
-                alignment: Alignment.topCenter,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-                  decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 51, 45, 81).withOpacity(0.7),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                      bottomLeft: Radius.circular(0),
-                      bottomRight: Radius.circular(0),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Posted: ${formatTimeAgo(timestamp)}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
+@override
+Widget _buildOfferCard(Offer offer) {
+  final timestamp = DateTime.parse(offer.timeStamp).millisecondsSinceEpoch;
+
+  return Container(
+    margin: EdgeInsets.all(10),
+    child: Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20), // Radius for the card
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1), // Shadow color
+            spreadRadius: 2, // Spread radius for the shadow
+            blurRadius: 4, // Blur radius for the shadow
+            offset: Offset(0, 2), // Offset for the shadow
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                isExpanded = !isExpanded;
+              });
+            },
+            child: Container(
+              height: 50,
+              decoration: BoxDecoration(
+                color: Color.fromARGB(193, 51, 45, 81),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
                 ),
               ),
-              Row(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    margin: EdgeInsets.only(top: 35),
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                      image: DecorationImage(
-                        image: NetworkImage(offer.sponsorImage),
-                        fit: BoxFit.cover,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16),
+                    child: Text(
+                      'Posted: ${formatTimeAgo(timestamp)}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
                       ),
                     ),
-                  ),
-                  SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Sponsor',
-                        style: TextStyle(
-                          fontSize: 25,
-                        ),
-                      ),
-                      Text(
-                        offer.sponsorName,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Icon(
-                    Icons.keyboard_arrow_down,
-                    size: 36,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Padding(
+            padding: EdgeInsets.only(bottom: 16),
+            child: Row(
               children: [
-                SizedBox(height: 8),
-                Text(
-                  "Categories",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                Container(
+                  width: 100,
+                  height: 100,
+                  margin: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50),
+                    color: Colors.black,
+                    image: DecorationImage(
+                      image: NetworkImage(offer.sponsorImage),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 4,
-                  children: offer.categories.map((category) {
-                    return Chip(
-                      label: Text(category),
-                      backgroundColor: Color.fromARGB(255, 91, 79, 158),
-                      shadowColor: Colors.white,
-                      elevation: 3,
-                      labelStyle: TextStyle(
-                        color: Colors.white,
-                      ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Notes:',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  offer.notes,
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (showActions)
-                      Row(
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              _showConfirmationDialog("Accept", offer);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              primary: Colors.green,
-                              minimumSize: Size(120, 50),
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                            ),
-                            child: Text(
-                              'Accept',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 5),
-                          ElevatedButton(
-                            onPressed: () {
-                              _showConfirmationDialog("Reject", offer);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              primary: Colors.red,
-                              minimumSize: Size(120, 50),
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                            ),
-                            child: Text(
-                              'Reject',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
-                        ],
+                    Text(
+                      'Sponsor',
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.black,
                       ),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      offer.sponsorName,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
                   ],
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                isExpanded = !isExpanded;
+              });
+            },
+            child: Icon(
+              isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+            ),
+          ),
+          if (isExpanded)
+            Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Categories",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Wrap(
+                    spacing: 4,
+                    children: offer.categories.map((category) {
+                      return Chip(
+                        label: Text(category),
+                        backgroundColor: Color.fromARGB(255, 91, 79, 158),
+                        labelStyle: TextStyle(
+                          color: Colors.white,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Notes:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    offer.notes,
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  SizedBox(height: 20), // Additional height to separate from action buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          _showConfirmationDialog("Accept", offer);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.green,
+                          minimumSize: Size(120, 50),
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                        ),
+                        child: Text(
+                          'Accept',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          _showConfirmationDialog("Reject", offer);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.red,
+                          minimumSize: Size(120, 50),
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                        ),
+                        child: Text(
+                          'Reject',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 100),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
+
 
   void _showConfirmationDialog(String action, Offer offer) {
     showDialog(
@@ -485,9 +504,12 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
               child: Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop(); 
-
+final sponsorToken = await _retrieveSponsorToken(offer.sponsorId);
+          if (sponsorToken != null && user!.uid == offer.sponseeId) {
+            sendNotificationToSponsor1(sponsorToken);
+          }
                 if (action == "Accept") {
                   offer.status = 'Accepted';
 
@@ -510,6 +532,63 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
         );
       },
     );
+  }
+  Future<void> sendNotificationToSponsor1(String sponsorToken) async {
+    final String serverKey =
+        'AAAAw5lT-Yg:APA91bE4EbR1XYHUoMl-qZYAFVsrtCtcznSsh7RSCSZ-yJKR2_bdX8f9bIaQgDrZlEaEaYQlEpsdN6B6ccEj5qStijSCDN_i0szRxhap-vD8fINcJAA-nK11z7WPzdZ53EhbYF5cp-ql'; //
+    final String fcmUrl = 'https://fcm.googleapis.com/fcm/send';
+
+    final Map<String, dynamic> notification = {
+      'body': 'Your Offer status has been updated.',
+      'title': 'Status update',
+      'sound': 'default',
+    };
+
+    final Map<String, dynamic> data = {
+      'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+      // Add any additional data you want to send
+    };
+
+    final Map<String, dynamic> body = {
+      'notification': notification,
+      'data': data,
+      'to': sponsorToken, // The FCM token of the service provider
+    };
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'key=$serverKey',
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(fcmUrl),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        print('Notification sent successfully.');
+      } else {
+        print(
+            'Error sending notification. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error sending notification: $e');
+    }
+  }
+  Future<String?> _retrieveSponsorToken(String id) async {
+    final DatabaseReference databaseReference =
+        FirebaseDatabase.instance.reference();
+    final DataSnapshot dataSnapshot =
+        (await databaseReference.child('userTokens').child(id).once()).snapshot;
+    final Map<dynamic, dynamic>? data =
+        dataSnapshot.value as Map<dynamic, dynamic>?;
+    if (data != null && data.containsKey('token')) {
+      return data['token'].toString();
+    }
+
+    return null;
   }
 
 
