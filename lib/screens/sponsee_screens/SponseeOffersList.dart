@@ -19,6 +19,8 @@ class Offer {
   String sponsorImage;
   String timeStamp;
   String status; 
+  String startDate ; 
+  String startTime ; 
 
   Offer({
     required this.eventId,
@@ -30,6 +32,8 @@ class Offer {
     required this.sponsorImage,
     required this.timeStamp,
     this.status = 'Pending',
+    required this.startDate,
+    required this.startTime,
   });
 
   int get timeStampAsInt => int.tryParse(timeStamp) ?? 0;
@@ -60,63 +64,127 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     _loadOffersFromFirebase();
   }
 
-  void _loadOffersFromFirebase() async {
-    final DatabaseReference database = FirebaseDatabase.instance.ref();
-    offers.clear();
+ void _loadOffersFromFirebase() async {
+  final DatabaseReference database = FirebaseDatabase.instance.ref();
+  offers.clear();
 
-    List<Offer> loadedOffers = [];
-    Map<String, String> sponsorNames = {};
-    Map<String, String> sponsorImages = {};
+  List<Offer> loadedOffers = [];
+  Map<String, String> sponsorNames = {};
+  Map<String, String> sponsorImages = {};
+  Map<String, String> startDates = {};
+  Map<String, String> startTimes= {};
 
-    database.child('offers').onValue.listen((offer) {
-      if (offer.snapshot.value != null) {
-        Map<dynamic, dynamic> offerData = offer.snapshot.value as Map<dynamic, dynamic>;
+  database.child('offers').onValue.listen((offer) {
+    if (offer.snapshot.value != null) {
+      Map<dynamic, dynamic> offerData = offer.snapshot.value as Map<dynamic, dynamic>;
 
-        offerData.forEach((key, value) {
-          List<String> categoryList = [];
-          if (value['Category'] is List<dynamic>) {
-            categoryList = (value['Category'] as List<dynamic>).map((category) => category.toString()).toList();
+      offerData.forEach((key, value) {
+        List<String> categoryList = [];
+        if (value['Category'] is List<dynamic>) {
+          categoryList = (value['Category'] as List<dynamic>).map((category) => category.toString()).toList();
+        }
+
+        if (value['EventId'] == widget.EVENTid) {
+          String timestampString = value['TimeStamp'] as String? ?? '';
+
+          loadedOffers.add(Offer(
+            eventId: key,
+            sponseeId: value['sponseeId'] as String? ?? '',
+            categories: categoryList,
+            notes: value['notes'] as String? ?? 'There are no notes available',
+            sponsorId: value['sponsorId'] as String? ?? '',
+            sponsorName: 'krkr',
+            sponsorImage: '',
+            timeStamp: timestampString,
+            status: value['Status'] as String? ?? 'Pending',
+            startDate: '',
+            startTime : '' // Load the start date
+          ));
+        }
+      });
+
+      database.child('Sponsors').onValue.listen((spons) {
+        if (spons.snapshot.value != null) {
+          Map<dynamic, dynamic> sponsorData = spons.snapshot.value as Map<dynamic, dynamic>;
+
+          sponsorData.forEach((key, value) {
+            sponsorNames[key] = value['Name'] as String? ?? '';
+            sponsorImages[key] = value['Picture'] as String? ?? '';
+          });
+
+          for (var offer in loadedOffers) {
+            offer.sponsorName = sponsorNames[offer.sponsorId] ?? '';
+            offer.sponsorImage = sponsorImages[offer.sponsorId] ?? '';
           }
 
-          if (value['EventId'] == widget.EVENTid) {
-            String timestampString = value['TimeStamp'] as String? ?? '';
+        }
+      });
 
-            loadedOffers.add(Offer(
-              eventId: key,
-              sponseeId: value['sponseeId'] as String? ?? '',
-              categories: categoryList,
-              notes: value['notes'] as String? ?? 'There are no notes available',
-              sponsorId: value['sponsorId'] as String? ?? '',
-              sponsorName: 'krkr',
-              sponsorImage: '',
-              timeStamp: timestampString,
-              status: value['Status'] as String? ?? 'Pending',
-            ));
+      database.child('sponseeEvents').onValue.listen((Date) {
+        if (Date.snapshot.value != null) {
+          Map<dynamic, dynamic> date = Date.snapshot.value as Map<dynamic, dynamic>;
+          date.forEach((key, value) {
+            startDates[key] = value['startDate'] as String? ?? '';
+            startTimes[key] = value['startTime'] as String? ?? '';
+          });
+
+          // Update the start dates in the offers
+          for (var offer in loadedOffers) {
+            offer.startDate = startDates[offer.eventId] ?? '';
+            offer.startTime = startTimes[offer.eventId] ?? '';
+            
           }
-        });
 
-        database.child('Sponsors').onValue.listen((spons) {
-          if (spons.snapshot.value != null) {
-            Map<dynamic, dynamic> sponsorData = spons.snapshot.value as Map<dynamic, dynamic>;
+          setState(() {
+            offers = loadedOffers;
+          });
+        }
+      });
+    }
+  });
+}
+String calculateExpiry(Offer offer) {
+  print('prining first ! ') ; 
+  print(offer.startDate + offer.startTime) ; 
 
-            sponsorData.forEach((key, value) {
-              sponsorNames[key] = value['Name'] as String? ?? '';
-              sponsorImages[key] = value['Picture'] as String? ?? '';
-            });
+  try {
+    final offerTimestamp = DateTime.parse(offer.timeStamp);
 
-            for (var offer in loadedOffers) {
-              offer.sponsorName = sponsorNames[offer.sponsorId] ?? '';
-              offer.sponsorImage = sponsorImages[offer.sponsorId] ?? '';
-            }
+    var eventStartDateTime = DateTime.parse(offer.startDate + ' ' + offer.startTime);
+    
+    // Adjust for 12-hour time format and space
+    final timeParts = offer.startTime.split(' ');
+    final eventHour = int.parse(timeParts[0].split(':')[0]);
+    final eventMinute = int.parse(timeParts[0].split(':')[1]);
+    
+    if (timeParts[1].toLowerCase() == 'pm' && eventHour < 12) {
+      eventStartDateTime = eventStartDateTime.add(Duration(hours: 12));
+    }
 
-            setState(() {
-              offers = loadedOffers;
-            });
-          }
-        });
+    // Calculate the time difference in days
+    final timeDifference = eventStartDateTime.difference(offerTimestamp).inDays;
+
+    if (timeDifference > 0) {
+      final threshold = timeDifference ~/ 2;
+      final expiresIn = timeDifference - threshold;
+
+      if (expiresIn == 0) {
+        return 'Expires today';
+      } else if (expiresIn == 1) {
+        return 'Expires in 1 day';
+      } else {
+        return 'Expires in $expiresIn days';
       }
-    });
+    } else {
+      return 'Expired';
+    }
+  } catch (e) {
+    return 'Invalid date or time format';
   }
+}
+
+
+
 
   String formatTimeAgo(int timestamp) {
     final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
@@ -375,6 +443,14 @@ Widget _buildOfferCard(Offer offer) {
                         color: Colors.black,
                       ),
                     ),
+                    Text(
+  calculateExpiry(offer),
+  style: TextStyle(
+    fontSize: 14,
+    color: Colors.grey,
+  ),
+)
+
                   ],
                 ),
               ],
