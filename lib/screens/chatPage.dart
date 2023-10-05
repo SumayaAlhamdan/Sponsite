@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sponsite/screens/chat_service.dart';
@@ -85,13 +86,19 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color.fromARGB(255, 51, 45, 81),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(20),
+          bottomRight: Radius.circular(20),
+        )),
         title: Row(
           children: [
             SizedBox(width: 8.0),
             Image.network(
               widget.pic ?? senderPic,
-              width: 60,
-              height: 60,
+              width: 50,
+              height: 50,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Image.asset(
@@ -105,11 +112,8 @@ class _ChatPageState extends State<ChatPage> {
             SizedBox(width: 8.0),
             Text(
               widget.receiverUserName,
-              style: TextStyle(
-                color: Color.fromARGB(255, 51, 45, 81),
-                fontSize: 25,
-                fontWeight: FontWeight.bold,
-              ),
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -117,8 +121,8 @@ class _ChatPageState extends State<ChatPage> {
           PopupMenuButton<String>(
             icon: const Icon(
               Icons.more_horiz,
-              color: Color.fromARGB(255, 51, 45, 81),
-              size: 70,
+              color: Color.fromARGB(255, 255, 255, 255),
+              size: 50,
             ),
             onSelected: (value) {
               // Handle menu item selection here
@@ -252,18 +256,18 @@ class _ChatPageState extends State<ChatPage> {
                                 ? Alignment.centerRight
                                 : Alignment.centerLeft,
                             child: Container(
-                              padding: EdgeInsets.all(8.0),
+                              padding: EdgeInsets.all(10.0),
                               decoration: BoxDecoration(
                                 color: isCurrentUser
                                     ? Colors.grey
                                     : Color.fromARGB(255, 51, 45, 81),
-                                borderRadius: BorderRadius.circular(30.0),
+                                borderRadius: BorderRadius.circular(20.0),
                               ),
                               child: Text(
                                 message,
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 25,
+                                  fontSize: 20,
                                 ),
                               ),
                             ),
@@ -288,8 +292,12 @@ class _ChatPageState extends State<ChatPage> {
                               },
                               child: Text(
                                 fileName,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.blue,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: Colors.blue,
+                                  decorationThickness:
+                                      2.0, // Customize the thickness if needed
                                   fontSize: 20,
                                 ),
                               ),
@@ -316,10 +324,20 @@ class _ChatPageState extends State<ChatPage> {
                 Expanded(
                   child: SizedBox(
                     child: TextField(
-                      style: TextStyle(fontSize: 25),
+                      style: TextStyle(fontSize: 20),
                       controller: _messageController,
                       decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(
+                                  255, 51, 45, 81)), // Set the border color
+                          borderRadius:
+                              BorderRadius.circular(10.0), // Set border radius
+                        ),
                         hintText: "Type your message...",
+                        hintStyle: TextStyle(
+                            color: Color.fromARGB(
+                                255, 51, 45, 81)), // Change hint text color
                       ),
                     ),
                   ),
@@ -330,11 +348,13 @@ class _ChatPageState extends State<ChatPage> {
                   },
                   icon: Icon(Icons.attach_file_rounded,
                       color: Color.fromARGB(255, 51, 45, 81)),
+                  iconSize: 25,
                 ),
                 IconButton(
                   icon: const Icon(
                     Icons.send,
                     color: Color.fromARGB(255, 51, 45, 81),
+                    size: 25,
                   ),
                   onPressed: () {
                     final message = _messageController.text.trim();
