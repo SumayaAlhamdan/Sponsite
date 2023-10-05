@@ -144,7 +144,7 @@ class _SponseeChatState extends State<SponseeChat> {
           ),
           child: CircleAvatar(
             radius: 30,
-            backgroundImage: NetworkImage(pic),
+            //   backgroundImage: NetworkImage(pic),
             backgroundColor: Colors.transparent,
             child: Image.network(
               pic,

@@ -92,6 +92,17 @@ class _ChatPageState extends State<ChatPage> {
           bottomLeft: Radius.circular(20),
           bottomRight: Radius.circular(20),
         )),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.of(context)
+                .pop(); // Navigate back when the back button is pressed
+          },
+        ),
         title: Row(
           children: [
             SizedBox(width: 8.0),
