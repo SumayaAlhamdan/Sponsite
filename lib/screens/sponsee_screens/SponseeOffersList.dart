@@ -1,6 +1,10 @@
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 
 final DatabaseReference dbref = FirebaseDatabase.instance.reference();
@@ -48,6 +52,7 @@ class SponseeOffersList extends StatefulWidget {
 class _SponseeOffersListState extends State<SponseeOffersList> {
   List<Offer> offers = [];
   bool showActions = true;
+  User? user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -485,9 +490,12 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
               child: Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop(); 
-
+final sponseeToken = await _retrieveSponsorToken(offer.sponseeId);
+          if (sponseeToken != null && user!.uid == offer.sponsorId) {
+            sendNotificationToSponsor1(sponseeToken);
+          }
                 if (action == "Accept") {
                   offer.status = 'Accepted';
 
@@ -510,6 +518,63 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
         );
       },
     );
+  }
+  Future<void> sendNotificationToSponsor1(String sponsorToken) async {
+    final String serverKey =
+        'AAAAw5lT-Yg:APA91bE4EbR1XYHUoMl-qZYAFVsrtCtcznSsh7RSCSZ-yJKR2_bdX8f9bIaQgDrZlEaEaYQlEpsdN6B6ccEj5qStijSCDN_i0szRxhap-vD8fINcJAA-nK11z7WPzdZ53EhbYF5cp-ql'; //
+    final String fcmUrl = 'https://fcm.googleapis.com/fcm/send';
+
+    final Map<String, dynamic> notification = {
+      'body': 'Your Offer status has been updated.',
+      'title': 'Status update',
+      'sound': 'default',
+    };
+
+    final Map<String, dynamic> data = {
+      'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+      // Add any additional data you want to send
+    };
+
+    final Map<String, dynamic> body = {
+      'notification': notification,
+      'data': data,
+      'to': sponsorToken, // The FCM token of the service provider
+    };
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'key=$serverKey',
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(fcmUrl),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        print('Notification sent successfully.');
+      } else {
+        print(
+            'Error sending notification. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error sending notification: $e');
+    }
+  }
+  Future<String?> _retrieveSponsorToken(String id) async {
+    final DatabaseReference databaseReference =
+        FirebaseDatabase.instance.reference();
+    final DataSnapshot dataSnapshot =
+        (await databaseReference.child('userTokens').child(id).once()).snapshot;
+    final Map<dynamic, dynamic>? data =
+        dataSnapshot.value as Map<dynamic, dynamic>?;
+    if (data != null && data.containsKey('token')) {
+      return data['token'].toString();
+    }
+
+    return null;
   }
 
 
