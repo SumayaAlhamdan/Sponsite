@@ -41,6 +41,15 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
   }
 
   Widget listItem({required Event event, required Offer offer}) {
+    Color statusColor = const Color.fromARGB(
+        255, 91, 79, 158); // Default status color is gray for pending
+
+    if (offer.status == 'Accepted') {
+      statusColor = Colors.green;
+    } else if (offer.status == 'Rejected') {
+      statusColor = Colors.red;
+    }
+
     final screenHeight = MediaQuery.of(context).size.height;
     return Container(
       height: screenHeight * 0.9,
@@ -86,6 +95,27 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
                   style: const TextStyle(
                       fontSize: 20, fontWeight: FontWeight.bold),
                 ),
+                SizedBox(width: 35),
+                Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                        color: statusColor, // Set the border color
+                        width: 1.0, // Set the border width
+                      ),
+                      borderRadius: BorderRadius.circular(20)
+                      //   20.0), // Set border radius if needed
+                      ),
+                  padding: EdgeInsets.all(5.0),
+                  child: Text(
+                    offer
+                        .status, // Display the status text here (e.g., "Pending", "Accepted", "Rejected")
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: statusColor,
+                      //backgroundColor: statusColor),
+                    ),
+                  ),
+                ),
                 const SizedBox(
                   height: 5,
                 ),
@@ -129,7 +159,7 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
                   height: 5,
                 ),
                 SizedBox(
-                  height: 80,
+                  height: 25,
                   child: Wrap(
                     spacing: 8,
                     children: event.Category.map((category) {
@@ -175,11 +205,12 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
                             EventId: offer.EventId,
                             Category: offerCategoriesString,
                             notes: offer.notes,
+                            status: offer.status,
                           ),
                         ),
                       );
                     },
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
@@ -270,6 +301,7 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
                               sponsorId: '',
                               Category: [],
                               notes: '',
+                              status: '',
                             ));
                       }
                     },
@@ -329,6 +361,7 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
                 sponseeId: value['sponseeId'] as String,
                 notes: value['notes'] as String? ?? '',
                 Category: categoryList,
+                status: value['Status'] as String? ?? '',
               ));
             }
 
@@ -442,6 +475,7 @@ class Offer {
   final String sponsorId;
   final List<String> Category;
   final String notes;
+  final String status;
 
   Offer({
     required this.EventId,
@@ -449,5 +483,6 @@ class Offer {
     required this.sponsorId,
     required this.Category,
     required this.notes,
+    required this.status,
   });
 }

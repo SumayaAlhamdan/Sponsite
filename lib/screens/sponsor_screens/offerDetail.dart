@@ -6,25 +6,26 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:geocoding/geocoding.dart';
 
 class offertDetail extends StatefulWidget {
-  const offertDetail(
-      {Key? key,
-      required this.DetailKey,
-      required this.img,
-      required this.location,
-      required this.fullDesc,
-      required this.startDate,
-      required this.endDate,
-      required this.Type,
-      required this.eventCategory,
-      required this.startTime,
-      required this.endTime,
-      required this.eventNotes,
-      this.benefits,
-      required this.NumberOfAttendees,
-      required this.EventId,
-      required this.Category,
-      required this.notes})
-      : super(key: key);
+  const offertDetail({
+    Key? key,
+    required this.DetailKey,
+    required this.img,
+    required this.location,
+    required this.fullDesc,
+    required this.startDate,
+    required this.endDate,
+    required this.Type,
+    required this.eventCategory,
+    required this.startTime,
+    required this.endTime,
+    required this.eventNotes,
+    this.benefits,
+    required this.NumberOfAttendees,
+    required this.EventId,
+    required this.Category,
+    required this.notes,
+    required this.status,
+  }) : super(key: key);
   final String img;
   final String location;
   final String startDate;
@@ -41,6 +42,7 @@ class offertDetail extends StatefulWidget {
   final String EventId;
   final String Category;
   final String notes;
+  final String status;
 
   @override
   State<offertDetail> createState() => _Start();
@@ -53,6 +55,11 @@ class _Start extends State<offertDetail> {
   bool isExpanded = false;
   @override
   Widget build(BuildContext context) {
+    if (widget.status == 'Accepted') {
+      statusColor = Colors.green;
+    } else if (widget.status == 'Rejected') {
+      statusColor = Colors.red;
+    }
     GoogleMapController? mapController;
 
     double latitude = 0;
@@ -169,6 +176,7 @@ class _Start extends State<offertDetail> {
             ],
           ),
           Expanded(
+
               // Use Expanded to fill available space
               child: Container(
                   decoration: BoxDecoration(
@@ -420,6 +428,40 @@ class _Start extends State<offertDetail> {
                                               color: Colors.black87,
                                             ),
                                           ),
+                                          const SizedBox(width: 20),
+                                          const Text(
+                                            "Offer Status",
+                                            style: TextStyle(
+                                              fontSize: 25,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 20),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                color:
+                                                    statusColor, // Set the border color
+                                                width:
+                                                    1.0, // Set the border width
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              color: statusColor,
+                                              //   20.0), // Set border radius if needed
+                                            ),
+                                            padding: EdgeInsets.all(5.0),
+                                            child: Text(
+                                              widget
+                                                  .status, // Display the status text here (e.g., "Pending", "Accepted", "Rejected")
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.white,
+                                                //backgroundColor: statusColor),
+                                              ),
+                                            ),
+                                          ),
                                           const SizedBox(width: 10),
                                         ],
                                       ),
@@ -435,6 +477,9 @@ class _Start extends State<offertDetail> {
       ),
     );
   }
+
+  Color statusColor = const Color.fromARGB(
+      255, 91, 79, 158); // Default status color is gray for pending
 
   Widget _buildInfoRow(IconData icon, String text, String label) {
     return Padding(
