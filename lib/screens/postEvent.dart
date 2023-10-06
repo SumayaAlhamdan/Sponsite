@@ -381,7 +381,7 @@ class _MyHomePageState extends State<MyHomePage> {
         });
 
         ///_showSuccessSnackbar(context);
-        main();
+        //main();
 
         //runApp(const SponseeHome());
         print('sent to database!');
@@ -828,7 +828,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     startTime, endTime, numOfAt, categ, benefits, notes);
 
                 Navigator.of(context).pop();
-
+                main();
                 showDialog(
                   context: context,
                   builder: (context) {
