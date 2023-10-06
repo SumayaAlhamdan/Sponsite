@@ -132,15 +132,10 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
   try {
     final offerTimestamp = DateTime.parse(offer.timeStamp);
 
-    print('Offer Timestamp: $offerTimestamp');
-
     // Parse the start date and time
     final startDate = DateTime.parse(widget.startDate!);
-    print('Start Date: $startDate');
-
     final startTimeParts = widget.startTime!.split(' ');
     final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts[1]);
-    print('Start Time: $startTime');
 
     // Calculate the event date and time
     final eventDateTime = DateTime(
@@ -150,17 +145,13 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
       startTime.hour,
       startTime.minute,
     );
-    print('Event Date Time: $eventDateTime');
 
     final now = DateTime.now();
-    print('Current Time: $now');
 
     // Calculate the time difference in days, excluding the starting day
     final timeDifference = eventDateTime.isAfter(now)
         ? eventDateTime.difference(now).inDays - 1
         : 0;
-
-    print('Time Difference (excluding starting day): $timeDifference');
 
     // Calculate 50% of the time difference
     final remainingDays = (timeDifference * 0.5).round();
@@ -172,13 +163,23 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
         return 'Expires in $remainingDays days';
       }
     } else {
-      return 'Expires soon';
+      // Check if the offer has expired
+      if (now.isAfter(eventDateTime)) {
+        // Update the status to "Expired" in the database
+        dbref.child('offers').child(offer.eventId).update({'Status': 'Expired'});
+        // Remove the expired offer from the list
+        offers.remove(offer);
+        return 'Expired';
+      } else {
+        return 'Expires soon';
+      }
     }
   } catch (e) {
     print('Error: $e');
     return 'Invalid date or time format';
   }
 }
+
 
 
 
