@@ -106,26 +106,120 @@ class _ChatPageState extends State<ChatPage> {
         title: Row(
           children: [
             SizedBox(width: 8.0),
-            Image.network(
-              widget.pic ?? senderPic,
-              width: 50,
-              height: 50,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Image.asset(
-                  'assets/placeholder_image.png',
-                  width: 60,
-                  height: 60,
-                  fit: BoxFit.cover,
-                );
+            GestureDetector(
+              child: Image.network(
+                widget.pic ?? senderPic,
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Image.asset(
+                    'assets/placeholder_image.png',
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                  );
+                },
+              ),
+              onTap: () {
+                final DatabaseReference databaseReference =
+                    FirebaseDatabase.instance.reference();
+
+// Replace "currentUserId" with the ID of the current user
+                String currentUserId = chatService.currentUserId;
+
+// Fetch sponsors
+                databaseReference.child("Sponsors").onValue.listen((event) {
+                  if (event.snapshot.value != null) {
+                    Map<dynamic, dynamic> sponsorsData =
+                        event.snapshot.value as Map<dynamic, dynamic>;
+
+                    if (sponsorsData != null &&
+                        sponsorsData.containsKey(currentUserId)) {
+                      // The current user is a sponsor, navigate to the sponsor's profile
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ViewOthersProfile(
+                              "Sponsees", widget.receiverUserID),
+                        ),
+                      );
+                      return;
+                    }
+                  }
+                });
+                databaseReference.child("Sponsees").onValue.listen((event) {
+                  if (event.snapshot.value != null) {
+                    Map<dynamic, dynamic> sponseesData =
+                        event.snapshot.value as Map<dynamic, dynamic>;
+
+                    if (sponseesData != null &&
+                        sponseesData.containsKey(currentUserId)) {
+                      // The current user is a sponsor, navigate to the sponsor's profile
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ViewOthersProfile(
+                              "Sponsors", widget.receiverUserID),
+                        ),
+                      );
+                      return;
+                    }
+                  }
+                });
               },
             ),
             SizedBox(width: 8.0),
-            Text(
-              widget.receiverUserName,
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-            ),
+            GestureDetector(
+              child: Text(
+                widget.receiverUserName,
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+              ),
+              onTap: () {
+                final DatabaseReference databaseReference =
+                    FirebaseDatabase.instance.reference();
+
+// Replace "currentUserId" with the ID of the current user
+                String currentUserId = chatService.currentUserId;
+
+// Fetch sponsors
+                databaseReference.child("Sponsors").onValue.listen((event) {
+                  if (event.snapshot.value != null) {
+                    Map<dynamic, dynamic> sponsorsData =
+                        event.snapshot.value as Map<dynamic, dynamic>;
+
+                    if (sponsorsData != null &&
+                        sponsorsData.containsKey(currentUserId)) {
+                      // The current user is a sponsor, navigate to the sponsor's profile
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ViewOthersProfile(
+                              "Sponsees", widget.receiverUserID),
+                        ),
+                      );
+                      return;
+                    }
+                  }
+                });
+                databaseReference.child("Sponsees").onValue.listen((event) {
+                  if (event.snapshot.value != null) {
+                    Map<dynamic, dynamic> sponseesData =
+                        event.snapshot.value as Map<dynamic, dynamic>;
+
+                    if (sponseesData != null &&
+                        sponseesData.containsKey(currentUserId)) {
+                      // The current user is a sponsor, navigate to the sponsor's profile
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ViewOthersProfile(
+                              "Sponsors", widget.receiverUserID),
+                        ),
+                      );
+                      return;
+                    }
+                  }
+                });
+              },
+            )
           ],
         ),
         actions: [
@@ -138,52 +232,52 @@ class _ChatPageState extends State<ChatPage> {
             onSelected: (value) {
               // Handle menu item selection here
               switch (value) {
-                case 'Profile':
-// Initialize the Realtime Database reference
-                  final DatabaseReference databaseReference =
-                      FirebaseDatabase.instance.reference();
+//                 case 'Profile':
+// // Initialize the Realtime Database reference
+//                   final DatabaseReference databaseReference =
+//                       FirebaseDatabase.instance.reference();
 
-// Replace "currentUserId" with the ID of the current user
-                  String currentUserId = chatService.currentUserId;
+// // Replace "currentUserId" with the ID of the current user
+//                   String currentUserId = chatService.currentUserId;
 
-// Fetch sponsors
-                  databaseReference.child("Sponsors").onValue.listen((event) {
-                    if (event.snapshot.value != null) {
-                      Map<dynamic, dynamic> sponsorsData =
-                          event.snapshot.value as Map<dynamic, dynamic>;
+// // Fetch sponsors
+//                   databaseReference.child("Sponsors").onValue.listen((event) {
+//                     if (event.snapshot.value != null) {
+//                       Map<dynamic, dynamic> sponsorsData =
+//                           event.snapshot.value as Map<dynamic, dynamic>;
 
-                      if (sponsorsData != null &&
-                          sponsorsData.containsKey(currentUserId)) {
-                        // The current user is a sponsor, navigate to the sponsor's profile
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => ViewOthersProfile(
-                                "Sponsees", widget.receiverUserID),
-                          ),
-                        );
-                        return;
-                      }
-                    }
-                  });
-                  databaseReference.child("Sponsees").onValue.listen((event) {
-                    if (event.snapshot.value != null) {
-                      Map<dynamic, dynamic> sponseesData =
-                          event.snapshot.value as Map<dynamic, dynamic>;
+//                       if (sponsorsData != null &&
+//                           sponsorsData.containsKey(currentUserId)) {
+//                         // The current user is a sponsor, navigate to the sponsor's profile
+//                         Navigator.of(context).push(
+//                           MaterialPageRoute(
+//                             builder: (context) => ViewOthersProfile(
+//                                 "Sponsees", widget.receiverUserID),
+//                           ),
+//                         );
+//                         return;
+//                       }
+//                     }
+//                   });
+//                   databaseReference.child("Sponsees").onValue.listen((event) {
+//                     if (event.snapshot.value != null) {
+//                       Map<dynamic, dynamic> sponseesData =
+//                           event.snapshot.value as Map<dynamic, dynamic>;
 
-                      if (sponseesData != null &&
-                          sponseesData.containsKey(currentUserId)) {
-                        // The current user is a sponsor, navigate to the sponsor's profile
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => ViewOthersProfile(
-                                "Sponsors", widget.receiverUserID),
-                          ),
-                        );
-                        return;
-                      }
-                    }
-                  });
-                  break;
+//                       if (sponseesData != null &&
+//                           sponseesData.containsKey(currentUserId)) {
+//                         // The current user is a sponsor, navigate to the sponsor's profile
+//                         Navigator.of(context).push(
+//                           MaterialPageRoute(
+//                             builder: (context) => ViewOthersProfile(
+//                                 "Sponsors", widget.receiverUserID),
+//                           ),
+//                         );
+//                         return;
+//                       }
+//                     }
+//                   });
+//                   break;
                 case 'Meeting':
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -195,19 +289,19 @@ class _ChatPageState extends State<ChatPage> {
             },
             itemBuilder: (BuildContext context) {
               return [
-                const PopupMenuItem<String>(
-                  value: 'Profile',
-                  child: ListTile(
-                    leading: Icon(
-                      Icons.perm_identity,
-                      size: 30,
-                    ),
-                    title: Text(
-                      'Profile',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ),
-                ),
+                // const PopupMenuItem<String>(
+                //   value: 'Profile',
+                //   child: ListTile(
+                //     leading: Icon(
+                //       Icons.perm_identity,
+                //       size: 30,
+                //     ),
+                //     title: Text(
+                //       'Profile',
+                //       style: TextStyle(fontSize: 20),
+                //     ),
+                //   ),
+                // ),
                 const PopupMenuItem<String>(
                   value: 'Meeting',
                   child: ListTile(
