@@ -131,27 +131,10 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
  String calculateExpiry(Offer offer) {
   try {
     final offerTimestamp = DateTime.parse(offer.timeStamp);
-
-    // Parse the start date and time
     final startDate = DateTime.parse(widget.startDate!);
-    final startTimeParts = widget.startTime!.split(' ');
-    final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts[1]);
 
-    // Calculate the event date and time
-    final eventDateTime = DateTime(
-      startDate.year,
-      startDate.month,
-      startDate.day,
-      startTime.hour,
-      startTime.minute,
-    );
-
-    final now = DateTime.now();
-
-    // Calculate the time difference in days, excluding the starting day
-    final timeDifference = eventDateTime.isAfter(now)
-        ? eventDateTime.difference(now).inDays - 1
-        : 0;
+    // Calculate the time difference in days between the offer timestamp and event start date
+    final timeDifference = startDate.difference(offerTimestamp).inDays;
 
     // Calculate 50% of the time difference
     final remainingDays = (timeDifference * 0.5).round();
@@ -163,15 +146,15 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
         return 'Expires in $remainingDays days';
       }
     } else {
-      // Check if the offer has expired
-      if (now.isAfter(eventDateTime)) {
+      // Check if the offer is still "Pending"
+      if (offer.status == 'Pending') {
         // Update the status to "Expired" in the database
         dbref.child('offers').child(offer.eventId).update({'Status': 'Expired'});
         // Remove the expired offer from the list
         offers.remove(offer);
         return 'Expired';
       } else {
-        return 'Expires soon';
+        return 'Expires Today';
       }
     }
   } catch (e) {
@@ -179,7 +162,6 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
     return 'Invalid date or time format';
   }
 }
-
 
 
 
@@ -290,7 +272,7 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
           ),
           SizedBox(height: 20), // Adjust the spacing as needed
           Text(
-            'There Are No New Offers Yet',
+            'There are no new offers yet',
             style: TextStyle(
               fontSize: 24, // Adjust the font size as needed
             ),
@@ -331,7 +313,7 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
           ),
           SizedBox(height: 20), // Adjust the spacing as needed
           Text(
-            'There Are No Accepted Offers Yet',
+            'There are no accepted offers yet',
             style: TextStyle(
               fontSize: 24, // Adjust the font size as needed
             ),
@@ -357,13 +339,13 @@ Widget _buildOfferCard(Offer offer) {
     child: Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20), // Radius for the card
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1), // Shadow color
-            spreadRadius: 2, // Spread radius for the shadow
-            blurRadius: 4, // Blur radius for the shadow
-            offset: Offset(0, 2), // Offset for the shadow
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 2,
+            blurRadius: 4,
+            offset: Offset(0, 2),
           ),
         ],
       ),
@@ -398,6 +380,7 @@ Widget _buildOfferCard(Offer offer) {
                       ),
                     ),
                   ),
+                   if (offer.status == 'Pending') 
                   Padding(
                     padding: const EdgeInsets.only(right: 30),
                     child: Text(
@@ -413,7 +396,7 @@ Widget _buildOfferCard(Offer offer) {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 16), // Add left padding to the Sponsor section
+            padding: const EdgeInsets.only(left: 16),
             child: Row(
               children: [
                 GestureDetector(
@@ -472,9 +455,9 @@ Widget _buildOfferCard(Offer offer) {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 10), // Add spacing between Sponsor and Categories
+                  SizedBox(height: 10),
                   Padding(
-                    padding: const EdgeInsets.only(left: 16), // Add left padding to Categories
+                    padding: const EdgeInsets.only(left: 16),
                     child: Text(
                       "Categories",
                       style: TextStyle(
@@ -484,9 +467,9 @@ Widget _buildOfferCard(Offer offer) {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10), // Add spacing below Categories
+                  SizedBox(height: 10),
                   Padding(
-                    padding: const EdgeInsets.only(left: 16), // Add left padding to Categories
+                    padding: const EdgeInsets.only(left: 16),
                     child: Wrap(
                       spacing: 4,
                       children: offer.categories.map((category) {
@@ -502,9 +485,9 @@ Widget _buildOfferCard(Offer offer) {
                       }).toList(),
                     ),
                   ),
-                  SizedBox(height: 16), // Add spacing below Categories
+                  SizedBox(height: 16),
                   Padding(
-                    padding: const EdgeInsets.only(left: 16), // Add left padding to Notes
+                    padding: const EdgeInsets.only(left: 16),
                     child: Text(
                       'Notes:',
                       style: TextStyle(
@@ -514,9 +497,9 @@ Widget _buildOfferCard(Offer offer) {
                       ),
                     ),
                   ),
-                  SizedBox(height: 4), // Add spacing below Notes title
+                  SizedBox(height: 4),
                   Padding(
-                    padding: const EdgeInsets.only(left: 16), // Add left padding to Notes
+                    padding: const EdgeInsets.only(left: 16),
                     child: Text(
                       offer.notes,
                       style: TextStyle(
@@ -525,88 +508,91 @@ Widget _buildOfferCard(Offer offer) {
                       ),
                     ),
                   ),
-                  SizedBox(height: 16), // Add spacing below Notes content
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16), // Add left padding to Chat button
-                    child: Container(
-                      width: 120, // Adjust the width as needed
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Add your chat logic here
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary:  const Color.fromARGB(255, 91, 79, 158),
-                          elevation: 5,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                  SizedBox(height: 16),
+                  
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Container(
+                        width: 120,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Add your chat logic here
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: const Color.fromARGB(255, 91, 79, 158),
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.chat_bubble,
-                              color: Colors.white,
-                            ),
-                            SizedBox(width: 8), // Adjust the spacing between the icon and text
-                            Text(
-                              'Chat',
-                              style: TextStyle(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.chat_bubble,
                                 color: Colors.white,
-                                fontSize: 18,
                               ),
-                            ),
-                          ],
+                              SizedBox(width: 8),
+                              Text(
+                                'Chat',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 10), // Add spacing below Chat button
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          _showConfirmationDialog("Reject", offer);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.red,
-                          elevation: 5,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: Text(
-                          'Reject',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 30), // Add spacing between the "Reject" and "Accept" buttons
-                      ElevatedButton(
-                        onPressed: () {
-                          _showConfirmationDialog("Accept", offer);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.green,
-                          elevation: 5,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: Text(
-                          'Accept',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20), // Add space between the action buttons and the arrow
+                  SizedBox(height: 20),
+                 if (offer.status == 'Pending') // Only show Accept and Reject buttons for pending offers
+  Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      ElevatedButton(
+        onPressed: () {
+          _showConfirmationDialog("Reject", offer);
+        },
+        style: ElevatedButton.styleFrom(
+          primary: Colors.red,
+          elevation: 5,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+        child: Text(
+          'Reject',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+          ),
+        ),
+      ),
+      SizedBox(width: 30), // Adjust the width to add space
+      ElevatedButton(
+        onPressed: () {
+          _showConfirmationDialog("Accept", offer);
+        },
+        style: ElevatedButton.styleFrom(
+          primary: Colors.green,
+          elevation: 5,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+        child: Text(
+          'Accept',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+          ),
+        ),
+      ),
+    ],
+  ),
+SizedBox(height: 20), // Adjust the height to add space
+
                 ],
               ),
             ),
