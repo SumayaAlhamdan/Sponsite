@@ -131,6 +131,7 @@ class _SponseeChatState extends State<SponseeChat> {
   }
 
   Widget buildUserListItem(String key, Map<dynamic, dynamic> data) {
+    //MAJD THE CARD STARTS HERE
     String name = data['Name'] ?? 'No name available';
     String email = data['Email'] ?? 'No email available';
     String pic = data['Picture'] ?? 'No picture available';
@@ -144,7 +145,6 @@ class _SponseeChatState extends State<SponseeChat> {
           ),
           child: CircleAvatar(
             radius: 30,
-            //   backgroundImage: NetworkImage(pic),
             backgroundColor: Colors.transparent,
             child: Image.network(
               pic,
@@ -175,13 +175,18 @@ class _SponseeChatState extends State<SponseeChat> {
             fontSize: 17,
           ),
         ),
+        trailing: Icon(
+          Icons.arrow_forward_ios_rounded, // Add the arrow icon here
+          color:
+              Color.fromARGB(255, 51, 45, 81), // Customize the color as needed
+        ),
         onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ChatPage(
                 receiverUserEmail: email,
-                receiverUserID: key, // Pass the clicked user's ID here
+                receiverUserID: key,
                 receiverUserName: name,
                 pic: pic,
               ),
