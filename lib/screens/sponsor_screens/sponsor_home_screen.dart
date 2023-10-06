@@ -392,7 +392,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
 
             // SizedBox(height: 3),
             SizedBox(
-              height: screenHeight - 590,
+              height: screenHeight - 580,
               child: Scrollbar(
                 // Set this to true to always show the scrollbar
                 child: GridView.builder(
@@ -572,7 +572,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                                     ),
                                     const SizedBox(
                                         height:
-                                            20.5), // Add some space at the bottom
+                                            41.9), // Add some space at the bottom
                                   ],
                                 ),
                               ),

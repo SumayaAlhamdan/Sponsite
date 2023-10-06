@@ -20,6 +20,7 @@ class Offer {
   String timeStamp;
   String status;
   bool isExpanded ; 
+  String sponsorEmail ; 
 
 
   Offer({
@@ -33,6 +34,7 @@ class Offer {
     required this.timeStamp,
     this.status = 'Pending',
     this.isExpanded = false , 
+    required this.sponsorEmail,
   
   });
 
@@ -73,6 +75,8 @@ void _loadOffersFromFirebase() async {
     List<Offer> loadedOffers = [];
     Map<String, String> sponsorNames = {};
     Map<String, String> sponsorImages = {};
+    Map<String, String> sponsorEmails = {};
+
 final startTimeParts = widget.startTime!.split(' ');
 final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts[1]);
 
@@ -99,6 +103,7 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
               timeStamp: timestampString,
               status: value['Status'] as String? ?? 'Pending',
               isExpanded: false , 
+              sponsorEmail:'',
             ));
           }
         });
@@ -108,10 +113,12 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
             sponsorData.forEach((key, value) {
               sponsorNames[key] = value['Name'] as String? ?? '';
               sponsorImages[key] = value['Picture'] as String? ?? '';
+              sponsorEmails[key] = value['Email'] as String? ?? '';
             });
             for (var offer in loadedOffers) {
               offer.sponsorName = sponsorNames[offer.sponsorId] ?? '';
               offer.sponsorImage = sponsorImages[offer.sponsorId] ?? '';
+              offer.sponsorEmail = sponsorEmails[offer.sponsorId]?? '';
             }
             setState(() {
               offers = loadedOffers;
@@ -341,134 +348,133 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
       );
     }
   }
+Widget _buildOfferCard(Offer offer) {
+  final timestamp = DateTime.parse(offer.timeStamp).millisecondsSinceEpoch;
 
-  @override
-  Widget _buildOfferCard(Offer offer) {
-    final timestamp = DateTime.parse(offer.timeStamp).millisecondsSinceEpoch;
-
-    return Container(
-      margin: EdgeInsets.all(10),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20), // Radius for the card
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1), // Shadow color
-              spreadRadius: 2, // Spread radius for the shadow
-              blurRadius: 4, // Blur radius for the shadow
-              offset: Offset(0, 2), // Offset for the shadow
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  offer.isExpanded = !offer.isExpanded;
-                });
-              },
-              child: Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Color.fromARGB(193, 51, 45, 81),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16),
-                      child: Text(
-                        '${formatTimeAgo(timestamp)}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 30) , 
-                    child: Text(
-                        calculateExpiry(offer),
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      )
-                  ),
-                    
-                  ],
+  return Container(
+    margin: EdgeInsets.all(10),
+    child: Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20), // Radius for the card
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1), // Shadow color
+            spreadRadius: 2, // Spread radius for the shadow
+            blurRadius: 4, // Blur radius for the shadow
+            offset: Offset(0, 2), // Offset for the shadow
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                offer.isExpanded = !offer.isExpanded;
+              });
+            },
+            child: Container(
+              height: 50,
+              decoration: BoxDecoration(
+                color: Color.fromARGB(193, 51, 45, 81),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
                 ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(bottom: 16),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  GestureDetector(
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      margin: EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50),
-                        color: Colors.black,
-                        image: DecorationImage(
-                          image: NetworkImage(offer.sponsorImage),
-                          fit: BoxFit.cover,
-                        ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16),
+                    child: Text(
+                      '${formatTimeAgo(timestamp)}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
                       ),
                     ),
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) =>
-                              ViewOthersProfile('Sponsors', offer.sponsorId)));
-                    },
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Sponsor',
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: Colors.black,
-                        ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 30),
+                    child: Text(
+                      calculateExpiry(offer),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
                       ),
-                      SizedBox(height: 5),
-                      GestureDetector(
-                        child: Text(
-                          offer.sponsorName,
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) =>
-                                  ViewOthersProfile('Sponsors', offer.sponsorId)));
-                        },
-                      ),
-                      
-                    ],
+                    ),
                   ),
                 ],
               ),
             ),
-            if (offer.isExpanded)
-              Container(
-                child: Column(
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 16), // Add left padding to the Sponsor section
+            child: Row(
+              children: [
+                GestureDetector(
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    margin: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50),
+                      color: Colors.black,
+                      image: DecorationImage(
+                        image: NetworkImage(offer.sponsorImage),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) =>
+                            ViewOthersProfile('Sponsors', offer.sponsorId)));
+                  },
+                ),
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
+                      'Sponsor',
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    GestureDetector(
+                      child: Text(
+                        offer.sponsorName,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) =>
+                                ViewOthersProfile('Sponsors', offer.sponsorId)));
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          if (offer.isExpanded)
+            Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 10), // Add spacing between Sponsor and Categories
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16), // Add left padding to Categories
+                    child: Text(
                       "Categories",
                       style: TextStyle(
                         fontSize: 22,
@@ -476,21 +482,29 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
                         color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Wrap(
+                  ),
+                  SizedBox(height: 10), // Add spacing below Categories
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16), // Add left padding to Categories
+                    child: Wrap(
                       spacing: 4,
                       children: offer.categories.map((category) {
                         return Chip(
-                          label: Text(category),
-                          backgroundColor: Color.fromARGB(255, 91, 79, 158),
-                          labelStyle: TextStyle(
-                            color: Colors.white,
+                          label: Text(category.trim()),
+                          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                          shadowColor: const Color.fromARGB(255, 91, 79, 158),
+                          elevation: 3,
+                          labelStyle: const TextStyle(
+                            color: Color.fromARGB(255, 91, 79, 158),
                           ),
                         );
                       }).toList(),
                     ),
-                    SizedBox(height: 16),
-                    Text(
+                  ),
+                  SizedBox(height: 16), // Add spacing below Categories
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16), // Add left padding to Notes
+                    child: Text(
                       'Notes:',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -498,79 +512,121 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
                         color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 4),
-                    Text(
+                  ),
+                  SizedBox(height: 4), // Add spacing below Notes title
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16), // Add left padding to Notes
+                    child: Text(
                       offer.notes,
                       style: TextStyle(
                         fontSize: 20,
                         color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 16),
-                    SizedBox(
-                      height: 20, // Additional height to separate from action buttons
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            _showConfirmationDialog("Accept", offer);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.green,
-                            minimumSize: Size(120, 50),
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                          ),
-                          child: Text(
-                            'Accept',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                            ),
+                  ),
+                  SizedBox(height: 16), // Add spacing below Notes content
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16), // Add left padding to Chat button
+                    child: Container(
+                      width: 120, // Adjust the width as needed
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Add your chat logic here
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary:  const Color.fromARGB(255, 91, 79, 158),
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            _showConfirmationDialog("Reject", offer);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.red,
-                            minimumSize: Size(120, 50),
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                          ),
-                          child: Text(
-                            'Reject',
-                            style: TextStyle(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.chat_bubble,
                               color: Colors.white,
-                              fontSize: 18,
                             ),
+                            SizedBox(width: 8), // Adjust the spacing between the icon and text
+                            Text(
+                              'Chat',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10), // Add spacing below Chat button
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          _showConfirmationDialog("Reject", offer);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.red,
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        SizedBox(height: 100),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  offer.isExpanded = !offer.isExpanded;
-                });
-              },
-              child: Icon(
-                offer.isExpanded
-                    ? Icons.keyboard_arrow_up
-                    : Icons.keyboard_arrow_down,
+                        child: Text(
+                          'Reject',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 30), // Add spacing between the "Reject" and "Accept" buttons
+                      ElevatedButton(
+                        onPressed: () {
+                          _showConfirmationDialog("Accept", offer);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.green,
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Text(
+                          'Accept',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20), // Add space between the action buttons and the arrow
+                ],
               ),
             ),
-          ],
-        ),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                offer.isExpanded = !offer.isExpanded;
+              });
+            },
+            child: Icon(
+              offer.isExpanded
+                  ? Icons.keyboard_arrow_up
+                  : Icons.keyboard_arrow_down,
+            ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 
 
 
