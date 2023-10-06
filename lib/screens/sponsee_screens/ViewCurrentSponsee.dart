@@ -254,6 +254,9 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                           builder: (context) => SponseeOffersList(
                             EVENTid: event.EVENTid,
                             EventName: event.EventName,
+                            startDate : event.startDate,
+                            startTime : event.startTime,
+                          
                           ),
                         ),
                       );

@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -20,8 +19,8 @@ class Offer {
   String sponsorImage;
   String timeStamp;
   String status;
-  String startDate;
-  String startTime;
+  bool isExpanded ; 
+
 
   Offer({
     required this.eventId,
@@ -33,8 +32,8 @@ class Offer {
     required this.sponsorImage,
     required this.timeStamp,
     this.status = 'Pending',
-    required this.startDate,
-    required this.startTime,
+    this.isExpanded = false , 
+  
   });
 
   int get timeStampAsInt => int.tryParse(timeStamp) ?? 0;
@@ -44,11 +43,14 @@ class SponseeOffersList extends StatefulWidget {
   SponseeOffersList({
     required this.EVENTid,
     Key? key,
-    required this.EventName,
+    required this.EventName, required this.startDate, required this.startTime,
   }) : super(key: key);
 
   final String? EVENTid;
   final String? EventName;
+  final String? startDate ; 
+    final String? startTime ; 
+
 
   @override
   _SponseeOffersListState createState() => _SponseeOffersListState();
@@ -65,81 +67,52 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     _loadOffersFromFirebase();
   }
 
-  void _loadOffersFromFirebase() async {
+void _loadOffersFromFirebase() async {
     final DatabaseReference database = FirebaseDatabase.instance.ref();
     offers.clear();
-
     List<Offer> loadedOffers = [];
     Map<String, String> sponsorNames = {};
     Map<String, String> sponsorImages = {};
-    Map<String, String> startDates = {};
-    Map<String, String> startTimes = {};
+final startTimeParts = widget.startTime!.split(' ');
+final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts[1]);
+
+
 
     database.child('offers').onValue.listen((offer) {
       if (offer.snapshot.value != null) {
-        Map<dynamic, dynamic> offerData =
-            offer.snapshot.value as Map<dynamic, dynamic>;
-
+        Map<dynamic, dynamic> offerData = offer.snapshot.value as Map<dynamic, dynamic>;
         offerData.forEach((key, value) {
           List<String> categoryList = [];
           if (value['Category'] is List<dynamic>) {
-            categoryList = (value['Category'] as List<dynamic>)
-                .map((category) => category.toString())
-                .toList();
+            categoryList = (value['Category'] as List<dynamic>).map((category) => category.toString()).toList();
           }
-
           if (value['EventId'] == widget.EVENTid) {
             String timestampString = value['TimeStamp'] as String? ?? '';
-
             loadedOffers.add(Offer(
-                eventId: key,
-                sponseeId: value['sponseeId'] as String? ?? '',
-                categories: categoryList,
-                notes:
-                    value['notes'] as String? ?? 'There are no notes available',
-                sponsorId: value['sponsorId'] as String? ?? '',
-                sponsorName: 'krkr',
-                sponsorImage: '',
-                timeStamp: timestampString,
-                status: value['Status'] as String? ?? 'Pending',
-                startDate: '',
-                startTime: '' // Load the start date
-                ));
+              eventId: key,
+              sponseeId: value['sponseeId'] as String? ?? '',
+              categories: categoryList,
+              notes: value['notes'] as String? ?? 'There are no notes available',
+              sponsorId: value['sponsorId'] as String? ?? '',
+              sponsorName: 'krkr',
+              sponsorImage: '',
+              timeStamp: timestampString,
+              status: value['Status'] as String? ?? 'Pending',
+              isExpanded: false , 
+            ));
           }
         });
-
         database.child('Sponsors').onValue.listen((spons) {
           if (spons.snapshot.value != null) {
-            Map<dynamic, dynamic> sponsorData =
-                spons.snapshot.value as Map<dynamic, dynamic>;
-
+            Map<dynamic, dynamic> sponsorData = spons.snapshot.value as Map<dynamic, dynamic>;
             sponsorData.forEach((key, value) {
               sponsorNames[key] = value['Name'] as String? ?? '';
               sponsorImages[key] = value['Picture'] as String? ?? '';
             });
-
             for (var offer in loadedOffers) {
               offer.sponsorName = sponsorNames[offer.sponsorId] ?? '';
               offer.sponsorImage = sponsorImages[offer.sponsorId] ?? '';
             }
-          }
-        });
-
-        database.child('sponseeEvents').onValue.listen((Date) {
-          if (Date.snapshot.value != null) {
-            Map<dynamic, dynamic> date =
-                Date.snapshot.value as Map<dynamic, dynamic>;
-            date.forEach((key, value) {
-              startDates[key] = value['startDate'] as String? ?? '';
-              startTimes[key] = value['startTime'] as String? ?? '';
-            });
-
-            // Update the start dates in the offers
-            for (var offer in loadedOffers) {
-              offer.startDate = startDates[offer.eventId] ?? '';
-              offer.startTime = startTimes[offer.eventId] ?? '';
-            }
-
             setState(() {
               offers = loadedOffers;
             });
@@ -148,48 +121,59 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
       }
     });
   }
+ String calculateExpiry(Offer offer) {
+  try {
+    final offerTimestamp = DateTime.parse(offer.timeStamp);
 
-  String calculateExpiry(Offer offer) {
-    print('prining first ! ');
-    print(offer.startDate + offer.startTime);
+    print('Offer Timestamp: $offerTimestamp');
 
-    try {
-      final offerTimestamp = DateTime.parse(offer.timeStamp);
+    // Parse the start date and time
+    final startDate = DateTime.parse(widget.startDate!);
+    print('Start Date: $startDate');
 
-      var eventStartDateTime =
-          DateTime.parse(offer.startDate + ' ' + offer.startTime);
+    final startTimeParts = widget.startTime!.split(' ');
+    final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts[1]);
+    print('Start Time: $startTime');
 
-      // Adjust for 12-hour time format and space
-      final timeParts = offer.startTime.split(' ');
-      final eventHour = int.parse(timeParts[0].split(':')[0]);
-      final eventMinute = int.parse(timeParts[0].split(':')[1]);
+    // Calculate the event date and time
+    final eventDateTime = DateTime(
+      startDate.year,
+      startDate.month,
+      startDate.day,
+      startTime.hour,
+      startTime.minute,
+    );
+    print('Event Date Time: $eventDateTime');
 
-      if (timeParts[1].toLowerCase() == 'pm' && eventHour < 12) {
-        eventStartDateTime = eventStartDateTime.add(Duration(hours: 12));
-      }
+    final now = DateTime.now();
+    print('Current Time: $now');
 
-      // Calculate the time difference in days
-      final timeDifference =
-          eventStartDateTime.difference(offerTimestamp).inDays;
+    // Calculate the time difference in days, excluding the starting day
+    final timeDifference = eventDateTime.isAfter(now)
+        ? eventDateTime.difference(now).inDays - 1
+        : 0;
 
-      if (timeDifference > 0) {
-        final threshold = timeDifference ~/ 2;
-        final expiresIn = timeDifference - threshold;
+    print('Time Difference (excluding starting day): $timeDifference');
 
-        if (expiresIn == 0) {
-          return 'Expires today';
-        } else if (expiresIn == 1) {
-          return 'Expires in 1 day';
-        } else {
-          return 'Expires in $expiresIn days';
-        }
+    // Calculate 50% of the time difference
+    final remainingDays = (timeDifference * 0.5).round();
+
+    if (remainingDays > 0) {
+      if (remainingDays == 1) {
+        return 'Expires in 1 day';
       } else {
-        return 'Expired';
+        return 'Expires in $remainingDays days';
       }
-    } catch (e) {
-      return 'Invalid date or time format';
+    } else {
+      return 'Expires soon';
     }
+  } catch (e) {
+    print('Error: $e');
+    return 'Invalid date or time format';
   }
+}
+
+
 
   String formatTimeAgo(int timestamp) {
     final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
@@ -210,30 +194,34 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Color.fromARGB(255, 51, 45, 81),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(20),
-              bottomRight: Radius.circular(20),
-            ),
-          ),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          title: Center(
-            child: Text(
-              '${widget.EventName} Event Offers',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
+  backgroundColor: Color.fromARGB(255, 51, 45, 81),
+  elevation: 0,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.only(
+      bottomLeft: Radius.circular(20),
+      bottomRight: Radius.circular(20),
+    ),
+  ),
+  leading: IconButton(
+    icon: Icon(Icons.arrow_back, color: Colors.white),
+    onPressed: () {
+      Navigator.of(context).pop();
+    },
+  ),
+  title: Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Text(
+        '${widget.EventName} Event Offers',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
         ),
+      ),
+    ],
+  ),
+),
+
         backgroundColor: Colors.white,
         body: Column(
           children: [
@@ -354,8 +342,6 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     }
   }
 
-  bool isExpanded = false;
-
   @override
   Widget _buildOfferCard(Offer offer) {
     final timestamp = DateTime.parse(offer.timeStamp).millisecondsSinceEpoch;
@@ -381,7 +367,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
             GestureDetector(
               onTap: () {
                 setState(() {
-                  isExpanded = !isExpanded;
+                  offer.isExpanded = !offer.isExpanded;
                 });
               },
               child: Container(
@@ -399,13 +385,24 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                     Padding(
                       padding: const EdgeInsets.only(left: 16),
                       child: Text(
-                        'Posted: ${formatTimeAgo(timestamp)}',
+                        '${formatTimeAgo(timestamp)}',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
                         ),
                       ),
                     ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 30) , 
+                    child: Text(
+                        calculateExpiry(offer),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      )
+                  ),
+                    
                   ],
                 ),
               ),
@@ -460,19 +457,13 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                                   ViewOthersProfile('Sponsors', offer.sponsorId)));
                         },
                       ),
-                      Text(
-                        calculateExpiry(offer),
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      )
+                      
                     ],
                   ),
                 ],
               ),
             ),
-            if (isExpanded)
+            if (offer.isExpanded)
               Container(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -517,8 +508,8 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                     ),
                     SizedBox(height: 16),
                     SizedBox(
-                        height:
-                            20), // Additional height to separate from action buttons
+                      height: 20, // Additional height to separate from action buttons
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -563,14 +554,14 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                   ],
                 ),
               ),
-              GestureDetector(
+            GestureDetector(
               onTap: () {
                 setState(() {
-                  isExpanded = !isExpanded;
+                  offer.isExpanded = !offer.isExpanded;
                 });
               },
               child: Icon(
-                isExpanded
+                offer.isExpanded
                     ? Icons.keyboard_arrow_up
                     : Icons.keyboard_arrow_down,
               ),
@@ -581,59 +572,66 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     );
   }
 
+
+
   void _showConfirmationDialog(String action, Offer offer) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        final uniqueKey = GlobalKey();
-        return AlertDialog(
-          key: uniqueKey,
-          title: Text('Confirm $action'),
-          content: Text('Are you sure you want to $action this offer?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
-                final sponsorToken =
-                    await _retrieveSponsorToken(offer.sponsorId);
-                if (sponsorToken != null && user!.uid == offer.sponseeId) {
-                  sendNotificationToSponsor1(sponsorToken);
-                }
-                if (action == "Accept") {
-                  offer.status = 'Accepted';
-
-                  setState(() {
-                    offers.clear();
-                  });
-
-                  dbref
-                      .child('offers')
-                      .child(offer.eventId)
-                      .update({'Status': "Accepted"});
-                } else {
-                  dbref
-                      .child('offers')
-                      .child(offer.eventId)
-                      .update({'Status': "Rejected"});
-                }
+  showDialog(
+    context: context,
+    builder: (context) {
+      final uniqueKey = GlobalKey();
+      return AlertDialog(
+        key: uniqueKey,
+        title: Text('Confirm $action'),
+        content: Text('Are you sure you want to $action this offer?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              final sponsorToken =
+                  await _retrieveSponsorToken(offer.sponsorId);
+              if (sponsorToken != null && user!.uid == offer.sponseeId) {
+                sendNotificationToSponsor1(sponsorToken);
+              }
+              if (action == "Accept") {
+                offer.status = 'Accepted';
 
                 setState(() {
-                  showActions = false;
+                  offers.clear();
                 });
-              },
-              child: Text('Confirm'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+
+                dbref
+                    .child('offers')
+                    .child(offer.eventId)
+                    .update({'Status': "Accepted"});
+              } else {
+                dbref
+                    .child('offers')
+                    .child(offer.eventId)
+                    .update({'Status': "Rejected"});
+
+                setState(() {
+                  offers.remove(offer); 
+                    offers.clear();// Remove the rejected offer from the list
+                });
+              }
+
+              setState(() {
+                showActions = false;
+              });
+            },
+            child: Text('Confirm'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   Future<void> sendNotificationToSponsor1(String sponsorToken) async {
     final String serverKey =
