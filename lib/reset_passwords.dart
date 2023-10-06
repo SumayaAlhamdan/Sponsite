@@ -69,6 +69,38 @@ class _resetPasswordState extends State<resetPassword> {
         );
 
         Navigator.of(context).pop();
+           showDialog(
+                  context: context,
+                  builder: (context) {
+                    Future.delayed(const Duration(seconds: 3), () {
+                      Navigator.of(context).pop(true);
+                    });
+                    return Theme(
+                      data: Theme.of(context)
+                          .copyWith(dialogBackgroundColor: Colors.white),
+                      child: AlertDialog(
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              color: Color.fromARGB(255, 91, 79, 158),
+                              size: 48,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'Password reset link sent successfully!',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
       } catch (e) {
         setState(() {
           errorReset = true;
