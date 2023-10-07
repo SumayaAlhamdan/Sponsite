@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:sponsite/widgets/customAppBarwithNav.dart';   
 
 class eventDetail extends StatefulWidget {
   const eventDetail(
@@ -118,27 +119,7 @@ class _Start extends State<eventDetail> {
     screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'Event Details',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-        ),
-        backgroundColor: const Color.fromARGB(255, 51, 45, 81),
-        elevation: 0, // Remove the shadow
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(20),
-            bottomRight: Radius.circular(20),
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
+      backgroundColor: Colors.white,  
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -157,6 +138,9 @@ class _Start extends State<eventDetail> {
                     fit: BoxFit.cover,
                   ),
                 ),
+              ),
+               CustomAppBar(
+                title: 'Event Details',
               ),
             ],
           ),

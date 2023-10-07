@@ -63,8 +63,8 @@ class _SponseeBottomNavBarState extends State<SponseeBottomNavBar> {
               color: Colors.white,
             ),
             label: 'Events',
-            activeIcon:  Icon(
-              Icons.card_travel,
+            activeIcon:  Icon(  
+              Icons.handshake_outlined,
               size: 40,
               color: Color.fromARGB(255, 91, 79, 158),
             ),
