@@ -4,6 +4,7 @@ import 'package:sponsite/screens/sponsee_screens/sponsee_chat_screen.dart';
 import 'package:sponsite/screens/postEvent.dart';
 import 'package:sponsite/screens/sponsee_screens/sponsee_profile_screen.dart';
 import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
+import 'package:sponsite/screens/calendar.dart';
 
 class SponseeBottomNavBar extends StatefulWidget {
   const SponseeBottomNavBar({Key? key}) : super(key: key);
@@ -19,9 +20,11 @@ class _SponseeBottomNavBarState extends State<SponseeBottomNavBar> {
     const SponseeHome(),
     const ViewCurrentSponsee(),
     const MyApp(),
+    googleCalendar(),   
     const SponseeChat(),
      SponseeProfile()
-  ];
+
+  ];    
 
 
 
@@ -56,13 +59,13 @@ class _SponseeBottomNavBarState extends State<SponseeBottomNavBar> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.calendar_month_rounded,
+              Icons.card_travel,
               size: 40,
               color: Colors.white,
             ),
             label: 'Events',
             activeIcon:  Icon(
-              Icons.calendar_month_rounded,
+              Icons.card_travel,
               size: 40,
               color: Color.fromARGB(255, 91, 79, 158),
             ),
@@ -76,6 +79,20 @@ class _SponseeBottomNavBarState extends State<SponseeBottomNavBar> {
             label: 'Post',
              activeIcon:  Icon(
               Icons.add_circle_rounded,
+              size: 40,
+              color: Color.fromARGB(255, 91, 79, 158),
+            ),
+          ),
+            BottomNavigationBarItem(
+            icon: Icon(
+              Icons.calendar_month_rounded,
+              size: 40,
+              color: Colors.white,
+              
+            ),
+            label: 'Calendar',
+            activeIcon:  Icon(
+              Icons.calendar_month_rounded,
               size: 40,
               color: Color.fromARGB(255, 91, 79, 158),
             ),

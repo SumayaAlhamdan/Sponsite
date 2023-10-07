@@ -14,7 +14,7 @@ class createEvent extends StatefulWidget {
 }
 
 class _createEventState extends State<createEvent> {
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
+ final GoogleSignIn _googleSignIn = GoogleSignIn(  
     scopes: [
       'email',
       'https://www.googleapis.com/auth/calendar',
@@ -137,8 +137,8 @@ class _createEventState extends State<createEvent> {
       print('Error signing in with Google: $error');
     }
   }
-
-  Future<void> _createEvent() async {
+ Future<void> _createEvent() async {
+ 
   try {
     if (_calendarApi == null) {
       // Handle the case where calendarApi is not initialized.
@@ -167,16 +167,16 @@ class _createEventState extends State<createEvent> {
           event.attendees!.add(calendar.EventAttendee(email: _defaultOrganizerEmail));
 }
 
-
+  
 if(includeGoogleMeet){
 event.description = '${_descriptionController.text} \nGoogleMeet Link: ${_googleMeetLink.text}';
-}
+}   
 else{
   event.description = _descriptionController.text;
 }
+// event.sendNotifications = true; 
 
-
-     await _calendarApi!.events.insert(event, 'primary');
+     await _calendarApi!.events.insert(event, 'lfra6b41b44lia16ug024ifpgk@group.calendar.google.com');
 
      _showSummaryDialog();
   } catch (error) {
@@ -208,21 +208,22 @@ Future<void> _showSummaryDialog() async {
         icon: Icon(
           Icons.check_circle_rounded,
           size: 80,
-          color: const Color.fromARGB(255, 91, 79, 158),
+          color: const Color.fromARGB(255, 133, 201, 135),
         ),
         title: Text(
           'Event Created Successfully',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 1, 7),
+          style: TextStyle(fontSize: 17),
         ),
         content: SingleChildScrollView(
           child: ListBody(
             children: <Widget>[
               SizedBox(height: 12),
               Row(
-                children: [
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [ 
                   Text(
-                    'Event Title: ',
+                    'Title: ',
                     style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
                   ),
                   Text(
@@ -230,21 +231,19 @@ Future<void> _showSummaryDialog() async {
                     style: TextStyle(fontSize: 21),
                   ),
                 ],
-              ),
-              SizedBox(height: 8),
-              Row(
+              ),    
+              Row(  
                 children: [
                   Text(
-                    'Event Description: ',
+                    'Description: ',
                     style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+                  ),  
+                  Text( 
+                    isDescriptionEmpty ? 'No description' : truncateDescription("${_descriptionController.text}", 40),  
+                    style: TextStyle(fontSize: 21), 
                   ),
-                  Text(
-                    isDescriptionEmpty ? 'No description' : _descriptionController.text,
-                    style: TextStyle(fontSize: 21),
-                  ),
-                ],
+                ],  
               ),
-              SizedBox(height: 8),
               Row(
                 children: [
                   Text(
@@ -313,22 +312,50 @@ Future<void> _showSummaryDialog() async {
           ),
         ),
         actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(); 
-              },
-              child: Text(
-                'OK',
-                style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
-              ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              'OK',
+              style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
             ),
+          ),
         ],
       );
     },
   );
 }
+String truncateDescription(String description, int maxLineLength) {
+  if (description.length <= maxLineLength) {
+    return description;
+  } else {
+    final List<String> words = description.split(' ');
+    final List<String> lines = [];
+    String currentLine = words[0];
 
+    for (int i = 1; i < words.length; i++) {
+      if ((currentLine + ' ' + words[i]).length <= maxLineLength) {
+        currentLine += ' ' + words[i];
+      } else {
+        lines.add(currentLine);
+        currentLine = words[i];
+      }
+    }
+
+    if (currentLine.isNotEmpty) {
+      lines.add(currentLine);
+    }
+
+    if (lines.length == 1) {
+      // If there's only one line, return it as is
+      return lines[0];
+    } else {
+      // If there are multiple lines, join them with line breaks
+      return lines.join('\n');
+    }
+  }
+}
 
   Future<void> _selectStartDate(BuildContext context) async {
      setState(() {
@@ -436,7 +463,7 @@ Future<void> _showSummaryDialog() async {
       bottomRight: Radius.circular(20),
     ),
   ),
-  height: 75,
+  height: 85, 
   padding: const EdgeInsets.fromLTRB(16, 0, 0, 0), // Adjust the padding as needed
   child: Row(
     mainAxisAlignment: MainAxisAlignment.start,
@@ -462,6 +489,13 @@ Future<void> _showSummaryDialog() async {
     ],
   ),
 ),
+const SizedBox(height: 40), 
+Container(  
+  width: 200, // Set the width of the container
+  height: 200, 
+  child: Image.asset('assets/googleCalendar.png'),// Set the height of the container  
+),        
+
               Container(
                  padding: const EdgeInsets.fromLTRB(35, 35, 35, 35),
                  child: Column(
@@ -483,12 +517,13 @@ Future<void> _showSummaryDialog() async {
                   child: TextFormField(
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     controller: _descriptionController,
-                    maxLength: 20,
+                    maxLength: 100,
+                    maxLines: 9,    
                     decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                      border: OutlineInputBorder(), 
                       labelText: 'Enter Event Description',
                       prefixIcon: Icon(Icons.text_fields,
-                          size: 24, color: Colors.black),
+                          size: 24, color: Colors.black), 
                     ),),),
                     if (errorMessage != null)
                        Padding(
@@ -640,7 +675,7 @@ Container(
                   child: TextFormField(
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     controller: _googleMeetLink,
-                    maxLength: 25,
+                    maxLength: 70,  
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(
@@ -702,7 +737,7 @@ Container(
           ),
           ],
           ),
-        ),
+        ),  
     );
   }
 }

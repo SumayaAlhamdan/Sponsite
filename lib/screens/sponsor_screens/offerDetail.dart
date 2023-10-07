@@ -4,13 +4,18 @@ import 'package:sponsite/screens/sponsor_screens/ViewOffersSponsor.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:sponsite/screens/view_others_profile.dart';
+import 'package:sponsite/widgets/customAppBarwithNav.dart';   
 
 class offertDetail extends StatefulWidget {
-  const offertDetail({
+  offertDetail({
     Key? key,
     required this.DetailKey,
     required this.img,
     required this.location,
+    required this.sponseeName,
+    required this.sponseeId,
+    required this.sponseeImage,
     required this.fullDesc,
     required this.startDate,
     required this.endDate,
@@ -28,6 +33,9 @@ class offertDetail extends StatefulWidget {
   }) : super(key: key);
   final String img;
   final String location;
+ String sponseeName;
+ String sponseeId;
+ String sponseeImage;
   final String startDate;
   final String endDate;
   final String DetailKey;
@@ -133,27 +141,7 @@ class _Start extends State<offertDetail> {
     screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'Event Details',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-        ),
-        backgroundColor: const Color.fromARGB(255, 51, 45, 81),
-        elevation: 0, // Remove the shadow
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(20),
-            bottomRight: Radius.circular(20),
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
+      backgroundColor: Colors.white,  
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -173,6 +161,9 @@ class _Start extends State<offertDetail> {
                   ),
                 ),
               ),
+              CustomAppBar(  
+          title: 'Event Details',
+        ),
             ],
           ),
           Expanded(
@@ -219,6 +210,43 @@ class _Start extends State<offertDetail> {
                                   color: Colors.black87,
                                 ),
                               ),
+                                   Row(
+                            children: [
+                              GestureDetector(
+                                child: CircleAvatar(
+                                  radius: 25,
+                                  backgroundImage: NetworkImage(widget.sponseeImage),
+                                  backgroundColor: Colors.transparent,
+                                ),
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => ViewOthersProfile(
+                                        'Sponsees', widget.sponseeId),
+                                  ));
+                                },
+                              ),
+
+                              SizedBox(width: 10),
+                              // Add some space between the CircleAvatar and Text
+                              GestureDetector(
+                                child: Expanded(
+                                  child: Text(
+                                    widget.sponseeName,
+                                    style: const TextStyle(
+                                      fontSize: 22,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ),
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => ViewOthersProfile(
+                                        'Sponsees', widget.sponseeId),
+                                  ));
+                                },
+                              ),
+                            ],
+                          ),
                               const Divider(height: 30, thickness: 2),
                               _buildInfoRow(
                                   Icons.calendar_today,
@@ -470,13 +498,21 @@ class _Start extends State<offertDetail> {
                                 ),
                               )
                             ],
-                          )),
-                        )),
-                  )))
-        ],
-      ),
-    );
-  }
+                            
+                          ))
+        )
+                        )
+                        )
+                        
+                        )
+                        )
+                        ],
+                        )
+                        );
+                          }
+
+                          
+    
 
   Color statusColor = const Color.fromARGB(
       255, 91, 79, 158); // Default status color is gray for pending
