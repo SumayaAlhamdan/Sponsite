@@ -636,7 +636,7 @@ SizedBox(height: 20), // Adjust the height to add space
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Text('Cancel'),
+            child: Text('Cancel',style: TextStyle(color: Color.fromARGB(255, 51, 45, 81))),
           ),
           TextButton(
             onPressed: () async {
@@ -741,7 +741,7 @@ SizedBox(height: 20), // Adjust the height to add space
     final String fcmUrl = 'https://fcm.googleapis.com/fcm/send';
 
     final Map<String, dynamic> notification = {
-      'body': 'Your Offer status has been updated.',
+      'body': 'Your ${widget.EventName} Offer status has been updated.',
       'title': 'Status update',
       'sound': 'default',
     };

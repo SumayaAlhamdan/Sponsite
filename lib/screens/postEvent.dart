@@ -828,12 +828,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     startTime, endTime, numOfAt, categ, benefits, notes);
 
                 Navigator.of(context).pop();
-                main();
+
                 showDialog(
                   context: context,
                   builder: (context) {
                     Future.delayed(const Duration(seconds: 3), () {
                       Navigator.of(context).pop(true);
+                      main();
                     });
                     return Theme(
                       data: Theme.of(context)
