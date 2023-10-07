@@ -527,8 +527,8 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                                     ),
                                     const SizedBox(height: 10),
                                     SizedBox(
-                                      height: 100,
-                                      child: Wrap(
+                                      height: 105,   
+                                      child: Wrap(    
                                         spacing: 4,
                                         children:
                                             event.Category.map((category) {

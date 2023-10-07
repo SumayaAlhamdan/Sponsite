@@ -213,8 +213,8 @@ Future<void> _showSummaryDialog() async {
         title: Text(
           'Event Created Successfully',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 1, 7),
-        ),
+          style: TextStyle(fontSize: 17),
+        ),  
         content: SingleChildScrollView(
           child: ListBody(
             children: <Widget>[
