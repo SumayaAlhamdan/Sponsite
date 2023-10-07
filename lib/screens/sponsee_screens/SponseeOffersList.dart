@@ -70,28 +70,28 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
   }
 
 void _loadOffersFromFirebase() async {
-    final DatabaseReference database = FirebaseDatabase.instance.ref();
-    offers.clear();
-    List<Offer> loadedOffers = [];
-    Map<String, String> sponsorNames = {};
-    Map<String, String> sponsorImages = {};
-    Map<String, String> sponsorEmails = {};
+  final DatabaseReference database = FirebaseDatabase.instance.ref();
+  offers.clear();
+  List<Offer> loadedOffers = [];
+  Map<String, String> sponsorNames = {};
+  Map<String, String> sponsorImages = {};
+  Map<String, String> sponsorEmails = {};
 
-final startTimeParts = widget.startTime!.split(' ');
-final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts[1]);
-
-
-
-    database.child('offers').onValue.listen((offer) {
-      if (offer.snapshot.value != null) {
-        Map<dynamic, dynamic> offerData = offer.snapshot.value as Map<dynamic, dynamic>;
-        offerData.forEach((key, value) {
-          List<String> categoryList = [];
-          if (value['Category'] is List<dynamic>) {
-            categoryList = (value['Category'] as List<dynamic>).map((category) => category.toString()).toList();
-          }
-          if (value['EventId'] == widget.EVENTid) {
-            String timestampString = value['TimeStamp'] as String? ?? '';
+  database.child('offers').onValue.listen((offer) {
+    if (offer.snapshot.value != null) {
+      Map<dynamic, dynamic> offerData = offer.snapshot.value as Map<dynamic, dynamic>;
+      offerData.forEach((key, value) {
+        List<String> categoryList = [];
+        if (value['Category'] is List<dynamic>) {
+          categoryList = (value['Category'] as List<dynamic>).map((category) => category.toString()).toList();
+        }
+        if (value['EventId'] == widget.EVENTid) {
+          String timestampString = value['TimeStamp'] as String? ?? '';
+          try {
+            // Trim spaces and ensure it has a valid format before parsing
+            timestampString = timestampString.trim();
+            DateTime timestamp = DateFormat("yyyy-MM-dd HH:mm:ss.S").parse(timestampString);
+            
             loadedOffers.add(Offer(
               eventId: key,
               sponseeId: value['sponseeId'] as String? ?? '',
@@ -100,34 +100,40 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
               sponsorId: value['sponsorId'] as String? ?? '',
               sponsorName: 'krkr',
               sponsorImage: '',
-              timeStamp: timestampString,
+              timeStamp: timestamp.toLocal().toString(), // Convert to local time
               status: value['Status'] as String? ?? 'Pending',
-              isExpanded: false , 
-              sponsorEmail:'',
+              isExpanded: false,
+              sponsorEmail: '',
             ));
+          } catch (e) {
+            print('Error parsing timestamp: $e');
           }
-        });
-        database.child('Sponsors').onValue.listen((spons) {
-          if (spons.snapshot.value != null) {
-            Map<dynamic, dynamic> sponsorData = spons.snapshot.value as Map<dynamic, dynamic>;
-            sponsorData.forEach((key, value) {
-              sponsorNames[key] = value['Name'] as String? ?? '';
-              sponsorImages[key] = value['Picture'] as String? ?? '';
-              sponsorEmails[key] = value['Email'] as String? ?? '';
-            });
-            for (var offer in loadedOffers) {
-              offer.sponsorName = sponsorNames[offer.sponsorId] ?? '';
-              offer.sponsorImage = sponsorImages[offer.sponsorId] ?? '';
-              offer.sponsorEmail = sponsorEmails[offer.sponsorId]?? '';
-            }
-            setState(() {
-              offers = loadedOffers;
-            });
+        }
+      });
+// Rest of your code...
+      database.child('Sponsors').onValue.listen((spons) {
+        if (spons.snapshot.value != null) {
+          Map<dynamic, dynamic> sponsorData = spons.snapshot.value as Map<dynamic, dynamic>;
+          sponsorData.forEach((key, value) {
+            sponsorNames[key] = value['Name'] as String? ?? '';
+            sponsorImages[key] = value['Picture'] as String? ?? '';
+            sponsorEmails[key] = value['Email'] as String? ?? '';
+          });
+          for (var offer in loadedOffers) {
+            offer.sponsorName = sponsorNames[offer.sponsorId] ?? '';
+            offer.sponsorImage = sponsorImages[offer.sponsorId] ?? '';
+            offer.sponsorEmail = sponsorEmails[offer.sponsorId]?? '';
           }
-        });
-      }
-    });
-  }
+          setState(() {
+            offers = loadedOffers;
+          });
+        }
+      });
+    }
+  });
+}
+
+
  String calculateExpiry(Offer offer) {
   try {
     final offerTimestamp = DateTime.parse(offer.timeStamp);
