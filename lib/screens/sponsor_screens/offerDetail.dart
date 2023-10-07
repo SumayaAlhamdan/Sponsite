@@ -5,7 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:sponsite/screens/view_others_profile.dart';
-import 'package:sponsite/widgets/customAppBarwithNav.dart';   
+import 'package:sponsite/widgets/customAppBarwithNav.dart';
 
 class offertDetail extends StatefulWidget {
   offertDetail({
@@ -33,9 +33,9 @@ class offertDetail extends StatefulWidget {
   }) : super(key: key);
   final String img;
   final String location;
- String sponseeName;
- String sponseeId;
- String sponseeImage;
+  String sponseeName;
+  String sponseeId;
+  String sponseeImage;
   final String startDate;
   final String endDate;
   final String DetailKey;
@@ -88,7 +88,7 @@ class _Start extends State<offertDetail> {
       return Stack(
         children: [
           Container(
-            height: 500,
+            height: 350,
             child: GoogleMap(
               onMapCreated: (controller) {
                 // setState(() {
@@ -141,378 +141,377 @@ class _Start extends State<offertDetail> {
     screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Colors.white,  
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            alignment: Alignment.topLeft,
-            children: [
-              Hero(
-                tag: widget.DetailKey,
-                child: SizedBox(
-                  height: screenHeight / 2.2,
-                  width: screenWidth,
-                  child: Image.network(
-                    widget.img.isNotEmpty
-                        ? widget.img
-                        : 'https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk=',
-                    fit: BoxFit.cover,
+        backgroundColor: Colors.white,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              alignment: Alignment.topLeft,
+              children: [
+                Hero(
+                  tag: widget.DetailKey,
+                  child: SizedBox(
+                    height: screenHeight / 2.2,
+                    width: screenWidth,
+                    child: Image.network(
+                      widget.img.isNotEmpty
+                          ? widget.img
+                          : 'https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk=',
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-              ),
-              CustomAppBar(  
-          title: 'Event Details',
-        ),
-            ],
-          ),
-          Expanded(
+                CustomAppBar(
+                  title: 'Event Details',
+                ),
+              ],
+            ),
+            Expanded(
 
-              // Use Expanded to fill available space
-              child: Container(
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
+                // Use Expanded to fill available space
+                child: Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 5,
+                          blurRadius: 7,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
-                    child: Container(
-                        color: Colors.white,
-                        padding: const EdgeInsets.all(16.0),
-                        child: Scrollbar(
-                          child: SingleChildScrollView(
-                              child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 20),
-                              Text(
-                                widget.DetailKey,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 32,
-                                  color: Colors.black87,
+                    child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                        child: Container(
+                            color: Colors.white,
+                            padding: const EdgeInsets.all(16.0),
+                            child: Scrollbar(
+                                child: SingleChildScrollView(
+                                    child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 20),
+                                Text(
+                                  widget.DetailKey,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 32,
+                                    color: Colors.black87,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                widget.Type,
-                                style: const TextStyle(
-                                  fontSize: 22,
-                                  color: Colors.black87,
+                                const SizedBox(height: 10),
+                                Text(
+                                  widget.Type,
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    color: Colors.black87,
+                                  ),
                                 ),
-                              ),
-                                   Row(
-                            children: [
-                              GestureDetector(
-                                child: CircleAvatar(
-                                  radius: 25,
-                                  backgroundImage: NetworkImage(widget.sponseeImage),
-                                  backgroundColor: Colors.transparent,
-                                ),
-                                onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => ViewOthersProfile(
-                                        'Sponsees', widget.sponseeId),
-                                  ));
-                                },
-                              ),
+                                Row(
+                                  children: [
+                                    GestureDetector(
+                                      child: CircleAvatar(
+                                        radius: 25,
+                                        backgroundImage:
+                                            NetworkImage(widget.sponseeImage),
+                                        backgroundColor: Colors.transparent,
+                                      ),
+                                      onTap: () {
+                                        Navigator.of(context)
+                                            .push(MaterialPageRoute(
+                                          builder: (context) =>
+                                              ViewOthersProfile(
+                                                  'Sponsees', widget.sponseeId),
+                                        ));
+                                      },
+                                    ),
 
-                              SizedBox(width: 10),
-                              // Add some space between the CircleAvatar and Text
-                              GestureDetector(
-                                child: Expanded(
-                                  child: Text(
-                                    widget.sponseeName,
-                                    style: const TextStyle(
-                                      fontSize: 22,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                ),
-                                onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => ViewOthersProfile(
-                                        'Sponsees', widget.sponseeId),
-                                  ));
-                                },
-                              ),
-                            ],
-                          ),
-                              const Divider(height: 30, thickness: 2),
-                              _buildInfoRow(
-                                  Icons.calendar_today,
-                                  "${widget.startDate} - ${widget.endDate}",
-                                  "Date"),
-                              _buildInfoRow(
-                                  Icons.access_time,
-                                  "${widget.startTime}-${widget.endTime}",
-                                  "Time"),
-                              _buildInfoRow(Icons.person,
-                                  widget.NumberOfAttendees, "Attendees"),
-                              if (widget.location != "null")
-                                FutureBuilder<String>(
-                                  future: getAddressFromCoordinates(
-                                      latitude, longitude),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return CircularProgressIndicator();
-                                    } else if (snapshot.hasError) {
-                                      return Text("Error: ${snapshot.error}");
-                                    } else if (!snapshot.hasData) {
-                                      return Text("Address not found");
-                                    } else {
-                                      return Row(
-                                        children: [
-                                          Container(
-                                            padding: EdgeInsets.all(8.0),
-                                            child: Icon(
-                                              Icons
-                                                  .location_on, // Replace with the desired icon
-                                              color: const Color.fromARGB(
-                                                  255,
-                                                  91,
-                                                  79,
-                                                  158), // Customize the icon color
-                                              size:
-                                                  40.0, // Customize the icon size
-                                            ),
+                                    SizedBox(width: 10),
+                                    // Add some space between the CircleAvatar and Text
+                                    GestureDetector(
+                                      child: Expanded(
+                                        child: Text(
+                                          widget.sponseeName,
+                                          style: const TextStyle(
+                                            fontSize: 22,
+                                            color: Colors.black87,
                                           ),
-                                          Expanded(
-                                            child: Container(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Text(
-                                                snapshot.data ?? "",
-                                                style: TextStyle(
-                                                  fontSize: 22.0,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    }
-                                  },
-                                ),
-                              if (widget.location != "null")
-                                SizedBox(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.6,
-                                  child: buildMap(),
-                                ),
-                              const SizedBox(height: 20),
-                              const Text(
-                                "Categories",
-                                style: TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Wrap(
-                                spacing: 8,
-                                children: widget.eventCategory
-                                    .split(',')
-                                    .map((category) {
-                                  return Chip(
-                                    label: Text(category.trim()),
-                                    backgroundColor: const Color.fromARGB(
-                                        255, 255, 255, 255),
-                                    shadowColor:
-                                        const Color.fromARGB(255, 91, 79, 158),
-                                    elevation: 3,
-                                    labelStyle: const TextStyle(
-                                      color: Color.fromARGB(255, 91, 79, 158),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                              const SizedBox(height: 20),
-                              const Text(
-                                "Benefits",
-                                style: TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                widget.benefits ?? "No benefits available",
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              const Text(
-                                "Notes",
-                                style: TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                (widget.eventNotes.isNotEmpty)
-                                    ? widget.eventNotes
-                                    : "There are no notes available",
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(width: 1), // Add a border
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                padding: EdgeInsets.all(0),
-                                child: ExpansionTileCard(
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(10.0)),
-                                  baseColor: Color.fromARGB(255, 255, 255, 255),
-                                  expandedColor:
-                                      Color.fromARGB(255, 157, 151, 190),
-                                  title: Text(
-                                    "Offer Details",
-                                    style: TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                  children: <Widget>[
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(10.0)),
-                                        color:
-                                            Color.fromARGB(255, 157, 151, 190),
+                                        ),
                                       ),
-                                      padding: EdgeInsets.all(12.0),
-                                      alignment: Alignment.bottomLeft,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const Text(
-                                            "Categories",
-                                            style: TextStyle(
-                                              fontSize: 25,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 20),
-                                          Wrap(
-                                            spacing: 8,
-                                            children: widget.Category.split(',')
-                                                .map((category) {
-                                              return Chip(
-                                                label: Text(category.trim()),
-                                                backgroundColor:
-                                                    const Color.fromARGB(
-                                                        255, 255, 255, 255),
-                                                shadowColor:
-                                                    const Color.fromARGB(
-                                                        255, 91, 79, 158),
-                                                elevation: 3,
-                                                labelStyle: const TextStyle(
-                                                  color: Color.fromARGB(
-                                                      255, 91, 79, 158),
-                                                ),
-                                              );
-                                            }).toList(),
-                                          ),
-                                          const SizedBox(width: 20),
-                                          const Text(
-                                            "Notes",
-                                            style: TextStyle(
-                                              fontSize: 25,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 20),
-                                          Text(
-                                            (widget.notes.isNotEmpty)
-                                                ? widget.notes
-                                                : "There are no notes available",
-                                            style: const TextStyle(
-                                              fontSize: 20,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 20),
-                                          const Text(
-                                            "Offer Status",
-                                            style: TextStyle(
-                                              fontSize: 25,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 20),
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                color:
-                                                    statusColor, // Set the border color
-                                                width:
-                                                    1.0, // Set the border width
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              color: statusColor,
-                                              //   20.0), // Set border radius if needed
-                                            ),
-                                            padding: EdgeInsets.all(5.0),
-                                            child: Text(
-                                              widget
-                                                  .status, // Display the status text here (e.g., "Pending", "Accepted", "Rejected")
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.white,
-                                                //backgroundColor: statusColor),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                        ],
-                                      ),
+                                      onTap: () {
+                                        Navigator.of(context)
+                                            .push(MaterialPageRoute(
+                                          builder: (context) =>
+                                              ViewOthersProfile(
+                                                  'Sponsees', widget.sponseeId),
+                                        ));
+                                      },
                                     ),
                                   ],
                                 ),
-                              )
-                            ],
-                            
-                          ))
-        )
-                        )
-                        )
-                        
-                        )
-                        )
-                        ],
-                        )
-                        );
-                          }
-
-                          
-    
+                                const Divider(height: 30, thickness: 2),
+                                _buildInfoRow(
+                                    Icons.calendar_today,
+                                    "${widget.startDate} - ${widget.endDate}",
+                                    "Date"),
+                                _buildInfoRow(
+                                    Icons.access_time,
+                                    "${widget.startTime}-${widget.endTime}",
+                                    "Time"),
+                                _buildInfoRow(Icons.person,
+                                    widget.NumberOfAttendees, "Attendees"),
+                                if (widget.location != "null")
+                                  FutureBuilder<String>(
+                                    future: getAddressFromCoordinates(
+                                        latitude, longitude),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return CircularProgressIndicator();
+                                      } else if (snapshot.hasError) {
+                                        return Text("Error: ${snapshot.error}");
+                                      } else if (!snapshot.hasData) {
+                                        return Text("Address not found");
+                                      } else {
+                                        return Row(
+                                          children: [
+                                            Container(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Icon(
+                                                Icons
+                                                    .location_on, // Replace with the desired icon
+                                                color: const Color.fromARGB(
+                                                    255,
+                                                    91,
+                                                    79,
+                                                    158), // Customize the icon color
+                                                size:
+                                                    40.0, // Customize the icon size
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: Container(
+                                                padding: EdgeInsets.all(8.0),
+                                                child: Text(
+                                                  snapshot.data ?? "",
+                                                  style: TextStyle(
+                                                    fontSize: 22.0,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      }
+                                    },
+                                  ),
+                                if (widget.location != "null")
+                                  Center(
+                                    child: SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.9,
+                                      child: buildMap(),
+                                    ),
+                                  ),
+                                const SizedBox(height: 20),
+                                const Text(
+                                  "Categories",
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Wrap(
+                                  spacing: 8,
+                                  children: widget.eventCategory
+                                      .split(',')
+                                      .map((category) {
+                                    return Chip(
+                                      label: Text(category.trim()),
+                                      backgroundColor: const Color.fromARGB(
+                                          255, 255, 255, 255),
+                                      shadowColor: const Color.fromARGB(
+                                          255, 91, 79, 158),
+                                      elevation: 3,
+                                      labelStyle: const TextStyle(
+                                        color: Color.fromARGB(255, 91, 79, 158),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                                const SizedBox(height: 20),
+                                const Text(
+                                  "Benefits",
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  widget.benefits ?? "No benefits available",
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                const Text(
+                                  "Notes",
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  (widget.eventNotes.isNotEmpty)
+                                      ? widget.eventNotes
+                                      : "There are no notes available",
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    border:
+                                        Border.all(width: 1), // Add a border
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  padding: EdgeInsets.all(0),
+                                  child: ExpansionTileCard(
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(10.0)),
+                                    baseColor:
+                                        Color.fromARGB(255, 255, 255, 255),
+                                    expandedColor:
+                                        Color.fromARGB(255, 157, 151, 190),
+                                    title: Text(
+                                      "Offer Details",
+                                      style: TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    children: <Widget>[
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(10.0)),
+                                          color: Color.fromARGB(
+                                              255, 157, 151, 190),
+                                        ),
+                                        padding: EdgeInsets.all(12.0),
+                                        alignment: Alignment.bottomLeft,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              "Categories",
+                                              style: TextStyle(
+                                                fontSize: 25,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 20),
+                                            Wrap(
+                                              spacing: 8,
+                                              children:
+                                                  widget.Category.split(',')
+                                                      .map((category) {
+                                                return Chip(
+                                                  label: Text(category.trim()),
+                                                  backgroundColor:
+                                                      const Color.fromARGB(
+                                                          255, 255, 255, 255),
+                                                  shadowColor:
+                                                      const Color.fromARGB(
+                                                          255, 91, 79, 158),
+                                                  elevation: 3,
+                                                  labelStyle: const TextStyle(
+                                                    color: Color.fromARGB(
+                                                        255, 91, 79, 158),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                            ),
+                                            const SizedBox(width: 20),
+                                            const Text(
+                                              "Notes",
+                                              style: TextStyle(
+                                                fontSize: 25,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 20),
+                                            Text(
+                                              (widget.notes.isNotEmpty)
+                                                  ? widget.notes
+                                                  : "There are no notes available",
+                                              style: const TextStyle(
+                                                fontSize: 20,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 20),
+                                            const Text(
+                                              "Offer Status",
+                                              style: TextStyle(
+                                                fontSize: 25,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 20),
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                  color:
+                                                      statusColor, // Set the border color
+                                                  width:
+                                                      1.0, // Set the border width
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                color: statusColor,
+                                                //   20.0), // Set border radius if needed
+                                              ),
+                                              padding: EdgeInsets.all(5.0),
+                                              child: Text(
+                                                widget
+                                                    .status, // Display the status text here (e.g., "Pending", "Accepted", "Rejected")
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.white,
+                                                  //backgroundColor: statusColor),
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            )))))))
+          ],
+        ));
+  }
 
   Color statusColor = const Color.fromARGB(
       255, 91, 79, 158); // Default status color is gray for pending

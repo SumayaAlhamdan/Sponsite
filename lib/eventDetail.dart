@@ -65,7 +65,7 @@ class _Start extends State<eventDetail> {
       return Stack(
         children: [
           Container(
-            height: 500,
+            height: 350,
             child: GoogleMap(
               onMapCreated: (controller) {
                 // setState(() {
@@ -257,9 +257,11 @@ class _Start extends State<eventDetail> {
                               },
                             ),
                           if (widget.location != "null")
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.6,
-                              child: buildMap(),
+                            Center(
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.9,
+                                child: buildMap(),
+                              ),
                             ),
                           const Text(
                             "Categories",

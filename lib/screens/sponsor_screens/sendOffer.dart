@@ -11,11 +11,11 @@ import 'package:sponsite/local_notifications.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:sponsite/widgets/customAppBarwithNav.dart';  
+import 'package:sponsite/widgets/customAppBarwithNav.dart';
 import 'package:sponsite/screens/view_others_profile.dart';
 
 class Event {
-  final String EventId; 
+  final String EventId;
   final String sponseeId;
   final String EventName;
   final String EventType;
@@ -131,7 +131,7 @@ class RecentEventsDetails extends StatelessWidget {
       return Stack(
         children: [
           Container(
-            height: 500,
+            height: 350,
             child: GoogleMap(
               onMapCreated: (controller) {
                 // setState(() {
@@ -201,9 +201,9 @@ class RecentEventsDetails extends StatelessWidget {
                   ),
                 ),
               ),
-             CustomAppBar(  
-          title: 'Event Details',
-        ),
+              CustomAppBar(
+                title: 'Event Details',
+              ),
             ],
           ),
           Expanded(
@@ -341,9 +341,11 @@ class RecentEventsDetails extends StatelessWidget {
                             ),
 
                           if (location != "null")
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.6,
-                              child: buildMap(),
+                            Center(
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.9,
+                                child: buildMap(),
+                              ),
                             ),
 
                           const SizedBox(height: 20),
@@ -423,13 +425,12 @@ class RecentEventsDetails extends StatelessWidget {
                                     context: context,
                                     builder: (BuildContext context) {
                                       return sendOffer(
-                                        EventId: EventId,
-                                        sponsorId: sponsorID,
-                                        sponseeId: sponseeId,
-                                        Category: Category,
-                                        TimeStamp: timeStamp,
-                                        EventName : EventName
-                                      );
+                                          EventId: EventId,
+                                          sponsorId: sponsorID,
+                                          sponseeId: sponseeId,
+                                          Category: Category,
+                                          TimeStamp: timeStamp,
+                                          EventName: EventName);
                                     },
                                   );
                                 },
@@ -511,17 +512,16 @@ class sendOffer extends StatefulWidget {
   final String? sponsorId;
   final List<String> Category;
   final String TimeStamp;
-  final String EventName ;
+  final String EventName;
 
-  const sendOffer({
-    super.key,
-    required this.EventId,
-    required this.sponseeId,
-    required this.sponsorId,
-    required this.Category,
-    required this.TimeStamp,
-    required this.EventName
-  });
+  const sendOffer(
+      {super.key,
+      required this.EventId,
+      required this.sponseeId,
+      required this.sponsorId,
+      required this.Category,
+      required this.TimeStamp,
+      required this.EventName});
 
   @override
   _sendOfferState createState() => _sendOfferState();
@@ -578,20 +578,20 @@ class _sendOfferState extends State<sendOffer> {
                 style: TextStyle(fontSize: 20),
               ),
               actions: [
-               TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pop(); 
-            },
-            child: Text(
-              'OK',
-              style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
-            ),
-          ),  
-              ],  
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    'OK',
+                    style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
+                  ),
+                ),
+              ],
             ));
       },
-    );  
+    );
   }
 
   Future<String?> _retrieveSponseeToken(String id) async {
@@ -632,15 +632,15 @@ class _sendOfferState extends State<sendOffer> {
               ),
               actions: [
                 TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pop(); 
-            },
-            child: Text(
-              'OK',
-              style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
-            ),  
-          ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    'OK',
+                    style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
+                  ),
+                ),
               ],
             );
           },
@@ -898,7 +898,7 @@ class _sendOfferState extends State<sendOffer> {
                             color: Color.fromARGB(255, 91, 79, 158),
                             fontSize: 20,
                           ),
-                        ),  
+                        ),
                       ],
                     ),
                     Wrap(
@@ -928,7 +928,7 @@ class _sendOfferState extends State<sendOffer> {
                           selectedColor: const Color.fromARGB(255, 91, 79, 158),
                         );
                       }).toList(),
-                    ),  
+                    ),
                     const SizedBox(height: 17),
                     Container(
                       decoration: BoxDecoration(
@@ -969,7 +969,7 @@ class _sendOfferState extends State<sendOffer> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
-                        ),  
+                        ),
                         child: const Text(
                           'Send Offer',
                           style: TextStyle(
