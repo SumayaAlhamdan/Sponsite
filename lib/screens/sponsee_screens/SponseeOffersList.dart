@@ -561,7 +561,7 @@ Widget _buildOfferCard(Offer offer) {
           _showConfirmationDialog("Reject", offer);
         },
         style: ElevatedButton.styleFrom(
-          primary: Colors.red,
+          primary: Color.fromARGB(179, 203, 54, 43),
           elevation: 5,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
@@ -580,13 +580,14 @@ Widget _buildOfferCard(Offer offer) {
         onPressed: () {
           _showConfirmationDialog("Accept", offer);
         },
-        style: ElevatedButton.styleFrom(
-          primary: Colors.green,
-          elevation: 5,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-        ),
+       style: ElevatedButton.styleFrom(
+  primary: Color.fromARGB(255, 51, 45, 81), 
+  elevation: 5,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(30),
+  ),
+),
+
         child: Text(
           'Accept',
           style: TextStyle(
