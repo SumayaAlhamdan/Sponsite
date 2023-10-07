@@ -309,13 +309,13 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                 tabs: const [
                   Tab(
                     child: Text(
-                      'Current',
+                      'Current Events',
                       style: TextStyle(fontSize: 22),
                     ),
                   ),
                   Tab(
                     child: Text(
-                      'Past',
+                      'Past Events',
                       style: TextStyle(fontSize: 22),
                     ),
                   ),
