@@ -122,16 +122,15 @@ class ChatService extends ChangeNotifier {
       Stream<List<Map<String, dynamic>>> unreadMessages, String key) {
     int unreadCount = 0;
 
-    // Listen to the stream and count unread messages
     unreadMessages.listen((messages) {
       for (var message in messages) {
-        // Check if the message is related to the current user ('key')
         if (message['data']['receiverID'] == key &&
             !message['data']['isRead']) {
           unreadCount++;
+          print('HEREEEEEE inside loop');
+          print(unreadCount);
         }
-        //   print('HEREEEEEE');
-        //  print(messages);
+        print('HEREEEEEE outside loop');
         print(unreadCount);
       }
     });

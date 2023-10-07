@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sponsite/screens/chatPage.dart';
 import 'package:sponsite/screens/chat_service.dart';
+import 'package:sponsite/screens/sponsor_screens/sponsor_home_screen.dart';
 
 class SponseeChat extends StatefulWidget {
   const SponseeChat({Key? key}) : super(key: key);
@@ -163,7 +164,7 @@ class _SponseeChatState extends State<SponseeChat> {
                     .transparent, // Optional, set a background color if needed
                 onBackgroundImageError: (exception, stackTrace) {
                   // Handle the error by returning a placeholder image
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 30,
                     backgroundImage: AssetImage(
                         'assets/placeholder_image.png'), // Placeholder image asset
@@ -179,7 +180,7 @@ class _SponseeChatState extends State<SponseeChat> {
           style: TextStyle(
             color: Color.fromARGB(255, 51, 45, 81),
             fontSize: 25,
-            fontWeight: FontWeight.bold,
+            fontWeight: unreadCount > 0 ? FontWeight.w900 : FontWeight.w500,
           ),
         ),
         subtitle: Text(
@@ -192,14 +193,15 @@ class _SponseeChatState extends State<SponseeChat> {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'Unread: $unreadCount',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.red, // Customize the color as needed
-              ),
-            ),
-            SizedBox(width: 8), // Add some spacing between text and icon
+            unreadCount > 0
+                ? Text(
+                    '$unreadCount unread massges',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red, // Customize the color as needed
+                    ),
+                  )
+                : SizedBox(width: 8), // Add some spacing between text and icon
             Icon(
               Icons.arrow_forward_ios_rounded, // Add the arrow icon here
               color: Color.fromARGB(255, 51, 45, 81),

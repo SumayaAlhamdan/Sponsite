@@ -98,7 +98,7 @@ class _ChatPageState extends State<ChatPage> {
             color: Colors.white,
             size: 30,
           ),
-          onPressed: () { 
+          onPressed: () {
             Navigator.of(context)
                 .pop(); // Navigate back when the back button is pressed
           },
@@ -234,7 +234,8 @@ class _ChatPageState extends State<ChatPage> {
               // Handle menu item selection here
               switch (value) {
                 case 'DeleteChat':
-                 // chatService.deleteChatRoom( , receiverUserID); // needssssssssss fixing
+                  chatService.deleteChatRoom(chatService.currentUserId,
+                      widget.receiverUserID); // needssssssssss fixing
                   break;
                 case 'Meeting':
                   Navigator.of(context).push(
