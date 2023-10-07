@@ -4,7 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:sponsite/eventDetail.dart';
 import 'package:sponsite/screens/sponsee_screens/SponseeOffersList.dart';
 import 'package:sponsite/widgets/customAppBar.dart';
-import 'package:sponsite/widgets/user_type_selector.dart';
+import 'package:sponsite/widgets/user_type_selector.dart';  
 
 class ViewCurrentSponsee extends StatefulWidget {
   const ViewCurrentSponsee({Key? key}) : super(key: key);
@@ -172,7 +172,9 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                 const SizedBox(
                   height: 5,
                 ),
-                Wrap(
+                SizedBox(   
+                  height: 60,  
+                child: Wrap(
                   spacing: 8,
                   children: event.Category.map((category) {
                     return Chip(
@@ -186,8 +188,9 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                     );
                   }).toList(),
                 ),
+                ),    
                 const SizedBox(
-                  height: 10,
+                  height: 20,   
                 ),
                 Align(
                   alignment: Alignment.bottomRight,
@@ -284,25 +287,17 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
       length: 2, // Number of tabs (Current and Past)
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: Text(
-            'My Events',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-          ),
-          backgroundColor: Color.fromARGB(255, 51, 45, 81),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(20),
-              bottomRight: Radius.circular(20),
-            ),
-          ),
+        appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(105), // Adjust the height as needed
+        child: CustomAppBar(  
+          title: 'My Events',
         ),
+      ),
         body: Column(
-          children: [
+          children: [ 
             Container(
               color: Color.fromARGB(255, 255, 255, 255),
-              padding: const EdgeInsets.only(bottom: 20, top: 50),
+              padding: const EdgeInsets.only( top: 50),
               child: TabBar(
                 // Move the TabBar to the appBar's bottom property
                 indicatorColor: Color.fromARGB(255, 51, 45, 81),
@@ -330,13 +325,13 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                 ],
               ),
             ),
-          ],
+          ],    
         ),
-      ),
-    );
+    )      
+      );  
   }
 
-  Widget _buildCurrentEventsPage() {
+  Widget _buildCurrentEventsPage() {  
     return Padding(
       padding: const EdgeInsets.only(top: 1),
       child: Column(
@@ -430,3 +425,4 @@ class Event {
     required this.timeStamp,
   });
 }
+  

@@ -198,12 +198,37 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
       length: 2,
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: const PreferredSize(
-          preferredSize: Size.fromHeight(105), // Adjust the height as needed
-          child: CustomAppBar(
-            title: 'My Events',
-          ),
+       appBar:  AppBar(
+  backgroundColor: Color.fromARGB(255, 51, 45, 81),
+  elevation: 0,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.only(
+      bottomLeft: Radius.circular(20),
+      bottomRight: Radius.circular(20),
+    ),
+  ),
+  leading: IconButton(
+    icon: Icon(Icons.arrow_back, color: Colors.white),  
+    iconSize: 40, 
+    onPressed: () {
+      Navigator.of(context).pop();
+    },
+  ),
+  title: Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [ 
+      Text(
+        '${widget.EventName} Event Offers',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
+          fontSize: 30, 
         ),
+      ),      
+    ],  
+  ),
+),
+    
         body: Column(
           children: [
             Container(
