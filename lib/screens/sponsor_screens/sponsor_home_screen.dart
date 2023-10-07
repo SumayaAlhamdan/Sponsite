@@ -403,10 +403,10 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                       true, // Add this to allow GridView to scroll inside SingleChildScrollView
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.8,
+                    childAspectRatio: 0.72,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
-                  ),
+                  ),  
                   itemCount: getFilteredEvents().length,
                   itemBuilder: (context, index) {
                     Event event = getFilteredEvents()[index];
@@ -592,7 +592,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                                       ),
                                     ),
                                     const SizedBox(
-                                        height: 10), // Add some space
+                                        height: 8), // Add some space
                                     const Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [

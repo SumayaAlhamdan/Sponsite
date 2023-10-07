@@ -19,8 +19,7 @@ class _SponseeBottomNavBarState extends State<SponseeBottomNavBar> {
   final List<Widget> _widgetOptions = [
     const SponseeHome(),
     const ViewCurrentSponsee(),
-    const MyApp(),
-    googleCalendar(),   
+    const MyApp(),  
     const SponseeChat(),
      SponseeProfile()
 
@@ -59,7 +58,7 @@ class _SponseeBottomNavBarState extends State<SponseeBottomNavBar> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.card_travel,
+              Icons.handshake_outlined,
               size: 40,
               color: Colors.white,
             ),
@@ -79,20 +78,6 @@ class _SponseeBottomNavBarState extends State<SponseeBottomNavBar> {
             label: 'Post',
              activeIcon:  Icon(
               Icons.add_circle_rounded,
-              size: 40,
-              color: Color.fromARGB(255, 91, 79, 158),
-            ),
-          ),
-            BottomNavigationBarItem(
-            icon: Icon(
-              Icons.calendar_month_rounded,
-              size: 40,
-              color: Colors.white,
-              
-            ),
-            label: 'Calendar',
-            activeIcon:  Icon(
-              Icons.calendar_month_rounded,
               size: 40,
               color: Color.fromARGB(255, 91, 79, 158),
             ),

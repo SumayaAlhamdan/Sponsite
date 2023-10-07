@@ -8,6 +8,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sponsite/widgets/user_image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:sponsite/screens/calendar.dart';
 
 class SponsorProfile extends StatefulWidget {
   SponsorProfile({Key? key}) : super(key: key);
@@ -164,7 +165,17 @@ class _SponsorProfileState extends State<SponsorProfile> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 51, 45, 81),
+              leading: IconButton(
+             icon :Icon(Icons.calendar_month_rounded),    
+              iconSize: 40,
+              color: Colors.white,
+             onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) =>googleCalendar(),));  
+  },  
+  ),    
         actions: [
+  
           PopupMenuButton<String>(
             icon: const Icon(
               Icons.more_horiz,
