@@ -369,12 +369,29 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
   }
 
   Widget _buildPastEventsPage() {
-    return Center(
-      child: Text(
-        'No past events available',
-        style: TextStyle(fontSize: 20, color: Colors.grey),
-      ),
-    );
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 282,
+            height: 284,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/Time.png'),
+                fit: BoxFit.fitWidth,
+              ),
+            ),
+          ),
+          SizedBox(height: 20), // Adjust the spacing as needed
+          Text(
+            'There Are No Past Events Yet',
+            style: TextStyle(
+              fontSize: 24, // Adjust the font size as needed
+            ),
+          ),
+        ],
+      );
   }
 }
 

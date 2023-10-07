@@ -20,6 +20,7 @@ class Offer {
   String timeStamp;
   String status;
   bool isExpanded ; 
+  String sponsorEmail ; 
 
 
   Offer({
@@ -33,6 +34,7 @@ class Offer {
     required this.timeStamp,
     this.status = 'Pending',
     this.isExpanded = false , 
+    required this.sponsorEmail,
   
   });
 
@@ -73,6 +75,8 @@ void _loadOffersFromFirebase() async {
     List<Offer> loadedOffers = [];
     Map<String, String> sponsorNames = {};
     Map<String, String> sponsorImages = {};
+    Map<String, String> sponsorEmails = {};
+
 final startTimeParts = widget.startTime!.split(' ');
 final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts[1]);
 
@@ -99,6 +103,7 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
               timeStamp: timestampString,
               status: value['Status'] as String? ?? 'Pending',
               isExpanded: false , 
+              sponsorEmail:'',
             ));
           }
         });
@@ -108,10 +113,12 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
             sponsorData.forEach((key, value) {
               sponsorNames[key] = value['Name'] as String? ?? '';
               sponsorImages[key] = value['Picture'] as String? ?? '';
+              sponsorEmails[key] = value['Email'] as String? ?? '';
             });
             for (var offer in loadedOffers) {
               offer.sponsorName = sponsorNames[offer.sponsorId] ?? '';
               offer.sponsorImage = sponsorImages[offer.sponsorId] ?? '';
+              offer.sponsorEmail = sponsorEmails[offer.sponsorId]?? '';
             }
             setState(() {
               offers = loadedOffers;
@@ -124,36 +131,10 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
  String calculateExpiry(Offer offer) {
   try {
     final offerTimestamp = DateTime.parse(offer.timeStamp);
-
-    print('Offer Timestamp: $offerTimestamp');
-
-    // Parse the start date and time
     final startDate = DateTime.parse(widget.startDate!);
-    print('Start Date: $startDate');
 
-    final startTimeParts = widget.startTime!.split(' ');
-    final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts[1]);
-    print('Start Time: $startTime');
-
-    // Calculate the event date and time
-    final eventDateTime = DateTime(
-      startDate.year,
-      startDate.month,
-      startDate.day,
-      startTime.hour,
-      startTime.minute,
-    );
-    print('Event Date Time: $eventDateTime');
-
-    final now = DateTime.now();
-    print('Current Time: $now');
-
-    // Calculate the time difference in days, excluding the starting day
-    final timeDifference = eventDateTime.isAfter(now)
-        ? eventDateTime.difference(now).inDays - 1
-        : 0;
-
-    print('Time Difference (excluding starting day): $timeDifference');
+    // Calculate the time difference in days between the offer timestamp and event start date
+    final timeDifference = startDate.difference(offerTimestamp).inDays;
 
     // Calculate 50% of the time difference
     final remainingDays = (timeDifference * 0.5).round();
@@ -165,7 +146,16 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
         return 'Expires in $remainingDays days';
       }
     } else {
-      return 'Expires soon';
+      // Check if the offer is still "Pending"
+      if (offer.status == 'Pending') {
+        // Update the status to "Expired" in the database
+        dbref.child('offers').child(offer.eventId).update({'Status': 'Expired'});
+        // Remove the expired offer from the list
+        offers.remove(offer);
+        return 'Expired';
+      } else {
+        return 'Expires Today';
+      }
     }
   } catch (e) {
     print('Error: $e');
@@ -282,7 +272,7 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
           ),
           SizedBox(height: 20), // Adjust the spacing as needed
           Text(
-            'There Are No New Offers Yet',
+            'There are no new offers yet',
             style: TextStyle(
               fontSize: 24, // Adjust the font size as needed
             ),
@@ -323,7 +313,7 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
           ),
           SizedBox(height: 20), // Adjust the spacing as needed
           Text(
-            'There Are No Accepted Offers Yet',
+            'There are no accepted offers yet',
             style: TextStyle(
               fontSize: 24, // Adjust the font size as needed
             ),
@@ -341,134 +331,134 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
       );
     }
   }
+Widget _buildOfferCard(Offer offer) {
+  final timestamp = DateTime.parse(offer.timeStamp).millisecondsSinceEpoch;
 
-  @override
-  Widget _buildOfferCard(Offer offer) {
-    final timestamp = DateTime.parse(offer.timeStamp).millisecondsSinceEpoch;
-
-    return Container(
-      margin: EdgeInsets.all(10),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20), // Radius for the card
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1), // Shadow color
-              spreadRadius: 2, // Spread radius for the shadow
-              blurRadius: 4, // Blur radius for the shadow
-              offset: Offset(0, 2), // Offset for the shadow
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  offer.isExpanded = !offer.isExpanded;
-                });
-              },
-              child: Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Color.fromARGB(193, 51, 45, 81),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16),
-                      child: Text(
-                        '${formatTimeAgo(timestamp)}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 30) , 
-                    child: Text(
-                        calculateExpiry(offer),
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      )
-                  ),
-                    
-                  ],
+  return Container(
+    margin: EdgeInsets.all(10),
+    child: Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 2,
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                offer.isExpanded = !offer.isExpanded;
+              });
+            },
+            child: Container(
+              height: 50,
+              decoration: BoxDecoration(
+                color: Color.fromARGB(193, 51, 45, 81),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
                 ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(bottom: 16),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  GestureDetector(
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      margin: EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50),
-                        color: Colors.black,
-                        image: DecorationImage(
-                          image: NetworkImage(offer.sponsorImage),
-                          fit: BoxFit.cover,
-                        ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16),
+                    child: Text(
+                      '${formatTimeAgo(timestamp)}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
                       ),
                     ),
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) =>
-                              ViewOthersProfile('Sponsors', offer.sponsorId)));
-                    },
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Sponsor',
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: Colors.black,
-                        ),
+                   if (offer.status == 'Pending') 
+                  Padding(
+                    padding: const EdgeInsets.only(right: 30),
+                    child: Text(
+                      calculateExpiry(offer),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
                       ),
-                      SizedBox(height: 5),
-                      GestureDetector(
-                        child: Text(
-                          offer.sponsorName,
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) =>
-                                  ViewOthersProfile('Sponsors', offer.sponsorId)));
-                        },
-                      ),
-                      
-                    ],
+                    ),
                   ),
                 ],
               ),
             ),
-            if (offer.isExpanded)
-              Container(
-                child: Column(
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: Row(
+              children: [
+                GestureDetector(
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    margin: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50),
+                      color: Colors.black,
+                      image: DecorationImage(
+                        image: NetworkImage(offer.sponsorImage),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) =>
+                            ViewOthersProfile('Sponsors', offer.sponsorId)));
+                  },
+                ),
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
+                      'Sponsor',
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    GestureDetector(
+                      child: Text(
+                        offer.sponsorName,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) =>
+                                ViewOthersProfile('Sponsors', offer.sponsorId)));
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          if (offer.isExpanded)
+            Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16),
+                    child: Text(
                       "Categories",
                       style: TextStyle(
                         fontSize: 22,
@@ -476,21 +466,29 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
                         color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Wrap(
+                  ),
+                  SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16),
+                    child: Wrap(
                       spacing: 4,
                       children: offer.categories.map((category) {
                         return Chip(
-                          label: Text(category),
-                          backgroundColor: Color.fromARGB(255, 91, 79, 158),
-                          labelStyle: TextStyle(
-                            color: Colors.white,
+                          label: Text(category.trim()),
+                          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                          shadowColor: const Color.fromARGB(255, 91, 79, 158),
+                          elevation: 3,
+                          labelStyle: const TextStyle(
+                            color: Color.fromARGB(255, 91, 79, 158),
                           ),
                         );
                       }).toList(),
                     ),
-                    SizedBox(height: 16),
-                    Text(
+                  ),
+                  SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16),
+                    child: Text(
                       'Notes:',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -498,79 +496,124 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
                         color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 4),
-                    Text(
+                  ),
+                  SizedBox(height: 4),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16),
+                    child: Text(
                       offer.notes,
                       style: TextStyle(
                         fontSize: 20,
                         color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 16),
-                    SizedBox(
-                      height: 20, // Additional height to separate from action buttons
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
+                  ),
+                  SizedBox(height: 16),
+                  
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Container(
+                        width: 120,
+                        child: ElevatedButton(
                           onPressed: () {
-                            _showConfirmationDialog("Accept", offer);
+                            // Add your chat logic here
                           },
                           style: ElevatedButton.styleFrom(
-                            primary: Colors.green,
-                            minimumSize: Size(120, 50),
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                          ),
-                          child: Text(
-                            'Accept',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
+                            primary: const Color.fromARGB(255, 91, 79, 158),
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                        ),
-                        SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            _showConfirmationDialog("Reject", offer);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.red,
-                            minimumSize: Size(120, 50),
-                            padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.chat_bubble,
+                                color: Colors.white,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Chat',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
                           ),
-                          child: Text(
-                            'Reject',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                            ),
-                          ),
                         ),
-                        SizedBox(height: 100),
-                      ],
+                      ),
                     ),
-                  ],
-                ),
-              ),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  offer.isExpanded = !offer.isExpanded;
-                });
-              },
-              child: Icon(
-                offer.isExpanded
-                    ? Icons.keyboard_arrow_up
-                    : Icons.keyboard_arrow_down,
-              ),
-            ),
-          ],
+                  SizedBox(height: 20),
+                 if (offer.status == 'Pending') // Only show Accept and Reject buttons for pending offers
+  Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      ElevatedButton(
+        onPressed: () {
+          _showConfirmationDialog("Reject", offer);
+        },
+        style: ElevatedButton.styleFrom(
+          primary: Colors.red,
+          elevation: 5,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+        child: Text(
+          'Reject',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+          ),
         ),
       ),
-    );
-  }
+      SizedBox(width: 30), // Adjust the width to add space
+      ElevatedButton(
+        onPressed: () {
+          _showConfirmationDialog("Accept", offer);
+        },
+        style: ElevatedButton.styleFrom(
+          primary: Colors.green,
+          elevation: 5,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+        child: Text(
+          'Accept',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+          ),
+        ),
+      ),
+    ],
+  ),
+SizedBox(height: 20), // Adjust the height to add space
+
+                ],
+              ),
+            ),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                offer.isExpanded = !offer.isExpanded;
+              });
+            },
+            child: Icon(
+              offer.isExpanded
+                  ? Icons.keyboard_arrow_up
+                  : Icons.keyboard_arrow_down,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 
 
 
@@ -581,8 +624,13 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
       final uniqueKey = GlobalKey();
       return AlertDialog(
         key: uniqueKey,
-        title: Text('Confirm $action'),
+        title: Text('Confirm $action', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),),
         content: Text('Are you sure you want to $action this offer?'),
+        backgroundColor: Colors.white,
+         elevation: 0,
+         shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
         actions: [
           TextButton(
             onPressed: () {
@@ -593,6 +641,38 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
           TextButton(
             onPressed: () async {
               Navigator.of(context).pop();
+               showDialog(
+                  context: context,
+                  builder: (context) {
+                    Future.delayed(const Duration(seconds: 3), () {
+                      Navigator.of(context).pop(true);
+                    });
+                    return Theme(
+                      data: Theme.of(context)
+                          .copyWith(dialogBackgroundColor: Colors.white),
+                      child: AlertDialog(
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              color: Color.fromARGB(255, 91, 79, 158),
+                              size: 48,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'Offer was $action'+'ed successfully!',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
               final sponsorToken =
                   await _retrieveSponsorToken(offer.sponsorId);
               if (sponsorToken != null && user!.uid == offer.sponseeId) {
@@ -625,7 +705,29 @@ final startTime = DateFormat.jm().parse(startTimeParts[0] + ' ' + startTimeParts
                 showActions = false;
               });
             },
-            child: Text('Confirm'),
+            child: Text('Confirm' , style:
+                        TextStyle(color: Color.fromARGB(255, 242, 241, 241))),
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        const Color.fromARGB(255, 51, 45, 81)),
+                    //Color.fromARGB(255, 207, 186, 224),), // Background color
+                    textStyle: MaterialStateProperty.all<TextStyle>(
+                        const TextStyle(fontSize: 16)), // Text style
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                        const EdgeInsets.all(16)), // Padding
+                    elevation:
+                        MaterialStateProperty.all<double>(1), // Elevation
+                    shape: MaterialStateProperty.all<OutlinedBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(10), // Border radius
+                        side: const BorderSide(
+                            color: Color.fromARGB(
+                                255, 255, 255, 255)), // Border color
+                      ),
+                    ),
+                    minimumSize:
+                        MaterialStateProperty.all<Size>(const Size(200, 50))),
           ),
         ],
       );

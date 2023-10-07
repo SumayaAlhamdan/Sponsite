@@ -89,10 +89,18 @@ class _SponsorProfileState extends State<SponsorProfile> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Sign Out Confirmation'),
+          title: const Text(
+            'Sign Out Confirmation',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+          ),
           content: const Text(
             'Are you sure you want to sign out?                                   ',
-            style: TextStyle(fontSize: 20),
+            //style: TextStyle(fontSize: 20),
+          ),
+          backgroundColor: Colors.white,
+          elevation: 0, // Remove the shadow
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
           actions: <Widget>[
             TextButton(
@@ -102,20 +110,49 @@ class _SponsorProfileState extends State<SponsorProfile> {
               child: const Text(
                 'Cancel',
                 style: TextStyle(
-                    color: Color.fromARGB(255, 51, 45, 81), fontSize: 20),
+                    color: Color.fromARGB(255, 51, 45, 81), ),
               ),
             ),
-            TextButton(
-              onPressed: () async {
-                // Sign out the user
-                await FirebaseAuth.instance.signOut();
-                Navigator.of(context).pop();
-                // Close the dialog
-              },
-              child: const Text('Sign Out',
-                  style: TextStyle(
-                      color: Color.fromARGB(255, 51, 45, 81), fontSize: 20)),
-            ),
+            // TextButton(
+            //   onPressed: () async {
+            //     // Sign out the user
+            //     await FirebaseAuth.instance.signOut();
+            //     Navigator.of(context).pop();
+            //     // Close the dialog
+            //   },
+            //   child: const Text('Sign Out',
+            //       style: TextStyle(
+            //           color: Color.fromARGB(255, 51, 45, 81), fontSize: 20)),
+            // ),
+            ElevatedButton(
+                child: const Text("Sign Out",
+                    style:
+                        TextStyle(color: Color.fromARGB(255, 242, 241, 241))),
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        const Color.fromARGB(255, 51, 45, 81)),
+                    //Color.fromARGB(255, 207, 186, 224),), // Background color
+                    textStyle: MaterialStateProperty.all<TextStyle>(
+                        const TextStyle(fontSize: 16)), // Text style
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                        const EdgeInsets.all(16)), // Padding
+                    elevation:
+                        MaterialStateProperty.all<double>(1), // Elevation
+                    shape: MaterialStateProperty.all<OutlinedBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(10), // Border radius
+                        side: const BorderSide(
+                            color: Color.fromARGB(
+                                255, 255, 255, 255)), // Border color
+                      ),
+                    ),
+                    minimumSize:
+                        MaterialStateProperty.all<Size>(const Size(200, 50))),
+                onPressed: () async {
+                  await FirebaseAuth.instance.signOut();
+                  Navigator.of(context).pop();
+                })
           ],
         );
       },
