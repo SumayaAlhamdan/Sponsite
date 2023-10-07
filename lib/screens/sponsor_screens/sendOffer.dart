@@ -11,10 +11,11 @@ import 'package:sponsite/local_notifications.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:sponsite/widgets/customAppBarwithNav.dart';  
 import 'package:sponsite/screens/view_others_profile.dart';
 
 class Event {
-  final String EventId;
+  final String EventId; 
   final String sponseeId;
   final String EventName;
   final String EventType;
@@ -200,38 +201,9 @@ class RecentEventsDetails extends StatelessWidget {
                   ),
                 ),
               ),
-              Container(
-                decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 51, 45, 81),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
-                ),
-                height: 75,
-                padding: const EdgeInsets.fromLTRB(
-                    16, 0, 0, 0), // Adjust the padding as needed
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      color: Colors.white,
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    const Text(
-                      "Event Details",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 24,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(width: 40), // Adjust the spacing as needed
-                  ],
-                ),
-              )
+             CustomAppBar(  
+          title: 'Event Details',
+        ),
             ],
           ),
           Expanded(
@@ -462,7 +434,7 @@ class RecentEventsDetails extends StatelessWidget {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
-                                      const Color.fromARGB(255, 91, 79, 158),
+                                      const Color.fromARGB(255, 51, 45, 81),
                                   //  primary: Color(0xFF6A62B6),
                                   elevation: 10,
                                   shape: RoundedRectangleBorder(
@@ -603,20 +575,20 @@ class _sendOfferState extends State<sendOffer> {
                 style: TextStyle(fontSize: 20),
               ),
               actions: [
-                TextButton(
-                  onPressed: () async {
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                  child: const Text(
-                    'OK',
-                    style: TextStyle(
-                        color: Color.fromARGB(255, 51, 45, 81), fontSize: 20),
-                  ),
-                ),
-              ],
+               TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop(); 
+            },
+            child: Text(
+              'OK',
+              style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
+            ),
+          ),  
+              ],  
             ));
       },
-    );
+    );  
   }
 
   Future<String?> _retrieveSponseeToken(String id) async {
@@ -657,17 +629,15 @@ class _sendOfferState extends State<sendOffer> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () async {
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                  child: const Text(
-                    'OK',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 51, 45, 81),
-                      fontSize: 20,
-                    ),
-                  ),
-                ),
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop(); 
+            },
+            child: Text(
+              'OK',
+              style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
+            ),  
+          ),
               ],
             );
           },
@@ -922,10 +892,10 @@ class _sendOfferState extends State<sendOffer> {
                         Text(
                           '*',
                           style: TextStyle(
-                            color: Color.fromARGB(255, 51, 45, 81),
+                            color: Color.fromARGB(255, 91, 79, 158),
                             fontSize: 20,
                           ),
-                        ),
+                        ),  
                       ],
                     ),
                     Wrap(
@@ -952,10 +922,10 @@ class _sendOfferState extends State<sendOffer> {
                             color: Color(0xFF4A42A1),
                           ),
                           elevation: 3,
-                          selectedColor: const Color(0xFF4A42A1),
+                          selectedColor: const Color.fromARGB(255, 91, 79, 158),
                         );
                       }).toList(),
-                    ),
+                    ),  
                     const SizedBox(height: 17),
                     Container(
                       decoration: BoxDecoration(
@@ -991,12 +961,12 @@ class _sendOfferState extends State<sendOffer> {
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Colors.white,
                           backgroundColor:
-                              const Color.fromARGB(255, 91, 79, 158),
+                              const Color.fromARGB(255, 51, 45, 81),
                           elevation: 20,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
-                        ),
+                        ),  
                         child: const Text(
                           'Send Offer',
                           style: TextStyle(

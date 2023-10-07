@@ -6,6 +6,7 @@ class CustomAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height:100,   
       decoration: const BoxDecoration(
         color: Color.fromARGB(255, 51, 45, 81),
         borderRadius: BorderRadius.only(
@@ -13,13 +14,17 @@ class CustomAppBar extends StatelessWidget {
           bottomRight: Radius.circular(40.0),
         ),
       ),
+       padding: const EdgeInsets.fromLTRB(0, 0, 0 , 16), 
       child: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.only(top: 12.0, left: 30.0),
+        title: Center 
+        ( 
+          // child:  Padding(
+          // padding: const EdgeInsets.only(top: 12.0, left: 30.0),
           child: Text(
             title,
-            style: const TextStyle(color: Colors.white , fontSize: 35 , fontWeight: FontWeight.w400), // Text color
-          ),
+            style: const TextStyle(color: Colors.white , fontSize: 35 , fontWeight: FontWeight.w500), // Text color
+          // ), 
+        ),  
         ),
         backgroundColor: Colors.transparent, // Transparent app bar background
         elevation: 0, // Remove the shadow
