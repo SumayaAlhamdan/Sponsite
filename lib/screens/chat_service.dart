@@ -207,6 +207,23 @@ class ChatService extends ChangeNotifier {
     );
   }
 
+  Future<void> deleteChatRoom(String currentUserId, String receiverID) async {
+    try {
+      List<String> ids = [receiverID, currentUserId];
+      ids.sort();
+      String chatRoomID = ids.join('_');
+
+      DatabaseReference chatroomRef =
+          _database.child('chatrooms').child(chatRoomID);
+
+      // Remove the chat room from the database
+      await chatroomRef.remove();
+    } catch (e) {
+      // Handle any errors that occur during the deletion process
+      print('Error deleting chat room: $e');
+    }
+  }
+
   Stream<List<Map<String, dynamic>>> getMsgAndFile(
     String currentUserId,
     String receiverID,

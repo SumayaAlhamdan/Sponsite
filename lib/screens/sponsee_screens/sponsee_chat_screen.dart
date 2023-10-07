@@ -200,7 +200,6 @@ class _SponseeChatState extends State<SponseeChat> {
               ),
             ),
             SizedBox(width: 8), // Add some spacing between text and icon
-
             Icon(
               Icons.arrow_forward_ios_rounded, // Add the arrow icon here
               color: Color.fromARGB(255, 51, 45, 81),
