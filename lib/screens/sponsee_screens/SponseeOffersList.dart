@@ -559,16 +559,17 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                       ),
                     ),
                     SizedBox(height: 4),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16),
-                      child: Text(
-                        offer.notes,
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
+                   Padding(
+  padding: const EdgeInsets.only(left: 16),
+  child: Text(
+    offer.notes != null && offer.notes.isNotEmpty ? offer.notes : "There are no notes available",
+    style: TextStyle(
+      fontSize: 20,
+      color: Colors.black87,
+    ),
+  ),
+),
+
                     SizedBox(height: 16),
                     if (offer.status ==
                         'Pending') // Only show Accept and Reject buttons for pending offers
