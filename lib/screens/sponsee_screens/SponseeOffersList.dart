@@ -624,8 +624,13 @@ SizedBox(height: 20), // Adjust the height to add space
       final uniqueKey = GlobalKey();
       return AlertDialog(
         key: uniqueKey,
-        title: Text('Confirm $action'),
+        title: Text('Confirm $action', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),),
         content: Text('Are you sure you want to $action this offer?'),
+        backgroundColor: Colors.white,
+         elevation: 0,
+         shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
         actions: [
           TextButton(
             onPressed: () {
@@ -636,6 +641,38 @@ SizedBox(height: 20), // Adjust the height to add space
           TextButton(
             onPressed: () async {
               Navigator.of(context).pop();
+               showDialog(
+                  context: context,
+                  builder: (context) {
+                    Future.delayed(const Duration(seconds: 3), () {
+                      Navigator.of(context).pop(true);
+                    });
+                    return Theme(
+                      data: Theme.of(context)
+                          .copyWith(dialogBackgroundColor: Colors.white),
+                      child: AlertDialog(
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              color: Color.fromARGB(255, 91, 79, 158),
+                              size: 48,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'Offer was $action'+'ed successfully!',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
               final sponsorToken =
                   await _retrieveSponsorToken(offer.sponsorId);
               if (sponsorToken != null && user!.uid == offer.sponseeId) {
@@ -668,7 +705,29 @@ SizedBox(height: 20), // Adjust the height to add space
                 showActions = false;
               });
             },
-            child: Text('Confirm'),
+            child: Text('Confirm' , style:
+                        TextStyle(color: Color.fromARGB(255, 242, 241, 241))),
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        const Color.fromARGB(255, 51, 45, 81)),
+                    //Color.fromARGB(255, 207, 186, 224),), // Background color
+                    textStyle: MaterialStateProperty.all<TextStyle>(
+                        const TextStyle(fontSize: 16)), // Text style
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                        const EdgeInsets.all(16)), // Padding
+                    elevation:
+                        MaterialStateProperty.all<double>(1), // Elevation
+                    shape: MaterialStateProperty.all<OutlinedBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(10), // Border radius
+                        side: const BorderSide(
+                            color: Color.fromARGB(
+                                255, 255, 255, 255)), // Border color
+                      ),
+                    ),
+                    minimumSize:
+                        MaterialStateProperty.all<Size>(const Size(200, 50))),
           ),
         ],
       );
