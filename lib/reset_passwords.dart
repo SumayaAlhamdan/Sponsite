@@ -53,7 +53,7 @@ class _resetPasswordState extends State<resetPassword> {
 
       try {
         final methods = await FirebaseAuth.instance
-            .fetchSignInMethodsForEmail(email);
+            .fetchSignInMethodsForEmail(email); //check if the email is registered 
         if (methods.isEmpty) {
           // Email is not registered
           setState(() {
@@ -67,8 +67,9 @@ class _resetPasswordState extends State<resetPassword> {
         await FirebaseAuth.instance.sendPasswordResetEmail(
           email: email,
         );
+        
 
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(); //return to sign in page and show success message 
            showDialog(
                   context: context,
                   builder: (context) {
@@ -79,6 +80,8 @@ class _resetPasswordState extends State<resetPassword> {
                       data: Theme.of(context)
                           .copyWith(dialogBackgroundColor: Colors.white),
                       child: AlertDialog(
+                        backgroundColor: Colors.white,
+                        shape:BeveledRectangleBorder(borderRadius: BorderRadius.circular(2)),
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
