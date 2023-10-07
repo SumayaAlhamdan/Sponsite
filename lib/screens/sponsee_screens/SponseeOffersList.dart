@@ -651,6 +651,7 @@ SizedBox(height: 20), // Adjust the height to add space
                       data: Theme.of(context)
                           .copyWith(dialogBackgroundColor: Colors.white),
                       child: AlertDialog(
+                        shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(2)),
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
