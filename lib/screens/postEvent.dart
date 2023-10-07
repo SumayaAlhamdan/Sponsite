@@ -1757,20 +1757,45 @@ class _MyHomePageState extends State<MyHomePage> {
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
               children: [
-                TextField(
-                  controller: searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search for a place...',
-                  ),
-                  onChanged: (value) {
-                    // Clear previous selection
-                    setState(() {
-                      selectedPrediction = null;
-                      selectedLocation = null;
-                      selectedAddressDescription = null;
-                    });
-                    _performSearch(value);
-                  },
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Search for a place...',
+                          suffixIcon: Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                            child: GestureDetector(
+                              onTap: _handleSearchButtonPress,
+
+                              //_performSearch(searchController.text),
+                              child: Icon(
+                                Icons.search,
+                                size: 24,
+                              ),
+                            ),
+                          ),
+                        ),
+                        onChanged: (value) {
+                          // Clear previous selection
+                          setState(() {
+                            selectedPrediction = null;
+                            selectedLocation = null;
+                            selectedAddressDescription = null;
+                          });
+                          _performSearch(value);
+                        },
+                      ),
+                    ),
+                    // IconButton(
+                    //   icon: Icon(Icons.search),
+                    //   onPressed: () {
+                    //     // Handle the search button press
+                    //     _handleSearchButtonPress();
+                    //   },
+                    // ),
+                  ],
                 ),
                 if (selectedPrediction != null)
                   GestureDetector(
@@ -1779,6 +1804,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           'No description available'),
                       onTap: () {
                         // Handle selection of a prediction
+
                         _handlePredictionTap(selectedPrediction!);
                       },
                     ),
@@ -2074,5 +2100,33 @@ class _MyHomePageState extends State<MyHomePage> {
       CameraUpdate.newLatLngZoom(
           location, 15.0), // You can adjust the zoom level as needed
     );
+  }
+
+  void _handleSearchButtonPress() async {
+    // Check if the searchController has a non-empty text
+    final searchText = searchController.text;
+    if (searchText.isNotEmpty) {
+      //_performSearch(searchText);
+
+      final details =
+          await _places.getDetailsByPlaceId(selectedPrediction!.placeId!);
+      if (details.isOkay) {
+        setState(() {
+          selectedLocation = LatLng(
+            details.result.geometry!.location.lat,
+            details.result.geometry!.location.lng,
+          );
+          //  selectedPrediction = prediction;
+        });
+        setState(() {
+          selectedAddressDescription = '${details.result.formattedAddress}';
+        });
+        _updateMarkers();
+        _reverseGeocodeLocation(selectedLocation!);
+      }
+    }
+    setState(() {
+      selectedPrediction = null;
+    });
   }
 }
