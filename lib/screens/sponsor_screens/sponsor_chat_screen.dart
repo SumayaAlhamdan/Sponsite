@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sponsite/screens/chatPage.dart';
+import 'package:sponsite/screens/chat_service.dart';
 
 class SponsorChat extends StatefulWidget {
   const SponsorChat({Key? key}) : super(key: key);
@@ -35,6 +36,7 @@ class _SponsorChatState extends State<SponsorChat> {
   Widget buildUserList() {
     // Replace 'your_sponsor_id' with the ID of the current sponsor
     String currentSponsorId = auth.currentUser!.uid;
+    ChatService chatService = ChatService();
     print('HERE SPONSOR ID');
     print(currentSponsorId);
 
@@ -86,6 +88,11 @@ class _SponsorChatState extends State<SponsorChat> {
           itemCount: activeSponseeIds.length,
           itemBuilder: (context, index) {
             String sponseeId = activeSponseeIds[index];
+            ChatService chatService = ChatService();
+            Stream<List<Map<String, dynamic>>> unreadMessages =
+                chatService.getUnreadMsgs(currentSponsorId, sponseeId);
+            int unreadCount =
+                chatService.getUnreadMsgCount(unreadMessages, currentSponsorId);
             // Use sponseeId to fetch sponsee details from your 'Sponsees' node
             // Then, build and return a list item for each sponsee
             return FutureBuilder<Map<dynamic, dynamic>>(
@@ -94,7 +101,8 @@ class _SponsorChatState extends State<SponsorChat> {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasData) {
                     Map<dynamic, dynamic> sponseeData = snapshot.data!;
-                    return buildUserListItem(sponseeId, sponseeData);
+                    return buildUserListItem(
+                        sponseeId, sponseeData, unreadCount);
                   }
                 }
                 return SizedBox(); // Return an empty widget while loading
@@ -124,7 +132,8 @@ class _SponsorChatState extends State<SponsorChat> {
     }).first; // Listen for the first event and then cancel the stream
   }
 
-  Widget buildUserListItem(String key, Map<dynamic, dynamic> data) {
+  Widget buildUserListItem(
+      String key, Map<dynamic, dynamic> data, int unreadCount) {
     String name = data['Name'] ?? 'No name available';
     String email = data['Email'] ?? 'No email available';
     String pic = data['Picture'] ?? 'No picture available';
@@ -132,26 +141,19 @@ class _SponsorChatState extends State<SponsorChat> {
       color: Color.fromARGB(255, 255, 255, 255),
       child: ListTile(
         leading: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.transparent,
             shape: BoxShape.circle,
           ),
-          child: CircleAvatar(
-            radius: 30,
-            //  backgroundImage: NetworkImage(pic),
-            backgroundColor: Colors.transparent,
-            child: Image.network(
-              pic,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Image.asset(
-                  'assets/placeholder_image.png',
-                  width: 60,
-                  height: 60,
-                  fit: BoxFit.cover,
-                );
-              },
-            ),
+          child: Stack(
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundImage:
+                    NetworkImage(pic), // Set the image as backgroundImage
+                backgroundColor: Colors.transparent,
+              ),
+            ],
           ),
         ),
         title: Text(
@@ -169,13 +171,30 @@ class _SponsorChatState extends State<SponsorChat> {
             fontSize: 17,
           ),
         ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Unread: $unreadCount',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+            ),
+            SizedBox(width: 8), // Add some spacing between text and icon
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: Color.fromARGB(255, 51, 45, 81),
+            ),
+          ],
+        ),
         onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ChatPage(
                 receiverUserEmail: email,
-                receiverUserID: key, // Pass the clicked user's ID here
+                receiverUserID: key,
                 receiverUserName: name,
                 pic: pic,
               ),
@@ -186,8 +205,6 @@ class _SponsorChatState extends State<SponsorChat> {
     );
   }
 }
-
-
 
 
 

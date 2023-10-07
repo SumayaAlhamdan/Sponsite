@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sponsite/screens/chatPage.dart';
+import 'package:sponsite/screens/chat_service.dart';
 
 class SponseeChat extends StatefulWidget {
   const SponseeChat({Key? key}) : super(key: key);
@@ -35,6 +36,8 @@ class _SponseeChatState extends State<SponseeChat> {
   Widget buildUserList() {
     // Replace 'your_sponsee_id' with the ID of the current sponsee
     String currentSponseeId = auth.currentUser!.uid;
+    // Create an instance of ChatService
+
     print('HERE SPONSEE ID');
     print(currentSponseeId);
 
@@ -92,6 +95,11 @@ class _SponseeChatState extends State<SponseeChat> {
           itemCount: activeSponsorIds.length,
           itemBuilder: (context, index) {
             String sponsorId = activeSponsorIds[index];
+            ChatService chatService = ChatService();
+            Stream<List<Map<String, dynamic>>> unreadMessages =
+                chatService.getUnreadMsgs(currentSponseeId, sponsorId);
+            int unreadCount =
+                chatService.getUnreadMsgCount(unreadMessages, currentSponseeId);
             // Use sponsorId to fetch sponsor details from your 'Sponsors' node
             // Then, build and return a list item for each sponsor
             return FutureBuilder<Map<dynamic, dynamic>>(
@@ -100,7 +108,8 @@ class _SponseeChatState extends State<SponseeChat> {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasData) {
                     Map<dynamic, dynamic> sponsorData = snapshot.data!;
-                    return buildUserListItem(sponsorId, sponsorData);
+                    return buildUserListItem(
+                        sponsorId, sponsorData, unreadCount);
                   }
                 }
                 return SizedBox(); // Return an empty widget while loading
@@ -130,7 +139,8 @@ class _SponseeChatState extends State<SponseeChat> {
     }).first; // Listen for the first event and then cancel the stream
   }
 
-  Widget buildUserListItem(String key, Map<dynamic, dynamic> data) {
+  Widget buildUserListItem(
+      String key, Map<dynamic, dynamic> data, int unreadCount) {
     //MAJD THE CARD STARTS HERE
     String name = data['Name'] ?? 'No name available';
     String email = data['Email'] ?? 'No email available';
@@ -139,30 +149,34 @@ class _SponseeChatState extends State<SponseeChat> {
       color: Color.fromARGB(255, 255, 255, 255),
       child: ListTile(
         leading: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.transparent,
             shape: BoxShape.circle,
           ),
-          child: CircleAvatar(
-            radius: 30,
-            backgroundColor: Colors.transparent,
-            child: Image.network(
-              pic,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Image.asset(
-                  'assets/placeholder_image.png',
-                  width: 60,
-                  height: 60,
-                  fit: BoxFit.cover,
-                );
-              },
-            ),
+          child: Stack(
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundImage:
+                    NetworkImage(pic), // Set the image as backgroundImage
+                backgroundColor: Colors
+                    .transparent, // Optional, set a background color if needed
+                onBackgroundImageError: (exception, stackTrace) {
+                  // Handle the error by returning a placeholder image
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundImage: AssetImage(
+                        'assets/placeholder_image.png'), // Placeholder image asset
+                    backgroundColor: Colors.transparent,
+                  );
+                },
+              ),
+            ],
           ),
         ),
         title: Text(
           name,
-          style: const TextStyle(
+          style: TextStyle(
             color: Color.fromARGB(255, 51, 45, 81),
             fontSize: 25,
             fontWeight: FontWeight.bold,
@@ -175,10 +189,23 @@ class _SponseeChatState extends State<SponseeChat> {
             fontSize: 17,
           ),
         ),
-        trailing: Icon(
-          Icons.arrow_forward_ios_rounded, // Add the arrow icon here
-          color:
-              Color.fromARGB(255, 51, 45, 81), // Customize the color as needed
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Unread: $unreadCount',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.red, // Customize the color as needed
+              ),
+            ),
+            SizedBox(width: 8), // Add some spacing between text and icon
+
+            Icon(
+              Icons.arrow_forward_ios_rounded, // Add the arrow icon here
+              color: Color.fromARGB(255, 51, 45, 81),
+            ),
+          ],
         ),
         onTap: () {
           Navigator.push(

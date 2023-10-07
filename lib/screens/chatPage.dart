@@ -17,14 +17,14 @@ class ChatPage extends StatefulWidget {
   final String receiverUserEmail;
   final String receiverUserID;
   final String receiverUserName;
-  final String? pic;
+  final String pic;
 
   const ChatPage({
     Key? key,
     required this.receiverUserEmail,
     required this.receiverUserID,
     required this.receiverUserName,
-    this.pic,
+    required this.pic,
   }) : super(key: key);
 
   @override
@@ -107,17 +107,18 @@ class _ChatPageState extends State<ChatPage> {
           children: [
             SizedBox(width: 8.0),
             GestureDetector(
-              child: Image.network(
-                widget.pic ?? senderPic,
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Image.asset(
-                    'assets/placeholder_image.png',
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
+              child: CircleAvatar(
+                radius: 20,
+                backgroundImage: NetworkImage(widget.pic),
+                backgroundColor: Colors
+                    .transparent, // Optional, set a background color if needed
+                onBackgroundImageError: (exception, stackTrace) {
+                  // Handle the error by returning a placeholder image
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundImage: AssetImage(
+                        'assets/placeholder_image.png'), // Placeholder image asset
+                    backgroundColor: Colors.transparent,
                   );
                 },
               ),
