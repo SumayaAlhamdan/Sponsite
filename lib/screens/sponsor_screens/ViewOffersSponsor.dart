@@ -328,13 +328,13 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
                 tabs: const [
                   Tab(  
                     child: Text(
-                      'Current',
+                      'Current Offers',
                       style: TextStyle(fontSize: 22),
                     ),
                   ),
                   Tab(
                     child: Text(
-                      'Past',
+                      'Past Offers',
                       style: TextStyle(fontSize: 22),
                     ),
                   ),
@@ -450,7 +450,7 @@ Widget _buildCurrentEventsPage() {
           ),
           SizedBox(height: 20), // Adjust the spacing as needed
           Text(
-            'There Are No Past Events Yet',
+            'There are no past events yet',
             style: TextStyle(
               fontSize: 24, // Adjust the font size as needed
             ),

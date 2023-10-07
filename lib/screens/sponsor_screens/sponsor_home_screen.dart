@@ -7,6 +7,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
 import 'package:sponsite/screens/sponsor_screens/sendOffer.dart';
+import 'package:sponsite/screens/view_others_profile.dart'; 
+
 
 String? sponsorID;
 
@@ -480,6 +482,47 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                                       ),
                                     ),
                                     const SizedBox(height: 4),
+                                                 Row(
+                            children: [
+                              GestureDetector(
+                                child: CircleAvatar(
+                                  radius: 25,
+                                  backgroundImage: NetworkImage(event.sponseeImage),
+                                  backgroundColor: Colors.transparent,
+                                ),
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => ViewOthersProfile(
+                                        'Sponsees', event.sponseeId),
+                                  ));
+                                },
+                              ),
+
+                              SizedBox(width: 15),
+                              // Add some space between the CircleAvatar and Text
+                              GestureDetector(
+                                child: Expanded(
+                                  child: Text(
+                                    event.sponseeName,
+                                    style: const TextStyle(
+                                      fontSize: 22,
+                                      color: Colors.black87,
+                                    ),
+                                  ),  
+                                ),
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => ViewOthersProfile(
+                                        'Sponsees', event.sponseeId),
+                                  ));
+                                },
+                              ),
+                            ],
+                          ),
+                const SizedBox(
+                  height: 5,
+                ),
+                 
                                     Row(
                                       children: [
                                         const Icon(
@@ -499,7 +542,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                                       ],
                                     ),
                                     const SizedBox(height: 4),
-                                    Row(
+                                           Row(
                                       children: [
                                         if (event.NumberOfAttendees != null &&
                                             event.NumberOfAttendees.isNotEmpty)
