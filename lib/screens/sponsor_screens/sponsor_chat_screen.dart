@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:sponsite/widgets/customAppBar.dart';  
 import 'package:sponsite/screens/chatPage.dart';
 
 class SponsorChat extends StatefulWidget {
@@ -17,15 +18,11 @@ class _SponsorChatState extends State<SponsorChat> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Chat',
-          style: TextStyle(
-            color: Color.fromARGB(255, 51, 45, 81),
-            fontWeight: FontWeight.bold,
-            fontSize: 40,
-          ),
+    return Scaffold(  
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(105), // Adjust the height as needed
+        child: CustomAppBar(  
+          title: 'Chat',
         ),
       ),
       body: buildUserList(),

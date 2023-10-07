@@ -1,10 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 import 'package:sponsite/screens/sponsor_screens/offerDetail.dart';
-import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
 import 'package:sponsite/widgets/customAppBar.dart';
-import 'package:sponsite/widgets/user_type_selector.dart';
+import 'package:sponsite/screens/view_others_profile.dart'; 
 
 class ViewOffersSponsor extends StatefulWidget {
   const ViewOffersSponsor({Key? key}) : super(key: key);
@@ -16,6 +15,7 @@ class ViewOffersSponsor extends StatefulWidget {
 class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
   List<Event> events = [];
   List<Offer> offers = [];
+
   int selectedTabIndex = 0;
   final DatabaseReference dbEvents =
       FirebaseDatabase.instance.reference().child('sponseeEvents');
@@ -40,7 +40,7 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
     _loadEventsFromFirebase();
   }
 
-  Widget listItem({required Event event, required Offer offer}) {
+  Widget listItem({required Event event, required Offer offer}) { 
     Color statusColor = const Color.fromARGB(
         255, 91, 79, 158); // Default status color is gray for pending
 
@@ -52,8 +52,8 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
 
     final screenHeight = MediaQuery.of(context).size.height;
     return Container(
-      height: screenHeight * 0.9,
-      margin: const EdgeInsets.all(10),
+      height: screenHeight * 0.8,  
+      margin: const EdgeInsets.all(10), 
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -70,9 +70,28 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Smaller picture on the top
+            
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: statusColor, // Set the border color
+                width: 1.0, // Set the border width
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            padding: EdgeInsets.all(5.0),
+            child: Text(
+              offer.status, // Display the status text here (e.g., "Pending", "Accepted", "Rejected")
+              style: TextStyle(
+                fontSize: 16,
+                color: statusColor,
+              ),
+            ),  
+            
+        ),  
           SizedBox(
             width: double.infinity,
-            height: 180,
+            height: 180,  
 // Adjust the height as needed
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
@@ -84,38 +103,80 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
               ),
             ),
           ),
+          
           // Event details below the image
           Padding(
             padding: const EdgeInsets.only(top: 10),
-            child: Column(
+            child: Column(  
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                Row(
+                children: [
+                  Text(
                   event.EventName,
                   style: const TextStyle(
                       fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(width: 35),
-                Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                        color: statusColor, // Set the border color
-                        width: 1.0, // Set the border width
-                      ),
-                      borderRadius: BorderRadius.circular(20)
-                      //   20.0), // Set border radius if needed
-                      ),
-                  padding: EdgeInsets.all(5.0),
-                  child: Text(
-                    offer
-                        .status, // Display the status text here (e.g., "Pending", "Accepted", "Rejected")
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: statusColor,
-                      //backgroundColor: statusColor),
-                    ),
-                  ),
-                ),
+                ),     
+                SizedBox(width: 80),  
+                //      Container(
+                //   decoration: BoxDecoration(
+                //       border: Border.all(
+                //         color: statusColor, // Set the border color
+                //         width: 1.0, // Set the border width
+                //       ),
+                //       borderRadius: BorderRadius.circular(20)
+                //       //   20.0), // Set border radius if needed
+                //       ),
+                //   padding: EdgeInsets.all(5.0),
+                //   child: Text(  
+                //     offer
+                //         .status, // Display the status text here (e.g., "Pending", "Accepted", "Rejected")
+                //     style: TextStyle(
+                //       fontSize: 16,
+                //       color: statusColor,
+                //       //backgroundColor: statusColor),
+                //     ),
+                //   ),
+                // ),  
+                ],
+                ),        
+                 Row(
+                            children: [
+                              GestureDetector(
+                                child: CircleAvatar(
+                                  radius: 25,
+                                  backgroundImage: NetworkImage(event.sponseeImage),
+                                  backgroundColor: Colors.transparent,
+                                ),
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => ViewOthersProfile(
+                                        'Sponsees', event.sponseeId),
+                                  ));
+                                },
+                              ),
+
+                              SizedBox(width: 15),
+                              // Add some space between the CircleAvatar and Text
+                              GestureDetector(
+                                child: Expanded(
+                                  child: Text(
+                                    event.sponseeName,
+                                    style: const TextStyle(
+                                      fontSize: 22,
+                                      color: Colors.black87,
+                                    ),
+                                  ),  
+                                ),
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => ViewOthersProfile(
+                                        'Sponsees', event.sponseeId),
+                                  ));
+                                },
+                              ),
+                            ],
+                          ),
                 const SizedBox(
                   height: 5,
                 ),
@@ -123,7 +184,7 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      children: [
+                      children: [ 
                         const Icon(
                           Icons.calendar_today,
                           size: 24,
@@ -158,10 +219,10 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
                 const SizedBox(
                   height: 5,
                 ),
-                SizedBox(
-                  height: 25,
+                SizedBox( 
+                  height: 60,   
                   child: Wrap(
-                    spacing: 8,
+                    spacing: 8, 
                     children: event.Category.map((category) {
                       return Chip(
                         label: Text(category.trim()),
@@ -177,9 +238,9 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
                   ),
                 ),
                 const SizedBox(
-                  height: 10,
-                ),
-                Align(
+                  height: 35  ,   
+                ),  
+                Align(    
                   alignment: Alignment.bottomRight,
                   child: GestureDetector(
                     onTap: () {
@@ -190,6 +251,7 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
                         MaterialPageRoute(
                           builder: (_) => offertDetail(
                             DetailKey: event.EventName,
+                            sponseeId: event.sponseeId,
                             location: event.location,
                             fullDesc: event.description,
                             img: event.imgURL,
@@ -206,6 +268,8 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
                             Category: offerCategoriesString,
                             notes: offer.notes,
                             status: offer.status,
+                            sponseeImage: event.sponseeImage,
+                            sponseeName: event.sponseeName,
                           ),
                         ),
                       );
@@ -240,110 +304,166 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return 
+  DefaultTabController(
+      length: 2,    
+    child: Scaffold(
       // bottomNavigationBar: const SponseeBottomNavBar(),
       //BottomNavBar(),
       backgroundColor: Colors.white,
       appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(100.0), // Adjust the height as needed
-        child: CustomAppBar(
+        preferredSize: Size.fromHeight(105), // Adjust the height as needed
+        child: CustomAppBar(  
           title: 'My Offers',
         ),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 15),
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 100,
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 50.0),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Expanded(
-                child: Scrollbar(
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    physics:
-                        const BouncingScrollPhysics(), // Enable scrolling for the GridView
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.9,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
+      body: Column(
+          children: [
+            Container(
+              color: Color.fromARGB(255, 255, 255, 255),
+              padding: const EdgeInsets.only(top: 50),
+              child: TabBar(  
+                // Move the TabBar to the appBar's bottom property
+                indicatorColor: Color.fromARGB(255, 51, 45, 81),
+                tabs: const [
+                  Tab(  
+                    child: Text(
+                      'Current',
+                      style: TextStyle(fontSize: 22),
                     ),
-                    itemCount: events.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      Event event = events[index];
-                      Offer? offer;
-
-                      for (Offer o in offers) {
-                        if (o.EventId == event.EventId) {
-                          offer = o;
-                          break;
-                        }
-                      }
-                      if (offer != null) {
-                        return listItem(event: event, offer: offer);
-                      } else {
-                        // Handle the case when no offer is found for the event
-                        return listItem(
-                            event: event,
-                            offer: Offer(
-                              EventId: event
-                                  .EventId, // You might want to set other default values here
-                              sponseeId: '',
-                              sponsorId: '',
-                              Category: [],
-                              notes: '',
-                              status: '',
-                            ));
-                      }
-                    },
                   ),
-                ),
+                  Tab(
+                    child: Text(
+                      'Past',
+                      style: TextStyle(fontSize: 22),
+                    ),
+                  ),
+                ],
               ),
+            ),
+            Expanded(
+              child: TabBarView(
+                children: [
+                  _buildCurrentEventsPage(),
+                  _buildPastEventsPage(),
+                ],
+              ),
+            ),
             ],
-          ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
-      floatingActionButton: Padding(
-        padding:
-            const EdgeInsets.only(top: 170), // Adjust the top padding as needed
-        child: SizedBox(
-          width: 250, // Set the button width to 250
-          height: 50, // Set a constant height for the button
-          child: SingleChoice(
-            initialSelection:
-                selectedTabIndex == 0 ? eventType.current : eventType.past,
-            onSelectionChanged: (eventType selection) {
-              setState(() {
-                selectedTabIndex = selection == eventType.current ? 0 : 1;
-                if (selectedTabIndex == eventType.current) {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                        builder: (context) => const ViewOffersSponsor()),
-                  );
-                } else {
-                  // Handle the case when "Past" is selected
-                }
-              });
-            },
-          ),
-        ),
-      ),
-    );
+    ),
+    ),    
+    );  
   }
+Widget _buildCurrentEventsPage() {
+  return SafeArea(
+    child: Padding(
+      padding: const EdgeInsets.only(top: 15),
+      child: Column(
+        children: [ 
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 50.0),
+          ),  
+          Expanded(
+            child: offers.isEmpty
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/Add Files (1).png',
+                        width: 282,
+                        height: 284,  
+                        fit: BoxFit.fitWidth,
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'No offers available',
+                        style: TextStyle( 
+                          fontSize: 24,
+                          // Adjust the font size as needed
+                        ),
+                      ),
+                    ],
+                  )
+                : Scrollbar(
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const BouncingScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.70,      
+                        crossAxisSpacing: 8,        
+                        mainAxisSpacing: 8,
+                      ),
+                      itemCount: events.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        Event event = events[index];
+                        Offer? offer;
+
+                        for (Offer o in offers) {
+                          if (o.EventId == event.EventId) {
+                            offer = o;  
+                            break;
+                          }
+                        }
+
+                        if (offer != null) {
+                          return listItem(event: event, offer: offer);
+                        } else {
+                          // Return a default widget when offer is null
+                          return Container(
+                            width: 282,
+                            height: 284,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: AssetImage('assets/Time.png'),
+                                fit: BoxFit.fitWidth,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+  Widget _buildPastEventsPage() {
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 282,
+            height: 284,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/Time.png'),
+                fit: BoxFit.fitWidth,
+              ),
+            ),
+          ),
+          SizedBox(height: 20), // Adjust the spacing as needed
+          Text(
+            'There Are No Past Events Yet',
+            style: TextStyle(
+              fontSize: 24, // Adjust the font size as needed
+            ),
+          ),
+        ],
+      );
+  } 
+
 
   void _loadEventsFromFirebase() {
     check();
-
+  Map<String, String> sponseeNames = {};
+    Map<String, String> sponseeImages = {};
     dbOffers.onValue.listen((offer) {
       if (offer.snapshot.value != null) {
         setState(() {
@@ -397,6 +517,7 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
                       events.add(Event(
                         EventId: key,
                         EventName: value['EventName'] as String? ?? '',
+                        sponseeId: value['SponseeID'] as String? ?? '', 
                         EventType: value['EventType'] as String? ?? '',
                         location: value['Location'] as String? ?? '',
                         imgURL: value['img'] as String? ?? "",
@@ -411,7 +532,9 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
                         benefits: value['Benefits'] as String?,
                         NumberOfAttendees:
                             value['NumberOfAttendees'] as String? ?? '',
-                        timeStamp: timestampString, // Store the timestamp
+                        timeStamp: timestampString, 
+                                  sponseeImage: '',
+                              sponseeName: '',// Store the timestamp
                       ));
                     }
                   });
@@ -420,7 +543,23 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
               // Sort events based on the timeStamp (descending order)
               events.sort((a, b) => b.timeStamp.compareTo(a.timeStamp));
             });
-          });
+             database.child('Sponsees').onValue.listen((sponsee) {
+          if (sponsee.snapshot.value != null) {
+            Map<dynamic, dynamic> sponsorData =
+                sponsee.snapshot.value as Map<dynamic, dynamic>;
+
+            sponsorData.forEach((key, value) {
+              sponseeNames[key] = value['Name'] as String? ?? '';
+              sponseeImages[key] = value['Picture'] as String? ?? '';
+            });
+
+            for (var event in events) {
+              event.sponseeName = sponseeNames[event.sponseeId] ?? '';
+              event.sponseeImage = sponseeImages[event.sponseeId] ?? '';
+            }
+          }
+        });
+          }); 
         });
       }
     });
@@ -436,6 +575,7 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
 class Event {
   final String EventId;
   final String EventName;
+  final String sponseeId;
   final String EventType;
   final String location;
   final String description;
@@ -449,11 +589,14 @@ class Event {
   final String NumberOfAttendees;
   final List<String> Category;
   final String timeStamp;
+   String sponseeName;
+   String sponseeImage;
 
   Event({
     required this.EventId,
     required this.EventName,
     required this.EventType,
+    required this.sponseeId,
     required this.location,
     required this.description,
     required this.imgURL,
@@ -466,6 +609,8 @@ class Event {
     required this.notes,
     required this.timeStamp,
     this.benefits,
+     required this.sponseeName,
+     required this.sponseeImage,
   });
 }
 

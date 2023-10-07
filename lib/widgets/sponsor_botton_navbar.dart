@@ -5,6 +5,7 @@ import 'package:sponsite/screens/sponsor_screens/sponsor_offers.dart';
 import 'package:sponsite/screens/sponsor_screens/sponsor_post.dart';
 import 'package:sponsite/screens/sponsor_screens/ViewOffersSponsor.dart';
 import 'package:sponsite/screens/sponsor_screens/sponsor_profile_screen.dart';
+import 'package:sponsite/screens/calendar.dart';
 
 class SponsorBottomNavBar extends StatefulWidget {
   const SponsorBottomNavBar({Key? key}) : super(key: key);
@@ -17,10 +18,11 @@ class _SponseeBottomNavBarState extends State<SponsorBottomNavBar> {
   int currentPageIndex = 0;
 
   final List<Widget> _widgetOptions = [
-      SponsorHomePage(),
+      SponsorHomePage(),  
     const ViewOffersSponsor(),
     const SponsorPost(),
-    const SponsorChat(),
+    googleCalendar(),
+    const SponsorChat(),    
      SponsorProfile()
   ];
 
@@ -57,13 +59,13 @@ class _SponseeBottomNavBarState extends State<SponsorBottomNavBar> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.calendar_month_rounded,
+              Icons.card_travel,
               size: 40,
               color: Colors.white,
             ),
-            label: 'Events',
+            label: 'Offers',  
             activeIcon:  Icon(
-              Icons.calendar_month_rounded,
+              Icons.card_travel,
               size: 40,
               color: Color.fromARGB(255, 91, 79, 158),
             ),
@@ -81,6 +83,20 @@ class _SponseeBottomNavBarState extends State<SponsorBottomNavBar> {
               color: Color.fromARGB(255, 91, 79, 158),
             ),
           ),
+            BottomNavigationBarItem(
+            icon: Icon(
+              Icons.calendar_month_rounded,
+              size: 40,
+              color: Colors.white,
+              
+            ),
+            label: 'Calendar',
+            activeIcon:  Icon(
+              Icons.calendar_month_rounded,
+              size: 40,
+              color: Color.fromARGB(255, 91, 79, 158),
+            ),
+          ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.chat_bubble,
@@ -94,7 +110,7 @@ class _SponseeBottomNavBarState extends State<SponsorBottomNavBar> {
               color: Color.fromARGB(255, 91, 79, 158),
             ),
           ),
-          BottomNavigationBarItem(
+          BottomNavigationBarItem(  
             icon: Icon(
               Icons.account_circle,
               size: 40,

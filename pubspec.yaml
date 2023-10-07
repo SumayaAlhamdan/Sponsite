@@ -36,7 +36,7 @@ dependencies:
   url_launcher: ^6.1.14
   firebase_messaging: ^14.6.8
   flutter_local_notifications: ^15.1.1
-  intl: ^0.17.0 
+  intl: ^0.18.1 
   shared_preferences: ^2.2.1 
 
   # The following adds the Cupertino Icons font to your application.
@@ -58,6 +58,7 @@ dependencies:
   googleapis: ^11.4.0
   google_sign_in: ^6.1.5
   path_provider: ^2.1.1
+  syncfusion_flutter_calendar: ^23.1.39
 
 
 dev_dependencies:
@@ -96,6 +97,7 @@ flutter:
     - assets/Add Files (1).png
     - assets/NoSponsorsIcon.png
     - assets/Time.png
+    - assets/googleCalendar.png
 
    
 
