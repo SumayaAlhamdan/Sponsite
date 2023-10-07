@@ -403,7 +403,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                       true, // Add this to allow GridView to scroll inside SingleChildScrollView
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.72,
+                    childAspectRatio: 0.715,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                   ),  
