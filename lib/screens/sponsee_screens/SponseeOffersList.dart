@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:sponsite/screens/sponsor_screens/sponsor_home_screen.dart';
 import 'package:sponsite/screens/view_others_profile.dart';
+import 'package:sponsite/widgets/customAppBar.dart';
 
 final DatabaseReference dbref = FirebaseDatabase.instance.reference();
 
@@ -189,36 +190,13 @@ void _loadOffersFromFirebase() async {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: AppBar(
-  backgroundColor: Color.fromARGB(255, 51, 45, 81),
-  elevation: 0,
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.only(
-      bottomLeft: Radius.circular(20),
-      bottomRight: Radius.circular(20),
-    ),
-  ),
-  leading: IconButton(
-    icon: Icon(Icons.arrow_back, color: Colors.white),
-    onPressed: () {
-      Navigator.of(context).pop();
-    },
-  ),
-  title: Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Text(
-        '${widget.EventName} Event Offers',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    ],
-  ),
-),
-
         backgroundColor: Colors.white,
+        appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(105), // Adjust the height as needed
+        child: CustomAppBar(  
+          title: 'My Events',
+        ),  
+      ),
         body: Column(
           children: [
             Container(
@@ -251,8 +229,8 @@ void _loadOffersFromFirebase() async {
               ),
             ),
           ],
-        ),
-      ),
+        ) ,
+      ),  
     );
   }
 

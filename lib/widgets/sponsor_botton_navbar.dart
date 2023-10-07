@@ -21,7 +21,6 @@ class _SponseeBottomNavBarState extends State<SponsorBottomNavBar> {
       SponsorHomePage(),  
     const ViewOffersSponsor(),
     const SponsorPost(),
-    googleCalendar(),
     const SponsorChat(),    
      SponsorProfile()
   ];
@@ -59,13 +58,13 @@ class _SponseeBottomNavBarState extends State<SponsorBottomNavBar> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.card_travel,
-              size: 40,
+              Icons.handshake_outlined,
+              size: 40, 
               color: Colors.white,
             ),
             label: 'Offers',  
             activeIcon:  Icon(
-              Icons.card_travel,
+              Icons.handshake_outlined,
               size: 40,
               color: Color.fromARGB(255, 91, 79, 158),
             ),
@@ -79,20 +78,6 @@ class _SponseeBottomNavBarState extends State<SponsorBottomNavBar> {
             label: 'Post',
              activeIcon:  Icon(
               Icons.add_circle_rounded,
-              size: 40,
-              color: Color.fromARGB(255, 91, 79, 158),
-            ),
-          ),
-            BottomNavigationBarItem(
-            icon: Icon(
-              Icons.calendar_month_rounded,
-              size: 40,
-              color: Colors.white,
-              
-            ),
-            label: 'Calendar',
-            activeIcon:  Icon(
-              Icons.calendar_month_rounded,
               size: 40,
               color: Color.fromARGB(255, 91, 79, 158),
             ),

@@ -81,7 +81,19 @@ class _googleCalendarState extends State<googleCalendar> {
             ),
           ),    
           padding: const EdgeInsets.fromLTRB(16, 0, 0, 0),
-          child: Center(      
+          child: Row( 
+          children: [ 
+            IconButton( 
+              icon: Icon(Icons.arrow_back),
+              alignment: Alignment.topLeft,
+              color: Colors.white,
+              iconSize:40,  
+              onPressed: () {
+                Navigator.of(context).pop();
+              },  
+            ),   
+             SizedBox(width: 160) ,
+            Center(       
                   child:  
                  Text( 
                 "Google Calendar Events",
@@ -93,9 +105,10 @@ class _googleCalendarState extends State<googleCalendar> {
                 textAlign: TextAlign.center,
               ),
          ),
+         ],
+         ),
           ),  
-        ),    
-      
+        ),      
       body: FutureBuilder<List<GoogleAPI.Event>>(
         future: getGoogleEventsData(),
         builder: (BuildContext context, AsyncSnapshot<List<GoogleAPI.Event>> snapshot) {
