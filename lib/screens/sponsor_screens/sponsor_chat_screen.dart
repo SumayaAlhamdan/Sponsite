@@ -158,10 +158,11 @@ class _SponsorChatState extends State<SponsorChat> {
         title: Text(
           name,
           style: const TextStyle(
-            color: Color.fromARGB(255, 51, 45, 81),
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
-          ),
+              color: Color.fromARGB(255, 51, 45, 81),
+              fontSize: 25,
+              fontWeight: FontWeight.w500
+              //   fontWeight: unreadCount > 0 ? FontWeight.w900 : FontWeight.w500,
+              ),
         ),
         subtitle: Text(
           email,
@@ -173,14 +174,15 @@ class _SponsorChatState extends State<SponsorChat> {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'Unread: $unreadCount',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
-            ),
-            SizedBox(width: 8), // Add some spacing between text and icon
+            unreadCount > 0
+                ? Text(
+                    '$unreadCount unread massges',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red, // Customize the color as needed
+                    ),
+                  )
+                : SizedBox(width: 8), // Add some spacing between text and icon
             Icon(
               Icons.arrow_forward_ios_rounded,
               color: Color.fromARGB(255, 51, 45, 81),
