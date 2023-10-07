@@ -73,6 +73,7 @@ class _SponseeChatState extends State<SponseeChat> {
 
         for (var entry in offers) {
           Map<dynamic, dynamic> data = entry.value as Map<dynamic, dynamic>;
+          String status = data['Status'] ?? '';
           String sponsorId = data['sponsorId'] ?? '';
           String offerTimestampStr = data['TimeStamp'] ?? '0';
           DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
@@ -85,10 +86,11 @@ class _SponseeChatState extends State<SponseeChat> {
           // print(currentTimestamp);
           // print(OFFERdateTime);
           // Check if the offer is active based on the timestamp
-          if (OFFERdateTime.isBefore(currentTimestamp) &&
-              !uniqueSponsorIds.contains(sponsorId)) {
-            activeSponsorIds.add(sponsorId);
-            uniqueSponsorIds.add(sponsorId);
+          if (status == 'Accepted' || status == 'Pending') {
+            if (!uniqueSponsorIds.contains(sponsorId)) {
+              activeSponsorIds.add(sponsorId);
+              uniqueSponsorIds.add(sponsorId);
+            }
           }
         }
 

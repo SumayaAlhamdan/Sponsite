@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:sponsite/screens/chatPage.dart';
 import 'package:sponsite/screens/sponsor_screens/sponsor_home_screen.dart';
 import 'package:sponsite/screens/view_others_profile.dart';
 import 'package:sponsite/widgets/customAppBar.dart';
@@ -20,9 +21,8 @@ class Offer {
   String sponsorImage;
   String timeStamp;
   String status;
-  bool isExpanded ; 
-  String sponsorEmail ; 
-
+  bool isExpanded;
+  String sponsorEmail;
 
   Offer({
     required this.eventId,
@@ -34,9 +34,8 @@ class Offer {
     required this.sponsorImage,
     required this.timeStamp,
     this.status = 'Pending',
-    this.isExpanded = false , 
+    this.isExpanded = false,
     required this.sponsorEmail,
-  
   });
 
   int get timeStampAsInt => int.tryParse(timeStamp) ?? 0;
@@ -46,14 +45,15 @@ class SponseeOffersList extends StatefulWidget {
   SponseeOffersList({
     required this.EVENTid,
     Key? key,
-    required this.EventName, required this.startDate, required this.startTime,
+    required this.EventName,
+    required this.startDate,
+    required this.startTime,
   }) : super(key: key);
 
   final String? EVENTid;
   final String? EventName;
-  final String? startDate ; 
-    final String? startTime ; 
-
+  final String? startDate;
+  final String? startTime;
 
   @override
   _SponseeOffersListState createState() => _SponseeOffersListState();
@@ -70,107 +70,114 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     _loadOffersFromFirebase();
   }
 
-void _loadOffersFromFirebase() async {
-  final DatabaseReference database = FirebaseDatabase.instance.ref();
-  offers.clear();
-  List<Offer> loadedOffers = [];
-  Map<String, String> sponsorNames = {};
-  Map<String, String> sponsorImages = {};
-  Map<String, String> sponsorEmails = {};
+  void _loadOffersFromFirebase() async {
+    final DatabaseReference database = FirebaseDatabase.instance.ref();
+    offers.clear();
+    List<Offer> loadedOffers = [];
+    Map<String, String> sponsorNames = {};
+    Map<String, String> sponsorImages = {};
+    Map<String, String> sponsorEmails = {};
 
-  database.child('offers').onValue.listen((offer) {
-    if (offer.snapshot.value != null) {
-      Map<dynamic, dynamic> offerData = offer.snapshot.value as Map<dynamic, dynamic>;
-      offerData.forEach((key, value) {
-        List<String> categoryList = [];
-        if (value['Category'] is List<dynamic>) {
-          categoryList = (value['Category'] as List<dynamic>).map((category) => category.toString()).toList();
-        }
-        if (value['EventId'] == widget.EVENTid) {
-          String timestampString = value['TimeStamp'] as String? ?? '';
-          try {
-            // Trim spaces and ensure it has a valid format before parsing
-            timestampString = timestampString.trim();
-            DateTime timestamp = DateFormat("yyyy-MM-dd HH:mm:ss.S").parse(timestampString);
-            
-            loadedOffers.add(Offer(
-              eventId: key,
-              sponseeId: value['sponseeId'] as String? ?? '',
-              categories: categoryList,
-              notes: value['notes'] as String? ?? 'There are no notes available',
-              sponsorId: value['sponsorId'] as String? ?? '',
-              sponsorName: 'krkr',
-              sponsorImage: '',
-              timeStamp: timestamp.toLocal().toString(), // Convert to local time
-              status: value['Status'] as String? ?? 'Pending',
-              isExpanded: false,
-              sponsorEmail: '',
-            ));
-          } catch (e) {
-            print('Error parsing timestamp: $e');
+    database.child('offers').onValue.listen((offer) {
+      if (offer.snapshot.value != null) {
+        Map<dynamic, dynamic> offerData =
+            offer.snapshot.value as Map<dynamic, dynamic>;
+        offerData.forEach((key, value) {
+          List<String> categoryList = [];
+          if (value['Category'] is List<dynamic>) {
+            categoryList = (value['Category'] as List<dynamic>)
+                .map((category) => category.toString())
+                .toList();
           }
-        }
-      });
+          if (value['EventId'] == widget.EVENTid) {
+            String timestampString = value['TimeStamp'] as String? ?? '';
+            try {
+              // Trim spaces and ensure it has a valid format before parsing
+              timestampString = timestampString.trim();
+              DateTime timestamp =
+                  DateFormat("yyyy-MM-dd HH:mm:ss.S").parse(timestampString);
+
+              loadedOffers.add(Offer(
+                eventId: key,
+                sponseeId: value['sponseeId'] as String? ?? '',
+                categories: categoryList,
+                notes:
+                    value['notes'] as String? ?? 'There are no notes available',
+                sponsorId: value['sponsorId'] as String? ?? '',
+                sponsorName: 'krkr',
+                sponsorImage: '',
+                timeStamp:
+                    timestamp.toLocal().toString(), // Convert to local time
+                status: value['Status'] as String? ?? 'Pending',
+                isExpanded: false,
+                sponsorEmail: '',
+              ));
+            } catch (e) {
+              print('Error parsing timestamp: $e');
+            }
+          }
+        });
 // Rest of your code...
-      database.child('Sponsors').onValue.listen((spons) {
-        if (spons.snapshot.value != null) {
-          Map<dynamic, dynamic> sponsorData = spons.snapshot.value as Map<dynamic, dynamic>;
-          sponsorData.forEach((key, value) {
-            sponsorNames[key] = value['Name'] as String? ?? '';
-            sponsorImages[key] = value['Picture'] as String? ?? '';
-            sponsorEmails[key] = value['Email'] as String? ?? '';
-          });
-          for (var offer in loadedOffers) {
-            offer.sponsorName = sponsorNames[offer.sponsorId] ?? '';
-            offer.sponsorImage = sponsorImages[offer.sponsorId] ?? '';
-            offer.sponsorEmail = sponsorEmails[offer.sponsorId]?? '';
+        database.child('Sponsors').onValue.listen((spons) {
+          if (spons.snapshot.value != null) {
+            Map<dynamic, dynamic> sponsorData =
+                spons.snapshot.value as Map<dynamic, dynamic>;
+            sponsorData.forEach((key, value) {
+              sponsorNames[key] = value['Name'] as String? ?? '';
+              sponsorImages[key] = value['Picture'] as String? ?? '';
+              sponsorEmails[key] = value['Email'] as String? ?? '';
+            });
+            for (var offer in loadedOffers) {
+              offer.sponsorName = sponsorNames[offer.sponsorId] ?? '';
+              offer.sponsorImage = sponsorImages[offer.sponsorId] ?? '';
+              offer.sponsorEmail = sponsorEmails[offer.sponsorId] ?? '';
+            }
+            setState(() {
+              offers = loadedOffers;
+            });
           }
-          setState(() {
-            offers = loadedOffers;
-          });
-        }
-      });
-    }
-  });
-}
-
-
- String calculateExpiry(Offer offer) {
-  try {
-    final offerTimestamp = DateTime.parse(offer.timeStamp);
-    final startDate = DateTime.parse(widget.startDate!);
-
-    // Calculate the time difference in days between the offer timestamp and event start date
-    final timeDifference = startDate.difference(offerTimestamp).inDays;
-
-    // Calculate 50% of the time difference
-    final remainingDays = (timeDifference * 0.5).round();
-
-    if (remainingDays > 0) {
-      if (remainingDays == 1) {
-        return 'Expires in 1 day';
-      } else {
-        return 'Expires in $remainingDays days';
+        });
       }
-    } else {
-      // Check if the offer is still "Pending"
-      if (offer.status == 'Pending') {
-        // Update the status to "Expired" in the database
-        dbref.child('offers').child(offer.eventId).update({'Status': 'Expired'});
-        // Remove the expired offer from the list
-        offers.remove(offer);
-        return 'Expired';
-      } else {
-        return 'Expires Today';
-      }
-    }
-  } catch (e) {
-    print('Error: $e');
-    return 'Invalid date or time format';
+    });
   }
-}
 
+  String calculateExpiry(Offer offer) {
+    try {
+      final offerTimestamp = DateTime.parse(offer.timeStamp);
+      final startDate = DateTime.parse(widget.startDate!);
 
+      // Calculate the time difference in days between the offer timestamp and event start date
+      final timeDifference = startDate.difference(offerTimestamp).inDays;
+
+      // Calculate 50% of the time difference
+      final remainingDays = (timeDifference * 0.5).round();
+
+      if (remainingDays > 0) {
+        if (remainingDays == 1) {
+          return 'Expires in 1 day';
+        } else {
+          return 'Expires in $remainingDays days';
+        }
+      } else {
+        // Check if the offer is still "Pending"
+        if (offer.status == 'Pending') {
+          // Update the status to "Expired" in the database
+          dbref
+              .child('offers')
+              .child(offer.eventId)
+              .update({'Status': 'Expired'});
+          // Remove the expired offer from the list
+          offers.remove(offer);
+          return 'Expired';
+        } else {
+          return 'Expires Today';
+        }
+      }
+    } catch (e) {
+      print('Error: $e');
+      return 'Invalid date or time format';
+    }
+  }
 
   String formatTimeAgo(int timestamp) {
     final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
@@ -192,11 +199,11 @@ void _loadOffersFromFirebase() async {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(105), // Adjust the height as needed
-        child: CustomAppBar(  
-          title: 'My Events',
-        ),  
-      ),
+          preferredSize: Size.fromHeight(105), // Adjust the height as needed
+          child: CustomAppBar(
+            title: 'My Events',
+          ),
+        ),
         body: Column(
           children: [
             Container(
@@ -229,8 +236,8 @@ void _loadOffersFromFirebase() async {
               ),
             ),
           ],
-        ) ,
-      ),  
+        ),
+      ),
     );
   }
 
@@ -315,318 +322,326 @@ void _loadOffersFromFirebase() async {
       );
     }
   }
-Widget _buildOfferCard(Offer offer) {
-  final timestamp = DateTime.parse(offer.timeStamp).millisecondsSinceEpoch;
 
-  return Container(
-    margin: EdgeInsets.all(10),
-    child: Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                offer.isExpanded = !offer.isExpanded;
-              });
-            },
-            child: Container(
-              height: 50,
-              decoration: BoxDecoration(
-                color: Color.fromARGB(193, 51, 45, 81),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
+  Widget _buildOfferCard(Offer offer) {
+    final timestamp = DateTime.parse(offer.timeStamp).millisecondsSinceEpoch;
+
+    return Container(
+      margin: EdgeInsets.all(10),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 2,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  offer.isExpanded = !offer.isExpanded;
+                });
+              },
+              child: Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(193, 51, 45, 81),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
                 ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16),
-                    child: Text(
-                      '${formatTimeAgo(timestamp)}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Text(
+                        '${formatTimeAgo(timestamp)}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
-                  ),
-                   if (offer.status == 'Pending') 
-                  Padding(
-                    padding: const EdgeInsets.only(right: 30),
-                    child: Text(
-                      calculateExpiry(offer),
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
+                    if (offer.status == 'Pending')
+                      Padding(
+                        padding: const EdgeInsets.only(right: 30),
+                        child: Text(
+                          calculateExpiry(offer),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 16),
-            child: Row(
-              children: [
-                GestureDetector(
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    margin: EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50),
-                      color: Colors.black,
-                      image: DecorationImage(
-                        image: NetworkImage(offer.sponsorImage),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) =>
-                            ViewOthersProfile('Sponsors', offer.sponsorId)));
-                  },
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Sponsor',
-                      style: TextStyle(
-                        fontSize: 24,
+            Padding(
+              padding: const EdgeInsets.only(left: 16),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      margin: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50),
                         color: Colors.black,
+                        image: DecorationImage(
+                          image: NetworkImage(offer.sponsorImage),
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                    SizedBox(height: 5),
-                    GestureDetector(
-                      child: Text(
-                        offer.sponsorName,
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) =>
+                              ViewOthersProfile('Sponsors', offer.sponsorId)));
+                    },
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Sponsor',
                         style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
                           color: Colors.black,
                         ),
                       ),
-                      onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) =>
-                                ViewOthersProfile('Sponsors', offer.sponsorId)));
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          if (offer.isExpanded)
-            Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16),
-                    child: Text(
-                      "Categories",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16),
-                    child: Wrap(
-                      spacing: 4,
-                      children: offer.categories.map((category) {
-                        return Chip(
-                          label: Text(category.trim()),
-                          backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-                          shadowColor: const Color.fromARGB(255, 91, 79, 158),
-                          elevation: 3,
-                          labelStyle: const TextStyle(
-                            color: Color.fromARGB(255, 91, 79, 158),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16),
-                    child: Text(
-                      'Notes:',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16),
-                    child: Text(
-                      offer.notes,
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16),
-                      child: Container(
-                        width: 120,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // Add your chat logic here
-                          },
-                          style: ElevatedButton.styleFrom(
-                            primary: const Color.fromARGB(255, 91, 79, 158),
-                            elevation: 5,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.chat_bubble,
-                                color: Colors.white,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                'Chat',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                ),
-                              ),
-                            ],
+                      SizedBox(height: 5),
+                      GestureDetector(
+                        child: Text(
+                          offer.sponsorName,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
                         ),
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ViewOthersProfile(
+                                  'Sponsors', offer.sponsorId)));
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: 200),
+                  Container(
+                    width: 120,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatPage(
+                              receiverUserEmail: offer.sponsorEmail,
+                              receiverUserID: offer.sponsorId,
+                              receiverUserName: offer.sponsorName,
+                              pic: offer.sponsorImage,
+                            ),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: const Color.fromARGB(255, 91, 79, 158),
+                        elevation: 5,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.chat_bubble,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Chat',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  SizedBox(height: 20),
-                 if (offer.status == 'Pending') // Only show Accept and Reject buttons for pending offers
-  Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      ElevatedButton(
-        onPressed: () {
-          _showConfirmationDialog("Reject", offer);
-        },
-        style: ElevatedButton.styleFrom(
-          primary: Color.fromARGB(179, 203, 54, 43),
-          elevation: 5,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-        ),
-        child: Text(
-          'Reject',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-          ),
-        ),
-      ),
-      SizedBox(width: 30), // Adjust the width to add space
-      ElevatedButton(
-        onPressed: () {
-          _showConfirmationDialog("Accept", offer);
-        },
-       style: ElevatedButton.styleFrom(
-  primary: Color.fromARGB(255, 51, 45, 81), 
-  elevation: 5,
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(30),
-  ),
-),
-
-        child: Text(
-          'Accept',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-          ),
-        ),
-      ),
-    ],
-  ),
-SizedBox(height: 20), // Adjust the height to add space
-
+                  ),
                 ],
               ),
             ),
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                offer.isExpanded = !offer.isExpanded;
-              });
-            },
-            child: Icon(
-              offer.isExpanded
-                  ? Icons.keyboard_arrow_up
-                  : Icons.keyboard_arrow_down,
+            if (offer.isExpanded)
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Text(
+                        "Categories",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Wrap(
+                        spacing: 4,
+                        children: offer.categories.map((category) {
+                          return Chip(
+                            label: Text(category.trim()),
+                            backgroundColor:
+                                const Color.fromARGB(255, 255, 255, 255),
+                            shadowColor: const Color.fromARGB(255, 91, 79, 158),
+                            elevation: 3,
+                            labelStyle: const TextStyle(
+                              color: Color.fromARGB(255, 91, 79, 158),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Text(
+                        'Notes:',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: Text(
+                        offer.notes,
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    if (offer.status ==
+                        'Pending') // Only show Accept and Reject buttons for pending offers
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              _showConfirmationDialog("Reject", offer);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              primary: Color.fromARGB(179, 203, 54, 43),
+                              elevation: 5,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                            child: Text(
+                              'Reject',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 30), // Adjust the width to add space
+                          ElevatedButton(
+                            onPressed: () {
+                              _showConfirmationDialog("Accept", offer);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              primary: Color.fromARGB(255, 51, 45, 81),
+                              elevation: 5,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                            child: Text(
+                              'Accept',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    SizedBox(height: 20), // Adjust the height to add space
+                  ],
+                ),
+              ),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  offer.isExpanded = !offer.isExpanded;
+                });
+              },
+              child: Icon(
+                offer.isExpanded
+                    ? Icons.keyboard_arrow_up
+                    : Icons.keyboard_arrow_down,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
-
-
-
+    );
+  }
 
   void _showConfirmationDialog(String action, Offer offer) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      final uniqueKey = GlobalKey();
-      return AlertDialog(
-        key: uniqueKey,
-        title: Text('Confirm $action', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),),
-        content: Text('Are you sure you want to $action this offer?'),
-        backgroundColor: Colors.white,
-         elevation: 0,
-         shape: RoundedRectangleBorder(
+    showDialog(
+      context: context,
+      builder: (context) {
+        final uniqueKey = GlobalKey();
+        return AlertDialog(
+          key: uniqueKey,
+          title: Text(
+            'Confirm $action',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+          ),
+          content: Text('Are you sure you want to $action this offer?'),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('Cancel',style: TextStyle(color: Color.fromARGB(255, 51, 45, 81))),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-               showDialog(
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel',
+                  style: TextStyle(color: Color.fromARGB(255, 51, 45, 81))),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                showDialog(
                   context: context,
                   builder: (context) {
                     Future.delayed(const Duration(seconds: 3), () {
@@ -636,7 +651,8 @@ SizedBox(height: 20), // Adjust the height to add space
                       data: Theme.of(context)
                           .copyWith(dialogBackgroundColor: Colors.white),
                       child: AlertDialog(
-                        shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                        shape: BeveledRectangleBorder(
+                            borderRadius: BorderRadius.circular(2)),
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -647,7 +663,7 @@ SizedBox(height: 20), // Adjust the height to add space
                             ),
                             SizedBox(height: 16),
                             Text(
-                              'Offer was $action'+'ed successfully!',
+                              'Offer was $action' + 'ed successfully!',
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 20,
@@ -659,67 +675,65 @@ SizedBox(height: 20), // Adjust the height to add space
                     );
                   },
                 );
-              final sponsorToken =
-                  await _retrieveSponsorToken(offer.sponsorId);
-              if (sponsorToken != null && user!.uid == offer.sponseeId) {
-                sendNotificationToSponsor1(sponsorToken);
-              }
-              if (action == "Accept") {
-                offer.status = 'Accepted';
+                final sponsorToken =
+                    await _retrieveSponsorToken(offer.sponsorId);
+                if (sponsorToken != null && user!.uid == offer.sponseeId) {
+                  sendNotificationToSponsor1(sponsorToken);
+                }
+                if (action == "Accept") {
+                  offer.status = 'Accepted';
+
+                  setState(() {
+                    offers.clear();
+                  });
+
+                  dbref
+                      .child('offers')
+                      .child(offer.eventId)
+                      .update({'Status': "Accepted"});
+                } else {
+                  dbref
+                      .child('offers')
+                      .child(offer.eventId)
+                      .update({'Status': "Rejected"});
+
+                  setState(() {
+                    offers.remove(offer);
+                    offers.clear(); // Remove the rejected offer from the list
+                  });
+                }
 
                 setState(() {
-                  offers.clear();
+                  showActions = false;
                 });
-
-                dbref
-                    .child('offers')
-                    .child(offer.eventId)
-                    .update({'Status': "Accepted"});
-              } else {
-                dbref
-                    .child('offers')
-                    .child(offer.eventId)
-                    .update({'Status': "Rejected"});
-
-                setState(() {
-                  offers.remove(offer); 
-                    offers.clear();// Remove the rejected offer from the list
-                });
-              }
-
-              setState(() {
-                showActions = false;
-              });
-            },
-            child: Text('Confirm' , style:
-                        TextStyle(color: Color.fromARGB(255, 242, 241, 241))),
-                style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                        const Color.fromARGB(255, 51, 45, 81)),
-                    //Color.fromARGB(255, 207, 186, 224),), // Background color
-                    textStyle: MaterialStateProperty.all<TextStyle>(
-                        const TextStyle(fontSize: 16)), // Text style
-                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                        const EdgeInsets.all(16)), // Padding
-                    elevation:
-                        MaterialStateProperty.all<double>(1), // Elevation
-                    shape: MaterialStateProperty.all<OutlinedBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(10), // Border radius
-                        side: const BorderSide(
-                            color: Color.fromARGB(
-                                255, 255, 255, 255)), // Border color
-                      ),
+              },
+              child: Text('Confirm',
+                  style: TextStyle(color: Color.fromARGB(255, 242, 241, 241))),
+              style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                      const Color.fromARGB(255, 51, 45, 81)),
+                  //Color.fromARGB(255, 207, 186, 224),), // Background color
+                  textStyle: MaterialStateProperty.all<TextStyle>(
+                      const TextStyle(fontSize: 16)), // Text style
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                      const EdgeInsets.all(16)), // Padding
+                  elevation: MaterialStateProperty.all<double>(1), // Elevation
+                  shape: MaterialStateProperty.all<OutlinedBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10), // Border radius
+                      side: const BorderSide(
+                          color: Color.fromARGB(
+                              255, 255, 255, 255)), // Border color
                     ),
-                    minimumSize:
-                        MaterialStateProperty.all<Size>(const Size(200, 50))),
-          ),
-        ],
-      );
-    },
-  );
-}
+                  ),
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(200, 50))),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Future<void> sendNotificationToSponsor1(String sponsorToken) async {
     final String serverKey =

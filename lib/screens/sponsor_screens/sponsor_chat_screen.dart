@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:sponsite/widgets/customAppBar.dart';  
+import 'package:sponsite/widgets/customAppBar.dart';
 import 'package:sponsite/screens/chatPage.dart';
 import 'package:sponsite/screens/chat_service.dart';
 
@@ -19,10 +19,10 @@ class _SponsorChatState extends State<SponsorChat> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(  
+    return Scaffold(
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(105), // Adjust the height as needed
-        child: CustomAppBar(  
+        child: CustomAppBar(
           title: 'Chat',
         ),
       ),
@@ -68,16 +68,18 @@ class _SponsorChatState extends State<SponsorChat> {
 
         for (var entry in offers) {
           Map<dynamic, dynamic> data = entry.value as Map<dynamic, dynamic>;
+          String status = data['Status'] ?? '';
           String sponseeId = data['sponseeId'] ?? '';
           String offerTimestampStr = data['TimeStamp'] ?? '0';
           DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
           DateTime offerDateTime = dateFormat.parse(offerTimestampStr);
 
           // Check if the offer is active based on the timestamp
-          if (offerDateTime.isBefore(currentTimestamp) &&
-              !uniqueSponseeIds.contains(sponseeId)) {
-            activeSponseeIds.add(sponseeId);
-            uniqueSponseeIds.add(sponseeId);
+          if (status == 'Accepted' || status == 'Pending') {
+            if (!uniqueSponseeIds.contains(sponseeId)) {
+              activeSponseeIds.add(sponseeId);
+              uniqueSponseeIds.add(sponseeId);
+            }
           }
         }
 
