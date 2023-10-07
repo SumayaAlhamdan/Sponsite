@@ -428,6 +428,7 @@ class RecentEventsDetails extends StatelessWidget {
                                         sponseeId: sponseeId,
                                         Category: Category,
                                         TimeStamp: timeStamp,
+                                        EventName : EventName
                                       );
                                     },
                                   );
@@ -510,6 +511,7 @@ class sendOffer extends StatefulWidget {
   final String? sponsorId;
   final List<String> Category;
   final String TimeStamp;
+  final String EventName ;
 
   const sendOffer({
     super.key,
@@ -518,6 +520,7 @@ class sendOffer extends StatefulWidget {
     required this.sponsorId,
     required this.Category,
     required this.TimeStamp,
+    required this.EventName
   });
 
   @override
@@ -991,7 +994,7 @@ class _sendOfferState extends State<sendOffer> {
     final String fcmUrl = 'https://fcm.googleapis.com/fcm/send';
 
     final Map<String, dynamic> notification = {
-      'body': 'You have a new Offer from a sponsor.',
+      'body': 'You have a new Offer for ${widget.EventName} event .',
       'title': 'New Offer',
       'sound': 'default',
     };
