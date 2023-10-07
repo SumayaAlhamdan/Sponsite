@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -25,7 +26,8 @@ class Msg {
   final String receiverEmail;
   final dynamic msg;
   final dynamic timestamp;
-  final ChatItem? type;
+  final ChatItem type;
+  final bool isRead;
 
   Msg({
     required this.receiverEmail,
@@ -34,7 +36,8 @@ class Msg {
     required this.senderID,
     required this.msg,
     required this.timestamp,
-    this.type,
+    required this.type,
+    required this.isRead,
   });
 
   Map<dynamic, dynamic> toMap() {
@@ -45,7 +48,8 @@ class Msg {
       'receiverEmail': receiverEmail,
       'msg': msg,
       'timestamp': timestamp,
-      'type': type?.type.toString(), // Convert the enum to a string
+      'type': type.type.toString(),
+      'isRead': isRead, // Store isRead as a bool
     };
   }
 
@@ -57,12 +61,8 @@ class Msg {
       senderID: map['senderID'] ?? '',
       msg: map['msg'] ?? '',
       timestamp: map['timestamp'] ?? '',
-      type: map['type'] != null
-          ? ChatItem(
-              MessageType.values.firstWhere((e) => e.toString() == map['type']),
-              map['msg'],
-            )
-          : null, // Parse the enum from the string
+      type: map['type'],
+      isRead: map['isRead'] ?? false, // Parse the isRead property
     );
   }
 }
@@ -99,7 +99,8 @@ class ChatService extends ChangeNotifier {
           'receiverID': receiverID,
           'fileName': fileName,
           'timestamp': ServerValue.timestamp,
-          'type': MessageType.File.toString(), // Store as a string
+          'type': MessageType.File.toString(),
+          'isRead': false,
         };
 
         await _database
@@ -117,6 +118,112 @@ class ChatService extends ChangeNotifier {
     }
   }
 
+  int getUnreadMsgCount(
+      Stream<List<Map<String, dynamic>>> unreadMessages, String key) {
+    int unreadCount = 0;
+
+    // Listen to the stream and count unread messages
+    unreadMessages.listen((messages) {
+      for (var message in messages) {
+        // Check if the message is related to the current user ('key')
+        if (message['data']['receiverID'] == key &&
+            !message['data']['isRead']) {
+          unreadCount++;
+        }
+        //   print('HEREEEEEE');
+        //  print(messages);
+        print(unreadCount);
+      }
+    });
+    print('HEREEEEEE unreadcount');
+    print(unreadCount);
+    return unreadCount;
+  }
+
+  Stream<List<Map<String, dynamic>>> getUnreadMsgs(
+      String currentUserId, String receiverID) {
+    List<String> ids = [receiverID, currentUserId];
+    ids.sort();
+    String chatRoomID = ids.join('_');
+
+    DatabaseReference chatroomRef =
+        _database.child('chatrooms').child(chatRoomID);
+
+    return chatroomRef.child('messages').onValue.map(
+      (event) {
+        List<Map<String, dynamic>> unreadMessages = [];
+        DataSnapshot dataSnapshot = event.snapshot;
+
+        try {
+          if (dataSnapshot.value != null) {
+            Map<dynamic, dynamic>? dataMap = dataSnapshot.value as Map?;
+
+            if (dataMap != null) {
+              dataMap.forEach((key, value) {
+                if (value is Map<dynamic, dynamic>) {
+                  final typeString = value['type'] as String;
+
+                  Map<String, dynamic> data = {}; // Initialize data here
+
+                  if (typeString == MessageType.Message.toString()) {
+                    data = {
+                      'receiverID': value['receiverID'] ?? '',
+                      'receiverEmail': value['receiverEmail'] ?? '',
+                      'senderID': value['senderID'] ?? '',
+                      'senderEmail': value['senderEmail'] ?? '',
+                      'msg': value['msg'] ?? '',
+                      'timestamp': value['timestamp'] ?? ServerValue.timestamp,
+                      'isRead':
+                          value['isRead'] ?? false, // Parse the isRead property
+                    };
+                  } else if (typeString == MessageType.File.toString()) {
+                    data = {
+                      'senderID': value['senderID'] ?? '',
+                      'receiverID': value['receiverID'] ?? '',
+                      'fileName': value['fileName'] ?? '',
+                      'timestamp': value['timestamp'] ?? ServerValue.timestamp,
+                      'isRead':
+                          value['isRead'] ?? false, // Parse the isRead property
+                    };
+                  }
+
+                  if (!data['isRead']) {
+                    unreadMessages.add({
+                      'type': typeString, // Store type as a string
+                      'data': data,
+                    });
+                  }
+                }
+              });
+            }
+          }
+        } catch (e) {
+          print('Error occurred: $e');
+          // Handle the error as needed, e.g., log it or return an error message.
+        }
+
+        return unreadMessages;
+      },
+    );
+  }
+
+  Future<void> deleteChatRoom(String currentUserId, String receiverID) async {
+    try {
+      List<String> ids = [receiverID, currentUserId];
+      ids.sort();
+      String chatRoomID = ids.join('_');
+
+      DatabaseReference chatroomRef =
+          _database.child('chatrooms').child(chatRoomID);
+
+      // Remove the chat room from the database
+      await chatroomRef.remove();
+    } catch (e) {
+      // Handle any errors that occur during the deletion process
+      print('Error deleting chat room: $e');
+    }
+  }
+
   Stream<List<Map<String, dynamic>>> getMsgAndFile(
     String currentUserId,
     String receiverID,
@@ -131,6 +238,7 @@ class ChatService extends ChangeNotifier {
     return chatroomRef.child('messages').onValue.map(
       (event) {
         List<Map<String, dynamic>> messagesAndFiles = [];
+        List<Map<String, dynamic>> unreadMessages = [];
         DataSnapshot dataSnapshot = event.snapshot;
 
         try {
@@ -141,15 +249,10 @@ class ChatService extends ChangeNotifier {
               dataMap.forEach((key, value) {
                 if (value is Map<dynamic, dynamic>) {
                   final typeString = value['type'] as String;
-                  // print('HERE TYPE TRING!!!!!!!!');
-                  // print(typeString);
-                  // final type = typeString == MessageType.Message.toString()
-                  //     ? MessageType.Message
-                  //     : MessageType.File;
 
                   Map<String, dynamic> data = {}; // Initialize data here
 
-                  if (typeString == 'MessageType.Message') {
+                  if (typeString == MessageType.Message.toString()) {
                     data = {
                       'receiverID': value['receiverID'] ?? '',
                       'receiverEmail': value['receiverEmail'] ?? '',
@@ -157,14 +260,25 @@ class ChatService extends ChangeNotifier {
                       'senderEmail': value['senderEmail'] ?? '',
                       'msg': value['msg'] ?? '',
                       'timestamp': value['timestamp'] ?? ServerValue.timestamp,
+                      'isRead':
+                          value['isRead'] ?? false, // Parse the isRead property
                     };
-                  } else if (typeString == 'MessageType.File') {
+                  } else if (typeString == MessageType.File.toString()) {
                     data = {
                       'senderID': value['senderID'] ?? '',
                       'receiverID': value['receiverID'] ?? '',
                       'fileName': value['fileName'] ?? '',
                       'timestamp': value['timestamp'] ?? ServerValue.timestamp,
+                      'isRead':
+                          value['isRead'] ?? false, // Parse the isRead property
                     };
+
+                    if (!data['isRead']) {
+                      unreadMessages.add({
+                        'type': typeString,
+                        'data': data,
+                      });
+                    }
                   }
 
                   messagesAndFiles.add({
@@ -209,6 +323,7 @@ class ChatService extends ChangeNotifier {
           MessageType.Message,
           msg,
         ),
+        isRead: false,
       );
 
       await _database

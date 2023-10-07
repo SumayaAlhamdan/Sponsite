@@ -17,14 +17,14 @@ class ChatPage extends StatefulWidget {
   final String receiverUserEmail;
   final String receiverUserID;
   final String receiverUserName;
-  final String? pic;
+  final String pic;
 
   const ChatPage({
     Key? key,
     required this.receiverUserEmail,
     required this.receiverUserID,
     required this.receiverUserName,
-    this.pic,
+    required this.pic,
   }) : super(key: key);
 
   @override
@@ -107,17 +107,18 @@ class _ChatPageState extends State<ChatPage> {
           children: [
             SizedBox(width: 8.0),
             GestureDetector(
-              child: Image.network(
-                widget.pic ?? senderPic,
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Image.asset(
-                    'assets/placeholder_image.png',
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
+              child: CircleAvatar(
+                radius: 20,
+                backgroundImage: NetworkImage(widget.pic),
+                backgroundColor: Colors
+                    .transparent, // Optional, set a background color if needed
+                onBackgroundImageError: (exception, stackTrace) {
+                  // Handle the error by returning a placeholder image
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundImage: AssetImage(
+                        'assets/placeholder_image.png'), // Placeholder image asset
+                    backgroundColor: Colors.transparent,
                   );
                 },
               ),
@@ -232,52 +233,9 @@ class _ChatPageState extends State<ChatPage> {
             onSelected: (value) {
               // Handle menu item selection here
               switch (value) {
-//                 case 'Profile':
-// // Initialize the Realtime Database reference
-//                   final DatabaseReference databaseReference =
-//                       FirebaseDatabase.instance.reference();
-
-// // Replace "currentUserId" with the ID of the current user
-//                   String currentUserId = chatService.currentUserId;
-
-// // Fetch sponsors
-//                   databaseReference.child("Sponsors").onValue.listen((event) {
-//                     if (event.snapshot.value != null) {
-//                       Map<dynamic, dynamic> sponsorsData =
-//                           event.snapshot.value as Map<dynamic, dynamic>;
-
-//                       if (sponsorsData != null &&
-//                           sponsorsData.containsKey(currentUserId)) {
-//                         // The current user is a sponsor, navigate to the sponsor's profile
-//                         Navigator.of(context).push(
-//                           MaterialPageRoute(
-//                             builder: (context) => ViewOthersProfile(
-//                                 "Sponsees", widget.receiverUserID),
-//                           ),
-//                         );
-//                         return;
-//                       }
-//                     }
-//                   });
-//                   databaseReference.child("Sponsees").onValue.listen((event) {
-//                     if (event.snapshot.value != null) {
-//                       Map<dynamic, dynamic> sponseesData =
-//                           event.snapshot.value as Map<dynamic, dynamic>;
-
-//                       if (sponseesData != null &&
-//                           sponseesData.containsKey(currentUserId)) {
-//                         // The current user is a sponsor, navigate to the sponsor's profile
-//                         Navigator.of(context).push(
-//                           MaterialPageRoute(
-//                             builder: (context) => ViewOthersProfile(
-//                                 "Sponsors", widget.receiverUserID),
-//                           ),
-//                         );
-//                         return;
-//                       }
-//                     }
-//                   });
-//                   break;
+                case 'DeleteChat':
+                  chatService.deleteChatRoom( , receiverUserID); // needssssssssss fixing
+                  break;
                 case 'Meeting':
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -289,19 +247,20 @@ class _ChatPageState extends State<ChatPage> {
             },
             itemBuilder: (BuildContext context) {
               return [
-                // const PopupMenuItem<String>(
-                //   value: 'Profile',
-                //   child: ListTile(
-                //     leading: Icon(
-                //       Icons.perm_identity,
-                //       size: 30,
-                //     ),
-                //     title: Text(
-                //       'Profile',
-                //       style: TextStyle(fontSize: 20),
-                //     ),
-                //   ),
-                // ),
+                const PopupMenuItem<String>(
+                  value:
+                      'DeleteChat', // Add a unique value for the delete option
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.delete,
+                      size: 30,
+                    ),
+                    title: Text(
+                      'Delete Chat',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                ),
                 const PopupMenuItem<String>(
                   value: 'Meeting',
                   child: ListTile(
@@ -364,14 +323,17 @@ class _ChatPageState extends State<ChatPage> {
                               padding: EdgeInsets.all(10.0),
                               decoration: BoxDecoration(
                                 color: isCurrentUser
-                                    ? Colors.grey
+                                    ? const Color.fromARGB(255, 228, 227, 227)
                                     : Color.fromARGB(255, 51, 45, 81),
                                 borderRadius: BorderRadius.circular(20.0),
                               ),
                               child: Text(
                                 message,
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: isCurrentUser
+                                      ? Color.fromARGB(255, 51, 45, 81)
+                                      : const Color.fromARGB(
+                                          255, 228, 227, 227),
                                   fontSize: 20,
                                 ),
                               ),
@@ -395,20 +357,29 @@ class _ChatPageState extends State<ChatPage> {
                                   // Handle the case where an error occurred during the download
                                 }
                               },
-                              child: Text(
-                                fileName,
-                                style: const TextStyle(
-                                  color: Colors.blue,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: Colors.blue,
-                                  decorationThickness:
-                                      2.0, // Customize the thickness if needed
-                                  fontSize: 20,
+                              child: Container(
+                                padding: EdgeInsets.all(10.0),
+                                decoration: BoxDecoration(
+                                  color: isCurrentUser
+                                      ? Color.fromARGB(255, 228, 227, 227)
+                                      : Color.fromARGB(255, 51, 45, 81),
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ), // Add a comma here
+                                child: Text(
+                                  fileName,
+                                  style: const TextStyle(
+                                    color: Colors.blue,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: Colors.blue,
+                                    decorationThickness: 2.0,
+                                    fontSize: 20,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         );
+                        ;
                       } else {
                         return SizedBox();
                       }
@@ -431,6 +402,9 @@ class _ChatPageState extends State<ChatPage> {
                     child: TextField(
                       style: TextStyle(fontSize: 20),
                       controller: _messageController,
+                      maxLength: 2000,
+                      maxLines:
+                          null, // Set the maximum length of characters here (2000 in this case)
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderSide: BorderSide(
