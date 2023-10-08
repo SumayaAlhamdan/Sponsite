@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/calendar/v3.dart' as calendar;
@@ -5,7 +6,6 @@ import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter/gestures.dart';
 
 class createEventFromCalendar extends StatefulWidget {    
     
@@ -36,6 +36,7 @@ class _createEventFromCalendarState extends State<createEventFromCalendar> {
   String? _errorMessage;
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? errorMessage;
+    String calendarID= '';
   @override
   void initState() {
     super.initState();
@@ -77,6 +78,15 @@ class _createEventFromCalendarState extends State<createEventFromCalendar> {
         // Handle the case where the user's email is null.
         return;
       }
+  
+
+    if (userEmail == "leena252002@gmail.com"){
+      calendarID= "lfra6b41b44lia16ug024ifpgk@group.calendar.google.com";
+  }
+
+    if (userEmail == "leena1234567891011@gmail.com"){
+       calendarID= "2a70b27939c31f657d4a1675e5ff1db641018231e63961750309ac705496fd1a@group.calendar.google.com";
+    }
 
       // Set _defaultOrganizerEmail to the user's email.
       setState(() {
@@ -176,9 +186,9 @@ else{
 }   
 // event.sendNotifications = true;   
 
-     await _calendarApi!.events.insert(event, 'lfra6b41b44lia16ug024ifpgk@group.calendar.google.com');
+     await _calendarApi!.events.insert(event, calendarID);
 
-     _showSummaryDialog();
+     _showSummaryDialog();  
   } catch (error) {
       print(error);    // Show the error dialog for the specific error type
  setState(() {
@@ -323,6 +333,7 @@ Future<void> _showSummaryDialog() async {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
+               Navigator.of(context).pop();
             },
             child: Text(
               'OK',

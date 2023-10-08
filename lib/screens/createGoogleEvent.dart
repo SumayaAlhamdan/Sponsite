@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/calendar/v3.dart' as calendar;
@@ -6,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
+  
 class createEvent extends StatefulWidget {
   
   @override
@@ -14,7 +15,7 @@ class createEvent extends StatefulWidget {
 }
 
 class _createEventState extends State<createEvent> {
- final GoogleSignIn _googleSignIn = GoogleSignIn(  
+  final GoogleSignIn _googleSignIn = GoogleSignIn(  
     scopes: [
       'email',
       'https://www.googleapis.com/auth/calendar',
@@ -36,6 +37,7 @@ class _createEventState extends State<createEvent> {
   String? _errorMessage;
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? errorMessage;
+    String calendarID= '';
   @override
   void initState() {
     super.initState();
@@ -77,6 +79,15 @@ class _createEventState extends State<createEvent> {
         // Handle the case where the user's email is null.
         return;
       }
+  
+
+    if (userEmail == "leena252002@gmail.com"){
+      calendarID= "lfra6b41b44lia16ug024ifpgk@group.calendar.google.com";
+  }
+
+    if (userEmail == "leena1234567891011@gmail.com"){
+       calendarID= "2a70b27939c31f657d4a1675e5ff1db641018231e63961750309ac705496fd1a@group.calendar.google.com";
+    }
 
       // Set _defaultOrganizerEmail to the user's email.
       setState(() {
@@ -123,7 +134,7 @@ class _createEventState extends State<createEvent> {
     final httpClient = http.Client();
     final authenticatedClient = auth.autoRefreshingClient(
       auth.ClientId(clientId, null),
-      credentials,
+      credentials,  
       httpClient,
     );
 
@@ -167,18 +178,18 @@ class _createEventState extends State<createEvent> {
           event.attendees!.add(calendar.EventAttendee(email: _defaultOrganizerEmail));
 }
 
-  
+
 if(includeGoogleMeet){
 event.description = '${_descriptionController.text} \nGoogleMeet Link: ${_googleMeetLink.text}';
-}   
+}
 else{
   event.description = _descriptionController.text;
-}
-// event.sendNotifications = true; 
+}   
+// event.sendNotifications = true;   
 
-     await _calendarApi!.events.insert(event, 'lfra6b41b44lia16ug024ifpgk@group.calendar.google.com');
+     await _calendarApi!.events.insert(event, calendarID);
 
-     _showSummaryDialog();
+     _showSummaryDialog();  
   } catch (error) {
       print(error);    // Show the error dialog for the specific error type
  setState(() {
@@ -193,7 +204,16 @@ String _formatDateTime(DateTime dateTime) {
   final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
   return formattedDate;
 }
+@override
+  void dispose() {
+    if (_googleSignIn.currentUser != null) {
+      _googleSignIn.disconnect();
+      _googleSignIn.signOut();
+    }
 
+    super.dispose();
+  } 
+  
 Future<void> _showSummaryDialog() async {
   await showDialog(
     context: context,
@@ -208,8 +228,8 @@ Future<void> _showSummaryDialog() async {
         icon: Icon(
           Icons.check_circle_rounded,
           size: 80,
-          color: const Color.fromARGB(255, 133, 201, 135),
-        ),
+          color: const  Color.fromARGB(255, 91, 79, 158),
+        ),  
         title: Text(
           'Event Created Successfully',
           textAlign: TextAlign.center,
@@ -231,7 +251,8 @@ Future<void> _showSummaryDialog() async {
                     style: TextStyle(fontSize: 21),
                   ),
                 ],
-              ),    
+              ),  
+              SizedBox(height: 8),    
               Row(  
                 children: [
                   Text(
@@ -244,6 +265,7 @@ Future<void> _showSummaryDialog() async {
                   ),
                 ],  
               ),
+              SizedBox(height: 8),
               Row(
                 children: [
                   Text(
@@ -269,19 +291,25 @@ Future<void> _showSummaryDialog() async {
                   ),
                 ],
               ),
-              if (includeGoogleMeet)
-                Row(
-                  children: [
-                    Text(
-                      'Google Meet Link: ',
-                      style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      _googleMeetLink.text.isEmpty ? 'No Google Meet link' : _googleMeetLink.text,
-                      style: TextStyle(fontSize: 21),
-                    ),
-                  ],
+                  if (includeGoogleMeet)
+                   SizedBox(height: 8), 
+                  Row(
+                  children:[  
+              Text('Google Meet Link: ', 
+                style: TextStyle(
+                  fontSize: 21,
+                  fontWeight: FontWeight.bold,  
                 ),
+              ),
+          RichText(
+           text: TextSpan(
+           children: [  
+            _buildClickableTextSpan('${_googleMeetLink.text}', '${_googleMeetLink.text}'),
+          ],  
+        ),
+      ),  
+      ],  
+                  ),  
               SizedBox(height: 8),
               Text(
                 'Guests:',
@@ -315,6 +343,7 @@ Future<void> _showSummaryDialog() async {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
+               Navigator.of(context).pop();
             },
             child: Text(
               'OK',
@@ -336,7 +365,7 @@ String truncateDescription(String description, int maxLineLength) {
 
     for (int i = 1; i < words.length; i++) {
       if ((currentLine + ' ' + words[i]).length <= maxLineLength) {
-        currentLine += ' ' + words[i];
+        currentLine += ' ' + words[i];  
       } else {
         lines.add(currentLine);
         currentLine = words[i];
@@ -356,6 +385,29 @@ String truncateDescription(String description, int maxLineLength) {
     }
   }
 }
+Future<void> _launchGoogleMeetLink(String url) async {
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    // Handle the case where the link cannot be launched
+    print('Could not launch $url');
+  }
+}
+
+TextSpan _buildClickableTextSpan(String text, String link) {  
+  return TextSpan(
+    text: text,
+    style: TextStyle( 
+      color: Colors.indigo, // You can use any color you prefer
+      decoration: TextDecoration.underline,
+      fontSize:21,  
+    ),
+    recognizer: TapGestureRecognizer()
+      ..onTap = () {
+        _launchGoogleMeetLink(link);
+      },
+  );  
+} 
 
   Future<void> _selectStartDate(BuildContext context) async {
      setState(() {
@@ -462,8 +514,8 @@ String truncateDescription(String description, int maxLineLength) {
       bottomLeft: Radius.circular(20),
       bottomRight: Radius.circular(20),
     ),
-  ),
-  height: 85, 
+  ),  
+  height: 95,   
   padding: const EdgeInsets.fromLTRB(16, 0, 0, 0), // Adjust the padding as needed
   child: Row(
     mainAxisAlignment: MainAxisAlignment.start,
@@ -471,17 +523,18 @@ String truncateDescription(String description, int maxLineLength) {
       IconButton(
         icon: const Icon(Icons.arrow_back),
         alignment: Alignment.topLeft,
+        iconSize: 35, 
         color: Colors.white,
         onPressed: () {
           Navigator.of(context).pop();
-        },
-      ),
-      const SizedBox(width: 180),
+        },          
+      ),          
+      const SizedBox(width: 140),
       const Text(
         "Create Google Calendar Event",
         style: TextStyle(
           fontWeight: FontWeight.w500,
-          fontSize: 24,
+          fontSize: 30 ,
           color: Colors.white
         ),
         textAlign: TextAlign.center,
@@ -691,9 +744,16 @@ Container(
                     children: [
                        SizedBox(width:450),
                         InkWell(
-                        child: Text('Go To Google Meet', style: TextStyle(fontSize: 17, color: Color.fromARGB(255, 24, 103, 221), decoration: TextDecoration.underline,)),
-                        onTap: () => launch('https://meet.google.com/'),
-                      ),
+            child: Text(
+              'Go To Google Meet',
+              style: TextStyle(
+                fontSize: 17,
+                color: Colors.indigo, // You can use any color you prefer
+                decoration: TextDecoration.underline,
+              ),
+            ),  
+            onTap: () => _launchGoogleMeetLink(_googleMeetLink.text),
+          ),  
                     ],
                   ),
 
@@ -737,8 +797,7 @@ Container(
           ),
           ],
           ),
-        ),  
+        ),
     );
   }
 }
-

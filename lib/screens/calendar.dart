@@ -24,12 +24,14 @@ class _googleCalendarState extends State<googleCalendar> {
 
   GoogleSignInAccount? _currentUser;
   List<GoogleAPI.Event>? _appointments;
+  String userEmail = '';
   @override
   void initState() {
     super.initState();
     _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
       setState(() {
         _currentUser = account;
+        userEmail = _currentUser!.email;
       });
       if (_currentUser != null) {
         // Don't fetch events here; it will be done in the FutureBuilder
@@ -45,10 +47,23 @@ class _googleCalendarState extends State<googleCalendar> {
         GoogleAPIClient(await googleUser!.authHeaders);
 
     final GoogleAPI.CalendarApi calendarApi = GoogleAPI.CalendarApi(httpClient);
+    String calendarID= '';
+
+    if (userEmail == "leena252002@gmail.com"){
+      calendarID= "lfra6b41b44lia16ug024ifpgk@group.calendar.google.com";
+  }
+
+    if (userEmail == "leena1234567891011@gmail.com"){
+       calendarID= "2a70b27939c31f657d4a1675e5ff1db641018231e63961750309ac705496fd1a@group.calendar.google.com";
+    }
+
+   
     final GoogleAPI.Events calEvents = await calendarApi.events.list(
-      "lfra6b41b44lia16ug024ifpgk@group.calendar.google.com",
+      calendarID  ,
     );
-    final List<GoogleAPI.Event> appointments = <GoogleAPI.Event>[];
+  
+
+    final List<GoogleAPI.Event> appointments = <GoogleAPI.Event>[]; 
     if (calEvents.items != null) {
       for (int i = 0; i < calEvents.items!.length; i++) {
         final GoogleAPI.Event event = calEvents.items![i];
@@ -64,7 +79,7 @@ class _googleCalendarState extends State<googleCalendar> {
 
 
     return appointments;
-  }
+  } 
 
   @override
   Widget build(BuildContext context) {
@@ -180,7 +195,7 @@ class _googleCalendarState extends State<googleCalendar> {
           ),
         );
       },  
-      child: Container(
+      child: Container( 
         width: 90,
         height: 90,
         decoration: BoxDecoration(
@@ -283,7 +298,15 @@ Widget _buildGuestsList(String label, List<GoogleAPI.EventAttendee>? attendees) 
   final String formattedDate = DateFormat.yMMMd().add_jm().format(dateTime);
   return formattedDate;
 }
+@override
+  void dispose() {
+    if (_googleSignIn.currentUser != null) {
+      _googleSignIn.disconnect();
+      _googleSignIn.signOut();
+    }
 
+    super.dispose();
+  } 
 }
 
 class GoogleDataSource extends CalendarDataSource {
@@ -345,4 +368,3 @@ class GoogleAPIClient extends IOClient {
       super.head(url,
           headers: (headers != null ? (headers..addAll(_headers)) : headers));
 } 
-      
