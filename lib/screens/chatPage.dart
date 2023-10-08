@@ -5,6 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:sponsite/screens/chat_service.dart';
 import 'package:sponsite/screens/createGoogleEvent.dart';
@@ -254,11 +255,11 @@ class _ChatPageState extends State<ChatPage> {
                   child: ListTile(
                     leading: Icon(
                       Icons.delete,
-                      size: 30,
+                      size: 25,
                     ),
                     title: Text(
                       'Delete Chat',
-                      style: TextStyle(fontSize: 20),
+                      style: TextStyle(fontSize: 14),
                     ),
                   ),
                 ),
@@ -267,11 +268,11 @@ class _ChatPageState extends State<ChatPage> {
                   child: ListTile(
                     leading: Icon(
                       Icons.video_call,
-                      size: 30,
+                      size: 25,
                     ),
                     title: Text(
                       'Schedule Meeting',
-                      style: TextStyle(fontSize: 20),
+                      style: TextStyle(fontSize: 14),
                     ),
                   ),
                 ),
@@ -303,6 +304,23 @@ class _ChatPageState extends State<ChatPage> {
                     return dateTimeA.compareTo(dateTimeB);
                   });
 
+                  if (messagesAndFiles.isEmpty) {
+                    // Render an empty chat message
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/Pack.png', // Specify the asset path
+                            width: 200, // Specify the width of the image
+                            height: 200, // Specify the height of the image
+                          ),
+                          Text('There are no messages in this chat yet'),
+                        ],
+                      ),
+                    );
+                  }
+
                   return ListView.builder(
                     itemCount: messagesAndFiles.length,
                     itemBuilder: (context, index) {
@@ -310,17 +328,24 @@ class _ChatPageState extends State<ChatPage> {
 
                       final type = chatItem['type'] as String;
                       final data = chatItem['data'] as Map<String, dynamic>;
+                      final timestampMillis = data['timestamp']
+                          as int; // Assuming the timestamp is in milliseconds
+                      final timestamp =
+                          DateTime.fromMillisecondsSinceEpoch(timestampMillis);
+                      final formattedTimestamp =
+                          DateFormat('HH:mm:ss, MMM d, y').format(
+                              timestamp); // Customize the format as needed
                       final isCurrentUser =
                           data['senderID'] == chatService.currentUserId;
 
                       if (type == 'MessageType.Message') {
                         final message = data['msg'] as String;
-                        return ListTile(
-                          title: Align(
-                            alignment: isCurrentUser
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
-                            child: Container(
+                        return Column(
+                          crossAxisAlignment: isCurrentUser
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                          children: [
+                            Container(
                               padding: EdgeInsets.all(10.0),
                               decoration: BoxDecoration(
                                 color: isCurrentUser
@@ -339,16 +364,27 @@ class _ChatPageState extends State<ChatPage> {
                                 ),
                               ),
                             ),
-                          ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              formattedTimestamp,
+                              style: TextStyle(
+                                fontSize: 12, // Adjust the font size as needed
+                                color: Colors
+                                    .grey, // Set the color of the timestamp
+                              ),
+                            ),
+                          ],
                         );
                       } else if (type == 'MessageType.File') {
                         final fileName = data['fileName'] as String;
-                        return ListTile(
-                          title: Align(
-                            alignment: isCurrentUser
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
-                            child: GestureDetector(
+                        return Column(
+                          crossAxisAlignment: isCurrentUser
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                          children: [
+                            GestureDetector(
                               onTap: () async {
                                 String? downloadURL =
                                     await downloadFile(fileName);
@@ -365,7 +401,7 @@ class _ChatPageState extends State<ChatPage> {
                                       ? Color.fromARGB(255, 228, 227, 227)
                                       : Color.fromARGB(255, 51, 45, 81),
                                   borderRadius: BorderRadius.circular(20.0),
-                                ), // Add a comma here
+                                ),
                                 child: Text(
                                   fileName,
                                   style: const TextStyle(
@@ -378,9 +414,19 @@ class _ChatPageState extends State<ChatPage> {
                                 ),
                               ),
                             ),
-                          ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              formattedTimestamp,
+                              style: TextStyle(
+                                fontSize: 12, // Adjust the font size as needed
+                                color: Colors
+                                    .grey, // Set the color of the timestamp
+                              ),
+                            ),
+                          ],
                         );
-                        ;
                       } else {
                         return SizedBox();
                       }
@@ -453,11 +499,5 @@ class _ChatPageState extends State<ChatPage> {
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _messageController.dispose();
-    super.dispose();
   }
 }

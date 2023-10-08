@@ -111,7 +111,8 @@ class _SponsorProfileState extends State<SponsorProfile> {
               child: const Text(
                 'Cancel',
                 style: TextStyle(
-                    color: Color.fromARGB(255, 51, 45, 81), ),
+                  color: Color.fromARGB(255, 51, 45, 81),
+                ),
               ),
             ),
             // TextButton(
@@ -165,22 +166,22 @@ class _SponsorProfileState extends State<SponsorProfile> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 51, 45, 81),
-              leading: IconButton(
-             icon :Icon(Icons.calendar_month_rounded),    
-              iconSize: 40,
-              color: Colors.white,
-             onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) =>googleCalendar(),));  
-  },  
-  ),    
+        leading: IconButton(
+          icon: Icon(Icons.calendar_month_rounded),
+          iconSize: 40,
+          color: Colors.white,
+          onPressed: () {
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => googleCalendar(),
+            ));
+          },
+        ),
         actions: [
-  
           PopupMenuButton<String>(
             icon: const Icon(
               Icons.more_horiz,
               color: Color.fromARGB(255, 255, 255, 255),
-              size: 70,
+              size: 50,
             ),
             onSelected: (value) {
               // Handle menu item selection here
@@ -342,7 +343,7 @@ class _SponsorProfileState extends State<SponsorProfile> {
                             padding: EdgeInsets.all(16.0),
                             child: Text(
                               sponsorList.first.bio,
-                               textAlign: TextAlign.center,
+                              textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 18,
                                 color: Colors.black,
@@ -352,18 +353,24 @@ class _SponsorProfileState extends State<SponsorProfile> {
                         ),
                       ),
                     ),
-                  
-                   if (sponsorList.isNotEmpty)
+
+                  if (sponsorList.isNotEmpty)
                     _ProfileInfoRow(sponsorList.first.social),
-                     const Divider(
-                    // indent: 100,
-                    // endIndent: 100,
-                  ),
+                  const Divider(
+                      // indent: 100,
+                      // endIndent: 100,
+                      ),
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      SizedBox(width: 20,),
-                       Text('My Posts',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      Text(
+                        'My Posts',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 30),
+                      ),
                     ],
                   )
                 ],
@@ -437,7 +444,7 @@ class _ProfileInfoRow extends StatelessWidget {
     'instagram': FontAwesomeIcons.instagram,
     'facebook': FontAwesomeIcons.facebook,
     'linkedin': FontAwesomeIcons.linkedin,
-    'website': FontAwesomeIcons.paperclip,
+    'website': FontAwesomeIcons.link,
     // Add more social media titles and corresponding icons as needed
   };
 
@@ -446,7 +453,7 @@ class _ProfileInfoRow extends StatelessWidget {
     return Container(
       height: 100,
       //color: Colors.amber,
-      constraints:  BoxConstraints(maxWidth: _items.length * 80),
+      constraints: BoxConstraints(maxWidth: _items.length * 80),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: _items
@@ -474,7 +481,8 @@ class _ProfileInfoRow extends StatelessWidget {
                 _launchUrl(item.link);
               },
               child: Center(
-                child: Icon(socialMediaIcons[item.title], size: 40,  color: Color.fromARGB(255, 91, 79, 158)),
+                child: Icon(socialMediaIcons[item.title],
+                    size: 40, color: Color.fromARGB(255, 91, 79, 158)),
               ),
             ),
           ));
