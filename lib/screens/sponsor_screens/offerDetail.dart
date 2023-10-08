@@ -1,9 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:expansion_tile_card/expansion_tile_card.dart';
-import 'package:sponsite/screens/sponsor_screens/ViewOffersSponsor.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_webservice/places.dart';
+import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sponsite/screens/view_others_profile.dart';
 import 'package:sponsite/widgets/customAppBarwithNav.dart';
 
@@ -384,7 +382,7 @@ class _Start extends State<offertDetail> {
                                 Container(
                                   decoration: BoxDecoration(
                                     border:
-                                        Border.all(width: 1), // Add a border
+                                        Border.all(width: 1.5), // Add a border
                                     borderRadius: BorderRadius.circular(10.0),
                                   ),
                                   padding: EdgeInsets.all(0),
@@ -393,23 +391,22 @@ class _Start extends State<offertDetail> {
                                         Radius.circular(10.0)),
                                     baseColor:
                                         Color.fromARGB(255, 255, 255, 255),
-                                    expandedColor:
-                                        Color.fromARGB(255, 157, 151, 190),
-                                    title: Text(
+                                    
+                                    title: Center( child: Text(
                                       "Offer Details",
                                       style: TextStyle(
                                         fontSize: 28,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black87,
+                                  
                                       ),
+                                    ),  
                                     ),
                                     children: <Widget>[
                                       Container(
                                         decoration: BoxDecoration(
                                           borderRadius: const BorderRadius.all(
-                                              Radius.circular(10.0)),
-                                          color: Color.fromARGB(
-                                              255, 157, 151, 190),
+                                              Radius.circular(10.0)), 
                                         ),
                                         padding: EdgeInsets.all(12.0),
                                         alignment: Alignment.bottomLeft,
@@ -417,6 +414,8 @@ class _Start extends State<offertDetail> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
+                                            Row(
+                                              children: [
                                             const Text(
                                               "Categories",
                                               style: TextStyle(
@@ -447,7 +446,11 @@ class _Start extends State<offertDetail> {
                                                 );
                                               }).toList(),
                                             ),
-                                            const SizedBox(width: 20),
+                                              ],
+                                              ),
+                                            const SizedBox(height: 20),
+                                            Row(
+                                              children:[
                                             const Text(
                                               "Notes",
                                               style: TextStyle(
@@ -466,7 +469,11 @@ class _Start extends State<offertDetail> {
                                                 color: Colors.black87,
                                               ),
                                             ),
-                                            const SizedBox(width: 20),
+                                            ],
+                                            ),
+                                            const SizedBox(height: 23),
+                                            Row(
+                                              children: [
                                             const Text(
                                               "Offer Status",
                                               style: TextStyle(
@@ -475,7 +482,7 @@ class _Start extends State<offertDetail> {
                                                 color: Colors.black87,
                                               ),
                                             ),
-                                            const SizedBox(width: 20),
+                                            const SizedBox(width: 23),
                                             Container(
                                               decoration: BoxDecoration(
                                                 border: Border.all(
@@ -500,6 +507,8 @@ class _Start extends State<offertDetail> {
                                                 ),
                                               ),
                                             ),
+                                              ],
+                                            ),  
                                             const SizedBox(width: 10),
                                           ],
                                         ),
@@ -553,3 +562,4 @@ class _Start extends State<offertDetail> {
     );
   }
 }
+  

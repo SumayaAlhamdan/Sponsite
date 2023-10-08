@@ -127,11 +127,12 @@ class _googleCalendarState extends State<googleCalendar> {
                 monthViewSettings: const MonthViewSettings(
                   appointmentDisplayMode:
                       MonthAppointmentDisplayMode.appointment,
-                       showAgenda: true,
+                       showAgenda: true,      
                             agendaViewHeight: 180,  
-                            monthCellStyle: MonthCellStyle(), 
-
-                ),      
+                            monthCellStyle: MonthCellStyle(
+                            ), 
+                             agendaItemHeight: 40,      
+                ),        
                  showNavigationArrow: true,
                           todayHighlightColor: Color.fromARGB(255, 51, 45, 81), 
                           appointmentBuilder: (BuildContext context, CalendarAppointmentDetails details) {
@@ -143,23 +144,23 @@ class _googleCalendarState extends State<googleCalendar> {
                       // Handle the appointment click here
                       _showEventDetails(event); 
                     },
+
                     child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
-        child: Container(
-          height: 30,   
-          color: eventColor,  
+        child: Container( 
+          color: eventColor,    
           child: Padding(
             padding: const EdgeInsets.all(8.0), // Adjust the padding as needed
-            child: Text(
+            child: Text(  
               event.summary ?? 'No title',
               style: TextStyle(fontSize: 13, color: Colors.white),
-              maxLines: 2,  
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+              maxLines: 4,  
+              // overflow: TextOverflow.ellipsis,
+            ),  
+
         ),
                   ),
-                        
+                      ),    
               );
         }),
               if (!snapshot.hasData)
@@ -210,73 +211,17 @@ void _showEventDetails(GoogleAPI.Event event) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
+        title: Text('Event Details', style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold)),
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(height: 12),
-            Center(
-              child: Text(
-                '${event.summary ?? 'No title'}',
-                style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
-              ),
-            ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                Text(
-                  'Description: ',
-                  style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  ' ${event.description ?? 'No description'}',
-                  style: TextStyle(fontSize: 21),
-                ),
-              ],
-            ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                Text(
-                  'Start Date and Time: ',
-                  style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  formatDateAndTime(event.start),
-                  style: TextStyle(fontSize: 21),
-                ),
-              ],
-            ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                Text(
-                  'End Date and Time: ',
-                  style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  formatDateAndTime(event.end),
-                  style: TextStyle(fontSize: 21),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Text(
-                  'Guests: ',
-                  style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: event.attendees?.map((attendee) {
-                    return Text(attendee.email ?? 'No email', style: TextStyle(fontSize: 21));
-                  }).toList() ??
-                      [],
-                ),
-              ],
-            ),
-            Divider(),
-          ],  
+            _buildDetailRow('Title:', event.summary ?? 'No title'),
+            _buildDetailRow('Description:', event.description ?? 'No description'),
+            _buildDetailRow('Start Date and Time:', formatDateAndTime(event.start)),
+            _buildDetailRow('End Date and Time:', formatDateAndTime(event.end)),
+            _buildGuestsList('Guests:', event.attendees),
+          ],
         ),
         actions: [
           TextButton(
@@ -287,9 +232,48 @@ void _showEventDetails(GoogleAPI.Event event) {
           ),
         ],
       );
-    },
+    },  
+  );
+
+}
+Widget _buildDetailRow(String label, String value) {
+   if (value == null || value.isEmpty) {
+    return SizedBox.shrink(); // Return an empty SizedBox if value is null or empty
+  }
+
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 8.0),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(fontSize: 18),
+          ),
+        ),
+      ],
+    ),
   );
 }
+
+
+Widget _buildGuestsList(String label, List<GoogleAPI.EventAttendee>? attendees) {
+  if (attendees == null || attendees.isEmpty) {
+    return _buildDetailRow(label, 'No guests');
+  }
+  
+  final guestEmails = attendees.map((attendee) => attendee.email ?? 'No email').join(', ');
+
+  return _buildDetailRow(label, guestEmails);
+
+} 
+
 
   String formatDateAndTime(GoogleAPI.EventDateTime? eventDateTime) {
   if (eventDateTime == null || eventDateTime.dateTime == null) {
@@ -361,3 +345,4 @@ class GoogleAPIClient extends IOClient {
       super.head(url,
           headers: (headers != null ? (headers..addAll(_headers)) : headers));
 } 
+      
