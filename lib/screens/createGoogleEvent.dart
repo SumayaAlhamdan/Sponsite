@@ -6,8 +6,9 @@ import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:sponsite/widgets/customAppBarwithNav.dart';
 
-  
+
 class createEvent extends StatefulWidget {
   
   @override
@@ -498,50 +499,21 @@ TextSpan _buildClickableTextSpan(String text, String link) {
         );
       }).toList(),
     );
-  }
+  } 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+       appBar: PreferredSize(
+        preferredSize: Size.fromHeight(105), // Adjust the height as needed
+        child: CustomAppBar(  
+          title: 'Create Google Calendar Event',
+        ),  
+      ),      
       body: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Container(
-  decoration: const BoxDecoration(
-    color: Color.fromARGB(255, 51, 45, 81),
-    borderRadius: BorderRadius.only(
-      bottomLeft: Radius.circular(20),
-      bottomRight: Radius.circular(20),
-    ),
-  ),  
-  height: 95,   
-  padding: const EdgeInsets.fromLTRB(16, 0, 0, 0), // Adjust the padding as needed
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.start,
-    children: [
-      IconButton(
-        icon: const Icon(Icons.arrow_back),
-        alignment: Alignment.topLeft,
-        iconSize: 35, 
-        color: Colors.white,
-        onPressed: () {
-          Navigator.of(context).pop();
-        },          
-      ),          
-      const SizedBox(width: 140),
-      const Text(
-        "Create Google Calendar Event",
-        style: TextStyle(
-          fontWeight: FontWeight.w500,
-          fontSize: 30 ,
-          color: Colors.white
-        ),
-        textAlign: TextAlign.center,
-      ),// Adjust the spacing as needed
-    ],
-  ),
-),
 const SizedBox(height: 40), 
 Container(  
   width: 200, // Set the width of the container
