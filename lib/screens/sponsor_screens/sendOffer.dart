@@ -1001,6 +1001,7 @@ class _sendOfferState extends State<sendOffer> {
 
     final Map<String, dynamic> data = {
       'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+      'notif_type' : 'offer'
       // Add any additional data you want to send
     };
 

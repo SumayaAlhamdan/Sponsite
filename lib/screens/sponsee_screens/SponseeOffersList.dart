@@ -774,6 +774,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
 
     final Map<String, dynamic> data = {
       'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+      'notif_type': 'status'
       // Add any additional data you want to send
     };
 
