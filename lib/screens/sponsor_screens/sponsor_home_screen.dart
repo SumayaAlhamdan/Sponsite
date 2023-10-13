@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
+import 'package:sponsite/screens/sponsor_screens/filter.dart';
 import 'package:sponsite/screens/sponsor_screens/sendOffer.dart';
 import 'package:sponsite/screens/view_others_profile.dart';
 
@@ -386,7 +387,11 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                             icon: const Icon(Icons.filter_list,
                                 color: Colors.grey), // Customize the icon
                             onPressed: () {
-                              // Add your filter functionality here
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => FilterPage()),
+                              );
                             },
                           ),
                         ),
