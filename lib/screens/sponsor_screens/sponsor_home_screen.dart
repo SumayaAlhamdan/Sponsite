@@ -9,6 +9,7 @@ import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
 import 'package:sponsite/screens/sponsor_screens/filter.dart';
 import 'package:sponsite/screens/sponsor_screens/sendOffer.dart';
 import 'package:sponsite/screens/view_others_profile.dart';
+import 'package:sponsite/widgets/sponsor_botton_navbar.dart';
 
 String? sponsorID;
 
@@ -104,6 +105,8 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
   TextEditingController searchController = TextEditingController();
   List<Event> searchedEvents = []; // List to store searched events
   bool isSearched = false;
+  String originalSearchText =
+      ''; // Create a variable to store the original search text
 
   void _searchEventsByName(String eventName) {
     // Filter events based on event name
@@ -135,6 +138,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
     setUpPushNotifications();
     _loadEventsFromFirebase();
     searchController = TextEditingController();
+    isSearched = false;
   }
 
   void _loadEventsFromFirebase() async {
@@ -294,28 +298,41 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                       ),
                       child: Row(
                         children: [
-                          Expanded(
-                            child: TextField(
-                              controller: searchController,
-                              style: TextStyle(color: Colors.white),
-                              decoration: InputDecoration(
-                                hintText: 'Search for an event',
-                                hintStyle: TextStyle(color: Colors.grey),
-                                border: InputBorder.none,
-                              ),
-                            ),
-                          ),
-                          // Icon(Icons.search, color: Colors.grey),
                           IconButton(
                             icon: Icon(Icons.search, color: Colors.grey),
                             onPressed: () {
                               // When the search button is pressed, filter events by event name
                               final eventName = searchController.text;
                               _searchEventsByName(eventName);
+                              originalSearchText = eventName;
+
                               // You can now display filteredEvents in your UI
                               setState(() {});
                             },
                           ),
+                          Expanded(
+                            child: TextField(
+                                controller: searchController,
+                                style: TextStyle(color: Colors.white),
+                                decoration: InputDecoration(
+                                  hintText: 'Search for an event',
+                                  hintStyle: TextStyle(color: Colors.grey),
+                                  border: InputBorder.none,
+                                ),
+                                onChanged: (text) {
+                                  setState(() {
+                                    // Show or hide the cancel button based on whether there's text in the TextField
+                                  });
+                                }),
+                          ),
+                          if (searchController.text.isNotEmpty)
+                            IconButton(
+                              icon: Icon(Icons.cancel, color: Colors.grey),
+                              onPressed: () {
+                                searchController.clear();
+                                setState(() {});
+                              },
+                            ),
                         ],
                       ),
                     ),
@@ -349,36 +366,47 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                 Column(
                   children: [
                     const SizedBox(height: 20),
-                    if (isSearched == false)
-                      CarouselSlider(
-                        items: promoCards,
-                        options: CarouselOptions(
-                          height:
-                              170, // You can adjust this value to control the height
-                          aspectRatio:
-                              1.7, // Set your desired aspect ratio for width and height
-                          autoPlay: true,
-                          enlargeCenterPage: true,
-                          autoPlayInterval: const Duration(seconds: 3),
-                        ),
+                    // if (isSearched == false)
+                    CarouselSlider(
+                      items: promoCards,
+                      options: CarouselOptions(
+                        height:
+                            170, // You can adjust this value to control the height
+                        aspectRatio:
+                            1.7, // Set your desired aspect ratio for width and height
+                        autoPlay: true,
+                        enlargeCenterPage: true,
+                        autoPlayInterval: const Duration(seconds: 3),
                       ),
+                    ),
                     const SizedBox(height: 80),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Padding(
-                          padding: EdgeInsets.only(
-                              left: 16), // Add left padding to the title
-                          child: Text(
-                            "Recent Events",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 30,
-                              color: Color.fromARGB(
-                                  255, 91, 79, 158), // Changed to purple
+                        if (originalSearchText.isEmpty)
+                          Padding(
+                            padding: EdgeInsets.only(left: 16),
+                            child: Text(
+                              "Recent Events",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 30,
+                                color: Color.fromARGB(255, 91, 79, 158),
+                              ),
+                            ),
+                          )
+                        else
+                          Padding(
+                            padding: EdgeInsets.only(left: 16),
+                            child: Text(
+                              "Search results for \"${originalSearchText}\" ",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 30,
+                                color: Color.fromARGB(255, 91, 79, 158),
+                              ),
                             ),
                           ),
-                        ), // Add a comma here
                         Positioned(
                           top: kToolbarHeight +
                               40, // Adjust the top position as needed
@@ -428,9 +456,37 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
               children: [
                 if (isSearched == true && searchedEvents.isEmpty)
                   Center(
-                    child: Text(
-                      "No results match your search",
-                      style: TextStyle(fontSize: 20, color: Colors.grey),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 150,
+                        ),
+                        Text(
+                          "No results match your search",
+                          style: TextStyle(
+                              fontSize: 25,
+                              color: Color.fromARGB(255, 0, 0, 0)),
+                        ),
+                        TextButton(
+                          child: Text("Go Back",
+                              style: TextStyle(
+                                  fontSize: 23,
+                                  decoration: TextDecoration.underline)),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Stack(
+                                  children: [
+                                    SponsorHomePage(),
+                                    SponsorBottomNavBar()
+                                  ],
+                                ), // Replace with your Recent Events page widget
+                              ),
+                            );
+                          },
+                        )
+                      ],
                     ),
                   ),
                 if (isSearched == false || searchedEvents.isNotEmpty)
