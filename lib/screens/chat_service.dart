@@ -1,7 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
-
+import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -245,7 +246,7 @@ class ChatService extends ChangeNotifier {
             Map<dynamic, dynamic>? dataMap = dataSnapshot.value as Map?;
 
             if (dataMap != null) {
-              dataMap.forEach((key, value) {
+              dataMap.forEach((key, value) async {
                 if (value is Map<dynamic, dynamic>) {
                   final typeString = value['type'] as String;
 
@@ -284,6 +285,10 @@ class ChatService extends ChangeNotifier {
                     'type': typeString, // Store type as a string
                     'data': data,
                   });
+                  final recieverToken = await _retrieverecieverToken(receiverID);
+        if (recieverToken != null) {
+            sendNotificationToreciever1(recieverToken);
+        }
                 }
               });
             }
@@ -340,5 +345,63 @@ class ChatService extends ChangeNotifier {
         );
       }
     }
+  }
+  Future<void> sendNotificationToreciever1(String recieverToken) async {
+    final String serverKey =
+        'AAAAw5lT-Yg:APA91bE4EbR1XYHUoMl-qZYAFVsrtCtcznSsh7RSCSZ-yJKR2_bdX8f9bIaQgDrZlEaEaYQlEpsdN6B6ccEj5qStijSCDN_i0szRxhap-vD8fINcJAA-nK11z7WPzdZ53EhbYF5cp-ql'; //
+    final String fcmUrl = 'https://fcm.googleapis.com/fcm/send';
+
+    final Map<String, dynamic> notification = {
+      'body': 'You got a bew message from',
+      'title': 'Status update',
+      'sound': 'default',
+    };
+
+    final Map<String, dynamic> data = {
+      'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+      'notif_type': 'status'
+      // Add any additional data you want to send
+    };
+
+    final Map<String, dynamic> body = {
+      'notification': notification,
+      'data': data,
+      'to': recieverToken, // The FCM token of the service provider
+    };
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'key=$serverKey',
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(fcmUrl),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        print('Notification sent successfully.');
+      } else {
+        print(
+            'Error sending notification. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error sending notification: $e');
+    }
+  }
+   Future<String?> _retrieverecieverToken(String id) async {
+    final DatabaseReference databaseReference =
+        FirebaseDatabase.instance.reference();
+    final DataSnapshot dataSnapshot =
+        (await databaseReference.child('userTokens').child(id).once()).snapshot;
+    final Map<dynamic, dynamic>? data =
+        dataSnapshot.value as Map<dynamic, dynamic>?;
+    if (data != null && data.containsKey('token')) {
+      return data['token'].toString();
+    }
+
+    return null;
   }
 }

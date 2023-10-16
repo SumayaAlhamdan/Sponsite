@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:intl/intl.dart';
 import 'package:sponsite/eventDetail.dart';
 import 'package:sponsite/screens/sponsee_screens/SponseeOffersList.dart';
 import 'package:sponsite/widgets/customAppBar.dart';
@@ -331,7 +332,66 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
       );  
   }
 
-  Widget _buildCurrentEventsPage() {  
+  Widget _buildCurrentEventsPage() {
+  DateTime parseEventDateAndTime(String date, String time) {
+  final dateTimeString = '$date $time';
+  final format = DateFormat('yyyy-MM-dd hh:mm a');
+  return format.parse(dateTimeString);
+}
+
+  final now = DateTime.now();
+  print(now);
+final filteredEvents = events.where((event) {
+  final eventDateTime = parseEventDateAndTime(event.startDate, event.startTime);
+  return eventDateTime.isAfter(now);
+}).toList();
+
+  return Padding(
+    padding: const EdgeInsets.only(top: 1),
+    child: Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 50.0),
+        ),
+        Expanded(
+          child: Scrollbar(
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const BouncingScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.9,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+              ),
+              itemCount: filteredEvents.length,
+              itemBuilder: (BuildContext context, int index) {
+                Event event = filteredEvents[index];
+                return listItem(event: event);
+              },
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildPastEventsPage() {
+  DateTime parseEventDateAndTime(String date, String time) {
+  final dateTimeString = '$date $time';
+  final format = DateFormat('yyyy-MM-dd hh:mm a');
+  print(format.parse(dateTimeString));
+  return format.parse(dateTimeString);
+}
+
+  final now = DateTime.now();
+final filteredEvents = events.where((event) {
+  final eventDateTime = parseEventDateAndTime(event.startDate, event.startTime);
+  return eventDateTime.isBefore(now);
+}).toList();
+
+  if (filteredEvents.isNotEmpty) {
     return Padding(
       padding: const EdgeInsets.only(top: 1),
       child: Column(
@@ -350,45 +410,43 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                   crossAxisSpacing: 8,
                   mainAxisSpacing: 8,
                 ),
-                itemCount: events.length,
+                itemCount: filteredEvents.length,
                 itemBuilder: (BuildContext context, int index) {
-                  Event event = events[index];
+                  Event event = filteredEvents[index];
                   return listItem(event: event);
                 },
               ),
             ),
           ),
         ],
-      ),
+      )
+    );
+  } else {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 282,
+          height: 284,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/Time.png'),
+              fit: BoxFit.fitWidth,
+            ),
+          ),
+        ),
+        SizedBox(height: 20), // Adjust the spacing as needed
+        Text(
+          'There Are No Past Events Yet',
+          style: TextStyle(
+            fontSize: 24, // Adjust the font size as needed
+          ),
+        ),
+      ],
     );
   }
-
-  Widget _buildPastEventsPage() {
-    return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 282,
-            height: 284,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/Time.png'),
-                fit: BoxFit.fitWidth,
-              ),
-            ),
-          ),
-          SizedBox(height: 20), // Adjust the spacing as needed
-          Text(
-            'There Are No Past Events Yet',
-            style: TextStyle(
-              fontSize: 24, // Adjust the font size as needed
-            ),
-          ),
-        ],
-      );
-  }
-}
+}}
 
 class Event {
   final String EventName;
