@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sponsite/widgets/user_image_picker.dart';
@@ -30,13 +31,20 @@ class _SponseeProfileState extends State<SponseeProfile> {
   final TextEditingController _fileController =
       TextEditingController(text: 'No file selected');
   final TextEditingController _emailController = TextEditingController();
-   final TextEditingController _bioController = TextEditingController();
+  final TextEditingController _bioController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _linkController = TextEditingController();
+  final TextEditingController _urlTitleController = TextEditingController();
+  final TextEditingController _currentpasswordController =
+      TextEditingController();
+  final TextEditingController _newpasswordController = TextEditingController();
   final DatabaseReference dbref = FirebaseDatabase.instance.reference();
   final _firebase = FirebaseAuth.instance;
   bool weakPass = false;
   bool emailUsed = false;
   bool invalidEmail = false;
+  bool wrongpass = false;
+  bool addLink=false;
   void _toggleObscured() {
     setState(() {
       _obscured = !_obscured;
@@ -95,9 +103,9 @@ class _SponseeProfileState extends State<SponseeProfile> {
             // Add other fields as needed
           );
           _nameController.text = sponsee.name;
-          _emailController.text=sponsee.email;
-          _bioController.text=sponsee.bio;
-          
+          _emailController.text = sponsee.email;
+          _bioController.text = sponsee.bio;
+
           // _emailController.text=sponsee.
           sponseeList.add(sponsee);
           // print(sponseeList);
@@ -325,25 +333,25 @@ class _SponseeProfileState extends State<SponseeProfile> {
                                     ),
                               ),
                             ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: CircleAvatar(
-                                radius: 25,
-                                backgroundColor:
-                                    Color.fromARGB(255, 224, 224, 224),
-                                child: GestureDetector(
-                                  child: const Icon(
-                                    Icons.edit,
-                                    size: 30,
-                                    color: Color.fromARGB(255, 91, 79, 158),
-                                  ),
-                                  onTap: () {
-                                    showModalBottomSheet(
-                                        context: context, builder: buildSheet);
-                                  },
-                                )),
-                          ),
+                          // Positioned(
+                          //   bottom: 0,
+                          //   right: 0,
+                          //   child: CircleAvatar(
+                          //       radius: 25,
+                          //       backgroundColor:
+                          //           Color.fromARGB(255, 224, 224, 224),
+                          //       child: GestureDetector(
+                          //         child: const Icon(
+                          //           Icons.edit,
+                          //           size: 30,
+                          //           color: Color.fromARGB(255, 91, 79, 158),
+                          //         ),
+                          //         onTap: () {
+                          //           showModalBottomSheet(
+                          //               context: context, builder: buildSheet);
+                          //         },
+                          //       )),
+                          // ),
                         ],
                       ),
                     ),
@@ -357,13 +365,34 @@ class _SponseeProfileState extends State<SponseeProfile> {
               child: Column(
                 children: [
                   if (sponseeList.isNotEmpty)
-                    Text(
-                      sponseeList.first.name,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontWeight: FontWeight.bold, fontSize: 40),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          sponseeList.first.name,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
+                              ?.copyWith(
+                                  fontWeight: FontWeight.bold, fontSize: 40),
+                        ),
+                        CircleAvatar(
+                            radius: 25,
+                            backgroundColor: Color.fromARGB(255, 244, 244, 244),
+                            child: GestureDetector(
+                              child: const Icon(
+                                Icons.edit,
+                                size: 30,
+                                color: Color.fromARGB(255, 91, 79, 158),
+                              ),
+                              onTap: () {
+                                showModalBottomSheet(
+                                    context: context, builder: buildSheet);
+                              },
+                            )),
+                      ],
                     ),
+
                   // const _ProfileInfoRow(),
                   if (sponseeList.isNotEmpty)
                     SizedBox(
@@ -419,27 +448,273 @@ class _SponseeProfileState extends State<SponseeProfile> {
       ),
     );
   }
-  
+
+  void _changePassword(String currentPassword, String newPassword) async {
+    final user = await FirebaseAuth.instance.currentUser;
+    final cred = EmailAuthProvider.credential(
+        email: sponseeList.first.email, password: currentPassword);
+
+    user!.reauthenticateWithCredential(cred).then((value) {
+      user.updatePassword(newPassword).then((_) {
+        //Success, do something
+        Navigator.pop(context);
+        showDialog(
+          context: context,
+          builder: (context) {
+            Future.delayed(const Duration(seconds: 3), () {
+              Navigator.of(context).pop(true);
+            });
+            return Theme(
+              data: Theme.of(context)
+                  .copyWith(dialogBackgroundColor: Colors.white),
+              child: AlertDialog(
+                backgroundColor: Colors.white,
+                shape: BeveledRectangleBorder(
+                    borderRadius: BorderRadius.circular(2)),
+                content: const Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      color: Color.fromARGB(255, 91, 79, 158),
+                      size: 48,
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Password changed successfully!',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      }).catchError((error) {
+        //Error, show something
+        setState(() {
+          weakPass = true;
+        });
+        return;
+      });
+    }).catchError((err) {
+      setState(() {
+        wrongpass = true;
+      });
+      return;
+    });
+  }
+
   Widget buildSheet2(context) {
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        AppBar(
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
-          title: Text('Edit profile'),
-          centerTitle: true,
-          leading: TextButton(
-              onPressed: () => Navigator.pop(context), child: Text('Cancel')),
-          leadingWidth: 100,
-          actions: [
-            TextButton(onPressed: () => save(), child: Text(' Save ')),
-            SizedBox(
-              width: 10,
+    return Column(mainAxisSize: MainAxisSize.max, children: [
+      AppBar(
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+        title: Text('Change password'),
+        centerTitle: true,
+        leading: TextButton(
+            onPressed: () => Navigator.pop(context), child: Text('Cancel')),
+        leadingWidth: 100,
+        actions: [
+          TextButton(
+              onPressed: () => _changePassword(
+                  _currentpasswordController.text.trim(),
+                  _newpasswordController.text.trim()),
+              child: Text(' Save ')),
+          SizedBox(
+            width: 10,
+          ),
+        ],
+      ),
+      SizedBox(
+        height: 60,
+      ),
+      SizedBox(
+        width: MediaQuery.of(context).size.width * 0.6, // Set the desired width
+        child: TextFormField(
+          controller: _currentpasswordController,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          decoration: InputDecoration(
+            border: const OutlineInputBorder(),
+            labelText: 'Current Password',
+            prefixIcon: const Icon(Icons.lock_rounded, size: 24),
+            suffixIcon: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+              child: GestureDetector(
+                onTap: _toggleObscured,
+                child: Icon(
+                  _obscured
+                      ? Icons.visibility_off_rounded
+                      : Icons.visibility_rounded,
+                  size: 24,
+                ),
+              ),
             ),
-          ],
+          ),
+          obscureText: _obscured,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Please enter password';
+            }
+            return null;
+          },
         ),
-      ]);}
+      ),
+      SizedBox(
+        height: 20,
+      ),
+      SizedBox(
+        width: MediaQuery.of(context).size.width * 0.6, // Set the desired width
+        child: TextFormField(
+          controller: _newpasswordController,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          decoration: InputDecoration(
+            border: const OutlineInputBorder(),
+            labelText: 'New Password',
+            prefixIcon: const Icon(Icons.lock_rounded, size: 24),
+            suffixIcon: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+              child: GestureDetector(
+                onTap: _toggleObscured,
+                child: Icon(
+                  _obscured
+                      ? Icons.visibility_off_rounded
+                      : Icons.visibility_rounded,
+                  size: 24,
+                ),
+              ),
+            ),
+          ),
+          obscureText: _obscured,
+          inputFormatters: [
+            FilteringTextInputFormatter.deny(RegExp(r'[\s]')),
+            LengthLimitingTextInputFormatter(15),
+          ],
+          validator: (value) {
+            if (value!.isEmpty) {
+              return 'Please enter your password';
+            }
+            value = value.trim();
+            if (value.length < 6 || value.length > 15) {
+              return 'Password must between 6 and 15 characters';
+            }
+            if (weakPass) {
+              return 'The password provided is too weak';
+            }
+
+            return null;
+          },
+        ),
+      ),
+    ]);
+  }
+
+  Widget buildSheet3(context) {
+    return Column(mainAxisSize: MainAxisSize.max, children: [
+      AppBar(
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+        title: Text('Social Media Accounts'),
+        centerTitle: true,
+        leading: TextButton(
+            onPressed: () => Navigator.pop(context), child: Text('Cancel')),
+        leadingWidth: 100,
+        actions: [
+          TextButton(onPressed: () => (), child: Text(' Save ')),
+          SizedBox(
+            width: 10,
+          ),
+        ],
+      ),
+      SizedBox(
+        height: 60,
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            children: [
+              //if (_items.indexOf(item) != 0)
+              CircleAvatar(
+                  radius: 30,
+                  child: Material(
+                    shape: const CircleBorder(),
+                    clipBehavior: Clip.hardEdge,
+                    color: Color.fromARGB(255, 244, 244, 244),
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          addLink=true;
+                        });
+                        print('hioii');
+                      },
+                      child: Center(
+                        child: Icon(
+                          Icons.add,
+                          size: 40,
+                          color: Color.fromARGB(255, 91, 79, 158),
+                        ),
+                      ),
+                    ),
+                  )),
+
+              SizedBox(
+                width: 50,
+              ),
+              Text(
+                'Add Link                                ',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+
+              // SizedBox(width: 50,)
+            ],
+          ),
+        ],
+      ),
+      if(addLink)
+        SizedBox(
+                    width: MediaQuery.of(context).size.width *
+                        0.6, // Set the desired width
+                    child: TextFormField(
+                      // initialValue: sponseeList.,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      controller: _linkController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'URL',
+                        prefixIcon: Icon(Icons.link, size: 24),
+                      ),
+                      // inputFormatters: [
+                      //   FilteringTextInputFormatter(
+                      //       RegExp(r'^[A-Za-z0-9\s]+$'),
+                      //       allow: true)
+                      // ],
+                      validator: (value) {
+                        if (!RegExp( r'^(https?|ftp)://[^\s/$.?#].[^\s]*$')
+                                .hasMatch(value!) ||
+                            value.isEmpty) {
+                          return "Please enter a valid URL";
+                        }
+                        // if (value.length > 30) {
+                        //   return 'Name should not exceed 30 characters';
+                        // }
+                        return null;
+                      },
+                    ),
+                  ),
+      Divider(
+        indent: 100,
+        endIndent: 100,
+      ),
+      _ProfileInfoCol(sponseeList.first.social, sponseeID)
+    ]);
+  }
 
   Widget buildSheet(context) {
     return Column(
@@ -480,13 +755,13 @@ class _SponseeProfileState extends State<SponseeProfile> {
                   SizedBox(
                     height: 10,
                   ),
-                    Text(
-                      sponseeList.first.email,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontWeight: FontWeight.bold, fontSize: 20),
-                    ),
+                  Text(
+                    sponseeList.first.email,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
                   //if (sponseeList.isNotEmpty)
                   SizedBox(
                     height: 10,
@@ -522,7 +797,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
                     ),
                   ),
                   //const SizedBox(height: 25.0),
-                
+
                   // SizedBox(
                   //   width: MediaQuery.of(context).size.width *
                   //       0.6, // Set the desired width
@@ -561,16 +836,16 @@ class _SponseeProfileState extends State<SponseeProfile> {
                   //   ),
                   // ),
                   const SizedBox(height: 25.0),
-                   SizedBox(
+                  SizedBox(
                     width: MediaQuery.of(context).size.width *
                         0.6, // Set the desired width
                     child: TextFormField(
                       // initialValue: sponseeList.,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       controller: _bioController,
-                     // expands: true,
-                     maxLines: null,
-                     minLines: null,
+                      // expands: true,
+                      maxLines: null,
+                      minLines: null,
                       maxLength: 160,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
@@ -593,160 +868,193 @@ class _SponseeProfileState extends State<SponseeProfile> {
                         // }
                         return null;
                       },
-                      
                     ),
                   ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width *
-                        0.6, // Set the desired width
-                    child: TextFormField(
-                      controller: _passwordController,
-                      readOnly: true,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        labelText: 'Change Password',
-                        prefixIcon: const Icon(Icons.lock_rounded, size: 24),
-                        suffixIcon: Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
-                          child: GestureDetector(
-                            onTap:() {
-                               showModalBottomSheet(
-                                        context: context, builder: buildSheet2);
-                            },
-                            child: const Icon(
-                              Icons.arrow_forward,
-                              // _obscured
-                              //     ? Icons.visibility_off_rounded
-                              //     : Icons.visibility_rounded,
-                              size: 24,
-                            ),
-                          ),
-                        ),
+                  // SizedBox(
+                  //   width: MediaQuery.of(context).size.width *
+                  //       0.6, // Set the desired width
+                  //   child: TextFormField(
+                  //     controller: _passwordController,
+                  //     readOnly: true,
+                  //     autovalidateMode: AutovalidateMode.onUserInteraction,
+                  //     decoration: InputDecoration(
+                  //       border: const OutlineInputBorder(),
+                  //       labelText: 'Change Password',
+                  //       prefixIcon: const Icon(Icons.lock_rounded, size: 24),
+                  //       suffixIcon: Padding(
+                  //         padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                  //         child: GestureDetector(
+                  //           onTap: () {
+                  //             showModalBottomSheet(
+                  //                 context: context, builder: buildSheet2);
+                  //           },
+                  //           child: const Icon(
+                  //             Icons.arrow_forward,
+                  //             // _obscured
+                  //             //     ? Icons.visibility_off_rounded
+                  //             //     : Icons.visibility_rounded,
+                  //             size: 24,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //     obscureText: _obscured,
+                  //     inputFormatters: [
+                  //       FilteringTextInputFormatter.deny(RegExp(r'[\s]')),
+                  //       LengthLimitingTextInputFormatter(15),
+                  //     ],
+                  //     validator: (value) {
+                  //       if (value!.contains(' ')) {
+                  //         return 'Please enter a valid password';
+                  //       }
+                  //       if (value.isEmpty) {
+                  //         return 'Please enter your password';
+                  //       }
+
+                  //       if (value.length < 6 || value.length > 15) {
+                  //         return 'Password must between 6 and 15 characters';
+                  //       }
+                  //       if (weakPass) {
+                  //         return 'The password provided is too weak';
+                  //       }
+
+                  //       return null;
+                  //     },
+                  //   ),
+                  // ),
+                  //  SizedBox(
+                  //   width: MediaQuery.of(context).size.width *
+                  //       0.6, // Set the desired width
+                  //   child: TextFormField(
+                  //     // initialValue: sponseeList.,
+                  //     autovalidateMode: AutovalidateMode.onUserInteraction,
+                  //     controller: _nameController,
+                  //     decoration: const InputDecoration(
+                  //       border: OutlineInputBorder(),
+                  //       labelText: 'Name',
+                  //       prefixIcon: Icon(Icons.person, size: 24),
+                  //     ),
+                  //     // inputFormatters: [
+                  //     //   FilteringTextInputFormatter(
+                  //     //       RegExp(r'^[A-Za-z0-9\s]+$'),
+                  //     //       allow: true)
+                  //     // ],
+                  //     validator: (value) {
+                  //       if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
+                  //               .hasMatch(value!) ||
+                  //           value.isEmpty) {
+                  //         return "Please enter a valid name with no special characters";
+                  //       }
+                  //       if (value.length > 30) {
+                  //         return 'Name should not exceed 30 characters';
+                  //       }
+                  //       return null;
+                  //     },
+                  //   ),
+                  // ),
+                  //  SizedBox(
+                  //   width: MediaQuery.of(context).size.width *
+                  //       0.6, // Set the desired width
+                  //   child: TextFormField(
+                  //     // initialValue: sponseeList.,
+                  //     autovalidateMode: AutovalidateMode.onUserInteraction,
+                  //     controller: _nameController,
+                  //     decoration: const InputDecoration(
+                  //       border: OutlineInputBorder(),
+                  //       labelText: 'Name',
+                  //       prefixIcon: Icon(Icons.person, size: 24),
+                  //     ),
+                  //     // inputFormatters: [
+                  //     //   FilteringTextInputFormatter(
+                  //     //       RegExp(r'^[A-Za-z0-9\s]+$'),
+                  //     //       allow: true)
+                  //     // ],
+                  //     validator: (value) {
+                  //       if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
+                  //               .hasMatch(value!) ||
+                  //           value.isEmpty) {
+                  //         return "Please enter a valid name with no special characters";
+                  //       }
+                  //       if (value.length > 30) {
+                  //         return 'Name should not exceed 30 characters';
+                  //       }
+                  //       return null;
+                  //     },
+                  //   ),
+                  // ),
+                  //  SizedBox(
+                  //   width: MediaQuery.of(context).size.width *
+                  //       0.6, // Set the desired width
+                  //   child: TextFormField(
+                  //     // initialValue: sponseeList.,
+                  //     autovalidateMode: AutovalidateMode.onUserInteraction,
+                  //     controller: _nameController,
+                  //     decoration: const InputDecoration(
+                  //       border: OutlineInputBorder(),
+                  //       labelText: 'Name',
+                  //       prefixIcon: Icon(Icons.person, size: 24),
+                  //     ),
+                  //     // inputFormatters: [
+                  //     //   FilteringTextInputFormatter(
+                  //     //       RegExp(r'^[A-Za-z0-9\s]+$'),
+                  //     //       allow: true)
+                  //     // ],
+                  //     validator: (value) {
+                  //       if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
+                  //               .hasMatch(value!) ||
+                  //           value.isEmpty) {
+                  //         return "Please enter a valid name with no special characters";
+                  //       }
+                  //       if (value.length > 30) {
+                  //         return 'Name should not exceed 30 characters';
+                  //       }
+                  //       return null;
+                  //     },
+                  //   ),
+                  // ),
+                  const SizedBox(height: 25.0),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 91, 79, 158),
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
                       ),
-                      obscureText: _obscured,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.deny(RegExp(r'[\s]')),
-                        LengthLimitingTextInputFormatter(15),
-                      ],
-                      validator: (value) {
-                        if (value!.contains(' ')) {
-                          return 'Please enter a valid password';
-                        }
-                        if (value.isEmpty) {
-                          return 'Please enter your password';
-                        }
-
-                        if (value.length < 6 || value.length > 15) {
-                          return 'Password must between 6 and 15 characters';
-                        }
-                        if (weakPass) {
-                          return 'The password provided is too weak';
-                        }
-
-                        return null;
-                      },
+                    ),
+                    onPressed: () {
+                      showModalBottomSheet(
+                          context: context, builder: buildSheet2);
+                    },
+                    child: const Text(
+                      "Change Password",
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                  //  SizedBox(
-                  //   width: MediaQuery.of(context).size.width *
-                  //       0.6, // Set the desired width
-                  //   child: TextFormField(
-                  //     // initialValue: sponseeList.,
-                  //     autovalidateMode: AutovalidateMode.onUserInteraction,
-                  //     controller: _nameController,
-                  //     decoration: const InputDecoration(
-                  //       border: OutlineInputBorder(),
-                  //       labelText: 'Name',
-                  //       prefixIcon: Icon(Icons.person, size: 24),
-                  //     ),
-                  //     // inputFormatters: [
-                  //     //   FilteringTextInputFormatter(
-                  //     //       RegExp(r'^[A-Za-z0-9\s]+$'),
-                  //     //       allow: true)
-                  //     // ],
-                  //     validator: (value) {
-                  //       if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
-                  //               .hasMatch(value!) ||
-                  //           value.isEmpty) {
-                  //         return "Please enter a valid name with no special characters";
-                  //       }
-                  //       if (value.length > 30) {
-                  //         return 'Name should not exceed 30 characters';
-                  //       }
-                  //       return null;
-                  //     },
-                  //   ),
-                  // ),
-                  //  SizedBox(
-                  //   width: MediaQuery.of(context).size.width *
-                  //       0.6, // Set the desired width
-                  //   child: TextFormField(
-                  //     // initialValue: sponseeList.,
-                  //     autovalidateMode: AutovalidateMode.onUserInteraction,
-                  //     controller: _nameController,
-                  //     decoration: const InputDecoration(
-                  //       border: OutlineInputBorder(),
-                  //       labelText: 'Name',
-                  //       prefixIcon: Icon(Icons.person, size: 24),
-                  //     ),
-                  //     // inputFormatters: [
-                  //     //   FilteringTextInputFormatter(
-                  //     //       RegExp(r'^[A-Za-z0-9\s]+$'),
-                  //     //       allow: true)
-                  //     // ],
-                  //     validator: (value) {
-                  //       if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
-                  //               .hasMatch(value!) ||
-                  //           value.isEmpty) {
-                  //         return "Please enter a valid name with no special characters";
-                  //       }
-                  //       if (value.length > 30) {
-                  //         return 'Name should not exceed 30 characters';
-                  //       }
-                  //       return null;
-                  //     },
-                  //   ),
-                  // ),
-                  //  SizedBox(
-                  //   width: MediaQuery.of(context).size.width *
-                  //       0.6, // Set the desired width
-                  //   child: TextFormField(
-                  //     // initialValue: sponseeList.,
-                  //     autovalidateMode: AutovalidateMode.onUserInteraction,
-                  //     controller: _nameController,
-                  //     decoration: const InputDecoration(
-                  //       border: OutlineInputBorder(),
-                  //       labelText: 'Name',
-                  //       prefixIcon: Icon(Icons.person, size: 24),
-                  //     ),
-                  //     // inputFormatters: [
-                  //     //   FilteringTextInputFormatter(
-                  //     //       RegExp(r'^[A-Za-z0-9\s]+$'),
-                  //     //       allow: true)
-                  //     // ],
-                  //     validator: (value) {
-                  //       if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
-                  //               .hasMatch(value!) ||
-                  //           value.isEmpty) {
-                  //         return "Please enter a valid name with no special characters";
-                  //       }
-                  //       if (value.length > 30) {
-                  //         return 'Name should not exceed 30 characters';
-                  //       }
-                  //       return null;
-                  //     },
-                  //   ),
-                  // ),
-                    const SizedBox(height: 25.0),
-                  Text(
-                     "Social Media Accounts",
-                     textAlign: TextAlign.left,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontWeight: FontWeight.bold, fontSize: 20),
+
+                  const SizedBox(height: 25.0),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 91, 79, 158),
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                     ),
+                    onPressed: () {
+                      showModalBottomSheet(
+                          context: context, builder: buildSheet3);
+                    },
+                    child: const Text(
+                      "Social Media Accounts",
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ]))
       ],
     );
@@ -769,6 +1077,117 @@ class _SponseeProfileState extends State<SponseeProfile> {
   }
 }
 
+class _ProfileInfoCol extends StatefulWidget {
+  _ProfileInfoCol(List<SocialMediaAccount> this._items, this.id, {Key? key})
+      : super(key: key);
+  final List<SocialMediaAccount> _items;
+  final id;
+  State<_ProfileInfoCol> createState() => _ProfileInfoColState(_items, id);
+}
+
+class _ProfileInfoColState extends State<_ProfileInfoCol> {
+  _ProfileInfoColState(this._items, this.id) {
+    // id=ID;
+    // _items=items;
+  }
+  List<SocialMediaAccount> _items;
+  var id;
+  final Map<String, IconData> socialMediaIcons = {
+    'github': FontAwesomeIcons.github,
+    'twitter': FontAwesomeIcons.twitter,
+    'instagram': FontAwesomeIcons.instagram,
+    'facebook': FontAwesomeIcons.facebook,
+    'linkedin': FontAwesomeIcons.linkedin,
+    'website': FontAwesomeIcons.link,
+    'youtube': FontAwesomeIcons.youtube,
+
+    // Add more social media titles and corresponding icons as needed
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        // height: 100,
+        // color: Colors.amber,
+        // constraints: BoxConstraints(maxWidth: _items.length * 250),
+        children: [
+          Column(
+            // mainAxisAlignment: MainAxisAlignment.end,
+            // crossAxisAlignment: CrossAxisAlignment.center,
+            children: _items
+                .map((item) => Row(
+                      children: [
+                        //if (_items.indexOf(item) != 0)
+                        _singleItem(context, item),
+
+                        SizedBox(
+                          width: 50,
+                        ),
+                        Text(
+                          item.title,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
+                              ?.copyWith(
+                                  fontWeight: FontWeight.bold, fontSize: 20),
+                        ),
+                        SizedBox(
+                          width: 150,
+                        ),
+                        GestureDetector(
+                          child: Icon(Icons.delete),
+                          onTap: () async {
+                            DatabaseReference dbRef = FirebaseDatabase.instance
+                                .ref()
+                                .child('Sponsees')
+                                .child(id!)
+                                .child('Social Media')
+                                .child(item.title);
+                            await dbRef.remove();
+                            setState(() {
+                              _items.remove(item);
+                            });
+                          },
+                        )
+                        // SizedBox(width: 50,)
+                      ],
+                    ))
+                .toList(),
+          ),
+        ]);
+  }
+
+  Widget _singleItem(BuildContext context, SocialMediaAccount item) =>
+      CircleAvatar(
+          radius: 30,
+          child: Material(
+            shape: const CircleBorder(),
+            clipBehavior: Clip.hardEdge,
+            color: Color.fromARGB(255, 244, 244, 244),
+            child: InkWell(
+              onTap: () {
+                _launchUrl(item.link);
+              },
+              child: Center(
+                child: Icon(
+                  socialMediaIcons[item.title],
+                  size: 40,
+                  color: Color.fromARGB(255, 91, 79, 158),
+                ),
+              ),
+            ),
+          ));
+
+  Future<void> _launchUrl(String url) async {
+    final Uri _url = Uri.parse(url);
+
+    if (!await launchUrl(_url)) {
+      throw Exception('Could not launch $_url');
+    }
+  }
+}
+
 class _ProfileInfoRow extends StatelessWidget {
   _ProfileInfoRow(List<SocialMediaAccount> this._items, {Key? key})
       : super(key: key);
@@ -781,7 +1200,9 @@ class _ProfileInfoRow extends StatelessWidget {
     'instagram': FontAwesomeIcons.instagram,
     'facebook': FontAwesomeIcons.facebook,
     'linkedin': FontAwesomeIcons.linkedin,
-    'website': FontAwesomeIcons.paperclip,
+    'website': FontAwesomeIcons.link,
+    'youtube': FontAwesomeIcons.youtube,
+
     // Add more social media titles and corresponding icons as needed
   };
 
