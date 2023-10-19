@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -10,6 +11,7 @@ import 'dart:typed_data';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:geocoding/geocoding.dart' as geocoding;
+import 'package:google_maps_webservice/places.dart' as places;
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -280,6 +282,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String? selectedAddressDescription;
   Set<Marker> markers = {};
   bool showMap = false;
+  String city = '';
 
   GoogleMapsPlaces _places = GoogleMapsPlaces(
     apiKey:
@@ -352,6 +355,7 @@ class _MyHomePageState extends State<MyHomePage> {
     List<String> categ,
     String benefits,
     String notes,
+    String city,
   ) async {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
@@ -378,6 +382,7 @@ class _MyHomePageState extends State<MyHomePage> {
           'img': imageUploadResult,
           'Notes': notes,
           'TimeStamp': timestamp,
+          'City': city,
         });
 
         ///_showSuccessSnackbar(context);
@@ -698,6 +703,27 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 //------------------------------------------------------------------------------
 
+  String coorToCity(LatLng seleclocation) {
+    DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
+    double latitude = seleclocation.latitude;
+    double longitude = seleclocation.longitude;
+    String city = '';
+    placemarkFromCoordinates(latitude, longitude)
+        .then((List<Placemark> placemarks) {
+      if (placemarks.isNotEmpty) {
+        Placemark firstPlacemark = placemarks.first;
+        city = firstPlacemark.locality ?? 'Unknown';
+        DatabaseReference cityRef = databaseReference.child('Cities').push();
+        cityRef.set(city);
+        print(city);
+        return city;
+      }
+    }).catchError((error) {
+      print('Error getting placemarks: $error');
+    });
+    return city;
+  }
+
 //--------------confirmation messages-------------------------------------------
   void _showpostcancel() {
     showDialog(
@@ -824,8 +850,35 @@ class _MyHomePageState extends State<MyHomePage> {
                 List<String> categ = selectedChips;
                 String benefits = benefitsController.text;
                 String notes = notesController.text;
-                _postNewEvent(type, ename, location, startDate, endDate,
-                    startTime, endTime, numOfAt, categ, benefits, notes);
+                DatabaseReference databaseReference =
+                    FirebaseDatabase.instance.ref();
+                double latitude = selectedLocation!.latitude;
+                double longitude = selectedLocation!.longitude;
+                String city = '';
+                placemarkFromCoordinates(latitude, longitude)
+                    .then((List<Placemark> placemarks) {
+                  if (placemarks.isNotEmpty) {
+                    Placemark firstPlacemark = placemarks.first;
+                    city = firstPlacemark.locality ?? 'Unknown';
+                    DatabaseReference cityRef =
+                        databaseReference.child('Cities').push();
+                    cityRef.set(city);
+                    print(city);
+                    _postNewEvent(
+                        type,
+                        ename,
+                        location,
+                        startDate,
+                        endDate,
+                        startTime,
+                        endTime,
+                        numOfAt,
+                        categ,
+                        benefits,
+                        notes,
+                        city);
+                  }
+                });
 
                 Navigator.of(context).pop();
 
@@ -2022,7 +2075,7 @@ class _MyHomePageState extends State<MyHomePage> {
       final response = await _places.autocomplete(
         query,
         strictbounds: false,
-        location: Location(lat: 24.7136, lng: 46.6753),
+        location: places.Location(lat: 24.7136, lng: 46.6753),
         radius: 100000,
       );
       if (response.isOkay && response.predictions.isNotEmpty) {

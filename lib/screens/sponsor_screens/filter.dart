@@ -41,7 +41,7 @@ class Event {
   final String timeStamp;
   String sponseeImage;
   String sponseeName;
-
+  String City;
   Event({
     required this.EventId,
     required this.sponseeId,
@@ -60,6 +60,7 @@ class Event {
     required this.timeStamp,
     required this.sponseeImage,
     required this.sponseeName,
+    required this.City,
   });
 }
 
@@ -105,9 +106,7 @@ class _FilterPageState extends State<FilterPage> {
   int FminAttendees = 0;
   int FmaxAttendees = 999999;
   List<String> FselectedCategories = [];
-  String? latitude; // Added latitude
-  String? longitude;
-
+  List<String> FselectedCities = [];
   void _searchEventsByName(String eventName) {
     // Filter events based on event name
     isSearched = true;
@@ -164,7 +163,7 @@ class _FilterPageState extends State<FilterPage> {
             String eventEndtDatestring = value['endDate'];
             DateTime? eventStartDate = DateTime.tryParse(eventStartDatestring);
             DateTime? eventEndDate = DateTime.tryParse(eventEndtDatestring);
-
+            String City = value['City'];
             DateTime currentTime = DateTime.now();
 
             if (eventStartDate!.isAfter(currentTime)) {
@@ -187,6 +186,7 @@ class _FilterPageState extends State<FilterPage> {
                 timeStamp: timestampString,
                 sponseeImage: '',
                 sponseeName: '',
+                City: value['City'],
               ));
             }
           });
@@ -222,24 +222,29 @@ class _FilterPageState extends State<FilterPage> {
     }
   }
 
+  bool doesContainCategory(
+      List<String> eventCategories, List<String> selectedCategories) {
+    for (String category in eventCategories) {
+      if (selectedCategories.contains(category)) {
+        return true; // At least one category matches
+      }
+    }
+    return false; // No matching category found
+  }
+
   bool applyFilterCriteria(Event event) {
-    // Convert the NumberOfAttendees string to an integer.
-    int numberOfAttendees = int.tryParse(event.NumberOfAttendees) ?? 0;
+    bool cityCriteria =
+        FselectedCities.isEmpty || FselectedCities.contains(event.City);
+    bool categoryCriteria = FselectedCategories.isEmpty ||
+        event.Category.any((cat) => FselectedCategories.contains(cat));
+    bool attendeesCriteria = event.NumberOfAttendees != null &&
+            event.NumberOfAttendees.isNotEmpty &&
+            int.tryParse(event.NumberOfAttendees) != null
+        ? (int.tryParse(event.NumberOfAttendees)! >= FminAttendees &&
+            int.tryParse(event.NumberOfAttendees)! <= FmaxAttendees)
+        : false;
 
-    // Check if the converted attendee count is within the selected range (FminAttendees, FmaxAttendees).
-    if (numberOfAttendees < FminAttendees ||
-        numberOfAttendees > FmaxAttendees) {
-      return false; // Doesn't meet the criteria.
-    }
-
-    // Check if the event's category matches any of the selected categories.
-    if (FselectedCategories.isNotEmpty &&
-        !FselectedCategories.contains(event.Category)) {
-      return false; // Doesn't meet the criteria.
-    }
-
-    // If the event meets either of the criteria, return true.
-    return true;
+    return cityCriteria && categoryCriteria && attendeesCriteria;
   }
 
   @override
@@ -252,24 +257,28 @@ class _FilterPageState extends State<FilterPage> {
           actions: [
             //FILTER CODE HEREEEE
             IconButton(
-              icon: Icon(Icons.filter_list, color: Colors.grey),
+              icon: Icon(
+                Icons.filter_list,
+                color: (FminAttendees != 0 ||
+                        FmaxAttendees != 999999 ||
+                        FselectedCategories.isNotEmpty ||
+                        FselectedCities.isNotEmpty)
+                    ? Color.fromARGB(255, 91, 79, 158)
+                    : Colors.grey,
+              ),
               onPressed: () {
                 showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return FilterDialog(
-                        onFilterApplied: (
-                          minAttendees,
-                          maxAttendees,
-                          selectedCategories,
-                          latitude, // Added latitude
-                          longitude,
-                        ) {
-                          FminAttendees = minAttendees;
-                          FmaxAttendees = maxAttendees;
-                          FselectedCategories = selectedCategories;
-                          latitude = latitude;
-                          longitude = longitude;
+                        onFilterApplied: (minAttendees, maxAttendees,
+                            selectedCategories, selectedCities) {
+                          setState(() {
+                            FminAttendees = minAttendees;
+                            FmaxAttendees = maxAttendees;
+                            FselectedCategories = selectedCategories;
+                            FselectedCities = selectedCities;
+                          });
                         },
                       );
                     });
@@ -299,7 +308,6 @@ class _FilterPageState extends State<FilterPage> {
                   ],
                 ),
               ),
-
             // SizedBox(height: 3),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -334,7 +342,7 @@ class _FilterPageState extends State<FilterPage> {
                               ? searchedEvents[index]
                               : getFilteredEvents()[index];
                           bool meetsFilterCriteria = applyFilterCriteria(event);
-
+                          print('HERE EVENT CRIRITA');
                           if (meetsFilterCriteria) {
                             return GestureDetector(
                               onTap: () {
@@ -566,9 +574,7 @@ class _FilterPageState extends State<FilterPage> {
                                 ),
                               ),
                             );
-                          } else {
-// place holder if nothing meets filter
-                          }
+                          } else {}
                         },
                       ),
                     ),
@@ -620,8 +626,7 @@ class FilterDialog extends StatefulWidget {
     int minAttendees,
     int maxAttendees,
     List<String> selectedCategories,
-    String latitude, // Added latitude
-    String longitude, // Added longitude
+    List<String> selectedCities,
   ) onFilterApplied;
 
   FilterDialog({required this.onFilterApplied});
@@ -636,11 +641,12 @@ class _FilterDialogState extends State<FilterDialog> {
   bool _locationSelected = false;
   String _selectedCity = '';
   List<String> _categories = [];
+  List<String> _cities = [];
   List<String> _selectedCategories = [];
+  List<String> _selectedCities = [];
   List<bool> _checkboxValues = [];
+  List<bool> _cityCheckboxValues = [];
   TextEditingController searchController = TextEditingController();
-  String? latitudeStr;
-  String? longitudeStr;
   String? selectedAddressDescription;
 
   final places = GoogleMapsPlaces(
@@ -652,6 +658,7 @@ class _FilterDialogState extends State<FilterDialog> {
   void initState() {
     super.initState();
     initCategories();
+    initCities();
     loadFilterValues();
   }
 
@@ -674,6 +681,30 @@ class _FilterDialogState extends State<FilterDialog> {
     });
   }
 
+  Future<void> initCities() async {
+    final databaseReference = FirebaseDatabase.instance.reference();
+    DatabaseReference citiesRef = databaseReference.child('Cities');
+
+    citiesRef.onValue.listen((event) {
+      if (event.snapshot.value != null) {
+        Map<dynamic, dynamic> citiesMap =
+            event.snapshot.value as Map<dynamic, dynamic>;
+        List<String> cities =
+            citiesMap.values.map((value) => value as String).toList();
+
+        setState(() {
+          // Check for duplicates and add new cities
+          for (var city in cities) {
+            if (!_cities.contains(city)) {
+              _cities.add(city);
+              _cityCheckboxValues.add(false);
+            }
+          }
+        });
+      }
+    });
+  }
+
   Future<void> loadFilterValues() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -682,13 +713,19 @@ class _FilterDialogState extends State<FilterDialog> {
       _locationSelected = prefs.getBool('locationSelected') ?? false;
       _selectedCity = prefs.getString('selectedCity') ?? '';
       _selectedCategories = prefs.getStringList('selectedCategories') ?? [];
-      latitudeStr = prefs.getString('latitude'); // Load as String
-      longitudeStr = prefs.getString('longitude'); // Load as String
+      _selectedCities = prefs.getStringList('selectedCities') ?? [];
 
       _selectedCategories.forEach((category) {
         int index = _categories.indexOf(category);
         if (index >= 0) {
           _checkboxValues[index] = true;
+        }
+      });
+
+      _selectedCities.forEach((city) {
+        int index = _cities.indexOf(city);
+        if (index >= 0) {
+          _cityCheckboxValues[index] = true;
         }
       });
     });
@@ -701,43 +738,7 @@ class _FilterDialogState extends State<FilterDialog> {
     prefs.setBool('locationSelected', _locationSelected);
     prefs.setString('selectedCity', _selectedCity);
     prefs.setStringList('selectedCategories', _selectedCategories);
-    prefs.setString(
-        'latitude', latitudeStr ?? '0.0'); // Save latitude as a string
-    prefs.setString(
-        'longitude', longitudeStr ?? '0.0'); // Save longitude as a string
-  }
-
-  void _performSearch(String query) async {
-    if (query.isEmpty) {
-      setState(() {
-        selectedPrediction = null;
-        selectedAddressDescription = null;
-      });
-      return;
-    }
-
-    try {
-      final response = await places.autocomplete(
-        query,
-        strictbounds: false,
-        location: Location(lat: 24.7136, lng: 46.6753),
-        radius: 100000,
-      );
-      if (response.isOkay && response.predictions.isNotEmpty) {
-        final place = response.predictions.first;
-        final details = await places.getDetailsByPlaceId(place.placeId!);
-        if (details.isOkay) {
-          setState(() {
-            selectedPrediction = place;
-          });
-        }
-      }
-    } catch (e) {
-      setState(() {
-        selectedPrediction = null;
-        selectedAddressDescription = null;
-      });
-    }
+    prefs.setStringList('selectedCities', _selectedCities);
   }
 
   @override
@@ -845,54 +846,31 @@ class _FilterDialogState extends State<FilterDialog> {
             }).toList(),
           ),
           SizedBox(height: 16),
-          Text('Choose Location'),
-          /*  CheckboxListTile(
-            title: Text('Location'),
-            value: _locationSelected,
-            onChanged: (bool? value) {
-              setState(() {
-                _locationSelected = value!;
-                saveFilterValues();
-              });
-            },
-          ),*/
-          //       if (_locationSelected)
-          TextFormField(
-            controller: searchController,
-            decoration: InputDecoration(
-              hintText: 'Search for a place...',
-              suffixIcon: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
-                child: GestureDetector(
-                  onTap: () {
-                    _performSearch(searchController.text);
-                  },
-                  child: Icon(
-                    Icons.search,
-                    size: 24,
-                  ),
-                ),
-              ),
-            ),
-            onChanged: (value) {
-              // Clear previous selection
-              setState(() {
-                selectedPrediction = null;
-                selectedAddressDescription = null;
-              });
-              _performSearch(value);
-            },
-          ),
-          TextFormField(
-            controller: TextEditingController(text: _selectedCity),
-            decoration: InputDecoration(labelText: 'Enter City'),
-            onChanged: (value) {
-              setState(() {
-                _performSearch(value);
-                _selectedCity = value;
-                saveFilterValues();
-              });
-            },
+          Text('Select Cities'),
+          Column(
+            children: _cities.asMap().entries.map((entry) {
+              final index = entry.key;
+              final city = entry.value;
+
+              return CheckboxListTile(
+                title: Text(city),
+                value: _selectedCities.contains(city),
+                onChanged: (bool? value) {
+                  setState(() {
+                    _cityCheckboxValues[index] = value ?? false;
+
+                    if (value == true) {
+                      if (!_selectedCities.contains(city)) {
+                        _selectedCities.add(city);
+                      }
+                    } else {
+                      _selectedCities.remove(city);
+                    }
+                    saveFilterValues();
+                  });
+                },
+              );
+            }).toList(),
           ),
         ],
       ),
@@ -901,6 +879,19 @@ class _FilterDialogState extends State<FilterDialog> {
           onPressed: () async {
             final prefs = await SharedPreferences.getInstance();
             await prefs.clear();
+            // Reset filter values in the current widget's state
+            setState(() {
+              _minValue = 0;
+              _maxValue = 999999;
+              _selectedCategories = [];
+              _selectedCities = [];
+            });
+            widget.onFilterApplied(
+              _minValue,
+              _maxValue,
+              _selectedCategories,
+              _selectedCities, // Added selected cities
+            );
             Navigator.of(context).pop();
           },
           child: Text('Clear'),
@@ -914,8 +905,7 @@ class _FilterDialogState extends State<FilterDialog> {
                 _minValue,
                 _maxValue,
                 _selectedCategories,
-                latitudeStr ?? '0.0', // Pass latitude as a string
-                longitudeStr ?? '0.0', // Pass longitude as a string
+                _selectedCities, // Added selected cities
               );
               Navigator.of(context).pop();
             } catch (e) {
