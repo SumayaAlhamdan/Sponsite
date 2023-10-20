@@ -13,6 +13,8 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:sponsite/widgets/customAppBarwithNav.dart';
 import 'package:sponsite/screens/view_others_profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class Event {
   final String EventId;
@@ -68,7 +70,8 @@ class Offer {
   });
 }
 
-class RecentEventsDetails extends StatelessWidget {
+class RecentEventsDetails extends StatefulWidget {
+ 
   final String? sponsorID;
   final String EventId;
   final String sponseeId;
@@ -108,23 +111,53 @@ class RecentEventsDetails extends StatelessWidget {
       required this.timeStamp,
       required this.sponseeImage,
       required this.sponseeName});
+ @override
+  _RecentEventsDetailsState createState() => _RecentEventsDetailsState();
+}
+
+class _RecentEventsDetailsState extends State<RecentEventsDetails> {
+  bool offerExists = false;
+  final DatabaseReference database = FirebaseDatabase.instance.ref();
+    @override 
+  void initState() {
+    super.initState();
+    loadButtonStatus();   
+  
+  }
+  void loadButtonStatus() async{
+  DatabaseReference offersRef = database.child('offers');
+    DatabaseEvent dataSnapshot = await offersRef.once();
+
+    if (dataSnapshot.snapshot.value != null) {
+      Map<dynamic, dynamic> offersData =
+          dataSnapshot.snapshot.value as Map<dynamic, dynamic>;
+           setState(() {
+       offerExists = offersData.values.any((offer) {
+        return offer["EventId"] == widget.EventId &&
+            offer["sponsorId"] == widget.sponsorID;
+      }); 
+      });   
+  }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     GoogleMapController? mapController;
+
 
     double latitude = 0;
     double longitude = 0;
     LatLng loc = LatLng(latitude, longitude);
 
     void getloc() {
-      List<String> parts = location.split(',');
+      List<String> parts = widget.location.split(',');
       latitude = double.parse(parts[0]);
       longitude = double.parse(parts[1]);
       loc = LatLng(latitude, longitude);
     }
 
-    if (location != "null") getloc();
+    if (widget.location != "null") getloc();
 
     Widget buildMap() {
       print("here!!");
@@ -193,8 +226,8 @@ class RecentEventsDetails extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: const Color.fromARGB(255, 51, 45, 81),
                   image: DecorationImage(
-                    image: imgURL.isNotEmpty
-                        ? NetworkImage(imgURL)
+                    image: widget.imgURL.isNotEmpty
+                        ? NetworkImage(widget.imgURL)
                         : const NetworkImage(
                             'https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
                     fit: BoxFit.cover,
@@ -232,7 +265,7 @@ class RecentEventsDetails extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            EventName,
+                            widget.EventName,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 32,
@@ -241,61 +274,89 @@ class RecentEventsDetails extends StatelessWidget {
                           ),
 
                           Text(
-                            EventType,
+                           widget.EventType,
                             style: const TextStyle(
                               fontSize: 20,
                               color: Color.fromARGB(146, 0, 0, 0),
                             ),
                           ),
                           const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              GestureDetector(
-                                child: CircleAvatar(
-                                  radius: 25,
-                                  backgroundImage: NetworkImage(sponseeImage),
-                                  backgroundColor: Colors.transparent,
-                                ),
-                                onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => ViewOthersProfile(
-                                        'Sponsees', sponseeId),
-                                  ));
-                                },
-                              ),
-
-                              SizedBox(width: 10),
-                              // Add some space between the CircleAvatar and Text
-                              GestureDetector(
-                                child: Expanded(
-                                  child: Text(
-                                    sponseeName,
-                                    style: const TextStyle(
-                                      fontSize: 22,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                ),
-                                onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => ViewOthersProfile(
-                                        'Sponsees', sponseeId),
-                                  ));
-                                },
-                              ),
-                            ],
-                          ),
+                       Row(
+  children: [
+    // Sponsee name and photo on the left
+    GestureDetector(
+      child: CircleAvatar(
+        radius: 25,
+        backgroundImage: NetworkImage(widget.sponseeImage),
+        backgroundColor: Colors.transparent,
+      ),
+      onTap: () {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => ViewOthersProfile('Sponsees', widget.sponseeId),
+        ));
+      },
+    ),
+    SizedBox(width: 10),
+    Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.sponseeName,
+            style: const TextStyle(
+              fontSize: 22,
+              color: Colors.black87,
+            ),
+          ),
+          // Add any additional information you want to display about the sponsee here
+        ],
+      ),
+    ),  
+    // "Send offer" button on the right
+    ElevatedButton(
+      onPressed: offerExists 
+      ? null // Disable the button if offerSent is true
+          : () { 
+        showDialog( 
+          context: context,
+          builder: (BuildContext context) {
+            return sendOffer(
+              EventId: widget.EventId,
+              sponsorId: widget.sponsorID,
+              sponseeId: widget.sponseeId,
+              Category: widget.Category,
+              TimeStamp: widget.timeStamp,
+              EventName: widget.EventName,
+            );
+          },      
+        );
+      },  
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color.fromARGB(255, 51, 45, 81),
+        elevation: 10,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+      ),
+      child: const Text(
+        'Send offer',
+        style: TextStyle(
+          fontSize: 25,
+          color: Colors.white,
+        ),
+      ),
+    ),
+  ],  
+),  
                           const Divider(height: 30, thickness: 2),
-
-                          // Info Rows
-
+                          // Info Rows  
                           _buildInfoRow(Icons.calendar_today,
-                              "${startDate} - ${endDate}", "Date"),
+                              "${widget.startDate} - ${widget.endDate}", "Date"),
                           _buildInfoRow(Icons.access_time,
-                              "${startTime}-${endTime}", "Time"),
+                              "${widget.startTime}-${widget.endTime}", "Time"),
                           _buildInfoRow(
-                              Icons.people, NumberOfAttendees, "Attendees"),
-                          if (location != "null")
+                              Icons.people, widget.NumberOfAttendees, "Attendees"),
+                          if (widget.location != "null")
                             FutureBuilder<String>(
                               future: getAddressFromCoordinates(
                                   latitude, longitude),
@@ -340,7 +401,7 @@ class RecentEventsDetails extends StatelessWidget {
                               },
                             ),
 
-                          if (location != "null")
+                          if (widget.location != "null")
                             Center(
                               child: SizedBox(
                                 width: MediaQuery.of(context).size.width * 0.9,
@@ -361,7 +422,7 @@ class RecentEventsDetails extends StatelessWidget {
                           const SizedBox(height: 10),
                           Wrap(
                             spacing: 4,
-                            children: Category.map((category) {
+                            children: widget.Category.map((category) {
                               return Chip(
                                 label: Text(category),
                                 backgroundColor:
@@ -387,7 +448,7 @@ class RecentEventsDetails extends StatelessWidget {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            benefits ?? "No benefits available",
+                            widget.benefits ?? "No benefits available",
                             style: const TextStyle(
                               fontSize: 20,
                               color: Colors.black87,
@@ -405,8 +466,8 @@ class RecentEventsDetails extends StatelessWidget {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            (notes.isNotEmpty)
-                                ? notes
+                            (widget.notes.isNotEmpty)
+                                ? widget.notes
                                 : "There are no notes available",
                             style: const TextStyle(
                               fontSize: 20,
@@ -415,45 +476,6 @@ class RecentEventsDetails extends StatelessWidget {
                           ),
                           const SizedBox(height: 20),
 
-                          Center(
-                            child: SizedBox(
-                              height: 55, //height of button
-                              width: 190,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return sendOffer(
-                                          EventId: EventId,
-                                          sponsorId: sponsorID,
-                                          sponseeId: sponseeId,
-                                          Category: Category,
-                                          TimeStamp: timeStamp,
-                                          EventName: EventName);
-                                    },
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 51, 45, 81),
-                                  //  primary: Color(0xFF6A62B6),
-                                  elevation: 10,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Send offer',
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
                         ],
                       ),
                     ),
@@ -461,12 +483,11 @@ class RecentEventsDetails extends StatelessWidget {
                 ),
               ),
             ),
-          ),
+          ),  
         ],
       ),
     );
   }
-
   Widget _buildInfoRow(IconData icon, String text, String label) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
@@ -514,14 +535,15 @@ class sendOffer extends StatefulWidget {
   final String TimeStamp;
   final String EventName;
 
-  const sendOffer(
-      {super.key,
-      required this.EventId,
-      required this.sponseeId,
-      required this.sponsorId,
-      required this.Category,
-      required this.TimeStamp,
-      required this.EventName});
+ sendOffer({
+    Key? key,
+    required this.EventId,
+    required this.sponseeId,
+    required this.sponsorId,
+    required this.Category, 
+    required this.TimeStamp,
+    required this.EventName, // Receive the callback in the constructor
+  });
 
   @override
   _sendOfferState createState() => _sendOfferState();
@@ -538,7 +560,7 @@ class _sendOfferState extends State<sendOffer> {
     super.initState();
     // AppNotifications.setupNotification();
     // requestPermission();
-  }
+  } 
 
   /* void requestPermission() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -587,7 +609,7 @@ class _sendOfferState extends State<sendOffer> {
                     'OK',
                     style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
                   ),
-                ),
+                ),  
               ],
             ));
       },
@@ -680,9 +702,8 @@ class _sendOfferState extends State<sendOffer> {
             sendNotificationToSponsee1(sponseeToken);
           }
           setState(() {
-            filters.clear();
-            bool offerSent = true;
-          });
+            filters.clear();  
+          }); 
           Navigator.of(context).pop();
           // Show a success message
           showDialog(
@@ -760,7 +781,7 @@ class _sendOfferState extends State<sendOffer> {
         });
         Navigator.of(context).pop();
         // Show a success message
-        showDialog(
+        showDialog( 
           context: context,
           builder: (context) {
             Future.delayed(const Duration(seconds: 3), () {
@@ -795,37 +816,7 @@ class _sendOfferState extends State<sendOffer> {
       }
     }
   }
-  /*Future<void> sendNotification(String id) async {
-    String? mtoken = await _retrieveSponseeToken(id);
-    print('im here deema!!!!!!!!!!!!!');
-  //final Uri url = Uri.parse('https://fcm.googleapis.com/fcm/send');
-  var data = {
-    'notification': {
-      'title': 'New Offer!',
-      'body': 'You received a new offer for your event',
-    },
-    'data': {
-      // Add any additional data you want to send
-    },
-    'to': '/topics/$id',
-  };
-  print('$mtoken');
 
-  //var response = await http.post(Uri.parse(url));
-  await http.post(Uri.parse('https://fcm.googleapis.com/fcm/send'),
-    headers: {
-      'Authorization': 'key=AAAAw5lT-Yg:APA91bE4EbR1XYHUoMl-qZYAFVsrtCtcznSsh7RSCSZ-yJKR2_bdX8f9bIaQgDrZlEaEaYQlEpsdN6B6ccEj5qStijSCDN_i0szRxhap-vD8fINcJAA-nK11z7WPzdZ53EhbYF5cp-ql',
-      'Content-Type': 'application/json',
-    },
-    body: json.encode(data),
-  );
-
-  /*if (response.statusCode == 200) {
-    print('Notification sent successfully.');
-  } else {
-    print('Failed to send notification: ${response.reasonPhrase}');
-  }*/
-}*/
 
   @override
   Widget build(BuildContext context) {

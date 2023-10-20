@@ -218,14 +218,14 @@ class _SponseeProfileState extends State<SponseeProfile> {
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => googleCalendar(),
             ));
-          },
+          },  
         ),
         actions: [
           PopupMenuButton<String>(
             icon: const Icon(
               Icons.more_horiz,
               color: Color.fromARGB(255, 255, 255, 255),
-              size: 70,
+              size: 40,
             ),
             onSelected: (value) {
               // Handle menu item selection here

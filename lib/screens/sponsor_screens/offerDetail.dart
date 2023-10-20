@@ -251,6 +251,41 @@ class _Start extends State<offertDetail> {
                                   ],
                                 ),
                                 const Divider(height: 30, thickness: 2),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    border:
+                                        Border.all(width: 1.5), // Add a border
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  padding: EdgeInsets.all(0),
+                                  child: ExpansionTileCard(
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(10.0)),
+                                    baseColor:
+                                        Color.fromARGB(255, 255, 255, 255),
+                                    
+                                    title: Center( child: Text(
+                                      "Event Details",
+                                      style: TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                  
+                                      ),  
+                                    ),  
+                                    ),
+                                    children: <Widget>[
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(10.0)), 
+                                        ),
+                                        padding: EdgeInsets.all(12.0),
+                                        alignment: Alignment.bottomLeft,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
                                 _buildInfoRow(
                                     Icons.calendar_today,
                                     "${widget.startDate} - ${widget.endDate}",
@@ -378,6 +413,13 @@ class _Start extends State<offertDetail> {
                                     color: Colors.black87,
                                   ),
                                 ),
+                                ],
+                                ),
+                                ),  
+                                ],
+                                ),
+                                ),
+
                                 const SizedBox(height: 20),
                                 Container(
                                   decoration: BoxDecoration(

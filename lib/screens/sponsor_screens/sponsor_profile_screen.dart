@@ -181,7 +181,7 @@ class _SponsorProfileState extends State<SponsorProfile> {
             icon: const Icon(
               Icons.more_horiz,
               color: Color.fromARGB(255, 255, 255, 255),
-              size: 50,
+              size: 40, 
             ),
             onSelected: (value) {
               // Handle menu item selection here

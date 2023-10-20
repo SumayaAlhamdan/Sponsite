@@ -88,7 +88,8 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
               ),
             ),  
             
-        ),  
+        ), 
+        SizedBox(height: 10),  
           SizedBox(
             width: double.infinity,
             height: 180,  
