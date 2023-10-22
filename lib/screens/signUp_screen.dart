@@ -1,11 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/services.dart';
 import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart';
+
 import '../FirebaseApi.dart';
 
 class SignUp extends StatefulWidget {
@@ -73,12 +75,15 @@ class _SignUpState extends State<SignUp> {
       final userId = userCredentials.user!.uid;
 
 // Connect the entered user to its info with the user's ID
-      await dbref.child(theType).child(userId).set({
+    await dbref.child("newUsers").child(userId).set({
         'Name': name,
         'Email': email,
         //'Social Media':,
         'Picture':'https://firebasestorage.googleapis.com/v0/b/sponsite-6a696.appspot.com/o/user_images%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1.jpg?alt=media&token=4e08e9f5-d526-4d2c-817b-11f9208e9b52',
-        'authentication document': fileName, // Remove the extra colon
+        'authentication document': fileName,
+        'Status': 'Inactive',
+        'Type': theType,
+         // Remove the extra colon
       });
       await FirebaseAuth.instance.signOut();
       Navigator.of(context).popUntil((route) => route.isFirst);

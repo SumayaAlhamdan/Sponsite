@@ -1,11 +1,12 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:sponsite/reset_passwords.dart';
 import 'package:sponsite/screens/first_choosing_screen.dart';
-import 'dart:io';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -46,16 +47,32 @@ final GlobalKey<FormState> _formKey2 = GlobalKey<FormState>();
     }
     _formKey.currentState!.save();
 
-    try {
+   try {
       setState(() {
         _isAuthenticating = true;
       });
 
-      final userCredentials = await _firebase.signInWithEmailAndPassword(
+             final userSnapshotSponsees =
+        await FirebaseDatabase.instance.reference().child('Sponsees').orderByChild('Email').equalTo(email).once();
+    final userSnapshotSponsors =
+        await FirebaseDatabase.instance.reference().child('Sponsors').orderByChild('Email').equalTo(email).once();
+
+    if (userSnapshotSponsees.snapshot != null || userSnapshotSponsors.snapshot != null) {
+   final userCredentials = await _firebase.signInWithEmailAndPassword(
           email: email, password: password);
+          _isAuthenticating = true;
+        wrongEmailOrPass = false;
+    } else {
+      // User not found in both collections, show an error message
+      setState(() {
+        _isAuthenticating = false;
+        wrongEmailOrPass = true;
+      });
+    }
            // Check if the user's token is stored
     final currentUser = FirebaseAuth.instance.currentUser;
     await _storeUserToken(currentUser?.uid);
+
 
     //if (userToken == null) {
       // The user's token is not stored yet, handle this case by retrieving and storing the token

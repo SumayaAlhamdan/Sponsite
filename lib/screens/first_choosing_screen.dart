@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 import 'package:sponsite/screens/signUp_screen.dart';
 
 class FirstChoosing extends StatefulWidget {
@@ -104,7 +104,7 @@ class _FirstChoosingState extends State<FirstChoosing> {
                                       sponsorSelected = true;
                                       // _sponsorBorder = Colors.deepPurple;
                                       // _sponseeBorder = Colors.grey;
-                                      type = 'Sponsors';
+                                      type = 'Sponsor';
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
                                           builder: (context) => SignUp(type),
@@ -170,7 +170,7 @@ class _FirstChoosingState extends State<FirstChoosing> {
                                       sponsorSelected = false;
                                       // _sponseeBorder = Colors.deepPurple;
                                       // _sponsorBorder = Colors.grey;
-                                      type = 'Sponsees';
+                                      type = 'Sponsee';
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
                                           builder: (context) => SignUp(type),

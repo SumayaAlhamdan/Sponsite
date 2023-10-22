@@ -2,14 +2,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:sponsite/widgets/user_image_picker.dart';
+import 'package:sponsite/screens/admin_screens/admin_home_screen.dart';
 import 'package:sponsite/screens/calendar.dart';
+import 'package:sponsite/widgets/user_image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SponseeProfile extends StatefulWidget {
@@ -231,10 +231,10 @@ class _SponseeProfileState extends State<SponseeProfile> {
               // Handle menu item selection here
               switch (value) {
                 case 'myAccount':
-                  // Navigator.of(context).push(
-                  //                       MaterialPageRoute(
-                  //                         builder: (context) => MyAccount(),
-                  //                       ));
+                  Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => AdminPanel(),
+                                        ));
                   break;
                 case 'signOut':
                   _showSignOutConfirmationDialog(context);

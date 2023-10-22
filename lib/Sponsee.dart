@@ -1,9 +1,11 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:file_picker/file_picker.dart';
-import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:path/path.dart';
+
 import 'FirebaseApi.dart';
 
 class Sponsee extends StatefulWidget {
@@ -27,7 +29,7 @@ class _SponseeState extends State<Sponsee> {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
       try {
-        dbref.child('Sponsees').push().set({
+        dbref.child('newUsers').push().set({
           'Name': name,
           'Email': email,
           'Password': password,
