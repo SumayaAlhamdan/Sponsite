@@ -335,9 +335,11 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
   Widget _buildCurrentEventsPage() {
   DateTime parseEventDateAndTime(String date, String time) {
   final dateTimeString = '$date $time';
-  final format = DateFormat('yyyy-MM-dd hh:mm a');
+  final format = DateFormat('yyyy-MM-dd hh:mm');
+  print(format.parse(dateTimeString));
   return format.parse(dateTimeString);
 }
+
 
   final now = DateTime.now();
   print(now);
@@ -380,7 +382,7 @@ final filteredEvents = events.where((event) {
 Widget _buildPastEventsPage() {
   DateTime parseEventDateAndTime(String date, String time) {
   final dateTimeString = '$date $time';
-  final format = DateFormat('yyyy-MM-dd hh:mm a');
+  final format = DateFormat('yyyy-MM-dd hh:mm');
   print(format.parse(dateTimeString));
   return format.parse(dateTimeString);
 }
