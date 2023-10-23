@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sponsite/screens/sponsor_screens/offerDetail.dart';
 import 'package:sponsite/widgets/customAppBar.dart';
 import 'package:sponsite/screens/view_others_profile.dart'; 
@@ -15,6 +16,8 @@ class ViewOffersSponsor extends StatefulWidget {
 class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
   List<Event> events = [];
   List<Offer> offers = [];
+ Offer? offer;
+
 
   int selectedTabIndex = 0;
   final DatabaseReference dbEvents =
@@ -28,6 +31,7 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
     if (user != null) {
       sponsorID = user?.uid;
       print('sponsor ID: $sponsorID');
+   
     } else {
       print('User is not logged in.');
     }
@@ -39,6 +43,7 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
     check();
     _loadEventsFromFirebase();
   }
+
 
   Widget listItem({required Event event, required Offer offer}) { 
     Color statusColor = const Color.fromARGB(
@@ -93,7 +98,7 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
           SizedBox(
             width: double.infinity,
             height: 180,  
-// Adjust the height as needed
+
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Image.network(
@@ -355,74 +360,80 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
     ),    
     );  
   }
+
+
 Widget _buildCurrentEventsPage() {
+  DateTime parseEventDateAndTime(String date, String time) {
+    final dateTimeString = '$date $time';
+    final format = DateFormat('yyyy-MM-dd hh:mm');
+    return format.parse(dateTimeString);
+  }
+
+  final now = DateTime.now();
+  final filteredEvents = events.where((event) {
+    final eventDateTime = parseEventDateAndTime(event.startDate, event.startTime);
+    return eventDateTime.isAfter(now);
+  }).toList();
+
+
   return SafeArea(
     child: Padding(
       padding: const EdgeInsets.only(top: 15),
       child: Column(
-        children: [ 
+        children: [
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 50.0),
-          ),  
+          ),
           Expanded(
-            child: offers.isEmpty
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        'assets/Add Files (1).png',
-                        width: 282,
-                        height: 284,  
-                        fit: BoxFit.fitWidth,
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        'No offers available',
-                        style: TextStyle( 
-                          fontSize: 24,
-                          // Adjust the font size as needed
+            child: filteredEvents.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/Add Files (1).png',
+                          width: 282,
+                          height: 284,
+                          fit: BoxFit.fitWidth,
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 20),
+                        Text(
+                          'No current events available',
+                          style: TextStyle(
+                            fontSize: 24,
+                            // Adjust the font size as needed
+                          ),
+                        ),
+                      ],
+                    ),
                   )
                 : Scrollbar(
                     child: GridView.builder(
                       shrinkWrap: true,
                       physics: const BouncingScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        childAspectRatio: 0.70,      
-                        crossAxisSpacing: 8,        
+                        childAspectRatio: 0.70,
+                        crossAxisSpacing: 8,
                         mainAxisSpacing: 8,
                       ),
-                      itemCount: events.length,
+                      itemCount: filteredEvents.length,
                       itemBuilder: (BuildContext context, int index) {
-                        Event event = events[index];
+                        Event event = filteredEvents[index];
                         Offer? offer;
 
                         for (Offer o in offers) {
                           if (o.EventId == event.EventId) {
-                            offer = o;  
+                          
+                            offer = o;
                             break;
                           }
                         }
 
                         if (offer != null) {
                           return listItem(event: event, offer: offer);
-                        } else {
-                          // Return a default widget when offer is null
-                          return Container(
-                            width: 282,
-                            height: 284,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: AssetImage('assets/Time.png'),
-                                fit: BoxFit.fitWidth,
-                              ),
-                            ),
-                          );
+                        
                         }
                       },
                     ),
@@ -434,31 +445,186 @@ Widget _buildCurrentEventsPage() {
   );
 }
 
-  Widget _buildPastEventsPage() {
-    return Column(
+/*Widget _buildPastEventsPage() {
+  DateTime parseEventDateAndTime(String date, String time) {
+    final dateTimeString = '$date $time';
+    final format = DateFormat('yyyy-MM-dd hh:mm');
+    return format.parse(dateTimeString);
+  }
+
+  final now = DateTime.now();
+  final filteredEvents = events.where((event) {
+    final eventDateTime = parseEventDateAndTime(event.startDate, event.startTime);
+    return eventDateTime.isBefore(now);
+  }).toList();
+
+  if (filteredEvents.isEmpty) {
+    return Center(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
+          Image.asset(
+            'assets/Time.png',
             width: 282,
             height: 284,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/Time.png'),
-                fit: BoxFit.fitWidth,
-              ),
-            ),
+            fit: BoxFit.fitWidth,
           ),
-          SizedBox(height: 20), // Adjust the spacing as needed
+          SizedBox(height: 20),
           Text(
-            'There are no past events yet',
+            'There Are No Past Events Yet',
             style: TextStyle(
-              fontSize: 24, // Adjust the font size as needed
+              fontSize: 24,
             ),
           ),
         ],
-      );
-  } 
+      ),
+    );
+  } else {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 15),
+        child: Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 50.0),
+            ),
+            Expanded(
+              child: Scrollbar(
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  physics: const BouncingScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.70,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  itemCount: filteredEvents.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    Event event = filteredEvents[index];
+                    Offer? offer;
+
+                    for (Offer o in offers) {
+                      if (o.EventId == event.EventId) {
+                        offer = o;
+                        break;
+                      }
+                    }
+
+                    if (offer != null) {
+                      return listItem(event: event, offer: offer);
+                    } else {
+                      // Return a default widget when offer is null
+                      return Container(
+                        width: 282,
+                        height: 284,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('assets/Time.png'),
+                            fit: BoxFit.fitWidth,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}*/ 
+
+
+
+Widget _buildPastEventsPage() {
+  DateTime parseEventDateAndTime(String date, String time) {
+    final dateTimeString = '$date $time';
+    final format = DateFormat('yyyy-MM-dd hh:mm');
+    return format.parse(dateTimeString);
+  }
+
+  final now = DateTime.now();
+  final filteredEvents = events.where((event) {
+    final eventDateTime = parseEventDateAndTime(event.startDate, event.startTime);
+    return eventDateTime.isBefore(now);
+  }).toList();
+
+  final filteredEventsWithOffers = filteredEvents.where((event) {
+  return offers.any((offer) => offer.EventId == event.EventId);
+}).toList();
+
+  if (filteredEvents.isEmpty) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/Time.png',
+            width: 282,
+            height: 284,
+            fit: BoxFit.fitWidth,
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'No past events available',
+            style: TextStyle(
+              fontSize: 24,
+              // Adjust the font size as needed
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+else { 
+  return SafeArea(
+  child: Padding(
+    padding: const EdgeInsets.only(top: 15),
+    child: Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 50.0),
+        ),
+        Expanded(
+          child: Scrollbar(
+            child: GridView.builder(
+  shrinkWrap: true,
+  physics: const BouncingScrollPhysics(),
+  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: 2,
+    childAspectRatio: 0.70,
+    crossAxisSpacing: 8,
+    mainAxisSpacing: 8,
+  ),
+  itemCount: filteredEventsWithOffers.length,
+  itemBuilder: (BuildContext context, int index) {
+    Event event = filteredEventsWithOffers[index];
+    Offer? offer;
+
+    for (Offer o in offers) {
+      if (o.EventId == event.EventId) {
+        offer = o;
+        break;
+      }
+    }
+if (offer != null ) 
+    return listItem(event: event, offer: offer);
+  },
+),
+          ),
+        ),
+      ],
+    ),
+  ),
+);
+}
+}
+
 
 
   void _loadEventsFromFirebase() {
@@ -513,8 +679,7 @@ Widget _buildCurrentEventsPage() {
                     // Simulate the current time (for testing purposes)
                     DateTime currentTime = DateTime.now();
 
-                    if (eventStartDate!.isAfter(currentTime) &&
-                        _isEventAssociatedWithSponsor(key, sponsorID)) {
+                  
                       events.add(Event(
                         EventId: key,
                         EventName: value['EventName'] as String? ?? '',
@@ -538,7 +703,7 @@ Widget _buildCurrentEventsPage() {
                               sponseeName: '',// Store the timestamp
                       ));
                     }
-                  });
+                  );
                 });
               }
               // Sort events based on the timeStamp (descending order)
