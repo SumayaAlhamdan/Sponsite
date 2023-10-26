@@ -156,56 +156,65 @@ class _AdminPanelState extends State<AdminPanel> {
       }
     });
   }
+
 Widget editCategory() {
-  return Card(
-    margin: EdgeInsets.all(16.0),
-    elevation: 4,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Categories',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              ElevatedButton(
-                onPressed: _showTextInputDialog,
-                child: Text('Add New Category'),
-              ),
-            ],
-          ),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(
+        padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 16.0),
+        child: Text(
+          'Categories',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        if (categories.isEmpty)
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text('No categories available.'),
-          )
-        else
-          ListView(
-            shrinkWrap: true,
-            children: categories.entries.map((entry) {
-              return Card(
-                margin: EdgeInsets.all(8.0),
-                child: ListTile(
-                  title: Text(entry.value),
-                  trailing: IconButton(
-                    icon: Icon(Icons.edit),
-                    onPressed: () {
-                      
-                    },
-                  ),
+      ),
+      Card(
+        margin: EdgeInsets.all(16.0),
+        elevation: 4,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Spacer to push the button to the right
+                Spacer(),
+                ElevatedButton(
+                  onPressed: _showTextInputDialog,
+                  child: Text('Add New Category'),
                 ),
-              );
-            }).toList(),
-          ),
-      ],
-    ),
+              ],
+            ),
+            if (categories.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text('No categories available.'),
+              )
+            else
+              ListView(
+                shrinkWrap: true,
+                children: categories.entries.map((entry) {
+                  return Card(
+                    margin: EdgeInsets.all(8.0),
+                    child: ListTile(
+                      title: Text(entry.value),
+                      trailing: IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: () {
+                          _editCategoryDialog(entry.key, entry.value); // Pass the category key and name for editing
+                        },
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+          ],
+        ),
+      ),
+    ],
   );
 }
+
 
 void _showTextInputDialog() async {
   TextEditingController categoryController = TextEditingController();
@@ -297,4 +306,96 @@ void _showTextInputDialog() async {
     },
   );
 }
+
+void _editCategoryDialog(String categoryKey, String categoryName) async {
+  TextEditingController categoryController = TextEditingController(text: categoryName);
+  int charCount = categoryName.length; // Set charCount to the length of the existing category name
+  List<String> existingCategories = categories.values.toList();
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text('Edit Category'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: categoryController,
+                        onChanged: (value) {
+                          setState(() {
+                            charCount = value.length;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Category Name',
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Text(
+                        '$charCount/15',
+                        style: TextStyle(
+                          color: charCount <= 15 ? Colors.grey : Colors.red,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  String newCategoryName = categoryController.text.trim();
+
+                  if (existingCategories.contains(newCategoryName) && newCategoryName != categoryName) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Category already exists. Please enter a unique name.'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  if (newCategoryName.isNotEmpty && newCategoryName.length <= 15 && RegExp(r'^[a-zA-Z ]+$').hasMatch(newCategoryName)) {
+                    // Update the category in the database
+                    dbCategories.child(categoryKey).set(newCategoryName);
+                    Navigator.pop(context); // Close the dialog
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Invalid category name.'),
+                      ),
+                    );
+                  }
+                },
+                child: Text('Save'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
+
+
+
+
+
 }
