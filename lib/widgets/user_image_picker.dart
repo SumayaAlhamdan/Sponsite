@@ -50,7 +50,7 @@ class _UserImagePickerState extends State<UserImagePicker> {
         Stack(
           children: [
             CircleAvatar(
-              radius: 70,
+              radius: 100,
               backgroundColor: Colors.grey,
               foregroundImage: _pickedImageFile != null
                   ? FileImage(_pickedImageFile!)

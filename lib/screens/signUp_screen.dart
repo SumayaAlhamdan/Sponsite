@@ -78,7 +78,7 @@ class _SignUpState extends State<SignUp> {
     await dbref.child("newUsers").child(userId).set({
         'Name': name,
         'Email': email,
-        //'Social Media':,
+        'Social Media':null,
         'Picture':'https://firebasestorage.googleapis.com/v0/b/sponsite-6a696.appspot.com/o/user_images%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1.jpg?alt=media&token=4e08e9f5-d526-4d2c-817b-11f9208e9b52',
         'authentication document': fileName,
         'Status': 'Inactive',

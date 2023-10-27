@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sponsite/screens/admin_screens/admin_home_screen.dart';
 import 'package:sponsite/screens/calendar.dart';
+import 'package:sponsite/screens/sponsee_screens/sponsee_edit_profile.dart';
 import 'package:sponsite/widgets/user_image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -44,7 +45,18 @@ class _SponseeProfileState extends State<SponseeProfile> {
   bool emailUsed = false;
   bool invalidEmail = false;
   bool wrongpass = false;
-  bool addLink=false;
+  bool addLink = false;
+  String selectedApp= 'Selecet Platform';
+  List<String> socialMediaApps = [
+    'github',
+    'twitter',
+    'instagram',
+    'facebook',
+    'linkedin',
+    'website',
+    'youtube',
+    // Add more apps as needed
+  ];
   void _toggleObscured() {
     setState(() {
       _obscured = !_obscured;
@@ -218,7 +230,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => googleCalendar(),
             ));
-          },  
+          },
         ),
         actions: [
           PopupMenuButton<String>(
@@ -231,10 +243,9 @@ class _SponseeProfileState extends State<SponseeProfile> {
               // Handle menu item selection here
               switch (value) {
                 case 'myAccount':
-                  Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) => AdminPanel(),
-                                        ));
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => AdminPanel(),
+                  ));
                   break;
                 case 'signOut':
                   _showSignOutConfirmationDialog(context);
@@ -386,8 +397,12 @@ class _SponseeProfileState extends State<SponseeProfile> {
                                 color: Color.fromARGB(255, 91, 79, 158),
                               ),
                               onTap: () {
-                                showModalBottomSheet(
-                                    context: context, builder: buildSheet);
+                                 Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                 SponseeEditProfile(),
+                                          ),
+                                        );
                               },
                             )),
                       ],
@@ -620,7 +635,11 @@ class _SponseeProfileState extends State<SponseeProfile> {
         title: Text('Social Media Accounts'),
         centerTitle: true,
         leading: TextButton(
-            onPressed: () => Navigator.pop(context), child: Text('Cancel')),
+            onPressed: () {
+              Navigator.pop(context);
+              selectedApp='Select Platform';
+            },
+            child: Text('Cancel')),
         leadingWidth: 100,
         actions: [
           TextButton(onPressed: () => (), child: Text(' Save ')),
@@ -632,82 +651,104 @@ class _SponseeProfileState extends State<SponseeProfile> {
       SizedBox(
         height: 60,
       ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            children: [
-              //if (_items.indexOf(item) != 0)
-              CircleAvatar(
-                  radius: 30,
-                  child: Material(
-                    shape: const CircleBorder(),
-                    clipBehavior: Clip.hardEdge,
-                    color: Color.fromARGB(255, 244, 244, 244),
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          addLink=true;
-                        });
-                        print('hioii');
-                      },
-                      child: Center(
-                        child: Icon(
-                          Icons.add,
-                          size: 40,
-                          color: Color.fromARGB(255, 91, 79, 158),
-                        ),
-                      ),
-                    ),
-                  )),
 
-              SizedBox(
-                width: 50,
-              ),
-              Text(
-                'Add Link                                ',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontWeight: FontWeight.bold, fontSize: 20),
-              ),
-
-              // SizedBox(width: 50,)
-            ],
+      // Text(
+      //   'Add Link                                ',
+      //   style: Theme.of(context)
+      //       .textTheme
+      //       .titleLarge
+      //       ?.copyWith(fontWeight: FontWeight.bold, fontSize: 20),
+      // ),
+      SizedBox(
+        width: MediaQuery.of(context).size.width * 0.6, // Set the desired width
+        child: TextFormField(
+          // initialValue: sponseeList.,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          controller: _linkController,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'URL',
+            prefixIcon: Icon(Icons.link, size: 24),
           ),
-        ],
+          // inputFormatters: [
+          //   FilteringTextInputFormatter(
+          //       RegExp(r'^[A-Za-z0-9\s]+$'),
+          //       allow: true)
+          // ],
+          validator: (value) {
+            if (!RegExp(r'^(https?|ftp)://[^\s/$.?#].[^\s]*$')
+                    .hasMatch(value!) ||
+                value.isEmpty) {
+              return "Please enter a valid URL";
+            }
+            // if (value.length > 30) {
+            //   return 'Name should not exceed 30 characters';
+            // }
+            return null;
+          },
+        ),
       ),
-      if(addLink)
-        SizedBox(
-                    width: MediaQuery.of(context).size.width *
-                        0.6, // Set the desired width
-                    child: TextFormField(
-                      // initialValue: sponseeList.,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      controller: _linkController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'URL',
-                        prefixIcon: Icon(Icons.link, size: 24),
-                      ),
-                      // inputFormatters: [
-                      //   FilteringTextInputFormatter(
-                      //       RegExp(r'^[A-Za-z0-9\s]+$'),
-                      //       allow: true)
-                      // ],
-                      validator: (value) {
-                        if (!RegExp( r'^(https?|ftp)://[^\s/$.?#].[^\s]*$')
-                                .hasMatch(value!) ||
-                            value.isEmpty) {
-                          return "Please enter a valid URL";
-                        }
-                        // if (value.length > 30) {
-                        //   return 'Name should not exceed 30 characters';
-                        // }
-                        return null;
-                      },
-                    ),
-                  ),
+      const SizedBox(height: 25.0),
+      // Dropdown for selecting the social media app
+      Container(
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(8.0)),
+        child: SizedBox(
+          width:
+              MediaQuery.of(context).size.width * 0.58, // Set the desired width
+          child: DropdownButton<String>(
+            value: selectedApp,
+            onChanged: (String? newValue) {
+              setState(() {
+                Navigator.pop(context);
+                selectedApp = newValue!;
+
+                showModalBottomSheet(context: context, builder: buildSheet3);
+              });
+            },
+            items:
+                socialMediaApps.map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+
+      const SizedBox(height: 25.0),
+      ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromARGB(255, 91, 79, 158),
+          elevation: 5,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+        onPressed: () async {
+          await dbref
+              .child("Sponsees")
+              .child(sponseeID!)
+              .child('Social Media')
+              .update({selectedApp!: _linkController.text});
+          socialMediaApps.remove(selectedApp);
+          _linkController.clear();
+          Navigator.pop(context);
+              selectedApp='Select Platform';
+
+          showModalBottomSheet(context: context, builder: buildSheet3);
+        },
+        child: const Text(
+          "   Add Link    ",
+          style: TextStyle(
+            fontSize: 18,
+            color: Colors.white,
+          ),
+        ),
+      ),
       Divider(
         indent: 100,
         endIndent: 100,
@@ -1026,7 +1067,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
                           context: context, builder: buildSheet2);
                     },
                     child: const Text(
-                      "Change Password",
+                      "    Change Password    ",
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.white,
