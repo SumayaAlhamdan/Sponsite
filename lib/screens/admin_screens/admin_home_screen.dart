@@ -156,7 +156,6 @@ class _AdminPanelState extends State<AdminPanel> {
       }
     });
   }
-
 Widget editCategory() {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,18 +190,21 @@ Widget editCategory() {
                 child: Text('No categories available.'),
               )
             else
-              ListView(
-                shrinkWrap: true,
+              Wrap(
+                spacing: 8.0, // Spacing between items
+                runSpacing: 8.0, // Spacing between rows
                 children: categories.entries.map((entry) {
-                  return Card(
-                    margin: EdgeInsets.all(8.0),
-                    child: ListTile(
-                      title: Text(entry.value),
-                      trailing: IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () {
-                          _editCategoryDialog(entry.key, entry.value); // Pass the category key and name for editing
-                        },
+                  return Container(
+                    width: MediaQuery.of(context).size.width / 2 - 24.0, // Two columns
+                    child: Card(
+                      child: ListTile(
+                        title: Text(entry.value),
+                        trailing: IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () {
+                            _editCategoryDialog(entry.key, entry.value); // Pass the category key and name for editing
+                          },
+                        ),
                       ),
                     ),
                   );
@@ -215,12 +217,10 @@ Widget editCategory() {
   );
 }
 
-
 void _showTextInputDialog() async {
   TextEditingController categoryController = TextEditingController();
   int charCount = 0;
   List<String> existingCategories = categories.values.toList();
-
 
   showDialog(
     context: context,
@@ -228,7 +228,7 @@ void _showTextInputDialog() async {
       return StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            title: Text('Add New Category'),
+            title: Text('Create new category'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -240,10 +240,14 @@ void _showTextInputDialog() async {
                         onChanged: (value) {
                           setState(() {
                             charCount = value.length;
+                            if (charCount > 15) {
+                              categoryController.text = categoryController.text.substring(0, 15);
+                              charCount = 15;
+                            }
                           });
                         },
                         decoration: InputDecoration(
-                          labelText: 'Category Name',
+                          labelText: 'Enter Category',
                         ),
                       ),
                     ),
@@ -264,40 +268,35 @@ void _showTextInputDialog() async {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.of(context).pop(); // Close the dialog
                 },
-                child: Text('Cancel'),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
+                ),
               ),
               TextButton(
                 onPressed: () {
                   String categoryName = categoryController.text.trim();
 
-                  
                   if (existingCategories.contains(categoryName)) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Category already exists. Please enter a unique name.'),
-                      ),
-                    );
-                    return;
-                  }
-
-                
-                  if (categoryName.isNotEmpty &&
-                      categoryName.length <= 15 &&
-                      RegExp(r'^[a-zA-Z ]+$').hasMatch(categoryName)) {
-                    // Add the category to the database at the end of the list
-                    dbCategories.push().set(categoryName);
-                    Navigator.pop(context); // Close the dialog
+                    _showAlertDialog("Category already exists. Please enter a unique name.");
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Invalid category name.'),
-                      ),
-                    );
+                    if (categoryName.isNotEmpty &&
+                        categoryName.length <= 15 &&
+                        RegExp(r'^[a-zA-Z ]+$').hasMatch(categoryName)) {
+                      // Add the category to the database at the end of the list
+                      dbCategories.push().set(categoryName);
+                      Navigator.of(context).pop(); // Close the dialog
+                    } else {
+                      _showAlertDialog("Invalid category name.");
+                    }
                   }
                 },
-                child: Text('Add'),
+                child: Text(
+                  'Create Category',
+                  style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
+                ),
               ),
             ],
           );
@@ -306,6 +305,64 @@ void _showTextInputDialog() async {
     },
   );
 }
+
+
+ Future<void> _showAlertDialog(String message) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Warning',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+          ),
+          backgroundColor: const Color.fromARGB(255, 51, 45, 81),
+          elevation: 0, // Remove the shadow
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(message),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                      const Color.fromARGB(255, 51, 45, 81)),
+                  //Color.fromARGB(255, 207, 186, 224),), // Background color
+                  textStyle: MaterialStateProperty.all<TextStyle>(
+                      const TextStyle(fontSize: 16)), // Text style
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                      const EdgeInsets.all(16)), // Padding
+                  elevation: MaterialStateProperty.all<double>(1), // Elevation
+                  shape: MaterialStateProperty.all<OutlinedBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30), // Border radius
+                      side: const BorderSide(
+                          color: Color.fromARGB(
+                              255, 255, 255, 255)), // Border color
+                    ),
+                  ),
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(200, 50))),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
 void _editCategoryDialog(String categoryKey, String categoryName) async {
   TextEditingController categoryController = TextEditingController(text: categoryName);
