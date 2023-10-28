@@ -122,6 +122,41 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
   int FmaxAttendees = 999999;
   List<String> FselectedCategories = [];
   List<String> FselectedCities = [];
+  List<String> eventTypesList = [];
+
+  Future<List<String>> fetchEventTypes() async {
+    final eventTypes = <String>[];
+
+    try {
+      final DatabaseEvent dataSnapshot =
+          await FirebaseDatabase.instance.reference().child('EventType').once();
+
+      if (dataSnapshot.snapshot.value != null) {
+        final Map<dynamic, dynamic> eventTypesMap =
+            dataSnapshot.snapshot.value as Map<dynamic, dynamic>;
+
+        eventTypesMap.forEach((key, value) {
+          eventTypes.add(value.toString());
+        });
+      }
+    } catch (e) {
+      print('Error fetching event types: $e');
+    }
+
+    return eventTypes;
+  }
+
+  Future<void> fetchEventTypesFromDatabase() async {
+    final eventTypes = await fetchEventTypes();
+
+    // Prepend "All" to the eventTypesList
+    eventTypes.insert(0, "All");
+
+    setState(() {
+      eventTypesList = eventTypes;
+      print("all index" + eventTypesList[0]);
+    });
+  }
 
   void check() {
     if (user != null) {
@@ -144,6 +179,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
     setUpPushNotifications();
     _loadEventsFromFirebase();
     searchController = TextEditingController();
+    fetchEventTypesFromDatabase();
   }
 
   void _loadEventsFromFirebase() async {
@@ -222,10 +258,14 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
 
   List<Event> getFilteredEvents() {
     if (selectedCategory == 'All') {
+      print("selected category in filteredevents " + selectedCategory);
+
       return events;
     } else {
+      print("else selected category in filteredevents " + selectedCategory);
+
       return events
-          .where((event) => event.Category.contains(selectedCategory))
+          .where((event) => event.EventType == selectedCategory)
           .toList();
     }
   }
@@ -498,21 +538,32 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                 ),
               ],
             ),
+            // Container(
+            //   height: 40,
+            //   padding: const EdgeInsets.symmetric(horizontal: 16),
+            //   child: Column(
+            //     children: [
+            //       Row(
+            //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //         children: [
+            //           _buildCategoryText('All', selectedCategory == 'All'),
+            //           _buildCategoryText('Education', false),
+            //           _buildCategoryText('Cultural', false),
+            //           _buildCategoryText('Financial Support', false),
+            //         ],
+            //       ),
+            //     ],
+            //   ),
+            // ),
             Container(
               height: 40,
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildCategoryText('All', selectedCategory == 'All'),
-                      _buildCategoryText('Education', false),
-                      _buildCategoryText('Cultural', false),
-                      _buildCategoryText('Financial Support', false),
-                    ],
-                  ),
-                ],
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: eventTypesList.length,
+                itemBuilder: (context, index) {
+                  return _buildCategoryText(index);
+                },
               ),
             ),
 
@@ -546,6 +597,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                         Event event = searchedEvents.isNotEmpty
                             ? searchedEvents[index]
                             : getFilteredEvents()[index];
+
                         bool meetsFilterCriteria = applyFilterCriteria(event);
                         print('HERE EVENT CRIRITA');
                         if (meetsFilterCriteria) {
@@ -793,41 +845,88 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
     );
   }
 
-  Widget _buildCategoryText(String category, bool isSelected) {
+  Widget _buildCategoryText(int index) {
+    print(index);
+    print("Building category: " + eventTypesList[index]);
+    print("Selected Category: " + selectedCategory);
+    String category = eventTypesList[index];
+    bool isSelected = selectedCategory == category;
+    print("isSelected: ${isSelected}");
+
     return GestureDetector(
       onTap: () {
         setState(() {
           selectedCategory = category;
+          getFilteredEvents();
         });
       },
-      child: Column(
-        children: [
-          Text(
-            category,
-            style: TextStyle(
-              fontSize: 16,
-              color: isSelected
-                  ? const Color.fromARGB(255, 91, 79, 158)
-                  : Colors.grey, // Button color
-              decoration: isSelected ? TextDecoration.underline : null,
-              decorationColor:
-                  const Color.fromARGB(255, 91, 79, 158), // Button color
-              decorationThickness: 2,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+            horizontal: 15), // Adjust the padding as needed
+        child: Column(
+          children: [
+            Text(
+              category,
+              style: TextStyle(
+                fontSize: 16,
+                color: isSelected
+                    ? const Color.fromARGB(255, 91, 79, 158)
+                    : Colors.grey, // Button color
+                decoration: isSelected ? TextDecoration.underline : null,
+                decorationColor:
+                    const Color.fromARGB(255, 91, 79, 158), // Button color
+                decorationThickness: 2,
+              ),
             ),
-          ),
-          const SizedBox(height: 2),
-          isSelected
-              ? Container(
-                  width: 30,
-                  height: 2,
-                  color: const Color.fromARGB(255, 91, 79, 158), // Button color
-                )
-              : const SizedBox(height: 2),
-        ],
+            const SizedBox(height: 2),
+            isSelected
+                ? Container(
+                    width: 30,
+                    height: 2,
+                    color:
+                        const Color.fromARGB(255, 91, 79, 158), // Button color
+                  )
+                : const SizedBox(height: 2),
+          ],
+        ),
       ),
     );
   }
 }
+// Widget _buildCategoryText(String category, bool isSelected) {
+//   return GestureDetector(
+//     onTap: () {
+//       setState(() {
+//         selectedCategory = category;
+//       });
+//     },
+//     child: Column(
+//       children: [
+//         Text(
+//           category,
+//           style: TextStyle(
+//             fontSize: 16,
+//             color: isSelected
+//                 ? const Color.fromARGB(255, 91, 79, 158)
+//                 : Colors.grey, // Button color
+//             decoration: isSelected ? TextDecoration.underline : null,
+//             decorationColor:
+//                 const Color.fromARGB(255, 91, 79, 158), // Button color
+//             decorationThickness: 2,
+//           ),
+//         ),
+//         const SizedBox(height: 2),
+//         isSelected
+//             ? Container(
+//                 width: 30,
+//                 height: 2,
+//                 color: const Color.fromARGB(255, 91, 79, 158), // Button color
+//               )
+//             : const SizedBox(height: 2),
+//       ],
+//     ),
+//   );
+// }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

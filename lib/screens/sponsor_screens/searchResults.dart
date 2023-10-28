@@ -104,6 +104,41 @@ class _ResultPageState extends State<ResultPage> {
   int FmaxAttendees = 999999;
   List<String> FselectedCategories = [];
   List<String> FselectedCities = [];
+  List<String> eventTypesList = [];
+
+  Future<List<String>> fetchEventTypes() async {
+    final eventTypes = <String>[];
+
+    try {
+      final DatabaseEvent dataSnapshot =
+          await FirebaseDatabase.instance.reference().child('EventType').once();
+
+      if (dataSnapshot.snapshot.value != null) {
+        final Map<dynamic, dynamic> eventTypesMap =
+            dataSnapshot.snapshot.value as Map<dynamic, dynamic>;
+
+        eventTypesMap.forEach((key, value) {
+          eventTypes.add(value.toString());
+        });
+      }
+    } catch (e) {
+      print('Error fetching event types: $e');
+    }
+
+    return eventTypes;
+  }
+
+  Future<void> fetchEventTypesFromDatabase() async {
+    final eventTypes = await fetchEventTypes();
+
+    // Prepend "All" to the eventTypesList
+    eventTypes.insert(0, "All");
+
+    setState(() {
+      eventTypesList = eventTypes;
+      print("all index" + eventTypesList[0]);
+    });
+  }
 
   void _searchEventsByName(String eventName) {
     // Filter events based on the first letters of every word in the event name
@@ -117,6 +152,10 @@ class _ResultPageState extends State<ResultPage> {
       }
       return false;
     }).toList();
+    if (selectedCategory != "All")
+      searchedEvents = searchedEvents
+          .where((event) => event.EventType == selectedCategory)
+          .toList();
   }
 
   void check() {
@@ -142,6 +181,7 @@ class _ResultPageState extends State<ResultPage> {
     searchController = TextEditingController();
     searchController.text = widget.searchText;
     originalSearchText = widget.searchText;
+    fetchEventTypesFromDatabase();
   }
 
   void _loadEventsFromFirebase() async {
@@ -220,10 +260,14 @@ class _ResultPageState extends State<ResultPage> {
 
   List<Event> getFilteredEvents() {
     if (selectedCategory == 'All') {
+      print("selected category in filteredevents " + selectedCategory);
+
       return events;
     } else {
+      print("else selected category in filteredevents " + selectedCategory);
+
       return events
-          .where((event) => event.Category.contains(selectedCategory))
+          .where((event) => event.EventType == selectedCategory)
           .toList();
     }
   }
@@ -473,18 +517,12 @@ class _ResultPageState extends State<ResultPage> {
             Container(
               height: 40,
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildCategoryText('All', selectedCategory == 'All'),
-                      _buildCategoryText('Education', false),
-                      _buildCategoryText('Cultural', false),
-                      _buildCategoryText('Financial Support', false),
-                    ],
-                  ),
-                ],
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: eventTypesList.length,
+                itemBuilder: (context, index) {
+                  return _buildCategoryText(index);
+                },
               ),
             ),
             SizedBox(height: 3),
@@ -803,37 +841,50 @@ class _ResultPageState extends State<ResultPage> {
     );
   }
 
-  Widget _buildCategoryText(String category, bool isSelected) {
+  Widget _buildCategoryText(int index) {
+    print(index);
+    print("Building category: " + eventTypesList[index]);
+    print("Selected Category: " + selectedCategory);
+    String category = eventTypesList[index];
+    bool isSelected = selectedCategory == category;
+    print("isSelected: ${isSelected}");
+
     return GestureDetector(
       onTap: () {
         setState(() {
           selectedCategory = category;
+          getFilteredEvents();
         });
       },
-      child: Column(
-        children: [
-          Text(
-            category,
-            style: TextStyle(
-              fontSize: 16,
-              color: isSelected
-                  ? const Color.fromARGB(255, 91, 79, 158)
-                  : Colors.grey, // Button color
-              decoration: isSelected ? TextDecoration.underline : null,
-              decorationColor:
-                  const Color.fromARGB(255, 91, 79, 158), // Button color
-              decorationThickness: 2,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+            horizontal: 15), // Adjust the padding as needed
+        child: Column(
+          children: [
+            Text(
+              category,
+              style: TextStyle(
+                fontSize: 16,
+                color: isSelected
+                    ? const Color.fromARGB(255, 91, 79, 158)
+                    : Colors.grey, // Button color
+                decoration: isSelected ? TextDecoration.underline : null,
+                decorationColor:
+                    const Color.fromARGB(255, 91, 79, 158), // Button color
+                decorationThickness: 2,
+              ),
             ),
-          ),
-          const SizedBox(height: 2),
-          isSelected
-              ? Container(
-                  width: 30,
-                  height: 2,
-                  color: const Color.fromARGB(255, 91, 79, 158), // Button color
-                )
-              : const SizedBox(height: 2),
-        ],
+            const SizedBox(height: 2),
+            isSelected
+                ? Container(
+                    width: 30,
+                    height: 2,
+                    color:
+                        const Color.fromARGB(255, 91, 79, 158), // Button color
+                  )
+                : const SizedBox(height: 2),
+          ],
+        ),
       ),
     );
   }
