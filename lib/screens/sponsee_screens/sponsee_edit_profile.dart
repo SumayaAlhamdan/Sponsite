@@ -39,6 +39,8 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
   final TextEditingController _urlTitleController = TextEditingController();
   final TextEditingController _currentpasswordController =
       TextEditingController();
+  final TextEditingController _currentpasswordController2 =
+      TextEditingController();
   final TextEditingController _newpasswordController = TextEditingController();
   final DatabaseReference dbref = FirebaseDatabase.instance.reference();
   final _firebase = FirebaseAuth.instance;
@@ -47,6 +49,7 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
   bool invalidEmail = false;
   bool wrongpass = false;
   bool addLink = false;
+  bool notMatch = false;
   String? selectedApp;
   List<String> socialMediaApps = [
     'github',
@@ -72,6 +75,8 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
   void _toggleObscured() {
     setState(() {
       _obscured = !_obscured;
+      Navigator.pop(context);
+      _showChangePasswordDialog(context);
     });
   }
 
@@ -189,7 +194,8 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
     _loadProfileFromFirebase();
   }
 
-  Future<void> _showSignOutConfirmationDialog(BuildContext context,item) async {
+  Future<void> _showSignOutConfirmationDialog(
+      BuildContext context, item) async {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -257,22 +263,22 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                         MaterialStateProperty.all<Size>(const Size(200, 50))),
                 onPressed: () async {
                   DatabaseReference dbRef = FirebaseDatabase.instance
-                            .ref()
-                            .child('Sponsees')
-                            .child(sponseeID!)
-                            .child('Social Media')
-                            .child(item.title);
-                        await dbRef.remove();
-                        //check here
+                      .ref()
+                      .child('Sponsees')
+                      .child(sponseeID!)
+                      .child('Social Media')
+                      .child(item.title);
+                  await dbRef.remove();
+                  //check here
 
-                        //  Navigator.pop(context);
-                        //  SponseeEditProfile();
-                        // setState(() {
-                        //   sponseeList.first.social.remove(item);
-                        // });
-                        socialMediaApps.add(item.title);
-                        _loadProfileFromFirebase();
-                        Navigator.pop(context);
+                  //  Navigator.pop(context);
+                  //  SponseeEditProfile();
+                  // setState(() {
+                  //   sponseeList.first.social.remove(item);
+                  // });
+                  socialMediaApps.add(item.title);
+                  _loadProfileFromFirebase();
+                  Navigator.pop(context);
                 })
           ],
         );
@@ -578,8 +584,8 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
           actions: [
             TextButton(
               onPressed: () {
-                 _linkController.clear();
-                  selectedApp = null;
+                _linkController.clear();
+                selectedApp = null;
                 Navigator.of(context).pop(); // Close the dialog
               },
               child: const Text(
@@ -647,7 +653,7 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                     GestureDetector(
                       child: Icon(Icons.delete),
                       onTap: () async {
-                       _showSignOutConfirmationDialog(context,item);
+                        _showSignOutConfirmationDialog(context, item);
                       },
                     ),
                   ],
@@ -696,6 +702,10 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
       user.updatePassword(newPassword).then((_) {
         //Success, do something
         Navigator.pop(context);
+        _currentpasswordController.clear();
+        _newpasswordController.clear();
+        weakPass=false;
+        wrongpass=false;
         showDialog(
           context: context,
           builder: (context) {
@@ -735,12 +745,16 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
         //Error, show something
         setState(() {
           weakPass = true;
+          Navigator.of(context).pop();
+          _showChangePasswordDialog(context);
         });
         return;
       });
     }).catchError((err) {
       setState(() {
         wrongpass = true;
+        Navigator.of(context).pop();
+        _showChangePasswordDialog(context);
       });
       return;
     });
@@ -785,6 +799,10 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                     if (value == null || value.trim().isEmpty) {
                       return 'Please enter password';
                     }
+                    if (value.length < 6 || value.length > 15 || wrongpass) {
+                      return 'Please enter your correct password';
+                    }
+
                     return null;
                   },
                 ),
@@ -851,6 +869,10 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
+                _currentpasswordController.clear();
+                _newpasswordController.clear();
+                weakPass = false;
+                wrongpass = false;
                 Navigator.of(context).pop();
               },
               child: Text(
@@ -860,12 +882,20 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
             ),
             TextButton(
               onPressed: () {
+                weakPass = false;
+                wrongpass = false;
                 // Implement your password change logic here
+                if (!_formKeyPass.currentState!.validate()) {
+                  print('here');
+                  return;
+                }
+
                 _changePassword(
                   _currentpasswordController.text.trim(),
                   _newpasswordController.text.trim(),
                 );
-                Navigator.of(context).pop();
+
+                // Navigator.of(context).pop();
               },
               child: Text('Save',
                   style: TextStyle(color: Color.fromARGB(255, 51, 45, 81))),
@@ -875,895 +905,7 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
       },
     );
   }
-
-//not used
-  // void _showSocialsDialog(BuildContext context) {
-  //   showDialog<void>(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text('Add Link'),
-  //         content: buildSheet3(context), // Call your function here
-  //         actions: <Widget>[
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: Text('Cancel'),
-  //           ),
-  //           TextButton(
-  //             onPressed: () async {
-  //               // Implement your password change logic here
-  //               await dbref
-  //                   .child("Sponsees")
-  //                   .child(sponseeID!)
-  //                   .child('Social Media')
-  //                   .update({selectedApp!: _linkController.text});
-  //               //socialMediaApps.remove(selectedApp);
-  //               _linkController.clear();
-  //               Navigator.pop(context);
-  //               // selectedApp = 'Select Platform';
-  //             },
-  //             child: Text('Save'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
-  // void _showAddLinkDialog(BuildContext context) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text('Add Link'),
-  //         content: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             SizedBox(
-  //               height: 60,
-  //             ),
-  //             SizedBox(
-  //               width: MediaQuery.of(context).size.width * 0.6,
-  //               child: TextFormField(
-  //                 autovalidateMode: AutovalidateMode.onUserInteraction,
-  //                 controller: _linkController,
-  //                 decoration: InputDecoration(
-  //                   border: OutlineInputBorder(),
-  //                   labelText: 'URL',
-  //                   prefixIcon: Icon(Icons.link, size: 24),
-  //                 ),
-  //                 validator: (value) {
-  //                   if (!RegExp(r'^(https?|ftp)://[^\s/$.?#].[^\s]*$')
-  //                           .hasMatch(value!) ||
-  //                       value.isEmpty) {
-  //                     return "Please enter a valid URL";
-  //                   }
-  //                   return null;
-  //                 },
-  //               ),
-  //             ),
-  //             const SizedBox(height: 25.0),
-  //             Container(
-  //               padding: const EdgeInsets.all(8.0),
-  //               decoration: BoxDecoration(
-  //                 border: Border.all(color: Colors.grey),
-  //                 borderRadius: BorderRadius.circular(8.0),
-  //               ),
-  //               child: SizedBox(
-  //                 width: MediaQuery.of(context).size.width * 0.58,
-  //                 child: DropdownButton<String>(
-  //                   value: selectedApp,
-  //                   onChanged: (String? newValue) {
-  //                     setState(() {
-  //                       selectedApp = newValue!;
-  //                     });
-  //                   },
-  //                   items: socialMediaApps
-  //                       .map<DropdownMenuItem<String>>((String value) {
-  //                     return DropdownMenuItem<String>(
-  //                       value: value,
-  //                       child: Text(value),
-  //                     );
-  //                   }).toList(),
-  //                 ),
-  //               ),
-  //             ),
-  //             ElevatedButton(
-  //               style: ElevatedButton.styleFrom(
-  //                 backgroundColor: const Color.fromARGB(255, 91, 79, 158),
-  //                 elevation: 5,
-  //                 shape: RoundedRectangleBorder(
-  //                   borderRadius: BorderRadius.circular(30),
-  //                 ),
-  //               ),
-  //               onPressed: () {
-  //                 // Handle add link logic here
-  //                 // You can access _linkController.text and selectedApp
-  //                 // for the URL and social media app selected
-  //                 // After handling the logic, you can close the dialog.
-  //                 Navigator.of(context).pop();
-  //               },
-  //               child: const Text(
-  //                 "Add Link",
-  //                 style: TextStyle(
-  //                   fontSize: 18,
-  //                   color: Colors.white,
-  //                 ),
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
-// Call _showAddLinkDialog when you want to show the dialog.
-
-  Widget buildSheet2(context) {
-    return Column(mainAxisSize: MainAxisSize.max, children: [
-      AppBar(
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
-        title: Text('Change password'),
-        centerTitle: true,
-        leading: TextButton(
-            onPressed: () => Navigator.pop(context), child: Text('Cancel')),
-        leadingWidth: 100,
-        actions: [
-          TextButton(
-              onPressed: () => _changePassword(
-                  _currentpasswordController.text.trim(),
-                  _newpasswordController.text.trim()),
-              child: Text(' Save ')),
-          SizedBox(
-            width: 10,
-          ),
-        ],
-      ),
-      SizedBox(
-        height: 60,
-      ),
-      SizedBox(
-        width: MediaQuery.of(context).size.width * 0.6, // Set the desired width
-        child: TextFormField(
-          controller: _currentpasswordController,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          decoration: InputDecoration(
-            border: const OutlineInputBorder(),
-            labelText: 'Current Password',
-            prefixIcon: const Icon(Icons.lock_rounded, size: 24),
-            suffixIcon: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
-              child: GestureDetector(
-                onTap: _toggleObscured,
-                child: Icon(
-                  _obscured
-                      ? Icons.visibility_off_rounded
-                      : Icons.visibility_rounded,
-                  size: 24,
-                ),
-              ),
-            ),
-          ),
-          obscureText: _obscured,
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Please enter password';
-            }
-            return null;
-          },
-        ),
-      ),
-      SizedBox(
-        height: 20,
-      ),
-      SizedBox(
-        width: MediaQuery.of(context).size.width * 0.6, // Set the desired width
-        child: TextFormField(
-          controller: _newpasswordController,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          decoration: InputDecoration(
-            border: const OutlineInputBorder(),
-            labelText: 'New Password',
-            prefixIcon: const Icon(Icons.lock_rounded, size: 24),
-            suffixIcon: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
-              child: GestureDetector(
-                onTap: _toggleObscured,
-                child: Icon(
-                  _obscured
-                      ? Icons.visibility_off_rounded
-                      : Icons.visibility_rounded,
-                  size: 24,
-                ),
-              ),
-            ),
-          ),
-          obscureText: _obscured,
-          inputFormatters: [
-            FilteringTextInputFormatter.deny(RegExp(r'[\s]')),
-            LengthLimitingTextInputFormatter(15),
-          ],
-          validator: (value) {
-            if (value!.isEmpty) {
-              return 'Please enter your password';
-            }
-            value = value.trim();
-            if (value.length < 6 || value.length > 15) {
-              return 'Password must between 6 and 15 characters';
-            }
-            if (weakPass) {
-              return 'The password provided is too weak';
-            }
-
-            return null;
-          },
-        ),
-      ),
-    ]);
-  }
-
-  Widget buildSheet3(context) {
-    return Column(mainAxisSize: MainAxisSize.max, children: [
-      // AppBar(
-      //   shape: const RoundedRectangleBorder(
-      //       borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
-      //   title: Text('Social Media Accounts'),
-      //   centerTitle: true,
-      //   leading: TextButton(
-      //       onPressed: () {
-      //         Navigator.pop(context);
-      //         selectedApp = 'Select Platform';
-      //       },
-      //       child: Text('Cancel')),
-      //   leadingWidth: 100,
-      //   actions: [
-      //     TextButton(onPressed: () => (), child: Text(' Save ')),
-      //     SizedBox(
-      //       width: 10,
-      //     ),
-      //   ],
-      // ),
-      SizedBox(
-        height: 60,
-      ),
-
-      // Text(
-      //   'Add Link                                ',
-      //   style: Theme.of(context)
-      //       .textTheme
-      //       .titleLarge
-      //       ?.copyWith(fontWeight: FontWeight.bold, fontSize: 20),
-      // ),
-      SizedBox(
-        width: MediaQuery.of(context).size.width * 0.6, // Set the desired width
-        child: TextFormField(
-          // initialValue: sponseeList.,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          controller: _linkController,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'URL',
-            prefixIcon: Icon(Icons.link, size: 24),
-          ),
-          // inputFormatters: [
-          //   FilteringTextInputFormatter(
-          //       RegExp(r'^[A-Za-z0-9\s]+$'),
-          //       allow: true)
-          // ],
-          validator: (value) {
-            if (!RegExp(r'^(https?|ftp)://[^\s/$.?#].[^\s]*$')
-                    .hasMatch(value!) ||
-                value.isEmpty) {
-              return "Please enter a valid URL";
-            }
-            // if (value.length > 30) {
-            //   return 'Name should not exceed 30 characters';
-            // }
-            return null;
-          },
-        ),
-      ),
-      const SizedBox(height: 25.0),
-      // Dropdown for selecting the social media app
-      Container(
-        padding: const EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(8.0)),
-        child: SizedBox(
-          width:
-              MediaQuery.of(context).size.width * 0.58, // Set the desired width
-          child: DropdownButton<String>(
-            value: selectedApp,
-            onChanged: (String? newValue) {
-              setState(() {
-                // Navigator.pop(context);
-                selectedApp = newValue!;
-
-                // showModalBottomSheet(context: context, builder: buildSheet3);
-              });
-            },
-            items:
-                socialMediaApps.map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
-        ),
-      ),
-
-      // const SizedBox(height: 25.0),
-      // ElevatedButton(
-      //   style: ElevatedButton.styleFrom(
-      //     backgroundColor: const Color.fromARGB(255, 91, 79, 158),
-      //     elevation: 5,
-      //     shape: RoundedRectangleBorder(
-      //       borderRadius: BorderRadius.circular(30),
-      //     ),
-      //   ),
-      //   onPressed: () async {
-      //     await dbref
-      //         .child("Sponsees")
-      //         .child(sponseeID!)
-      //         .child('Social Media')
-      //         .update({selectedApp!: _linkController.text});
-      //     socialMediaApps.remove(selectedApp);
-      //     _linkController.clear();
-      //     Navigator.pop(context);
-      //     selectedApp = 'Select Platform';
-
-      //     showModalBottomSheet(context: context, builder: buildSheet3);
-      //   },
-      //   child: const Text(
-      //     "   Add Link    ",
-      //     style: TextStyle(
-      //       fontSize: 18,
-      //       color: Colors.white,
-      //     ),
-      //   ),
-      // ),
-      // Divider(
-      //   indent: 100,
-      //   endIndent: 100,
-      // ),
-      // _ProfileInfoCol(sponseeList.first.social, sponseeID)
-    ]);
-  }
-
-  // Widget buildSheet(context) {
-  //   return Column(
-  //     mainAxisSize: MainAxisSize.max,
-  //     children: [
-  //       AppBar(
-  //         shape: const RoundedRectangleBorder(
-  //             borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
-  //         title: Text('Edit profile'),
-  //         centerTitle: true,
-  //         leading: TextButton(
-  //             onPressed: () => Navigator.pop(context), child: Text('Cancel')),
-  //         leadingWidth: 100,
-  //         actions: [
-  //           TextButton(onPressed: () => save(), child: Text(' Save ')),
-  //           SizedBox(
-  //             width: 10,
-  //           ),
-  //         ],
-  //       ),
-  //       SizedBox(
-  //         height: 20,
-  //       ),
-  //       Center(
-  //         child: UserImagePicker(
-  //           sponseeList.first.pic,
-  //           onPickImage: (pickedImage) {
-  //             _selectedImage = pickedImage;
-  //           },
-  //         ),
-  //       ),
-  //       Form(
-  //           key: _formKey,
-  //           child: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               // mainAxisAlignment: MainAxisAlignment.center,
-  //               children: <Widget>[
-  //                 SizedBox(
-  //                   height: 10,
-  //                 ),
-  //                 Text(
-  //                   sponseeList.first.email,
-  //                   style: Theme.of(context)
-  //                       .textTheme
-  //                       .titleLarge
-  //                       ?.copyWith(fontWeight: FontWeight.bold, fontSize: 20),
-  //                 ),
-  //                 //if (sponseeList.isNotEmpty)
-  //                 SizedBox(
-  //                   height: 10,
-  //                 ),
-  //                 SizedBox(
-  //                   width: MediaQuery.of(context).size.width *
-  //                       0.6, // Set the desired width
-  //                   child: TextFormField(
-  //                     // initialValue: sponseeList.,
-  //                     autovalidateMode: AutovalidateMode.onUserInteraction,
-  //                     controller: _nameController,
-  //                     decoration: const InputDecoration(
-  //                       border: OutlineInputBorder(),
-  //                       labelText: 'Name',
-  //                       prefixIcon: Icon(Icons.person, size: 24),
-  //                     ),
-  //                     // inputFormatters: [
-  //                     //   FilteringTextInputFormatter(
-  //                     //       RegExp(r'^[A-Za-z0-9\s]+$'),
-  //                     //       allow: true)
-  //                     // ],
-  //                     validator: (value) {
-  //                       if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
-  //                               .hasMatch(value!) ||
-  //                           value.isEmpty) {
-  //                         return "Please enter a valid name with no special characters";
-  //                       }
-  //                       if (value.length > 30) {
-  //                         return 'Name should not exceed 30 characters';
-  //                       }
-  //                       return null;
-  //                     },
-  //                   ),
-  //                 ),
-  //                 //const SizedBox(height: 25.0),
-
-  //                 // SizedBox(
-  //                 //   width: MediaQuery.of(context).size.width *
-  //                 //       0.6, // Set the desired width
-  //                 //   child: TextFormField(
-  //                 //     autovalidateMode: AutovalidateMode.onUserInteraction,
-  //                 //     controller: _emailController,
-  //                 //     readOnly: true,
-  //                 //     decoration: const InputDecoration(
-  //                 //       border: OutlineInputBorder(),
-  //                 //       labelText: 'Email Address',
-  //                 //       prefixIcon: Icon(Icons.email_rounded, size: 24),
-  //                 //     ),
-  //                 //     keyboardType: TextInputType.emailAddress,
-  //                 //     autocorrect: false,
-  //                 //     textCapitalization: TextCapitalization.none,
-  //                 //     /* inputFormatters: [
-  //                 //                   FilteringTextInputFormatter(
-  //                 //                       RegExp(
-  //                 //                           r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$'),
-  //                 //                       allow: true)
-  //                 //                 ],*/
-  //                 //     validator: (value) {
-  //                 //       if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$')
-  //                 //               .hasMatch(value!) ||
-  //                 //           value.isEmpty) {
-  //                 //         return 'Please enter a valid email address';
-  //                 //       }
-  //                 //       if (emailUsed) {
-  //                 //         return 'Email already in use';
-  //                 //       }
-  //                 //       if (invalidEmail) {
-  //                 //         return 'Please enter a valid email';
-  //                 //       }
-  //                 //       return null; // Add this line to handle valid input
-  //                 //     },
-  //                 //   ),
-  //                 // ),
-  //                 const SizedBox(height: 25.0),
-  //                 SizedBox(
-  //                   width: MediaQuery.of(context).size.width *
-  //                       0.6, // Set the desired width
-  //                   child: TextFormField(
-  //                     // initialValue: sponseeList.,
-  //                     autovalidateMode: AutovalidateMode.onUserInteraction,
-  //                     controller: _bioController,
-  //                     // expands: true,
-  //                     maxLines: null,
-  //                     minLines: null,
-  //                     maxLength: 160,
-  //                     decoration: const InputDecoration(
-  //                       border: OutlineInputBorder(),
-  //                       labelText: 'Bio',
-  //                       prefixIcon: Icon(Icons.account_box, size: 24),
-  //                     ),
-  //                     // inputFormatters: [
-  //                     //   FilteringTextInputFormatter(
-  //                     //       RegExp(r'^[A-Za-z0-9\s]+$'),
-  //                     //       allow: true)
-  //                     // ],
-  //                     validator: (value) {
-  //                       // if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
-  //                       //         .hasMatch(value!) ||
-  //                       //     value.isEmpty) {
-  //                       //   return "Special characters are not allowed";
-  //                       // }
-  //                       // if (value.length > 30) {
-  //                       //   return 'Name should not exceed 30 characters';
-  //                       // }
-  //                       return null;
-  //                     },
-  //                   ),
-  //                 ),
-  //                 // SizedBox(
-  //                 //   width: MediaQuery.of(context).size.width *
-  //                 //       0.6, // Set the desired width
-  //                 //   child: TextFormField(
-  //                 //     controller: _passwordController,
-  //                 //     readOnly: true,
-  //                 //     autovalidateMode: AutovalidateMode.onUserInteraction,
-  //                 //     decoration: InputDecoration(
-  //                 //       border: const OutlineInputBorder(),
-  //                 //       labelText: 'Change Password',
-  //                 //       prefixIcon: const Icon(Icons.lock_rounded, size: 24),
-  //                 //       suffixIcon: Padding(
-  //                 //         padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
-  //                 //         child: GestureDetector(
-  //                 //           onTap: () {
-  //                 //             showModalBottomSheet(
-  //                 //                 context: context, builder: buildSheet2);
-  //                 //           },
-  //                 //           child: const Icon(
-  //                 //             Icons.arrow_forward,
-  //                 //             // _obscured
-  //                 //             //     ? Icons.visibility_off_rounded
-  //                 //             //     : Icons.visibility_rounded,
-  //                 //             size: 24,
-  //                 //           ),
-  //                 //         ),
-  //                 //       ),
-  //                 //     ),
-  //                 //     obscureText: _obscured,
-  //                 //     inputFormatters: [
-  //                 //       FilteringTextInputFormatter.deny(RegExp(r'[\s]')),
-  //                 //       LengthLimitingTextInputFormatter(15),
-  //                 //     ],
-  //                 //     validator: (value) {
-  //                 //       if (value!.contains(' ')) {
-  //                 //         return 'Please enter a valid password';
-  //                 //       }
-  //                 //       if (value.isEmpty) {
-  //                 //         return 'Please enter your password';
-  //                 //       }
-
-  //                 //       if (value.length < 6 || value.length > 15) {
-  //                 //         return 'Password must between 6 and 15 characters';
-  //                 //       }
-  //                 //       if (weakPass) {
-  //                 //         return 'The password provided is too weak';
-  //                 //       }
-
-  //                 //       return null;
-  //                 //     },
-  //                 //   ),
-  //                 // ),
-  //                 //  SizedBox(
-  //                 //   width: MediaQuery.of(context).size.width *
-  //                 //       0.6, // Set the desired width
-  //                 //   child: TextFormField(
-  //                 //     // initialValue: sponseeList.,
-  //                 //     autovalidateMode: AutovalidateMode.onUserInteraction,
-  //                 //     controller: _nameController,
-  //                 //     decoration: const InputDecoration(
-  //                 //       border: OutlineInputBorder(),
-  //                 //       labelText: 'Name',
-  //                 //       prefixIcon: Icon(Icons.person, size: 24),
-  //                 //     ),
-  //                 //     // inputFormatters: [
-  //                 //     //   FilteringTextInputFormatter(
-  //                 //     //       RegExp(r'^[A-Za-z0-9\s]+$'),
-  //                 //     //       allow: true)
-  //                 //     // ],
-  //                 //     validator: (value) {
-  //                 //       if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
-  //                 //               .hasMatch(value!) ||
-  //                 //           value.isEmpty) {
-  //                 //         return "Please enter a valid name with no special characters";
-  //                 //       }
-  //                 //       if (value.length > 30) {
-  //                 //         return 'Name should not exceed 30 characters';
-  //                 //       }
-  //                 //       return null;
-  //                 //     },
-  //                 //   ),
-  //                 // ),
-  //                 //  SizedBox(
-  //                 //   width: MediaQuery.of(context).size.width *
-  //                 //       0.6, // Set the desired width
-  //                 //   child: TextFormField(
-  //                 //     // initialValue: sponseeList.,
-  //                 //     autovalidateMode: AutovalidateMode.onUserInteraction,
-  //                 //     controller: _nameController,
-  //                 //     decoration: const InputDecoration(
-  //                 //       border: OutlineInputBorder(),
-  //                 //       labelText: 'Name',
-  //                 //       prefixIcon: Icon(Icons.person, size: 24),
-  //                 //     ),
-  //                 //     // inputFormatters: [
-  //                 //     //   FilteringTextInputFormatter(
-  //                 //     //       RegExp(r'^[A-Za-z0-9\s]+$'),
-  //                 //     //       allow: true)
-  //                 //     // ],
-  //                 //     validator: (value) {
-  //                 //       if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
-  //                 //               .hasMatch(value!) ||
-  //                 //           value.isEmpty) {
-  //                 //         return "Please enter a valid name with no special characters";
-  //                 //       }
-  //                 //       if (value.length > 30) {
-  //                 //         return 'Name should not exceed 30 characters';
-  //                 //       }
-  //                 //       return null;
-  //                 //     },
-  //                 //   ),
-  //                 // ),
-  //                 //  SizedBox(
-  //                 //   width: MediaQuery.of(context).size.width *
-  //                 //       0.6, // Set the desired width
-  //                 //   child: TextFormField(
-  //                 //     // initialValue: sponseeList.,
-  //                 //     autovalidateMode: AutovalidateMode.onUserInteraction,
-  //                 //     controller: _nameController,
-  //                 //     decoration: const InputDecoration(
-  //                 //       border: OutlineInputBorder(),
-  //                 //       labelText: 'Name',
-  //                 //       prefixIcon: Icon(Icons.person, size: 24),
-  //                 //     ),
-  //                 //     // inputFormatters: [
-  //                 //     //   FilteringTextInputFormatter(
-  //                 //     //       RegExp(r'^[A-Za-z0-9\s]+$'),
-  //                 //     //       allow: true)
-  //                 //     // ],
-  //                 //     validator: (value) {
-  //                 //       if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
-  //                 //               .hasMatch(value!) ||
-  //                 //           value.isEmpty) {
-  //                 //         return "Please enter a valid name with no special characters";
-  //                 //       }
-  //                 //       if (value.length > 30) {
-  //                 //         return 'Name should not exceed 30 characters';
-  //                 //       }
-  //                 //       return null;
-  //                 //     },
-  //                 //   ),
-  //                 // ),
-  //                 const SizedBox(height: 25.0),
-  //                 ElevatedButton(
-  //                   style: ElevatedButton.styleFrom(
-  //                     backgroundColor: const Color.fromARGB(255, 91, 79, 158),
-  //                     elevation: 5,
-  //                     shape: RoundedRectangleBorder(
-  //                       borderRadius: BorderRadius.circular(30),
-  //                     ),
-  //                   ),
-  //                   onPressed: () {
-  //                     showModalBottomSheet(
-  //                         context: context, builder: buildSheet2);
-  //                   },
-  //                   child: const Text(
-  //                     "    Change Password    ",
-  //                     style: TextStyle(
-  //                       fontSize: 18,
-  //                       color: Colors.white,
-  //                     ),
-  //                   ),
-  //                 ),
-
-  //                 const SizedBox(height: 25.0),
-  //                 ElevatedButton(
-  //                   style: ElevatedButton.styleFrom(
-  //                     backgroundColor: const Color.fromARGB(255, 91, 79, 158),
-  //                     elevation: 5,
-  //                     shape: RoundedRectangleBorder(
-  //                       borderRadius: BorderRadius.circular(30),
-  //                     ),
-  //                   ),
-  //                   onPressed: () {
-  //                     showModalBottomSheet(
-  //                         context: context, builder: buildSheet3);
-  //                   },
-  //                   child: const Text(
-  //                     "Social Media Accounts",
-  //                     style: TextStyle(
-  //                       fontSize: 18,
-  //                       color: Colors.white,
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ]))
-  //     ],
-  //   );
-  // }
 }
-
-// //class _ProfileInfoCol extends StatefulWidget {
-//   _ProfileInfoCol(List<SocialMediaAccount> this.sponseeList.first.social, this.id, {Key? key})
-//       : super(key: key);
-//   final List<SocialMediaAccount> sponseeList.first.social;
-//   final id;
-//   State<_ProfileInfoCol> createState() => _ProfileInfoColState(sponseeList.first.social, id);
-// }
-
-// //class _ProfileInfoColState extends State<_ProfileInfoCol> {
-//   _ProfileInfoColState(this.sponseeList.first.social, this.id) {
-//     // id=ID;
-//     // sponseeList.first.social=items;
-//   }
-//   List<SocialMediaAccount> sponseeList.first.social;
-//   var id;
-//   final Map<String, IconData> socialMediaIcons = {
-//     'github': FontAwesomeIcons.github,
-//     'twitter': FontAwesomeIcons.twitter,
-//     'instagram': FontAwesomeIcons.instagram,
-//     'facebook': FontAwesomeIcons.facebook,
-//     'linkedin': FontAwesomeIcons.linkedin,
-//     'website': FontAwesomeIcons.link,
-//     'youtube': FontAwesomeIcons.youtube,
-
-//     // Add more social media titles and corresponding icons as needed
-//   };
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Row(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         // height: 100,
-//         // color: Colors.amber,
-//         // constraints: BoxConstraints(maxWidth: sponseeList.first.social.length * 250),
-//         children: [
-//           Column(
-//             children: sponseeList.first.social.map((item) {
-//               return Container(
-//                 margin: EdgeInsets.only(
-//                     bottom: 10), // Adjust the bottom margin as needed
-//                 child: Row(
-//                   children: [
-//                     _singleItem(context, item),
-//                     SizedBox(width: 50),
-//                     Container(
-//                       // color: Colors.amber,
-//                       width: 100,
-//                       height: 30,
-//                       child: Text(
-//                         item.title,
-//                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-//                               fontWeight: FontWeight.bold,
-//                               fontSize: 20,
-//                             ),
-//                       ),
-//                     ),
-//                     SizedBox(width: 150),
-//                     GestureDetector(
-//                       child: Icon(Icons.delete),
-//                       onTap: () async {
-//                         DatabaseReference dbRef = FirebaseDatabase.instance
-//                             .ref()
-//                             .child('Sponsees')
-//                             .child(id!)
-//                             .child('Social Media')
-//                             .child(item.title);
-//                         await dbRef.remove();
-//                         //check here
-//                        Navigator.pop(context);
-//                       //  Navigator.pop(context);
-//                       //  SponseeEditProfile();
-//                         setState(() {
-//                           sponseeList.first.social.remove(item);
-//                         });
-
-//                       },
-//                     ),
-//                   ],
-//                 ),
-//               );
-//             }).toList(),
-//           )
-//         ]);
-//   }
-
-//   Widget _singleItem(BuildContext context, SocialMediaAccount item) =>
-//       CircleAvatar(
-//           radius: 30,
-//           child: Material(
-//             shape: const CircleBorder(),
-//             clipBehavior: Clip.hardEdge,
-//             color: Color.fromARGB(255, 244, 244, 244),
-//             child: InkWell(
-//               onTap: () {
-//                 _launchUrl(item.link);
-//               },
-//               child: Center(
-//                 child: Icon(
-//                   socialMediaIcons[item.title],
-//                   size: 40,
-//                   color: Color.fromARGB(255, 91, 79, 158),
-//                 ),
-//               ),
-//             ),
-//           ));
-
-//   Future<void> _launchUrl(String url) async {
-//     final Uri _url = Uri.parse(url);
-
-//     if (!await launchUrl(_url)) {
-//       throw Exception('Could not launch $_url');
-//     }
-//   }
-// }
-
-// //class _ProfileInfoRow extends StatelessWidget {
-//   _ProfileInfoRow(List<SocialMediaAccount> this.sponseeList.first.social, {Key? key})
-//       : super(key: key);
-
-//   final List<SocialMediaAccount> sponseeList.first.social;
-
-//   final Map<String, IconData> socialMediaIcons = {
-//     'github': FontAwesomeIcons.github,
-//     'twitter': FontAwesomeIcons.twitter,
-//     'instagram': FontAwesomeIcons.instagram,
-//     'facebook': FontAwesomeIcons.facebook,
-//     'linkedin': FontAwesomeIcons.linkedin,
-//     'website': FontAwesomeIcons.link,
-//     'youtube': FontAwesomeIcons.youtube,
-
-//     // Add more social media titles and corresponding icons as needed
-//   };
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       height: 100,
-//       //color: Colors.amber,
-//       constraints: BoxConstraints(maxWidth: sponseeList.first.social.length * 80),
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         children: sponseeList.first.social
-//             .map((item) => Expanded(
-//                     child: Row(
-//                   children: [
-//                     //if (sponseeList.first.social.indexOf(item) != 0)
-//                     Expanded(child: _singleItem(context, item)),
-//                   ],
-//                 )))
-//             .toList(),
-//       ),
-//     );
-//   }
-
-//   Widget _singleItem(BuildContext context, SocialMediaAccount item) =>
-//       CircleAvatar(
-//           radius: 30,
-//           child: Material(
-//             shape: const CircleBorder(),
-//             clipBehavior: Clip.hardEdge,
-//             color: Color.fromARGB(255, 244, 244, 244),
-//             child: InkWell(
-//               onTap: () {
-//                 _launchUrl(item.link);
-//               },
-//               child: Center(
-//                 child: Icon(
-//                   socialMediaIcons[item.title],
-//                   size: 40,
-//                   color: Color.fromARGB(255, 91, 79, 158),
-//                 ),
-//               ),
-//             ),
-//           ));
-
-//   Future<void> _launchUrl(String url) async {
-//     final Uri _url = Uri.parse(url);
-
-//     if (!await launchUrl(_url)) {
-//       throw Exception('Could not launch $_url');
-//     }
-//   }
-// }
 
 class SponseeEditProfileInfo {
   final String name;
