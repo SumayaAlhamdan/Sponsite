@@ -852,19 +852,29 @@ class _MyHomePageState extends State<MyHomePage> {
                 String notes = notesController.text;
                 DatabaseReference databaseReference =
                     FirebaseDatabase.instance.ref();
-                double latitude = selectedLocation!.latitude;
-                double longitude = selectedLocation!.longitude;
                 String city = '';
-                placemarkFromCoordinates(latitude, longitude)
-                    .then((List<Placemark> placemarks) {
-                  if (placemarks.isNotEmpty) {
-                    Placemark firstPlacemark = placemarks.first;
-                    city = firstPlacemark.locality ?? 'Unknown';
-                    DatabaseReference cityRef =
-                        databaseReference.child('Cities').push();
-                    cityRef.set(city);
-                    print(city);
-                    _postNewEvent(
+                if (selectedLocation != null) {
+                  double latitude = selectedLocation!.latitude;
+                  double longitude = selectedLocation!.longitude;
+                  city = 'Unknown';
+
+                  if (location.isNotEmpty) {
+                    placemarkFromCoordinates(latitude, longitude)
+                        .then((List<Placemark>? placemarks) {
+                      if (placemarks != null && placemarks.isNotEmpty) {
+                        Placemark firstPlacemark = placemarks.first;
+                        city = firstPlacemark.locality ?? 'Unknown';
+                        if (city != 'Unknown') {
+                          DatabaseReference cityRef =
+                              databaseReference.child('Cities').push();
+                          cityRef.set(city).then((_) {
+                            print(city);
+                          });
+                        }
+                      }
+
+                      // Post the event outside the placemarkFromCoordinates callback
+                      _postNewEvent(
                         type,
                         ename,
                         location,
@@ -876,9 +886,42 @@ class _MyHomePageState extends State<MyHomePage> {
                         categ,
                         benefits,
                         notes,
-                        city);
+                        city,
+                      );
+                    });
+                  } else {
+                    // Location is empty, so directly post the event with 'Unknown' city
+                    _postNewEvent(
+                      type,
+                      ename,
+                      location,
+                      startDate,
+                      endDate,
+                      startTime,
+                      endTime,
+                      numOfAt,
+                      categ,
+                      benefits,
+                      notes,
+                      city,
+                    );
                   }
-                });
+                } else {
+                  _postNewEvent(
+                    type,
+                    ename,
+                    location,
+                    startDate,
+                    endDate,
+                    startTime,
+                    endTime,
+                    numOfAt,
+                    categ,
+                    benefits,
+                    notes,
+                    city,
+                  );
+                }
 
                 Navigator.of(context).pop();
 

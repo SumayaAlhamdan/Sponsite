@@ -98,10 +98,10 @@ class _ResultPageState extends State<ResultPage> {
   String originalSearchText =
       ''; // Create a variable to store the original search text
   int minAttendees = 0;
-  int maxAttendees = 999999;
+  int maxAttendees = 200000;
   List<String> selectedCategories = [];
   int FminAttendees = 0;
-  int FmaxAttendees = 999999;
+  int FmaxAttendees = 200000;
   List<String> FselectedCategories = [];
   List<String> FselectedCities = [];
   List<String> eventTypesList = [];
@@ -479,7 +479,7 @@ class _ResultPageState extends State<ResultPage> {
                             icon: Icon(
                               Icons.filter_list,
                               color: (FminAttendees != 0 ||
-                                      FmaxAttendees != 999999 ||
+                                      FmaxAttendees != 200000 ||
                                       FselectedCategories.isNotEmpty ||
                                       FselectedCities.isNotEmpty)
                                   ? Color.fromARGB(255, 91, 79, 158)
@@ -912,7 +912,7 @@ class FilterDialog extends StatefulWidget {
 
 class _FilterDialogState extends State<FilterDialog> {
   int _minValue = 0;
-  int _maxValue = 999999;
+  int _maxValue = 200000;
   bool _locationSelected = false;
   String _selectedCity = '';
   List<String> _categories = [];
@@ -984,7 +984,7 @@ class _FilterDialogState extends State<FilterDialog> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _minValue = prefs.getInt('minValue') ?? 0;
-      _maxValue = prefs.getInt('maxValue') ?? 999999;
+      _maxValue = prefs.getInt('maxValue') ?? 200000;
       _locationSelected = prefs.getBool('locationSelected') ?? false;
       _selectedCity = prefs.getString('selectedCity') ?? '';
       _selectedCategories = prefs.getStringList('selectedCategories') ?? [];
@@ -1081,7 +1081,7 @@ class _FilterDialogState extends State<FilterDialog> {
           RangeSlider(
             values: RangeValues(_minValue.toDouble(), _maxValue.toDouble()),
             min: 0,
-            max: 999999,
+            max: 200000,
             onChanged: (RangeValues values) {
               try {
                 setState(() {
@@ -1157,7 +1157,7 @@ class _FilterDialogState extends State<FilterDialog> {
             // Reset filter values in the current widget's state
             setState(() {
               _minValue = 0;
-              _maxValue = 999999;
+              _maxValue = 200000;
               _selectedCategories = [];
               _selectedCities = [];
             });

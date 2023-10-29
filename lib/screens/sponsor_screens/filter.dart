@@ -21,6 +21,12 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(FilterPage());
+}
+
 String? sponsorID;
 
 class Event {
@@ -101,10 +107,10 @@ class _FilterPageState extends State<FilterPage> {
   List<Event> searchedEvents = []; // List to store searched events
   bool isSearched = false;
   int minAttendees = 0;
-  int maxAttendees = 999999;
+  int maxAttendees = 200000;
   List<String> selectedCategories = [];
   int FminAttendees = 0;
-  int FmaxAttendees = 999999;
+  int FmaxAttendees = 200000;
   List<String> FselectedCategories = [];
   List<String> FselectedCities = [];
   void _searchEventsByName(String eventName) {
@@ -260,7 +266,7 @@ class _FilterPageState extends State<FilterPage> {
               icon: Icon(
                 Icons.filter_list,
                 color: (FminAttendees != 0 ||
-                        FmaxAttendees != 999999 ||
+                        FmaxAttendees != 200000 ||
                         FselectedCategories.isNotEmpty ||
                         FselectedCities.isNotEmpty)
                     ? Color.fromARGB(255, 91, 79, 158)
@@ -289,6 +295,55 @@ class _FilterPageState extends State<FilterPage> {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // new addition
+            if (FminAttendees != 0 ||
+                FmaxAttendees != 200000 ||
+                (FselectedCategories != null &&
+                    FselectedCategories.isNotEmpty) ||
+                (FselectedCities != null && FselectedCities.isNotEmpty))
+              Text('Filtered By:',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Color.fromARGB(255, 91, 79, 158),
+                  )),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
+              children: <Widget>[
+                if (FminAttendees != 0)
+                  Chip(
+                      label: Text(
+                    'Min Attendees: $FminAttendees',
+                    style: TextStyle(color: Color.fromARGB(255, 91, 79, 158)),
+                  )),
+                if (FmaxAttendees != 200000)
+                  Chip(
+                    label: Text(
+                      'Max Attendees: $FmaxAttendees',
+                      style: TextStyle(color: Color.fromARGB(255, 91, 79, 158)),
+                    ),
+                  ),
+                if (FselectedCategories != null &&
+                    FselectedCategories.isNotEmpty)
+                  Chip(
+                    label:
+                        Text('Categories: ${FselectedCategories.join(', ')}'),
+                    labelStyle: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(
+                            255, 91, 79, 158)), // Add style as needed
+                  ),
+                if (FselectedCities != null && FselectedCities.isNotEmpty)
+                  Chip(
+                    label: Text('Cities: ${FselectedCities.join(', ')}'),
+                    labelStyle: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(
+                            255, 91, 79, 158)), // Add style as needed
+                  ),
+              ],
+            ),
             const SizedBox(height: 16),
             if (isSearched == false || searchedEvents.isNotEmpty)
               Container(
@@ -637,7 +692,7 @@ class FilterDialog extends StatefulWidget {
 
 class _FilterDialogState extends State<FilterDialog> {
   int _minValue = 0;
-  int _maxValue = 999999;
+  int _maxValue = 200000;
   bool _locationSelected = false;
   String _selectedCity = '';
   List<String> _categories = [];
@@ -709,7 +764,7 @@ class _FilterDialogState extends State<FilterDialog> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _minValue = prefs.getInt('minValue') ?? 0;
-      _maxValue = prefs.getInt('maxValue') ?? 999999;
+      _maxValue = prefs.getInt('maxValue') ?? 200000;
       _locationSelected = prefs.getBool('locationSelected') ?? false;
       _selectedCity = prefs.getString('selectedCity') ?? '';
       _selectedCategories = prefs.getStringList('selectedCategories') ?? [];
@@ -745,18 +800,30 @@ class _FilterDialogState extends State<FilterDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       scrollable: true,
-      title: Text('Filter Events'),
+      title: Text(
+        'Filter Events By:',
+        style: TextStyle(color: Color.fromARGB(255, 91, 79, 158)),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Number of Attendees (Min and Max)'),
+          Text(
+            'Number of Attendees (Min and Max):',
+            style: TextStyle(
+                color: Color.fromARGB(255, 91, 79, 158), fontSize: 20),
+          ),
           Row(
             children: [
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Min'),
+                    Text(
+                      'Min',
+                      style: TextStyle(
+                          color: Color.fromARGB(255, 91, 79, 158),
+                          fontSize: 15),
+                    ),
                     TextFormField(
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(),
@@ -781,7 +848,12 @@ class _FilterDialogState extends State<FilterDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Max'),
+                    Text(
+                      'Max',
+                      style: TextStyle(
+                          color: Color.fromARGB(255, 91, 79, 158),
+                          fontSize: 15),
+                    ),
                     TextFormField(
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(),
@@ -806,7 +878,7 @@ class _FilterDialogState extends State<FilterDialog> {
           RangeSlider(
             values: RangeValues(_minValue.toDouble(), _maxValue.toDouble()),
             min: 0,
-            max: 999999,
+            max: 200000,
             onChanged: (RangeValues values) {
               try {
                 setState(() {
@@ -819,14 +891,22 @@ class _FilterDialogState extends State<FilterDialog> {
             },
           ),
           SizedBox(height: 16),
-          Text('Select Categories'),
+          Text(
+            'Select Categories:',
+            style: TextStyle(
+                color: Color.fromARGB(255, 91, 79, 158), fontSize: 20),
+          ),
           Column(
             children: _categories.asMap().entries.map((entry) {
               final index = entry.key;
               final category = entry.value;
 
               return CheckboxListTile(
-                title: Text(category),
+                title: Text(
+                  category,
+                  style: TextStyle(
+                      color: Color.fromARGB(255, 91, 79, 158), fontSize: 15),
+                ),
                 value: _selectedCategories.contains(category),
                 onChanged: (bool? value) {
                   setState(() {
@@ -842,18 +922,28 @@ class _FilterDialogState extends State<FilterDialog> {
                     saveFilterValues();
                   });
                 },
+                controlAffinity: ListTileControlAffinity
+                    .leading, // Set checkboxes to the left
               );
             }).toList(),
           ),
           SizedBox(height: 16),
-          Text('Select Cities'),
+          Text(
+            'Select Cities:',
+            style: TextStyle(
+                color: Color.fromARGB(255, 91, 79, 158), fontSize: 20),
+          ),
           Column(
             children: _cities.asMap().entries.map((entry) {
               final index = entry.key;
               final city = entry.value;
 
               return CheckboxListTile(
-                title: Text(city),
+                title: Text(
+                  city,
+                  style: TextStyle(
+                      color: Color.fromARGB(255, 91, 79, 158), fontSize: 15),
+                ),
                 value: _selectedCities.contains(city),
                 onChanged: (bool? value) {
                   setState(() {
@@ -869,6 +959,8 @@ class _FilterDialogState extends State<FilterDialog> {
                     saveFilterValues();
                   });
                 },
+                controlAffinity: ListTileControlAffinity
+                    .leading, // Set checkboxes to the left
               );
             }).toList(),
           ),
@@ -882,7 +974,7 @@ class _FilterDialogState extends State<FilterDialog> {
             // Reset filter values in the current widget's state
             setState(() {
               _minValue = 0;
-              _maxValue = 999999;
+              _maxValue = 200000;
               _selectedCategories = [];
               _selectedCities = [];
             });
@@ -894,7 +986,11 @@ class _FilterDialogState extends State<FilterDialog> {
             );
             Navigator.of(context).pop();
           },
-          child: Text('Clear'),
+          child: Text(
+            'Clear',
+            style: TextStyle(
+                color: Color.fromARGB(255, 91, 79, 158), fontSize: 15),
+          ),
         ),
         TextButton(
           onPressed: () {
@@ -912,7 +1008,11 @@ class _FilterDialogState extends State<FilterDialog> {
               print('Error applying filter: $e');
             }
           },
-          child: Text('Apply'),
+          child: Text(
+            'Apply',
+            style: TextStyle(
+                color: Color.fromARGB(255, 91, 79, 158), fontSize: 15),
+          ),
         ),
       ],
     );
