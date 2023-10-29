@@ -88,7 +88,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
     });
   }
 
-  Widget listItem({required Event event}) {
+  Widget listItem({required Event event, required bool isPast} ) {
     return Container(
       margin: const EdgeInsets.all(10),
       padding: const EdgeInsets.all(10),
@@ -249,7 +249,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    onPressed: () {
+                    onPressed: isPast? null : () {
                       print("This id from deema's class : ");
                       print(event.EVENTid);
                       Navigator.push(
@@ -369,7 +369,7 @@ final filteredEvents = events.where((event) {
               itemCount: filteredEvents.length,
               itemBuilder: (BuildContext context, int index) {
                 Event event = filteredEvents[index];
-                return listItem(event: event);
+                return listItem(event: event , isPast: false);
               },
             ),
           ),
@@ -415,7 +415,7 @@ final filteredEvents = events.where((event) {
                 itemCount: filteredEvents.length,
                 itemBuilder: (BuildContext context, int index) {
                   Event event = filteredEvents[index];
-                  return listItem(event: event);
+                  return listItem(event: event , isPast: true);
                 },
               ),
             ),
