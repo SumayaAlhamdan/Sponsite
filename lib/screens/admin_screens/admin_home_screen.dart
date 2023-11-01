@@ -321,8 +321,9 @@ ElevatedButton(
 }
 GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 TextEditingController categoryController = TextEditingController();
-
 void _showTextInputDialog() async {
+  categoryController.clear();
+
   List<String> existingCategories = categories.values.toList();
 
   showDialog(
@@ -353,9 +354,8 @@ void _showTextInputDialog() async {
                   }
                   if (existingCategories.any((category) => category.toLowerCase() == value.toLowerCase())) {
                     return 'Category already exists.\nPlease enter a unique name.';
-                    // Use \n to create a line break in the error message
                   }
-                  return null; // No validation error
+                  return null;
                 },
               ),
             ],
@@ -372,8 +372,7 @@ void _showTextInputDialog() async {
             onPressed: () {
               if (_formKey.currentState!.validate()) {
                 String categoryName = categoryController.text.trim();
-                dbCategories.push().set(categoryName);
-                Navigator.pop(context);
+                _showConfirmationDialog(context, 'Create', categoryName, "", "");
               }
             },
             child: Text('Add'),
@@ -383,8 +382,6 @@ void _showTextInputDialog() async {
     },
   );
 }
-
-
 
 void _editCategoryDialog(String categoryKey, String categoryName) async {
   TextEditingController categoryController = TextEditingController(text: categoryName);
@@ -421,7 +418,7 @@ void _editCategoryDialog(String categoryKey, String categoryName) async {
                   if (categories.values.any((existingCategory) => existingCategory.toLowerCase() == value.toLowerCase())) {
                     return 'Category already exists.\nPlease enter a unique name.';
                   }
-                  return null; // No validation error
+                  return null;
                 },
               ),
             ],
@@ -438,9 +435,7 @@ void _editCategoryDialog(String categoryKey, String categoryName) async {
             onPressed: () {
               if (_formKey.currentState!.validate()) {
                 String newCategoryName = categoryController.text.trim();
-                // Update the category in the database
-                dbCategories.child(categoryKey).set(newCategoryName);
-                Navigator.pop(context); // Close the dialog
+                _showConfirmationDialog(context, 'Update', newCategoryName, categoryName, categoryKey);
               }
             },
             child: Text('Save'),
@@ -450,11 +445,75 @@ void _editCategoryDialog(String categoryKey, String categoryName) async {
     },
   );
 }
-  }
 
- 
+void _showConfirmationDialog(BuildContext context, String action, String categoryName, String oldCategoryName, String categoryKey) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Confirm $action' +'ing'),
+        content: Text(action == "Create"
+            ? 'Are you sure you want to create $categoryName?'
+            : 'Are you sure you want to change the $oldCategoryName category to $categoryName?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (_formKey.currentState!.validate()) {
+                if (action == 'Create') {
+                  dbCategories.push().set(categoryName);
+                } else if (action == 'Update') {
+                  dbCategories.child(categoryKey).set(categoryName);
+                }
 
+                Navigator.pop(context);
 
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.check_circle,
+                            color: Color.fromARGB(255, 91, 79, 158),
+                            size: 48,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            action == "Create"
+                                ? 'Category created successfully!'
+                                : 'Category name changed successfully!',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                );
+
+                Future.delayed(Duration(seconds: 5), () {
+                  Navigator.pop(context);
+                });
+              }
+            },
+            child: Text('Confirm'),
+          ),
+        ],
+      );
+    },
+  );
+}
+} 
 
 class GoogleAPIClient extends IOClient {
   final Map<String, String> _headers;
