@@ -243,82 +243,86 @@ Sponsite
       }
     });
   }
-
-
-Widget editCategory() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Padding(
-        padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 16.0),
-        child: Text(
-          'Categories',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-      ),
-      Card(
-        color: Colors.white, // Set the card's background color to white
-        margin: EdgeInsets.all(16.0),
-        elevation: 4,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Spacer to push the button to the right
-               Spacer(),
-ElevatedButton(
-  onPressed: _showTextInputDialog,
-  style: ButtonStyle(
-    backgroundColor: MaterialStateProperty.all<Color>(
-      const Color.fromARGB(255, 51, 45, 81),
+ Widget editCategory() {
+  return Card(
+    color: Colors.white,
+    margin: EdgeInsets.all(16.0),
+    elevation: 4,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12.0),
     ),
-  ),
-  child: Text(
-    'Add New Category',
-    style: TextStyle(color: Colors.white), // Set the text color to white
-  ),
-)
-
-
-              ],
-            ),
-            if (categories.isEmpty)
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text('No categories available.'),
-              )
-            else
-              Wrap(
-                spacing: 8.0, // Spacing between items
-                runSpacing: 8.0, // Spacing between rows
-                children: categories.entries.map((entry) {
-                  return Container(
-                    width: MediaQuery.of(context).size.width / 2 - 24.0, // Two columns
-                    child: Card(
-                      color: Color.fromARGB(255, 51, 45, 81), // Set the item's background to purple
-                      child: ListTile(
-                        title: Text(entry.value),
-                        textColor: Colors.white,
-                        trailing: IconButton(
-                          icon: Icon(Icons.edit),
-                          color: Colors.white,
-                          onPressed: () {
-                            _editCategoryDialog(entry.key, entry.value); // Pass the category key and name for editing
-                          },
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 16.0),
+              child: Text(
+                'Categories',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
               ),
+            ),
+            Container(
+              margin: EdgeInsets.fromLTRB(0.0, 15.0, 15.0, 15.0),
+              width: 180,
+              height: 40,
+              child: ElevatedButton(
+                onPressed: _showTextInputDialog,
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                    const Color.fromARGB(255, 51, 45, 81),
+                  ),
+                ),
+                child: Text(
+                  'Add New Category',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
           ],
         ),
-      ),
-    ],
+        if (categories.isEmpty)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text('No categories available.', style: TextStyle(color: Colors.black),
+            ),
+          )
+        else
+          Wrap(
+            spacing: 8.0,
+            runSpacing: 8.0,
+            children: categories.entries.map((entry) {
+              return Container(
+                width: MediaQuery.of(context).size.width / 2 - 24.0,
+                child: Card(
+                  color: Color.fromARGB(255, 51, 45, 81),
+                  child: ListTile(
+                    title: Text(entry.value, style: TextStyle(color: Colors.white),
+                    ),
+                    trailing: Padding(
+                      padding: const EdgeInsets.only(left: 20.0),
+                      child: IconButton(
+                        icon: Icon(Icons.edit),
+                        color: Colors.white,
+                        onPressed: () {
+                          _editCategoryDialog(entry.key, entry.value);
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+      ],
+    ),
   );
 }
+
+
+
 GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 TextEditingController categoryController = TextEditingController();
 void _showTextInputDialog() async {
