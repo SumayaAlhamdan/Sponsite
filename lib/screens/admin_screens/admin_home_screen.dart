@@ -335,34 +335,41 @@ void _showTextInputDialog() async {
     builder: (context) {
       return AlertDialog(
         title: Text('Add New Category'),
-        content: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: categoryController,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                decoration: InputDecoration(
-                  labelText: 'Category Name',
+        content: Container(
+          width: 400,  // Set your desired width here
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: categoryController,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  decoration: InputDecoration(
+                    labelText: 'Category Name',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Category name cannot be empty';
+                    }
+                    if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(value)) {
+                      return 'Category name can only contain letters and spaces.';
+                    }
+                    if (value.length > 15) {
+                      return "Category name is too long, Please use a name with a maximum\n of 15 characters.";
+                    }
+                    if (value.length < 3) {
+                      return "Category name is too short. Please use a name with a minimum\n of 3 characters.";
+                    }
+                    
+                    if (existingCategories.any((category) => category.toLowerCase() == value.toLowerCase())) {
+                      return 'Category already exists. Please enter a unique name.';
+                    }
+                    return null;
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Category name cannot be empty';
-                  }
-                  if (value.length > 15) {
-                    return 'Category name is too long.\n Please use a shorter name.';
-                  }
-                  if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(value)) {
-                    return 'Category name can only contain\n letters and spaces.';
-                  }
-                  if (existingCategories.any((category) => category.toLowerCase() == value.toLowerCase())) {
-                    return 'Category already exists.\nPlease enter a unique name.';
-                  }
-                  return null;
-                },
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         actions: [
@@ -387,6 +394,7 @@ void _showTextInputDialog() async {
   );
 }
 
+
 void _editCategoryDialog(String categoryKey, String categoryName) async {
   TextEditingController categoryController = TextEditingController(text: categoryName);
 
@@ -410,17 +418,21 @@ void _editCategoryDialog(String categoryKey, String categoryName) async {
                   if (value == null || value.isEmpty) {
                     return 'Category name cannot be empty';
                   }
-                  if (value.length > 15) {
-                    return 'Category name is too long.\nPlease use a shorter name.';
-                  }
                   if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(value)) {
-                    return 'Category name can only\n contain letters and spaces.';
+                    return 'Category name can onlycontain letters and spaces.';
                   }
+                  if (value.length < 3) {
+                    return "Category name is too short.\n Please use a name with a minimum \nof 3 characters.";
+                  }
+                  if (value.length > 15) {
+                    return 'Category name is too long, Please use a name with a maximum\n of 15 characters..';
+                  }
+                  
                   if (value.toLowerCase() == categoryName.toLowerCase()) {
-                    return 'No changes made to the\n category name.';
+                    return 'No changes made to the category name.';
                   }
                   if (categories.values.any((existingCategory) => existingCategory.toLowerCase() == value.toLowerCase())) {
-                    return 'Category already exists.\nPlease enter a unique name.';
+                    return 'Category already exists. Please enter a unique name.';
                   }
                   return null;
                 },
