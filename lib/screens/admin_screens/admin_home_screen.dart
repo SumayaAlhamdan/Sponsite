@@ -319,202 +319,64 @@ ElevatedButton(
     ],
   );
 }
+GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+TextEditingController categoryController = TextEditingController();
 
 void _showTextInputDialog() async {
-  TextEditingController categoryController = TextEditingController();
-  int charCount = 0;
   List<String> existingCategories = categories.values.toList();
 
-  showDialog(
-    context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: Text('Add New Category'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: categoryController,
-                        onChanged: (value) {
-                          setState(() {
-                            charCount = value.length;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Category Name',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Category name cannot be empty';
-                          }
-                          if (value.length > 15) {
-                            return 'Category name is too long. Please use a shorter name.';
-                          }
-                          if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(value)) {
-                            return 'Category name can only contain letters and spaces.';
-                          }
-                          if (existingCategories.contains(value)) {
-                            return 'Category already exists. Please enter a unique name.';
-                          }
-                          return null; // No validation error
-                        },
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Text(
-                        '$charCount/15',
-                        style: TextStyle(
-                          color: charCount <= 15 ? Colors.grey : Colors.red,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  if (Form.of(context)!.validate()) {
-                    // The input is valid, you can proceed with adding the category
-                    String categoryName = categoryController.text.trim();
-                    dbCategories.push().set(categoryName);
-                    Navigator.pop(context); // Close the dialog
-                  }
-                },
-                child: Text('Add'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
-
-
-
-
-void _editCategoryDialog(String categoryKey, String categoryName) async {
-  TextEditingController categoryController = TextEditingController(text: categoryName);
-  int charCount = categoryName.length; // Set charCount to the length of the existing category name
-  List<String> existingCategories = categories.values.toList();
-
-  showDialog(
-    context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: Text('Edit Category'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: categoryController,
-                        onChanged: (value) {
-                          setState(() {
-                            charCount = value.length;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Category Name',
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Text(
-                        '$charCount/15',
-                        style: TextStyle(
-                          color: charCount <= 15 ? Colors.grey : Colors.red,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  String newCategoryName = categoryController.text.trim();
-
-                  if (existingCategories.contains(newCategoryName) && newCategoryName != categoryName) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Category already exists. Please enter a unique name.'),
-                      ),
-                    );
-                    return;
-                  }
-
-                  if (newCategoryName.isNotEmpty && newCategoryName.length <= 15 && RegExp(r'^[a-zA-Z ]+$').hasMatch(newCategoryName)) {
-                    // Update the category in the database
-                    dbCategories.child(categoryKey).set(newCategoryName);
-                    Navigator.pop(context); // Close the dialog
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Invalid category name.'),
-                      ),
-                    );
-                  }
-                },
-                child: Text('Save'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
-void _errorMessages(String errorMessage) {
   showDialog(
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: const Text(
-          "Invalid Name ",
-          style: TextStyle(color:    Color.fromARGB(255, 51, 45, 81), fontWeight: FontWeight.w500),
-        ),
-        content: Text(errorMessage),
-        backgroundColor: Colors.white,
-        elevation: 0, // Remove the shadow
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+        title: Text('Add New Category'),
+        content: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: categoryController,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                decoration: InputDecoration(
+                  labelText: 'Category Name',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Category name cannot be empty';
+                  }
+                  if (value.length > 15) {
+                    return 'Category name is too long.\n Please use a shorter name.';
+                  }
+                  if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(value)) {
+                    return 'Category name can only contain\n letters and spaces.';
+                  }
+                  if (existingCategories.any((category) => category.toLowerCase() == value.toLowerCase())) {
+                    return 'Category already exists.\nPlease enter a unique name.';
+                    // Use \n to create a line break in the error message
+                  }
+                  return null; // No validation error
+                },
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
-            child: const Text("OK",
-                style: TextStyle(color: Color.fromARGB(255, 51, 45, 81))),
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.pop(context);
             },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                String categoryName = categoryController.text.trim();
+                dbCategories.push().set(categoryName);
+                Navigator.pop(context);
+              }
+            },
+            child: Text('Add'),
           ),
         ],
       );
@@ -524,9 +386,75 @@ void _errorMessages(String errorMessage) {
 
 
 
+void _editCategoryDialog(String categoryKey, String categoryName) async {
+  TextEditingController categoryController = TextEditingController(text: categoryName);
 
-
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Edit Category'),
+        content: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: categoryController,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                decoration: InputDecoration(
+                  labelText: 'Category Name',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Category name cannot be empty';
+                  }
+                  if (value.length > 15) {
+                    return 'Category name is too long.\nPlease use a shorter name.';
+                  }
+                  if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(value)) {
+                    return 'Category name can only\n contain letters and spaces.';
+                  }
+                  if (value.toLowerCase() == categoryName.toLowerCase()) {
+                    return 'No changes made to the\n category name.';
+                  }
+                  if (categories.values.any((existingCategory) => existingCategory.toLowerCase() == value.toLowerCase())) {
+                    return 'Category already exists.\nPlease enter a unique name.';
+                  }
+                  return null; // No validation error
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                String newCategoryName = categoryController.text.trim();
+                // Update the category in the database
+                dbCategories.child(categoryKey).set(newCategoryName);
+                Navigator.pop(context); // Close the dialog
+              }
+            },
+            child: Text('Save'),
+          ),
+        ],
+      );
+    },
+  );
 }
+  }
+
+ 
+
+
 
 class GoogleAPIClient extends IOClient {
   final Map<String, String> _headers;
