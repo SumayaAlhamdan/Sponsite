@@ -334,41 +334,45 @@ void _showTextInputDialog() async {
     context: context,
     builder: (context) {
       return AlertDialog(
+              backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         title: Text('Add New Category'),
         content: Container(
-          width: 400,  // Set your desired width here
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: categoryController,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(
-                    labelText: 'Category Name',
+           // Set the background color of the entire AlertDialog to white
+          child: Container(
+            width: 400, // Set your desired width here
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: categoryController,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: 'Category Name',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Category name cannot be empty';
+                      }
+                      if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(value)) {
+                        return 'Category name can only contain letters and spaces.';
+                      }
+                      if (value.length > 15) {
+                        return "Category name is too long, Please use a name with a maximum\n of 15 characters.";
+                      }
+                      if (value.length < 3) {
+                        return "Category name is too short. Please use a name with a minimum\n of 3 characters.";
+                      }
+
+                      if (existingCategories.any((category) => category.toLowerCase() == value.toLowerCase())) {
+                        return 'Category already exists. Please enter a unique name.';
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Category name cannot be empty';
-                    }
-                    if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(value)) {
-                      return 'Category name can only contain letters and spaces.';
-                    }
-                    if (value.length > 15) {
-                      return "Category name is too long, Please use a name with a maximum\n of 15 characters.";
-                    }
-                    if (value.length < 3) {
-                      return "Category name is too short. Please use a name with a minimum\n of 3 characters.";
-                    }
-                    
-                    if (existingCategories.any((category) => category.toLowerCase() == value.toLowerCase())) {
-                      return 'Category already exists. Please enter a unique name.';
-                    }
-                    return null;
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -394,7 +398,6 @@ void _showTextInputDialog() async {
   );
 }
 
-
 void _editCategoryDialog(String categoryKey, String categoryName) async {
   TextEditingController categoryController = TextEditingController(text: categoryName);
 
@@ -402,43 +405,46 @@ void _editCategoryDialog(String categoryKey, String categoryName) async {
     context: context,
     builder: (context) {
       return AlertDialog(
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
         title: Text('Edit Category'),
         content: Container(
-          width: 400,  // Set your desired width here
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: categoryController,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(
-                    labelText: 'Category Name',
+          child: Container(
+            width: 400, // Set your desired width here
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: categoryController,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: 'Category Name',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Category name cannot be empty';
+                      }
+                      if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(value)) {
+                        return 'Category name can only contain letters and spaces.';
+                      }
+                      if (value.length < 3) {
+                        return "Category name is too short. Please use a name with a minimum\n of 3 characters.";
+                      }
+                      if (value.length > 15) {
+                        return 'Category name is too long, Please use a name with a maximum\n of 15 characters.';
+                      }
+                      if (value.toLowerCase() == categoryName.toLowerCase()) {
+                        return 'No changes made to the category name.';
+                      }
+                      if (categories.values.any((existingCategory) => existingCategory.toLowerCase() == value.toLowerCase())) {
+                        return 'Category already exists. Please enter a unique name.';
+                      }
+                      return null;
+                    },
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Category name cannot be empty';
-                    }
-                    if (!RegExp(r'^[a-zA-Z ]+$').hasMatch(value)) {
-                      return 'Category name can only contain letters and spaces.';
-                    }
-                    if (value.length < 3) {
-                      return "Category name is too short. Please use a name with a minimum of 3 characters.";
-                    }
-                    if (value.length > 15) {
-                      return 'Category name is too long, Please use a name with a maximum of 15 characters.';
-                    }
-                    if (value.toLowerCase() == categoryName.toLowerCase()) {
-                      return 'No changes made to the category name.';
-                    }
-                    if (categories.values.any((existingCategory) => existingCategory.toLowerCase() == value.toLowerCase())) {
-                      return 'Category already exists. Please enter a unique name.';
-                    }
-                    return null;
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -464,22 +470,37 @@ void _editCategoryDialog(String categoryKey, String categoryName) async {
   );
 }
 
+
 void _showConfirmationDialog(BuildContext context, String action, String categoryName, String oldCategoryName, String categoryKey) {
   showDialog(
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: Text('Confirm $action' +'ing'),
+        title: Text('Confirm $action' +'ing',
+       style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+        ),
         content: Text(action == "Create"
             ? 'Are you sure you want to create $categoryName?'
             : 'Are you sure you want to change the $oldCategoryName category to $categoryName?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text('Cancel'),
+        backgroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
+        actions: [
+       Padding(
+  padding: EdgeInsets.only(right: 50.0), // Adjust the left value as needed
+  child: TextButton(
+    onPressed: () {
+      Navigator.of(context).pop();
+    },
+    child: Text(
+      'Cancel',
+      style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
+    ),
+  ),
+), 
+
           TextButton(
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
@@ -524,7 +545,28 @@ void _showConfirmationDialog(BuildContext context, String action, String categor
                 });
               }
             },
-            child: Text('Confirm'),
+            child: Text('Confirm',
+            style: TextStyle(color: Color.fromARGB(255, 242, 241, 241))),
+             style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                      const Color.fromARGB(255, 51, 45, 81)),
+                  //Color.fromARGB(255, 207, 186, 224),), // Background color
+                  textStyle: MaterialStateProperty.all<TextStyle>(
+                      const TextStyle(fontSize: 16)), // Text style
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                      const EdgeInsets.all(16)), // Padding
+                  elevation: MaterialStateProperty.all<double>(1), // Elevation
+                  shape: MaterialStateProperty.all<OutlinedBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10), // Border radius
+                      side: const BorderSide(
+                          color: Color.fromARGB(
+                              255, 255, 255, 255)), // Border color
+                    ),
+                  ),
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(200, 50))),
+
           ),
         ],
       );
