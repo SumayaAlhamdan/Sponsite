@@ -459,56 +459,146 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                                   ),
                                 ),
 
+                                // const SizedBox(height: 25.0),
+                                // Divider(
+                                //   indent: 100,
+                                //   endIndent: 100,
+                                // ),
                                 const SizedBox(height: 25.0),
-                                Divider(
-                                  indent: 100,
-                                  endIndent: 100,
-                                ),
+                                Container(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.6, // Set the desired width
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color:
+                                              Color.fromARGB(255, 75, 71, 81)),
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: Text(
+                                              'Social Media Accounts', // Title text
+                                              style: TextStyle(
+                                                color: Color.fromARGB(
+                                                    255, 75, 71, 81),
+                                                // Customize the color
+                                                fontSize:
+                                                    16, // Customize the font size
+                                              ),
+                                            ),
+                                          ),
+                                          buildProfileCol(context),
+                                          if (sponseeList.first.social.length !=
+                                              4)
+                                            Center(
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      const Color.fromARGB(
+                                                          255, 91, 79, 158),
+                                                  elevation: 5,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30),
+                                                  ),
+                                                ),
+                                                onPressed: () {
+                                                  _showSocialsDialog();
+                                                },
+                                                child: const Text(
+                                                  "Add Social Media Link",
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          if (sponseeList.first.social.length ==
+                                              4)
+                                            Center(
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                     Color.fromARGB(255, 75, 71, 81),
+                                                  elevation: 5,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30),
+                                                  ),
+                                                ),
+                                                onPressed: null,
+                                                child: const Text(
+                                                  "Add Social Media Link",
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                        ])),
                                 const SizedBox(height: 25.0),
-                                buildProfileCol(context),
+
                                 const SizedBox(height: 25.0),
-                                if (sponseeList.first.social.length != 4)
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color.fromARGB(
-                                          255, 91, 79, 158),
-                                      elevation: 5,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30),
-                                      ),
+                                Container(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.6, // Set the desired width
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color:
+                                              Color.fromARGB(255, 75, 71, 81)),
+                                      borderRadius: BorderRadius.circular(8.0),
                                     ),
-                                    onPressed: () {
-                                      _showSocialsDialog();
-                                    },
-                                    child: const Text(
-                                      "Add Social Media Link",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                const SizedBox(height: 25.0),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        const Color.fromARGB(255, 91, 79, 158),
-                                    elevation: 5,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    _showChangePasswordDialog(context);
-                                  },
-                                  child: const Text(
-                                    "    Change Password    ",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
+                                    child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: Text(
+                                              'Password', // Title text
+                                              style: TextStyle(
+                                                color: Color.fromARGB(
+                                                    255, 75, 71, 81),
+                                                // Customize the color
+                                                fontSize:
+                                                    16, // Customize the font size
+                                              ),
+                                            ),
+                                          ),
+                                          Center(
+                                            child: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    const Color.fromARGB(
+                                                        255, 91, 79, 158),
+                                                elevation: 5,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(30),
+                                                ),
+                                              ),
+                                              onPressed: () {
+                                                _showChangePasswordDialog(
+                                                    context);
+                                              },
+                                              child: const Text(
+                                                "    Change Password    ",
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ])),
                               ]))
                     ])),
               ),
@@ -704,8 +794,8 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
         Navigator.pop(context);
         _currentpasswordController.clear();
         _newpasswordController.clear();
-        weakPass=false;
-        wrongpass=false;
+        weakPass = false;
+        wrongpass = false;
         showDialog(
           context: context,
           builder: (context) {
