@@ -23,6 +23,8 @@ class _DisplayUsersState extends State<DisplayUsers> {
   final databaseReference = FirebaseDatabase.instance.reference();
   List<Map<String, dynamic>> sponsors = [];
   List<Map<String, dynamic>> sponsees = [];
+  List<Map<String, dynamic>> Dsponsors = [];
+  List<Map<String, dynamic>> Dsponsees = [];
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
 
   @override
@@ -37,15 +39,29 @@ class _DisplayUsersState extends State<DisplayUsers> {
     fetchSponsors().listen((sponsorsData) {
       setState(() {
         sponsors = sponsorsData;
+        //   print('Sponsors updated:');
+        //   print(sponsors);
+      });
+    });
+    fetchDSponsors().listen((sponsorsData) {
+      setState(() {
+        Dsponsors = sponsorsData;
         print('Sponsors updated:');
-        print(sponsors);
+        print(Dsponsors);
       });
     });
     fetchSponsees().listen((sponseesData) {
       setState(() {
         sponsees = sponseesData;
+        //   print('Sponsees updated:');
+        //  print(sponsees);
+      });
+    });
+    fetchDSponsees().listen((sponseesData) {
+      setState(() {
+        Dsponsees = sponseesData;
         print('Sponsees updated:');
-        print(sponsees);
+        print(Dsponsees);
       });
     });
   }
@@ -122,42 +138,153 @@ class _DisplayUsersState extends State<DisplayUsers> {
     );
   }
 
+  Stream<List<Map<String, dynamic>>> fetchDSponsors() {
+    DatabaseReference sponRef = _database.child('DeactivatedSponsors');
+
+    return sponRef.onValue.map(
+      (event) {
+        List<Map<String, dynamic>> Sponsors = [];
+        DataSnapshot dataSnapshot = event.snapshot;
+
+        try {
+          if (dataSnapshot.value != null) {
+            Map<dynamic, dynamic>? dataMap = dataSnapshot.value as Map?;
+
+            if (dataMap != null) {
+              dataMap.forEach((key, value) async {
+                if (value is Map<dynamic, dynamic>) {
+                  Map<String, dynamic> data = {
+                    'ID': key,
+                    'Name': value['Name'] ?? '',
+                    'Email': value['Email'] ?? '',
+                    'Status': value['Status'] ?? 'Active',
+                    'Type': 'Sponsor',
+                    'Picture': value['Picture'],
+                    'doc': value['authentication document'],
+                  };
+
+                  Sponsors.add(data);
+                }
+              });
+            }
+          }
+        } catch (e) {
+          print('Error occurred: $e');
+        }
+        return Sponsors;
+      },
+    );
+  }
+
+  Stream<List<Map<String, dynamic>>> fetchDSponsees() {
+    DatabaseReference sponRef = _database.child('DeactivatedSponsees');
+
+    return sponRef.onValue.map(
+      (event) {
+        List<Map<String, dynamic>> Sponsees = [];
+        DataSnapshot dataSnapshot = event.snapshot;
+
+        try {
+          if (dataSnapshot.value != null) {
+            Map<dynamic, dynamic>? dataMap = dataSnapshot.value as Map?;
+
+            if (dataMap != null) {
+              dataMap.forEach((key, value) async {
+                if (value is Map<dynamic, dynamic>) {
+                  Map<String, dynamic> data = {
+                    'ID': key,
+                    'Name': value['Name'] ?? '',
+                    'Email': value['Email'] ?? '',
+                    'Status': value['Status'] ?? 'Active',
+                    'Type': 'Sponsee',
+                    'Picture': value['Picture'],
+                    'doc': value['authentication document']
+                  };
+
+                  Sponsees.add(data);
+                }
+              });
+            }
+          }
+        } catch (e) {
+          print('Error occurred: $e');
+        }
+        return Sponsees;
+      },
+    );
+  }
+
   void ActivateUser(
       String? userId, String? userType, String? userEmail, String? name) {
+    print('ACTIVATING');
+
     if (userId == null || userType == null) {
       print("User ID or User Type is null.");
       return;
     }
 
-    DatabaseReference? destinationRef;
+    DatabaseReference? destinationRef = FirebaseDatabase.instance.reference();
+    DatabaseReference? ref = FirebaseDatabase.instance.reference();
+
     if (userType == 'Sponsor') {
-      destinationRef = FirebaseDatabase.instance.reference().child('Sponsors');
+      destinationRef =
+          FirebaseDatabase.instance.reference().child('DeactivatedSponsors');
+      ref = FirebaseDatabase.instance.reference().child('Sponsors');
     } else if (userType == 'Sponsee') {
-      destinationRef = FirebaseDatabase.instance.reference().child('Sponsees');
+      destinationRef =
+          FirebaseDatabase.instance.reference().child('DeactivatedSponsees');
+      ref = FirebaseDatabase.instance.reference().child('Sponsees');
     }
 
-    destinationRef?.child(userId).update({'Status': 'Active'});
+    destinationRef.child(userId).once().then((DatabaseEvent event) {
+      DataSnapshot userData = event.snapshot;
+      Map<dynamic, dynamic>? userMap = userData.value as Map<dynamic, dynamic>?;
+      print(userMap);
+      if (userMap != null) {
+        userMap['Status'] = 'Active'; // Change the user status
+        ref?.child(userId).set(userMap).then((_) {
+          destinationRef?.child(userId).remove();
+          sendEmail(userEmail, name, 'Activated');
+        });
+      }
+    });
 
-    sendEmail(userEmail, name, 'Deactivated');
     // send email
   }
 
   void DeactivateUser(
       String? userId, String? userType, String? userEmail, String? name) {
+    print('DEACTIVATING');
     if (userId == null || userType == null) {
       print("User ID or User Type is null.");
       return;
     }
 
     DatabaseReference? destinationRef;
+    DatabaseReference? ref;
+
     if (userType == 'Sponsor') {
-      destinationRef = FirebaseDatabase.instance.reference().child('Sponsors');
+      destinationRef =
+          FirebaseDatabase.instance.reference().child('DeactivatedSponsors');
+      ref = FirebaseDatabase.instance.reference().child('Sponsors');
     } else if (userType == 'Sponsee') {
-      destinationRef = FirebaseDatabase.instance.reference().child('Sponsees');
+      destinationRef =
+          FirebaseDatabase.instance.reference().child('DeactivatedSponsees');
+      ref = FirebaseDatabase.instance.reference().child('Sponsees');
     }
 
-    destinationRef?.child(userId).update({'Status': 'Inactive'});
-    sendEmail(userEmail, name, 'Activated');
+    ref?.child(userId).once().then((DatabaseEvent event) {
+      DataSnapshot userData = event.snapshot;
+      Map<dynamic, dynamic>? userMap = userData.value as Map<dynamic, dynamic>?;
+      print(userMap);
+      if (userMap != null) {
+        userMap['Status'] = 'Inactive'; // Change the user status
+        destinationRef!.child(userId).set(userMap).then((_) {
+          ref!.child(userId).remove();
+          sendEmail(userEmail, name, 'Deactivated');
+        });
+      }
+    });
 
     // send email
   }
@@ -310,8 +437,8 @@ Sponsite
             Expanded(
               child: TabBarView(
                 children: [
-                  _buildUserList(sponsors),
-                  _buildUserList(sponsees),
+                  _buildUserList(sponsors, Dsponsors),
+                  _buildUserList(sponsees, Dsponsees),
                 ],
               ),
             ),
@@ -321,114 +448,152 @@ Sponsite
     );
   }
 
-  Widget _buildUserList(List<Map<String, dynamic>> users) {
-    if (users.isEmpty) {
+  Widget _buildUserList(
+    List<Map<String, dynamic>> activatedUsers,
+    List<Map<String, dynamic>> deactivatedUsers,
+  ) {
+    if (activatedUsers.isEmpty && deactivatedUsers.isEmpty) {
       return Center(child: Text('No users available.'));
     }
 
-    return ListView.builder(
-      itemCount: users.length,
-      itemBuilder: (context, index) {
-        final user = users[index];
-        String name = user['Name'] ?? 'No name available';
-        String email = user['Email'] ?? 'No email available';
-        String status = user['Status'] ?? 'No status available';
-        String type = user['Type'];
-        String id = user['ID'];
+    return Column(
+      children: [
+        _buildUserCategory('Activated Users', activatedUsers),
+        _buildUserCategory('Deactivated Users', deactivatedUsers),
+      ],
+    );
+  }
 
-        // Determine the color based on the status
-        Color statusColor = status == 'Active' ? Colors.green : Colors.red;
+  Widget _buildUserCategory(String category, List<Map<String, dynamic>> users) {
+    if (users.isEmpty) {
+      return SizedBox.shrink();
+    }
 
-        bool isUserActive = status == 'Active';
-        bool isUserInactive = status == 'Inactive';
-
-        return Card(
-          color: Color.fromARGB(255, 255, 255, 255),
-          child: Container(
-            width: double.infinity,
-            child: ListTile(
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 51, 45, 81),
-                      fontSize: 25,
-                    ),
-                  ),
-                  Text(
-                    email,
-                    style: const TextStyle(
-                      color: Color.fromARGB(255, 51, 45, 81),
-                      fontSize: 17,
-                    ),
-                  ),
-                  Text(
-                    status,
-                    style: TextStyle(
-                      color: statusColor,
-                      fontSize: 17,
-                    ),
-                  ),
-                ],
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ElevatedButton(
-                    onPressed: isUserInactive
-                        ? () {
-                            showActivationDialog(
-                                context, type, name, id, email);
-                          }
-                        : null, // Disable if the user is already active
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(
-                        isUserInactive ? Colors.green : Colors.grey,
-                      ),
-                      padding: MaterialStateProperty.all(
-                        EdgeInsets.all(8.0),
-                      ),
-                    ),
-                    child: Text(
-                      'Activate',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 6.0), // Add space between buttons
-                  ElevatedButton(
-                    onPressed: isUserActive
-                        ? () {
-                            showDeactivationDialog(
-                                context, type, name, id, email);
-                          }
-                        : null, // Disable if the user is already inactive
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(
-                        isUserActive ? Colors.red : Colors.grey,
-                      ),
-                      padding: MaterialStateProperty.all(
-                        EdgeInsets.all(8.0),
-                      ),
-                    ),
-                    child: Text(
-                      'Deactivate',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          category,
+          style: TextStyle(
+            color: Color.fromARGB(255, 51, 45, 81),
+            fontSize: 25,
           ),
-        );
-      },
+        ),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: ScrollPhysics(),
+          itemCount: users.length,
+          itemBuilder: (context, index) {
+            final user = users[index];
+            String id = user['ID'] ?? 'No ID available';
+            String name = user['Name'] ?? 'No name available';
+            String email = user['Email'] ?? 'No email available';
+            String status = user['Status'] ?? 'No status available';
+            String type = user['Type'] ?? 'No type available';
+            String pic = user['Picture'] ?? '';
+            Color statusColor = status == 'Active' ? Colors.green : Colors.red;
+            bool isUserInactive = status != 'Active';
+            bool isUserActive = status == 'Active';
+            return Card(
+              color: Color.fromARGB(255, 255, 255, 255),
+              child: ListTile(
+                title: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundImage:
+                          NetworkImage(pic), // Set the image as backgroundImage
+                      backgroundColor: Colors.transparent,
+                    ),
+                    SizedBox(
+                        width:
+                            10), // Add space between the picture and the name
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 51, 45, 81),
+                            fontSize: 25,
+                          ),
+                        ),
+                        Text(
+                          email,
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 51, 45, 81),
+                            fontSize: 17,
+                          ),
+                        ),
+                        Text(
+                          status,
+                          style: TextStyle(
+                            color: statusColor,
+                            fontSize: 17,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ElevatedButton(
+                      onPressed: isUserInactive
+                          ? () {
+                              showActivationDialog(
+                                  context, type, name, id, email);
+                            }
+                          : null, // Disable if the user is already active
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                          isUserInactive ? Colors.green : Colors.grey,
+                        ),
+                        padding: MaterialStateProperty.all(
+                          EdgeInsets.all(8.0),
+                        ),
+                      ),
+                      child: Text(
+                        'Activate',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 6.0), // Add space between buttons
+                    ElevatedButton(
+                      onPressed:
+                          isUserActive // Enable deactivation button if the user is active
+                              ? () {
+                                  showDeactivationDialog(
+                                      context, type, name, id, email);
+                                }
+                              : null, // Disable if the user is already inactive
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                          isUserActive ? Colors.red : Colors.grey,
+                        ),
+                        padding: MaterialStateProperty.all(
+                          EdgeInsets.all(8.0),
+                        ),
+                      ),
+                      child: Text(
+                        'Deactivate',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }
