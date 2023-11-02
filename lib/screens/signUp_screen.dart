@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -39,6 +40,8 @@ class _SignUpState extends State<SignUp> {
   bool emailUsed = false;
   bool invalidEmail = false;
   bool bigFile = false;
+  bool emailWait = false;
+  bool emailRejected = false;
   var fileName = 'No File Selected';
 
 
@@ -53,21 +56,132 @@ class _SignUpState extends State<SignUp> {
       _obscured = !_obscured;
     });
   }
+  void showAlertDialog(BuildContext context) async{
+      showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Theme(
+            data:
+                Theme.of(context).copyWith(dialogBackgroundColor: Colors.white),
+            child: AlertDialog(
+              title: const Text('Your request has been sent', style: TextStyle(fontSize: 30),),
+              // backgroundColor: Colors.white,
+              content: const Text(
+                'Please wait for an approval/rejected email from our\nsupport team.',
+                style: TextStyle(fontSize: 20),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: ()  {
+            Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    'OK',
+                    style: TextStyle(color: Color.fromARGB(255, 51, 45, 81),fontSize: 18),
+                  ),
+                ),  
+              ],
+            ));
+      },
+    );
+  }
 
   void sendDatatoDB(String name, String email, String password, String fileName,
       context) async {
     final isValid = _formKey.currentState!.validate();
-
+   var keySponsee;
+    var keySponsor;
     if (!isValid) {
       return;
     }
     _formKey.currentState!.save();
 
     try {
-      setState(() {
+       setState(() {
         _isAuthenticating = true;
       });
+  
+      DatabaseEvent? emailSnapshot = await dbref.child("newUsers")
+        .orderByChild('Email')
+        .equalTo(email)
+        .once();
 
+       final RejectedSponsors= await dbref.child("rejectedSponsors")
+        .orderByChild('Email')
+        .equalTo(email)
+        .once();
+
+
+         final RejectedSponsees = await dbref.child("rejectedSponsees")
+        .orderByChild('Email')
+        .equalTo(email)
+        .once();
+
+
+
+
+      if (emailSnapshot.snapshot.value != null && ((theType=="Sponsor" && RejectedSponsors.snapshot.value == null) || (theType=="Sponsee" && RejectedSponsees.snapshot.value == null) )) {
+        // The email already exists in the "new users" list
+        setState(() {
+          _isAuthenticating = false;
+          emailWait = true;
+        });
+        return;
+      }
+        else if ((RejectedSponsors.snapshot.value != null && theType=="Sponsor")|| (RejectedSponsees?.snapshot.value != null && theType=="Sponsee")) {
+        // The email already exists in the "new users" list
+        setState(() {
+          _isAuthenticating = false;
+          emailRejected = true;
+        });
+        return;
+      }
+      else if ((RejectedSponsees.snapshot.value != null && theType=="Sponsor")) {
+
+        // The email already exists in the "new users" list
+        final userId = keySponsee;
+        print(userId);
+        await dbref.child("newUsers").child(userId!).set({
+        'Name': name,
+        'Email': email,
+        'Social Media':null,
+        'Picture':'https://firebasestorage.googleapis.com/v0/b/sponsite-6a696.appspot.com/o/user_images%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1.jpg?alt=media&token=4e08e9f5-d526-4d2c-817b-11f9208e9b52',
+        'authentication document': fileName,
+        'Status': 'Inactive',
+        'Type': theType,
+         // Remove the extra colon
+      });
+      await FirebaseAuth.instance.signOut();
+      Navigator.of(context).popUntil((route) => route.isFirst);
+       showAlertDialog(context);
+
+   }
+       else if ((RejectedSponsors.snapshot.value != null && theType=="Sponsee")) {
+    
+        final Map<dynamic, dynamic> eventData = RejectedSponsors.snapshot.value as Map<dynamic, dynamic>;
+          for (var key in eventData.keys) {
+            if (eventData[key]['Email'] == email) {
+              keySponsor = key;
+            }
+          }
+        final userId = keySponsor;
+        await dbref.child("newUsers").child(userId!).set({
+        'Name': name,
+        'Email': email,
+        'Social Media':null,
+        'Picture':'https://firebasestorage.googleapis.com/v0/b/sponsite-6a696.appspot.com/o/user_images%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1.jpg?alt=media&token=4e08e9f5-d526-4d2c-817b-11f9208e9b52',
+        'authentication document': fileName,
+        'Status': 'Inactive',
+        'Type': theType,
+         // Remove the extra colon
+      });
+
+        await FirebaseAuth.instance.signOut();
+      Navigator.of(context).popUntil((route) => route.isFirst);
+       showAlertDialog(context);
+
+   }
+      else{
       final userCredentials = await _firebase.createUserWithEmailAndPassword(
           email: email, password: password);
       //connect the enterd user to its info
@@ -83,11 +197,12 @@ class _SignUpState extends State<SignUp> {
         'authentication document': fileName,
         'Status': 'Inactive',
         'Type': theType,
-         // Remove the extra colon
       });
-      await FirebaseAuth.instance.signOut();
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    } on FirebaseAuthException catch (e) {
+       await FirebaseAuth.instance.signOut();
+       Navigator.of(context).popUntil((route) => route.isFirst);
+      showAlertDialog(context);
+
+    }}on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         setState(() {
           _isAuthenticating = false;
@@ -163,6 +278,8 @@ class _SignUpState extends State<SignUp> {
     _passwordController.dispose();
     super.dispose();
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -291,6 +408,14 @@ class _SignUpState extends State<SignUp> {
                                     if (invalidEmail) {
                                       return 'Please enter a valid email';
                                     }
+
+                                       if (emailWait) {
+                                      return 'You have sign up already, wait for approval/rejection email';
+                                    }
+                                       if (emailRejected) {
+                                      return 'Your email has been rejected, contact @sponsiteApp@Gmail.com for help';
+                                    }
+                              
                                     return null; // Add this line to handle valid input
                                   },
                                 ),
@@ -342,7 +467,8 @@ class _SignUpState extends State<SignUp> {
                                     if (weakPass) {
                                       return 'The password provided is too weak';
                                     }
-
+                               
+                      
                                     return null;
                                   },
                                 ),
@@ -430,6 +556,7 @@ class _SignUpState extends State<SignUp> {
                                         weakPass=false;
                                         invalidEmail=false;
                                         emailUsed=false;
+                                        emailWait=false;
                                       });
                                       sendDatatoDB(name, email, password,
                                           fileName, context);
@@ -479,3 +606,4 @@ class _SignUpState extends State<SignUp> {
     );
   }
 }
+
