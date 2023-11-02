@@ -50,6 +50,7 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
   bool wrongpass = false;
   bool addLink = false;
   bool notMatch = false;
+  bool isChangeing = false;
   String? selectedApp;
   List<String> socialMediaApps = [
     'github',
@@ -138,6 +139,7 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
           for (var account in socialMediaAccounts) {
             socialMediaApps.remove(account.title.toLowerCase());
           }
+          socialMediaAccounts.sort((a, b) => a.title.compareTo(b.title));
           print(socialMediaApps);
           // _emailController.text=sponsee.
           sponseeList.add(sponsee);
@@ -338,6 +340,7 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                             bottomRight: Radius.circular(50),
                           )),
                     ),
+                     if (sponseeList.isNotEmpty)
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: SizedBox(
@@ -360,6 +363,7 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                     )
                   ],
                 )),
+                if (sponseeList.isNotEmpty) 
             Expanded(
               flex: 5,
               child: SingleChildScrollView(
@@ -376,6 +380,7 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                                 SizedBox(
                                   height: 10,
                                 ),
+                              if (sponseeList.isNotEmpty)
                                 Text(
                                   sponseeList.first.email,
                                   style: Theme.of(context)
@@ -492,6 +497,7 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                                             ),
                                           ),
                                           buildProfileCol(context),
+                                           if (sponseeList.isNotEmpty)
                                           if (sponseeList.first.social.length !=
                                               4)
                                             Center(
@@ -511,7 +517,7 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                                                   _showSocialsDialog();
                                                 },
                                                 child: const Text(
-                                                  "Add Social Media Link",
+                                                  "            Add Link            ",
                                                   style: TextStyle(
                                                     fontSize: 18,
                                                     color: Colors.white,
@@ -519,13 +525,15 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                                                 ),
                                               ),
                                             ),
+                                             if (sponseeList.isNotEmpty)
                                           if (sponseeList.first.social.length ==
                                               4)
                                             Center(
                                               child: ElevatedButton(
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor:
-                                                     Color.fromARGB(255, 75, 71, 81),
+                                                      Color.fromARGB(
+                                                          255, 75, 71, 81),
                                                   elevation: 5,
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
@@ -535,7 +543,7 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                                                 ),
                                                 onPressed: null,
                                                 child: const Text(
-                                                  "Add Social Media Link",
+                                                  "            Add Link            ",
                                                   style: TextStyle(
                                                     fontSize: 18,
                                                     color: Colors.white,
@@ -789,11 +797,15 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
         email: sponseeList.first.email, password: currentPassword);
 
     user!.reauthenticateWithCredential(cred).then((value) {
+      setState(() {
+        isChangeing = true;
+      });
       user.updatePassword(newPassword).then((_) {
         //Success, do something
         Navigator.pop(context);
         _currentpasswordController.clear();
         _newpasswordController.clear();
+        _currentpasswordController2.clear();
         weakPass = false;
         wrongpass = false;
         showDialog(
@@ -801,6 +813,9 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
           builder: (context) {
             Future.delayed(const Duration(seconds: 3), () {
               Navigator.of(context).pop(true);
+              setState(() {
+                isChangeing = false;
+              });
             });
             return Theme(
               data: Theme.of(context)
@@ -834,14 +849,17 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
       }).catchError((error) {
         //Error, show something
         setState(() {
+           isChangeing = false;
           weakPass = true;
           Navigator.of(context).pop();
           _showChangePasswordDialog(context);
+
         });
         return;
       });
     }).catchError((err) {
       setState(() {
+         isChangeing = false;
         wrongpass = true;
         Navigator.of(context).pop();
         _showChangePasswordDialog(context);
@@ -871,20 +889,20 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                     border: const OutlineInputBorder(),
                     labelText: 'Current Password',
                     prefixIcon: const Icon(Icons.lock_rounded, size: 24),
-                    suffixIcon: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
-                      child: GestureDetector(
-                        onTap: _toggleObscured,
-                        child: Icon(
-                          _obscured
-                              ? Icons.visibility_off_rounded
-                              : Icons.visibility_rounded,
-                          size: 24,
-                        ),
-                      ),
-                    ),
+                    // suffixIcon: Padding(
+                    //   padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                    //   child: GestureDetector(
+                    //     onTap: _toggleObscured,
+                    //     child: Icon(
+                    //       _obscured
+                    //           ? Icons.visibility_off_rounded
+                    //           : Icons.visibility_rounded,
+                    //       size: 24,
+                    //     ),
+                    //   ),
+                    // ),
                   ),
-                  obscureText: _obscured,
+                  obscureText: true,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Please enter password';
@@ -910,27 +928,27 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                     border: const OutlineInputBorder(),
                     labelText: 'New Password',
                     prefixIcon: const Icon(Icons.lock_rounded, size: 24),
-                    suffixIcon: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
-                      child: GestureDetector(
-                        onTap: _toggleObscured,
-                        child: Icon(
-                          _obscured
-                              ? Icons.visibility_off_rounded
-                              : Icons.visibility_rounded,
-                          size: 24,
-                        ),
-                      ),
-                    ),
+                    // suffixIcon: Padding(
+                    //   padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                    //   child: GestureDetector(
+                    //     onTap: _toggleObscured,
+                    //     child: Icon(
+                    //       _obscured
+                    //           ? Icons.visibility_off_rounded
+                    //           : Icons.visibility_rounded,
+                    //       size: 24,
+                    //     ),
+                    //   ),
+                    // ),
                   ),
-                  obscureText: _obscured,
+                  obscureText: true,
                   inputFormatters: [
                     FilteringTextInputFormatter.deny(RegExp(r'[\s]')),
                     LengthLimitingTextInputFormatter(15),
                   ],
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Please enter your password';
+                      return 'Please enter your new password';
                     }
                     value = value.trim();
                     if (value.length < 6 || value.length > 15) {
@@ -938,6 +956,53 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                     }
                     if (weakPass) {
                       return 'The password provided is too weak';
+                    }
+
+                    return null;
+                  },
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              SizedBox(
+                width: MediaQuery.of(context).size.width *
+                    0.6, // Set the desired width
+                child: TextFormField(
+                  controller: _currentpasswordController2,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: 'Confirm New Password',
+                    prefixIcon: const Icon(Icons.lock_rounded, size: 24),
+                    // suffixIcon: Padding(
+                    //   padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                    //   child: GestureDetector(
+                    //     onTap: _toggleObscured,
+                    //     child: Icon(
+                    //       _obscured
+                    //           ? Icons.visibility_off_rounded
+                    //           : Icons.visibility_rounded,
+                    //       size: 24,
+                    //     ),
+                    //   ),
+                    // ),
+                  ),
+                  obscureText: true,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.deny(RegExp(r'[\s]')),
+                    LengthLimitingTextInputFormatter(15),
+                  ],
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter your new password';
+                    }
+                    value = value.trim();
+                    if (value.length < 6 || value.length > 15) {
+                      return 'Password must between 6 and 15 characters';
+                    }
+                    if (value != _newpasswordController.text) {
+                      return 'Passwords do not match';
                     }
 
                     return null;
@@ -957,10 +1022,12 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
           title: Text('Change Password'),
           content: _buildChangePasswordForm(), // Call your function here
           actions: <Widget>[
+            if(!isChangeing)
             TextButton(
               onPressed: () {
                 _currentpasswordController.clear();
                 _newpasswordController.clear();
+                _currentpasswordController2.clear();
                 weakPass = false;
                 wrongpass = false;
                 Navigator.of(context).pop();
@@ -970,6 +1037,7 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                 style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
               ),
             ),
+             if(!isChangeing)
             TextButton(
               onPressed: () {
                 weakPass = false;

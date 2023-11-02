@@ -46,7 +46,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
   bool invalidEmail = false;
   bool wrongpass = false;
   bool addLink = false;
-  String selectedApp= 'Selecet Platform';
+  String selectedApp = 'Selecet Platform';
   List<String> socialMediaApps = [
     'github',
     'twitter',
@@ -242,11 +242,6 @@ class _SponseeProfileState extends State<SponseeProfile> {
             onSelected: (value) {
               // Handle menu item selection here
               switch (value) {
-                case 'myAccount':
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => AdminPanel(),
-                  ));
-                  break;
                 case 'signOut':
                   _showSignOutConfirmationDialog(context);
                   break;
@@ -258,19 +253,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
             },
             itemBuilder: (BuildContext context) {
               return [
-                const PopupMenuItem<String>(
-                  value: 'myAccount',
-                  child: ListTile(
-                    leading: Icon(
-                      Icons.perm_identity,
-                      size: 30,
-                    ),
-                    title: Text(
-                      'My Account',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ),
-                ),
+                
                 const PopupMenuItem<String>(
                   value: 'signOut',
                   child: ListTile(
@@ -376,38 +359,61 @@ class _SponseeProfileState extends State<SponseeProfile> {
               child: Column(
                 children: [
                   if (sponseeList.isNotEmpty)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          sponseeList.first.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.copyWith(
-                                  fontWeight: FontWeight.bold, fontSize: 40),
-                        ),
-                        CircleAvatar(
-                            radius: 25,
-                            backgroundColor: Color.fromARGB(255, 244, 244, 244),
-                            child: GestureDetector(
-                              child: const Icon(
-                                Icons.edit,
-                                size: 30,
-                                color: Color.fromARGB(255, 91, 79, 158),
-                              ),
-                              onTap: () {
-                                 Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                 SponseeEditProfile(),
-                                          ),
-                                        );
-                              },
-                            )),
-                      ],
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            sponseeList.first.name,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                    fontWeight: FontWeight.bold, fontSize: 40),
+                          ),
+                          // SizedBox(width: 10,),
+                          // CircleAvatar(
+                          //     radius: 25,
+                          //     backgroundColor: Color.fromARGB(255, 244, 244, 244),
+                          //     child: GestureDetector(
+                          //       child: const Icon(
+                          //         Icons.edit,
+                          //         size: 30,
+                          //         color: Color.fromARGB(255, 91, 79, 158),
+                          //       ),
+                          //       onTap: () {
+                          //          Navigator.of(context).push(
+                          //                   MaterialPageRoute(
+                          //                     builder: (context) =>
+                          //                          SponseeEditProfile(),
+                          //                   ),
+                          //                 );
+                          //       },
+                          //     )),
+                        ],
+                      ),
                     ),
-
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 91, 79, 158),
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => SponseeEditProfile(),
+                      ));
+                    },
+                    child: const Text(
+                      "Edit Profile",
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                   // const _ProfileInfoRow(),
                   if (sponseeList.isNotEmpty)
                     SizedBox(
@@ -637,7 +643,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
         leading: TextButton(
             onPressed: () {
               Navigator.pop(context);
-              selectedApp='Select Platform';
+              selectedApp = 'Select Platform';
             },
             child: Text('Cancel')),
         leadingWidth: 100,
@@ -737,7 +743,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
           socialMediaApps.remove(selectedApp);
           _linkController.clear();
           Navigator.pop(context);
-              selectedApp='Select Platform';
+          selectedApp = 'Select Platform';
 
           showModalBottomSheet(context: context, builder: buildSheet3);
         },

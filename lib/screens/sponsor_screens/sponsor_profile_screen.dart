@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:sponsite/screens/sponsor_screens/sponsor_edit_profile.dart';
 import 'package:sponsite/widgets/user_image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:sponsite/screens/calendar.dart';
@@ -181,15 +182,11 @@ class _SponsorProfileState extends State<SponsorProfile> {
             icon: const Icon(
               Icons.more_horiz,
               color: Color.fromARGB(255, 255, 255, 255),
-              size: 40, 
+              size: 40,
             ),
             onSelected: (value) {
               // Handle menu item selection here
               switch (value) {
-                case 'myAccount':
-                  // Handle My Account selection
-                  // You can add your logic here
-                  break;
                 case 'signOut':
                   _showSignOutConfirmationDialog(context);
                   break;
@@ -201,19 +198,6 @@ class _SponsorProfileState extends State<SponsorProfile> {
             },
             itemBuilder: (BuildContext context) {
               return [
-                const PopupMenuItem<String>(
-                  value: 'myAccount',
-                  child: ListTile(
-                    leading: Icon(
-                      Icons.perm_identity,
-                      size: 30,
-                    ),
-                    title: Text(
-                      'My Account',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ),
-                ),
                 const PopupMenuItem<String>(
                   value: 'signOut',
                   child: ListTile(
@@ -227,19 +211,6 @@ class _SponsorProfileState extends State<SponsorProfile> {
                     ),
                   ),
                 ),
-                // PopupMenuItem<String>(
-                //   value: 'deleteAccount',
-                //   child: ListTile(
-                //     leading: Icon(
-                //       Icons.delete,
-                //       size: 30,
-                //     ),
-                //     title: Text(
-                //       'Delete account',
-                //       style: TextStyle(fontSize: 20),
-                //     ),
-                //   ),
-                // ),
               ];
             },
           ),
@@ -287,25 +258,6 @@ class _SponsorProfileState extends State<SponsorProfile> {
                                     ),
                               ),
                             ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: CircleAvatar(
-                                radius: 25,
-                                backgroundColor:
-                                    Color.fromARGB(255, 224, 224, 224),
-                                child: GestureDetector(
-                                  child: const Icon(
-                                    Icons.edit,
-                                    size: 30,
-                                    color: Color.fromARGB(255, 91, 79, 158),
-                                  ),
-                                  onTap: () {
-                                    showModalBottomSheet(
-                                        context: context, builder: buildSheet);
-                                  },
-                                )),
-                          ),
                         ],
                       ),
                     ),
@@ -319,13 +271,40 @@ class _SponsorProfileState extends State<SponsorProfile> {
               child: Column(
                 children: [
                   if (sponsorList.isNotEmpty)
-                    Text(
-                      sponsorList.first.name,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontWeight: FontWeight.bold, fontSize: 40),
+                    Center(
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                          Text(
+                            sponsorList.first.name,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                    fontWeight: FontWeight.bold, fontSize: 40),
+                          ),
+                        ])),
+                          ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 91, 79, 158),
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                     ),
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => sponsorEditProfile(),
+                      ));
+                    },
+                    child: const Text(
+                      "Edit Profile",
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                   // const _ProfileInfoRow(),
                   if (sponsorList.isNotEmpty)
                     SizedBox(
@@ -382,49 +361,6 @@ class _SponsorProfileState extends State<SponsorProfile> {
     );
   }
 
-  Widget buildSheet(context) {
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        AppBar(
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
-          title: Text('Edit profile'),
-          centerTitle: true,
-          leading: TextButton(
-              onPressed: () => Navigator.pop(context), child: Text('Cancel')),
-          leadingWidth: 100,
-          actions: [
-            TextButton(onPressed: () => save(), child: Text(' Save ')),
-          ],
-        ),
-        Center(
-          child: UserImagePicker(
-            sponsorList.first.pic,
-            onPickImage: (pickedImage) {
-              _selectedImage = pickedImage;
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  void save() async {
-    final storageRef = FirebaseStorage.instance
-        .ref()
-        .child('user_images')
-        .child(sponsorID!)
-        .child('$sponsorID.jpg');
-
-    await storageRef.putFile(_selectedImage!);
-    final imageUrl = await storageRef.getDownloadURL();
-    DatabaseReference dbRef =
-        FirebaseDatabase.instance.ref().child('Sponsors').child(sponsorID!);
-    dbRef.update({'Picture': imageUrl});
-    _loadProfileFromFirebase();
-    Navigator.pop(context);
-  }
 }
 
 class _ProfileInfoRow extends StatelessWidget {
@@ -445,6 +381,7 @@ class _ProfileInfoRow extends StatelessWidget {
     'facebook': FontAwesomeIcons.facebook,
     'linkedin': FontAwesomeIcons.linkedin,
     'website': FontAwesomeIcons.link,
+     'youtube': FontAwesomeIcons.youtube,
     // Add more social media titles and corresponding icons as needed
   };
 
