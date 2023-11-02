@@ -284,10 +284,6 @@ class ChatService extends ChangeNotifier {
                     'type': typeString, // Store type as a string
                     'data': data,
                   });
-                  final recieverToken = await _retrieverecieverToken(receiverID);
-        if (recieverToken != null) {
-            sendNotificationToreciever1(recieverToken);
-        }
                 }
               });
             }
@@ -336,23 +332,18 @@ class ChatService extends ChangeNotifier {
           .push()
           .set(newMsg.toMap());
 
-      if (currentUserId == receiverID) {
-        // Modify this part to use your notification service
-        NotificationService().showNotification(
-          title: 'New Message',
-          body: 'You have received a new message.',
-        );
-      }
+      final recieverToken = await _retrieverecieverToken(receiverID);
+            sendNotificationToreciever1(recieverToken! , msg);
     }
   }
-  Future<void> sendNotificationToreciever1(String recieverToken) async {
+  Future<void> sendNotificationToreciever1(String recieverToken , String msg) async {
     final String serverKey =
         'AAAAw5lT-Yg:APA91bE4EbR1XYHUoMl-qZYAFVsrtCtcznSsh7RSCSZ-yJKR2_bdX8f9bIaQgDrZlEaEaYQlEpsdN6B6ccEj5qStijSCDN_i0szRxhap-vD8fINcJAA-nK11z7WPzdZ53EhbYF5cp-ql'; //
     final String fcmUrl = 'https://fcm.googleapis.com/fcm/send';
 
     final Map<String, dynamic> notification = {
-      'body': 'You got a bew message from',
-      'title': 'Status update',
+      'body': 'Name: $msg',
+      'title': 'New Message',
       'sound': 'default',
     };
 
