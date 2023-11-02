@@ -93,7 +93,7 @@ class _sponsorEditProfileState extends State<sponsorEditProfile> {
   void _loadProfileFromFirebase() async {
     check();
     DatabaseReference dbRef =
-        FirebaseDatabase.instance.ref().child('sponsors').child(sponsorID!);
+        FirebaseDatabase.instance.ref().child('Sponsors').child(sponsorID!);
     // user.updatePassword(newPassword)
     // user.reauthenticateWithCredential(credential)
 
@@ -169,11 +169,11 @@ class _sponsorEditProfileState extends State<sponsorEditProfile> {
       await storageRef.putFile(_selectedImage!);
       final imageUrl = await storageRef.getDownloadURL();
       DatabaseReference dbRef =
-          FirebaseDatabase.instance.ref().child('sponsors').child(sponsorID!);
+          FirebaseDatabase.instance.ref().child('Sponsors').child(sponsorID!);
       dbRef.update({'Picture': imageUrl});
     }
     DatabaseReference dbRef =
-        FirebaseDatabase.instance.ref().child('sponsors').child(sponsorID!);
+        FirebaseDatabase.instance.ref().child('Sponsors').child(sponsorID!);
     dbRef.update({
       'Name': _nameController.text.trim(),
       'Bio': _bioController.text.trim()
@@ -698,7 +698,7 @@ class _sponsorEditProfileState extends State<sponsorEditProfile> {
                 // Implement your password change logic here
                 if (_formKeyAdd.currentState!.validate()) {
                   await dbref
-                      .child("sponsors")
+                      .child("Sponsors")
                       .child(sponsorID!)
                       .child('Social Media')
                       .update({selectedApp!: _linkController.text});
