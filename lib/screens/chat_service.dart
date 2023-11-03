@@ -333,16 +333,18 @@ class ChatService extends ChangeNotifier {
           .set(newMsg.toMap());
 
       final recieverToken = await _retrieverecieverToken(receiverID);
-            sendNotificationToreciever1(recieverToken! , msg);
+            sendNotificationToreciever1(recieverToken! , msg , currentUserId);
     }
   }
-  Future<void> sendNotificationToreciever1(String recieverToken , String msg) async {
+  Future<void> sendNotificationToreciever1(String recieverToken , String msg , String sender) async {
+    final sname = await _retrieveSenderName(sender) as String;
+    print(sname);
     final String serverKey =
         'AAAAw5lT-Yg:APA91bE4EbR1XYHUoMl-qZYAFVsrtCtcznSsh7RSCSZ-yJKR2_bdX8f9bIaQgDrZlEaEaYQlEpsdN6B6ccEj5qStijSCDN_i0szRxhap-vD8fINcJAA-nK11z7WPzdZ53EhbYF5cp-ql'; //
     final String fcmUrl = 'https://fcm.googleapis.com/fcm/send';
 
     final Map<String, dynamic> notification = {
-      'body': 'Name: $msg',
+      'body': '$sname: $msg',
       'title': 'New Message',
       'sound': 'default',
     };
@@ -394,4 +396,26 @@ class ChatService extends ChangeNotifier {
 
     return null;
   }
+  Future<String> _retrieveSenderName(String id) async {
+    final DatabaseReference databaseReference =
+        FirebaseDatabase.instance.reference();
+    final DataSnapshot dataSnapshot =
+        (await databaseReference.child('Sponsees').child(id).once()).snapshot;
+    final Map<dynamic, dynamic>? data =
+        dataSnapshot.value as Map<dynamic, dynamic>?;
+    if (data != null && data.containsKey('Name')) {
+      return data['Name'].toString();
+    }
+else{
+  final DataSnapshot dataSnapshot =
+        (await databaseReference.child('Sponsors').child(id).once()).snapshot;
+    final Map<dynamic, dynamic>? data =
+        dataSnapshot.value as Map<dynamic, dynamic>?;
+    if (data != null && data.containsKey('Name')) {
+      return data['Name'].toString();
+    }
+}
+    return "null";
+  }
+  
 }
