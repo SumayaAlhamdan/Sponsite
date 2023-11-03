@@ -1103,111 +1103,110 @@ Sponsite
       },
     );
   }
-
-  void _showConfirmationDialog(BuildContext context, String action,
-      String categoryName, String oldCategoryName, String categoryKey) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(
-            'Confirm $action' + 'ing',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
-          ),
-          content: Text(action == "Create"
-              ? 'Are you sure you want to create $categoryName?'
-              : 'Are you sure you want to change the $oldCategoryName category to $categoryName?'),
-          backgroundColor: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-          ),
-          actions: [
-            Padding(
-              padding: EdgeInsets.only(
-                  right: 50.0), // Adjust the left value as needed
-              child: TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
-                ),
+void _showConfirmationDialog(BuildContext context, String action,
+    String categoryName, String oldCategoryName, String categoryKey) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(
+          'Confirm $action' + 'ing',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+        ),
+        content: Text(action == "Create"
+            ? 'Are you sure you want to create $categoryName?'
+            : 'Are you sure you want to change the $oldCategoryName category to $categoryName?'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+        ),
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(
+                right: 50.0), // Adjust the left value as needed
+            child: TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
               ),
             ),
-            TextButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  if (action == 'Create') {
-                    dbCategories.push().set(categoryName);
-                  } else if (action == 'Update') {
-                    dbCategories.child(categoryKey).set(categoryName);
-                  }
-
-                  Navigator.pop(context);
-
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.check_circle,
-                                color: Color.fromARGB(255, 91, 79, 158),
-                                size: 48,
-                              ),
-                              SizedBox(height: 16),
-                              Text(
-                                action == "Create"
-                                    ? 'Category created successfully!'
-                                    : 'Category name changed successfully!',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      });
-
-                  Future.delayed(Duration(seconds: 5), () {
-                    Navigator.pop(context);
-                  });
+          ),
+          TextButton(
+            onPressed: () async {
+              if (_formKey.currentState!.validate()) {
+                if (action == 'Create') {
+                  dbCategories.push().set(categoryName);
+                } else if (action == 'Update') {
+                  dbCategories.child(categoryKey).set(categoryName);
                 }
-              },
-              child: Text('Confirm',
-                  style: TextStyle(color: Color.fromARGB(255, 242, 241, 241))),
-              style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                      const Color.fromARGB(255, 51, 45, 81)),
-                  //Color.fromARGB(255, 207, 186, 224),), // Background color
-                  textStyle: MaterialStateProperty.all<TextStyle>(
-                      const TextStyle(fontSize: 16)), // Text style
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                      const EdgeInsets.all(16)), // Padding
-                  elevation: MaterialStateProperty.all<double>(1), // Elevation
-                  shape: MaterialStateProperty.all<OutlinedBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10), // Border radius
-                      side: const BorderSide(
-                          color: Color.fromARGB(
-                              255, 255, 255, 255)), // Border color
-                    ),
-                  ),
-                  minimumSize:
-                      MaterialStateProperty.all<Size>(const Size(200, 50))),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
 
+                Navigator.of(context).pop(); // Close the confirmation dialog
+                Navigator.of(context).pop(); // Close the text dialog
+
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              color: Color.fromARGB(255, 91, 79, 158),
+                              size: 48,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              action == "Create"
+                                  ? 'Category created successfully!'
+                                  : 'Category name changed successfully!',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    });
+
+                Future.delayed(Duration(seconds: 5), () {
+                  Navigator.of(context).pop(); // Close the success dialog
+                });
+              }
+            },
+            child: Text('Confirm',
+                style: TextStyle(color: Color.fromARGB(255, 242, 241, 241))),
+            style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(
+                    const Color.fromARGB(255, 51, 45, 81)),
+                //Color.fromARGB(255, 207, 186, 224),), // Background color
+                textStyle: MaterialStateProperty.all<TextStyle>(
+                    const TextStyle(fontSize: 16)), // Text style
+                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                    const EdgeInsets.all(16)), // Padding
+                elevation: MaterialStateProperty.all<double>(1), // Elevation
+                shape: MaterialStateProperty.all<OutlinedBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10), // Border radius
+                    side: const BorderSide(
+                        color: Color.fromARGB(
+                            255, 255, 255, 255)), // Border color
+                  ),
+                ),
+                minimumSize:
+                    MaterialStateProperty.all<Size>(const Size(200, 50))),
+          ),
+        ],
+      );
+    },
+  );
+}
+}
 class GoogleAPIClient extends IOClient {
   final Map<String, String> _headers;
 
