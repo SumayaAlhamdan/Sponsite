@@ -783,7 +783,7 @@ Sponsite
           return Text('Data is not in the expected format.');
         }
       } else {
-        return Center(child:Text('No data found.'));
+        return Center(child:Text('No new users available.'));
       }
     } else {
       return Center (child: CircularProgressIndicator());
@@ -820,6 +820,7 @@ Sponsite
           destinationRef?.child(userId).set(userMap).then((_) {
             newUsersRef.child(userId).remove();
             sendEmail(userEmail, name, "Accepted");
+             setState(() {});
           });
         }
       }).catchError((error) {
@@ -856,6 +857,7 @@ Sponsite
           destinationRef?.child(userId).set(userMap).then((_) {
             newUsersRef.child(userId).remove();
             sendEmail(userEmail, name, "Rejected");
+             setState(() {});
           });
         }
       }).catchError((error) {

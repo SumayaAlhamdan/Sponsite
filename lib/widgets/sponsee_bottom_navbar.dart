@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:sponsite/screens/postEvent.dart';
 import 'package:sponsite/screens/sponsee_screens/ViewCurrentSponsee.dart';
 import 'package:sponsite/screens/sponsee_screens/sponsee_chat_screen.dart';
-import 'package:sponsite/screens/postEvent.dart';
-import 'package:sponsite/screens/sponsee_screens/sponsee_profile_screen.dart';
 import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
-import 'package:sponsite/screens/calendar.dart';
+import 'package:sponsite/screens/sponsee_screens/sponsee_profile_screen.dart';
 
 class SponseeBottomNavBar extends StatefulWidget {
   const SponseeBottomNavBar({Key? key}) : super(key: key);
@@ -39,7 +38,7 @@ class _SponseeBottomNavBarState extends State<SponseeBottomNavBar> {
      
       body: _widgetOptions.elementAt(currentPageIndex),
       bottomNavigationBar: BottomNavigationBar(
-        //backgroundColor: Color.fromARGB(255, 51, 45, 81),
+        backgroundColor: Color.fromARGB(255, 51, 45, 81),
         selectedItemColor:  Colors.white,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
