@@ -296,14 +296,24 @@ class _DisplayUsersState extends State<DisplayUsers> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-              userType == 'Sponsor' ? 'Activate Sponsor' : 'Activate Sponsee'),
+            userType == 'Sponsor' ? 'Activate Sponsor' : 'Activate Sponsee',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+          ),
           content: Text('Are you sure you want to activate $name?'),
+          backgroundColor: Colors.white,
+          elevation: 0, // Remove the shadow
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
+              ),
             ),
             ElevatedButton(
               child: Text(
@@ -313,12 +323,15 @@ class _DisplayUsersState extends State<DisplayUsers> {
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
                 textStyle: MaterialStateProperty.all<TextStyle>(
-                    const TextStyle(fontSize: 16)),
+                  const TextStyle(fontSize: 16),
+                ),
                 padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                    const EdgeInsets.all(16)),
+                  const EdgeInsets.all(16),
+                ),
               ),
               onPressed: () {
                 ActivateUser(userId, userType, userEmail, name);
+                sendEmail(userEmail, name, 'Activated');
                 Navigator.of(context).pop(true);
               },
             ),
@@ -334,10 +347,16 @@ class _DisplayUsersState extends State<DisplayUsers> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(userType == 'Sponsor'
-              ? 'Deactivate Sponsor'
-              : 'Deactivate Sponsee'),
+          title: Text(
+            userType == 'Sponsor' ? 'Deactivate Sponsor' : 'Deactivate Sponsee',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+          ),
           content: Text('Are you sure you want to deactivate $name?'),
+          backgroundColor: Colors.white,
+          elevation: 0, // Remove the shadow
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -353,12 +372,15 @@ class _DisplayUsersState extends State<DisplayUsers> {
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
                 textStyle: MaterialStateProperty.all<TextStyle>(
-                    const TextStyle(fontSize: 16)),
+                  const TextStyle(fontSize: 16),
+                ),
                 padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                    const EdgeInsets.all(16)),
+                  const EdgeInsets.all(16),
+                ),
               ),
               onPressed: () {
                 DeactivateUser(userId, userType, userEmail, name);
+                sendEmail(userEmail, name, 'Deactivated');
                 Navigator.of(context).pop(true);
               },
             ),
