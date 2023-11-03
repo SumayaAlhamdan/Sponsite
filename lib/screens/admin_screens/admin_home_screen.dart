@@ -864,92 +864,101 @@ Sponsite
       }
     });
   }
-
-  Widget editCategory() {
-    return Card(
-      color: Colors.white,
-      margin: EdgeInsets.all(16.0),
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 16.0),
-                child: Text(
-                  'Categories',
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.fromLTRB(0.0, 15.0, 15.0, 15.0),
-                width: 180,
-                height: 40,
-                child: ElevatedButton(
-                  onPressed: _showTextInputDialog,
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                      const Color.fromARGB(255, 51, 45, 81),
-                    ),
-                  ),
-                  child: Text(
-                    'Add New Category',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          if (categories.isEmpty)
+Widget editCategory() {
+  return Card(
+    color: Colors.white,
+    margin: EdgeInsets.all(16.0),
+    elevation: 4,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12.0),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding:
+                  const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 16.0),
               child: Text(
-                'No categories available.',
-                style: TextStyle(color: Colors.black),
+                'Categories',
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
               ),
-            )
-          else
-            Wrap(
-              spacing: 8.0,
-              runSpacing: 8.0,
-              children: categories.entries.map((entry) {
-                return Container(
-                  width: MediaQuery.of(context).size.width / 2 - 24.0,
-                  child: Card(
-                    color: Color.fromARGB(255, 51, 45, 81),
-                    child: ListTile(
-                      title: Text(
-                        entry.value,
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      trailing: Padding(
-                        padding: const EdgeInsets.only(left: 20.0),
-                        child: IconButton(
+            ),
+            Container(
+              margin: EdgeInsets.fromLTRB(0.0, 15.0, 15.0, 15.0),
+              width: 180,
+              height: 40,
+              child: ElevatedButton(
+                onPressed: _showTextInputDialog,
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                    const Color.fromARGB(255, 51, 45, 81),
+                  ),
+                ),
+                child: Text(
+                  'Add New Category',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (categories.isEmpty)
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'No categories available.',
+              style: TextStyle(color: Colors.black),
+            ),
+          )
+        else
+          Wrap(
+            spacing: 8.0,
+            runSpacing: 8.0,
+            children: categories.entries.map((entry) {
+              return Container(
+                width: MediaQuery.of(context).size.width / 2 - 24.0,
+                child: Card(
+                  color: Color.fromARGB(255, 51, 45, 81),
+                  child: ListTile(
+                    title: Text(
+                      entry.value,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
                           icon: Icon(Icons.edit),
                           color: Colors.white,
                           onPressed: () {
                             _editCategoryDialog(entry.key, entry.value);
                           },
                         ),
-                      ),
+                       IconButton(
+  icon: Icon(Icons.delete),
+  color: Colors.white,
+  onPressed: () {
+    _showDeleteConfirmationDialog(entry.value, entry.key);
+  },
+),
+
+                      ],
                     ),
                   ),
-                );
-              }).toList(),
-            ),
-        ],
-      ),
-    );
-  }
+                ),
+              );
+            }).toList(),
+          ),
+      ],
+    ),
+  );
+}
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController categoryController = TextEditingController();
@@ -1114,8 +1123,9 @@ void _showConfirmationDialog(BuildContext context, String action,
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
         ),
         content: Text(action == "Create"
-            ? 'Are you sure you want to create $categoryName?'
-            : 'Are you sure you want to change the $oldCategoryName category to $categoryName?'),
+    ? 'Are you sure you want to create $categoryName?'
+    : 'Are you sure you want to change $oldCategoryName\ncategory to $categoryName?'),
+
         backgroundColor: Colors.white,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -1206,6 +1216,99 @@ void _showConfirmationDialog(BuildContext context, String action,
     },
   );
 }
+void _showDeleteConfirmationDialog(String categoryName, String categoryKey) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(
+          'Confirm Deletion',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+        ),
+        content: Text('Are you sure you want to delete $categoryName category?'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+        ),
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(
+              right: 50.0, // Adjust the left value as needed
+            ),
+            child: TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: const Color.fromARGB(255, 51, 45, 81)),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              // Perform the delete action from the database
+              dbCategories.child(categoryKey).remove().then((_) {
+                // Handle successful deletion
+                Navigator.of(context).pop(); // Close the confirmation dialog
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.check_circle,
+                            color: const Color.fromARGB(255, 91, 79, 158),
+                            size: 48,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Category deleted successfully!',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+                Future.delayed(Duration(seconds: 5), () {
+                  Navigator.of(context).pop(); // Close the success dialog
+                });
+              }).catchError((error) {
+                // Handle any errors that occurred during the deletion process.
+                print("Error deleting category: $error");
+                // Optionally, you can show an error message to the user here.
+              });
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 51, 45, 81), // Purple background
+                borderRadius: BorderRadius.all(
+                  Radius.circular(10),
+                ),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 80, vertical: 18),
+              child: Text(
+                'Delete',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
+
+
 }
 class GoogleAPIClient extends IOClient {
   final Map<String, String> _headers;
