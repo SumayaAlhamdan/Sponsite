@@ -8,6 +8,22 @@ import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+class Event {
+  final List<String> Category;
+  Event({
+    required this.Category,
+  });
+}
+
+
+class Offer {
+  List<String> categories;
+
+  Offer({
+    required this.categories,
+  });
+
+}
 class AdminPanel extends StatefulWidget {
   @override
   _AdminPanelState createState() => _AdminPanelState();
@@ -1112,6 +1128,8 @@ Widget editCategory() {
       },
     );
   }
+
+
 void _showConfirmationDialog(BuildContext context, String action,
     String categoryName, String oldCategoryName, String categoryKey) {
   showDialog(
@@ -1123,9 +1141,8 @@ void _showConfirmationDialog(BuildContext context, String action,
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
         ),
         content: Text(action == "Create"
-    ? 'Are you sure you want to create $categoryName?'
-    : 'Are you sure you want to change $oldCategoryName\ncategory to $categoryName?'),
-
+            ? 'Are you sure you want to create $categoryName?'
+            : 'Are you sure you want to change $oldCategoryName\ncategory to $categoryName?'),
         backgroundColor: Colors.white,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -1134,7 +1151,7 @@ void _showConfirmationDialog(BuildContext context, String action,
         actions: [
           Padding(
             padding: EdgeInsets.only(
-                right: 50.0), // Adjust the left value as needed
+                right: 50.0),
             child: TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
@@ -1152,41 +1169,39 @@ void _showConfirmationDialog(BuildContext context, String action,
                   dbCategories.push().set(categoryName);
                 } else if (action == 'Update') {
                   dbCategories.child(categoryKey).set(categoryName);
-                }
-
-                Navigator.of(context).pop(); // Close the confirmation dialog
-                Navigator.of(context).pop(); // Close the text dialog
-
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.check_circle,
-                              color: Color.fromARGB(255, 91, 79, 158),
-                              size: 48,
-                            ),
-                            SizedBox(height: 16),
-                            Text(
-                              action == "Create"
-                                  ? 'Category created successfully!'
-                                  : 'Category name changed successfully!',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 20,
+                  await _updateCategoryNameInEvents(oldCategoryName, categoryName);
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                color: Color.fromARGB(255, 91, 79, 158),
+                                size: 48,
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    });
-
-                Future.delayed(Duration(seconds: 5), () {
-                  Navigator.of(context).pop(); // Close the success dialog
-                });
+                              SizedBox(height: 16),
+                              Text(
+                                action == "Create"
+                                    ? 'Category created successfully!'
+                                    : 'Category name changed successfully!',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      });
+                  Future.delayed(Duration(seconds: 5), () {
+                    Navigator.of(context).pop();
+                  });
+                }
               }
             },
             child: Text('Confirm',
@@ -1194,28 +1209,79 @@ void _showConfirmationDialog(BuildContext context, String action,
             style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(
                     const Color.fromARGB(255, 51, 45, 81)),
-                //Color.fromARGB(255, 207, 186, 224),), // Background color
                 textStyle: MaterialStateProperty.all<TextStyle>(
-                    const TextStyle(fontSize: 16)), // Text style
+                    const TextStyle(fontSize: 16)),
                 padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                    const EdgeInsets.all(16)), // Padding
-                elevation: MaterialStateProperty.all<double>(1), // Elevation
+                    const EdgeInsets.all(16)),
+                elevation: MaterialStateProperty.all<double>(1),
                 shape: MaterialStateProperty.all<OutlinedBorder>(
                   RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // Border radius
+                    borderRadius: BorderRadius.circular(10),
                     side: const BorderSide(
-                        color: Color.fromARGB(
-                            255, 255, 255, 255)), // Border color
+                        color: Color.fromARGB(255, 255, 255, 255)),
                   ),
                 ),
-                minimumSize:
-                    MaterialStateProperty.all<Size>(const Size(200, 50))),
+                minimumSize: MaterialStateProperty.all<Size>(const Size(200, 50))),
           ),
         ],
       );
     },
   );
 }
+Future<void> _updateCategoryNameInEvents(String oldCategoryName, String newCategoryName) async {
+  final DatabaseReference database = FirebaseDatabase.instance.ref();
+
+  database.child('sponseeEvents').onValue.listen((event) {
+    if (event.snapshot.value != null) {
+      Map<dynamic, dynamic> eventData = event.snapshot.value as Map<dynamic, dynamic>;
+
+      eventData.forEach((key, value) {
+        if (value['Category'] is List<dynamic>) {
+          List<String> categoryList = (value['Category'] as List<dynamic>)
+              .map((category) => category.toString())
+              .toList();
+
+          if (categoryList.contains(oldCategoryName)) {
+            categoryList = categoryList.map((category) {
+              if (category == oldCategoryName) {
+                return newCategoryName;
+              }
+              return category;
+            }).toList();
+
+            database.child('sponseeEvents').child(key).child('Category').set(categoryList);
+          }
+        }
+      });
+    }
+  });
+
+  database.child('offers').onValue.listen((offer) {
+    if (offer.snapshot.value != null) {
+      Map<dynamic, dynamic> offerData = offer.snapshot.value as Map<dynamic, dynamic>;
+
+      offerData.forEach((key, value) {
+        if (value['Category'] is List<dynamic>) {
+          List<String> categoryList = (value['Category'] as List<dynamic>)
+              .map((category) => category.toString())
+              .toList();
+
+          if (categoryList.contains(oldCategoryName)) {
+            categoryList = categoryList.map((category) {
+              if (category == oldCategoryName) {
+                return newCategoryName;
+              }
+              return category;
+            }).toList();
+
+            database.child('offers').child(key).child('Category').set(categoryList);
+          }
+        }
+      });
+    }
+  });
+}
+
 void _showDeleteConfirmationDialog(String categoryName, String categoryKey) {
   showDialog(
     context: context,
@@ -1306,10 +1372,8 @@ void _showDeleteConfirmationDialog(String categoryName, String categoryKey) {
   );
 }
 
-
-
-
 }
+
 class GoogleAPIClient extends IOClient {
   final Map<String, String> _headers;
 
