@@ -1130,6 +1130,7 @@ Widget editCategory() {
   }
 
 
+
 void _showConfirmationDialog(BuildContext context, String action,
     String categoryName, String oldCategoryName, String categoryKey) {
   showDialog(
@@ -1142,7 +1143,7 @@ void _showConfirmationDialog(BuildContext context, String action,
         ),
         content: Text(action == "Create"
             ? 'Are you sure you want to create $categoryName?'
-            : 'Are you sure you want to change $oldCategoryName\ncategory to $categoryName?'),
+            : 'Are you sure you want to change the $oldCategoryName category to $categoryName?'),
         backgroundColor: Colors.white,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -1151,7 +1152,7 @@ void _showConfirmationDialog(BuildContext context, String action,
         actions: [
           Padding(
             padding: EdgeInsets.only(
-                right: 50.0),
+                right: 50.0), // Adjust the left value as needed
             child: TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
@@ -1170,38 +1171,38 @@ void _showConfirmationDialog(BuildContext context, String action,
                 } else if (action == 'Update') {
                   dbCategories.child(categoryKey).set(categoryName);
                   await _updateCategoryNameInEvents(oldCategoryName, categoryName);
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.check_circle,
-                                color: Color.fromARGB(255, 91, 79, 158),
-                                size: 48,
-                              ),
-                              SizedBox(height: 16),
-                              Text(
-                                action == "Create"
-                                    ? 'Category created successfully!'
-                                    : 'Category name changed successfully!',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      });
-                  Future.delayed(Duration(seconds: 5), () {
-                    Navigator.of(context).pop();
-                  });
                 }
+                Navigator.of(context).pop(); // Close the confirmation dialog
+                Navigator.of(context).pop(); // Close the text dialog
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              color: Color.fromARGB(255, 91, 79, 158),
+                              size: 48,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              action == "Create"
+                                  ? 'Category created successfully!'
+                                  : 'Category name changed successfully!',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    });
+                Future.delayed(Duration(seconds: 5), () {
+                  Navigator.of(context).pop(); // Close the success dialog
+                });
               }
             },
             child: Text('Confirm',
@@ -1209,25 +1210,31 @@ void _showConfirmationDialog(BuildContext context, String action,
             style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(
                     const Color.fromARGB(255, 51, 45, 81)),
+                //Color.fromARGB(255, 207, 186, 224),), // Background color
                 textStyle: MaterialStateProperty.all<TextStyle>(
-                    const TextStyle(fontSize: 16)),
+                    const TextStyle(fontSize: 16)), // Text style
                 padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                    const EdgeInsets.all(16)),
-                elevation: MaterialStateProperty.all<double>(1),
+                    const EdgeInsets.all(16)), // Padding
+                elevation: MaterialStateProperty.all<double>(1), // Elevation
                 shape: MaterialStateProperty.all<OutlinedBorder>(
                   RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10), // Border radius
                     side: const BorderSide(
-                        color: Color.fromARGB(255, 255, 255, 255)),
+                        color: Color.fromARGB(
+                            255, 255, 255, 255)), // Border color
                   ),
                 ),
-                minimumSize: MaterialStateProperty.all<Size>(const Size(200, 50))),
+                minimumSize:
+                    MaterialStateProperty.all<Size>(const Size(200, 50))),
           ),
         ],
       );
     },
   );
 }
+
+
+
 Future<void> _updateCategoryNameInEvents(String oldCategoryName, String newCategoryName) async {
   final DatabaseReference database = FirebaseDatabase.instance.ref();
 
