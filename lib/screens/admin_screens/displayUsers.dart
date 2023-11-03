@@ -1,15 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' show BaseRequest, Response;
-import 'package:http/io_client.dart' show IOClient, IOStreamedResponse;
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
-import 'displayUsers.dart';
 import 'package:mailer/smtp_server/gmail.dart';
 
 class DisplayUsers extends StatefulWidget {
@@ -515,7 +510,7 @@ Sponsite
                           name,
                           style: TextStyle(
                             color: Color.fromARGB(255, 51, 45, 81),
-                            fontSize: 25,
+                            fontSize: 22,
                           ),
                         ),
                         Text(
@@ -548,7 +543,7 @@ Sponsite
                           : null, // Disable if the user is already active
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
-                          isUserInactive ? Colors.green : Colors.grey,
+                          isUserInactive ? const Color.fromARGB(255, 129, 192, 131) : Color.fromARGB(255, 201, 200, 200),
                         ),
                         padding: MaterialStateProperty.all(
                           EdgeInsets.all(8.0),
@@ -573,7 +568,7 @@ Sponsite
                               : null, // Disable if the user is already inactive
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
-                          isUserActive ? Colors.red : Colors.grey,
+                          isUserActive ? Color.fromARGB(255, 240, 90, 80) : Color.fromARGB(255, 201, 200, 200),
                         ),
                         padding: MaterialStateProperty.all(
                           EdgeInsets.all(8.0),
@@ -597,3 +592,4 @@ Sponsite
     );
   }
 }
+

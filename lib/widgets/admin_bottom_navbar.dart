@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sponsite/screens/admin_screens/admin_home_screen.dart';
+import 'package:sponsite/screens/admin_screens/displayUsers.dart';
 
 
 class AdminBottomNavBar extends StatefulWidget {
@@ -14,6 +15,7 @@ class _AdminBottomNavBarState extends State<AdminBottomNavBar> {
 
   final List<Widget> _widgetOptions = [
     AdminPanel(),
+    DisplayUsers(),
   ];    
 
 
@@ -30,7 +32,7 @@ class _AdminBottomNavBarState extends State<AdminBottomNavBar> {
      
       body: _widgetOptions.elementAt(currentPageIndex),
       bottomNavigationBar: BottomNavigationBar(
-        //backgroundColor: Color.fromARGB(255, 51, 45, 81),
+        backgroundColor: Color.fromARGB(255, 51, 45, 81),
         selectedItemColor:  Colors.white,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -40,7 +42,6 @@ class _AdminBottomNavBarState extends State<AdminBottomNavBar> {
               color: Colors.white,
             ),
             label: 'Home',
-            backgroundColor: Color.fromARGB(255, 51, 45, 81),
             activeIcon:  Icon(
               Icons.home_rounded,
               size: 40,
@@ -49,7 +50,7 @@ class _AdminBottomNavBarState extends State<AdminBottomNavBar> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.handshake_outlined,
+              Icons.manage_accounts,
               size: 40,
               color: Colors.white,
             ),
@@ -60,20 +61,6 @@ class _AdminBottomNavBarState extends State<AdminBottomNavBar> {
               color: Color.fromARGB(255, 91, 79, 158),
             ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.account_circle,
-              size: 40,
-              color: Colors.white,
-              
-            ),
-            label: 'Account',
-            activeIcon:  Icon(
-              Icons.account_circle,
-              size: 40,
-              color: Color.fromARGB(255, 91, 79, 158),
-            ),
-          )
         ],
         currentIndex: currentPageIndex,
         
@@ -82,4 +69,5 @@ class _AdminBottomNavBarState extends State<AdminBottomNavBar> {
     );
   }
 }
+
 
