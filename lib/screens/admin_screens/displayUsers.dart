@@ -1,11 +1,14 @@
 import 'dart:async';
-
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 import 'package:mailer/smtp_server/gmail.dart';
+import 'package:sponsite/screens/admin_screens/admin_home_screen.dart';
+import 'package:sponsite/screens/chat_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DisplayUsers extends StatefulWidget {
   @override
@@ -81,6 +84,7 @@ class _DisplayUsersState extends State<DisplayUsers> {
                     'Name': value['Name'] ?? '',
                     'Email': value['Email'] ?? '',
                     'Status': value['Status'] ?? 'Active',
+                    'doc': value['authentication document'] ?? '',
                     'Type': 'Sponsor',
                   };
 
@@ -117,6 +121,7 @@ class _DisplayUsersState extends State<DisplayUsers> {
                     'Name': value['Name'] ?? '',
                     'Email': value['Email'] ?? '',
                     'Status': value['Status'] ?? 'Active',
+                    'doc': value['authentication document'] ?? '',
                     'Type': 'Sponsee',
                   };
 
@@ -295,13 +300,23 @@ class _DisplayUsersState extends State<DisplayUsers> {
           content: Text('Are you sure you want to activate $name?'),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
+              child: const Text('Cancel'),
             ),
-            TextButton(
-              child: Text('Activate'),
+            ElevatedButton(
+              child: Text(
+                'Activate',
+                style: TextStyle(color: Colors.white),
+              ),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+                textStyle: MaterialStateProperty.all<TextStyle>(
+                    const TextStyle(fontSize: 16)),
+                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                    const EdgeInsets.all(16)),
+              ),
               onPressed: () {
                 ActivateUser(userId, userType, userEmail, name);
                 Navigator.of(context).pop(true);
@@ -325,13 +340,23 @@ class _DisplayUsersState extends State<DisplayUsers> {
           content: Text('Are you sure you want to deactivate $name?'),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
+              child: const Text('Cancel'),
             ),
-            TextButton(
-              child: Text('Deactivate'),
+            ElevatedButton(
+              child: Text(
+                'Deactivate',
+                style: TextStyle(color: Colors.white),
+              ),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                textStyle: MaterialStateProperty.all<TextStyle>(
+                    const TextStyle(fontSize: 16)),
+                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                    const EdgeInsets.all(16)),
+              ),
               onPressed: () {
                 DeactivateUser(userId, userType, userEmail, name);
                 Navigator.of(context).pop(true);
@@ -413,6 +438,344 @@ Sponsite
     });
   }
 
+  Future<void> ViewOthersProfileAdmin(BuildContext context, String email,
+      String name, String status, String type, String file) async {
+    await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("User Information", style: TextStyle(fontSize: 25)),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  Container(
+                    width: 300,
+                    height: 60,
+                    padding: EdgeInsets.all(10),
+                    child: Center(
+                      child: Text(
+                        "Email:",
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 147, 139, 192),
+                        border: Border.all(
+                          // Add this line to set borders
+                          color: Colors.black45,
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(0),
+                          bottomLeft: Radius.circular(10),
+                          bottomRight: Radius.circular(0),
+                        )),
+                  ),
+                  Container(
+                    width: 300,
+                    height: 60,
+                    padding: EdgeInsets.all(10),
+                    child: Center(
+                      child: Text(
+                        email,
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: const Color.fromARGB(255, 0, 0, 0)),
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      border: Border.all(
+                        // Add this line to set borders
+                        color: Colors.black45,
+                        width: 1,
+                      ),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(0),
+                        topRight: Radius.circular(10),
+                        bottomLeft: Radius.circular(0),
+                        bottomRight: Radius.circular(10),
+                      ),
+                    ),
+                  ),
+                ]),
+                SizedBox(height: 10),
+                Row(children: [
+                  Container(
+                    width: 300,
+                    height: 60,
+                    padding: EdgeInsets.all(10),
+                    child: Center(
+                      child: Text(
+                        "Name:",
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 147, 139, 192),
+                        border: Border.all(
+                          // Add this line to set borders
+                          color: Colors.black45,
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(0),
+                          bottomLeft: Radius.circular(10),
+                          bottomRight: Radius.circular(0),
+                        )),
+                  ),
+                  Container(
+                    width: 300,
+                    height: 60,
+                    padding: EdgeInsets.all(10),
+                    child: Center(
+                      child: Text(
+                        name,
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: const Color.fromARGB(255, 0, 0, 0)),
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      border: Border.all(
+                        // Add this line to set borders
+                        color: Colors.black45,
+                        width: 1,
+                      ),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(0),
+                        topRight: Radius.circular(10),
+                        bottomLeft: Radius.circular(0),
+                        bottomRight: Radius.circular(10),
+                      ),
+                    ),
+                  ),
+                ]),
+                SizedBox(height: 10),
+                Row(children: [
+                  Container(
+                    width: 300,
+                    height: 60,
+                    padding: EdgeInsets.all(10),
+                    child: Center(
+                      child: Text(
+                        "Type:",
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 147, 139, 192),
+                        border: Border.all(
+                          // Add this line to set borders
+                          color: Colors.black45,
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(0),
+                          bottomLeft: Radius.circular(10),
+                          bottomRight: Radius.circular(0),
+                        )),
+                  ),
+                  Container(
+                    width: 300,
+                    height: 60,
+                    padding: EdgeInsets.all(10),
+                    child: Center(
+                      child: Text(
+                        type,
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: const Color.fromARGB(255, 0, 0, 0)),
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      border: Border.all(
+                        // Add this line to set borders
+                        color: Colors.black45,
+                        width: 1,
+                      ),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(0),
+                        topRight: Radius.circular(10),
+                        bottomLeft: Radius.circular(0),
+                        bottomRight: Radius.circular(10),
+                      ),
+                    ),
+                  ),
+                ]),
+                SizedBox(height: 10),
+                Row(children: [
+                  Container(
+                    width: 300,
+                    height: 60,
+                    padding: EdgeInsets.all(10),
+                    child: Center(
+                      child: Text(
+                        "Status:",
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 147, 139, 192),
+                        border: Border.all(
+                          // Add this line to set borders
+                          color: Colors.black45,
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(0),
+                          bottomLeft: Radius.circular(10),
+                          bottomRight: Radius.circular(0),
+                        )),
+                  ),
+                  Container(
+                    width: 300,
+                    height: 60,
+                    padding: EdgeInsets.all(10),
+                    child: Center(
+                      child: Text(
+                        status,
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: const Color.fromARGB(255, 0, 0, 0)),
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      border: Border.all(
+                        // Add this line to set borders
+                        color: Colors.black45,
+                        width: 1,
+                      ),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(0),
+                        topRight: Radius.circular(10),
+                        bottomLeft: Radius.circular(0),
+                        bottomRight: Radius.circular(10),
+                      ),
+                    ),
+                  ),
+                ]),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Container(
+                      width: 300,
+                      height: 60,
+                      padding: EdgeInsets.all(10),
+                      child: Center(
+                        child: Text(
+                          "Authentication document:",
+                          style: TextStyle(fontSize: 20, color: Colors.white),
+                        ),
+                      ),
+                      decoration: BoxDecoration(
+                          color: Color.fromARGB(255, 147, 139, 192),
+                          border: Border.all(
+                            // Add this line to set borders
+                            color: Colors.black45,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(0),
+                            bottomLeft: Radius.circular(10),
+                            bottomRight: Radius.circular(0),
+                          )),
+                    ),
+                    Container(
+                      width: 300,
+                      height: 60,
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 255, 255, 255),
+                        border: Border.all(
+                          // Add this line to set borders
+                          color: Colors.black45,
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(0),
+                          topRight: Radius.circular(10),
+                          bottomLeft: Radius.circular(0),
+                          bottomRight: Radius.circular(10),
+                        ),
+                      ),
+                      child: GestureDetector(
+                        onTap: () async {
+                          String? downloadURL = await downloadFile(file);
+                          if (downloadURL != null) {
+                            launchUrl(Uri.parse(downloadURL));
+                          } else {
+                            // Handle the case where an error occurred during the download
+                          }
+                        },
+                        child: Center(
+                          child: Text(
+                            file,
+                            style: const TextStyle(
+                              color: Color.fromARGB(255, 15, 113, 193),
+                              decoration: TextDecoration.underline,
+                              decorationColor:
+                                  Color.fromARGB(255, 15, 113, 193),
+                              decorationThickness: 2.0,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          backgroundColor: Colors.white,
+          elevation: 0, // Remove the shadow
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 51, 45, 81),
+                  fontSize: 20,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<String?> downloadFile(String fileName) async {
+    try {
+      final Reference storageRef =
+          FirebaseStorage.instance.ref().child('files/$fileName');
+      final String downloadURL = await storageRef.getDownloadURL();
+      print(downloadURL);
+      return downloadURL;
+    } catch (e) {
+      print('Error downloading file: $e');
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -469,14 +832,14 @@ Sponsite
       children: [
         Text(
           category,
-          style: TextStyle(
-            color: Color.fromARGB(255, 51, 45, 81),
-            fontSize: 25,
-          ),
+          style: const TextStyle(
+              color: Color.fromARGB(255, 51, 45, 81),
+              fontSize: 26,
+              fontWeight: FontWeight.w500),
         ),
         ListView.builder(
           shrinkWrap: true,
-          physics: ScrollPhysics(),
+          physics: NeverScrollableScrollPhysics(),
           itemCount: users.length,
           itemBuilder: (context, index) {
             final user = users[index];
@@ -486,6 +849,8 @@ Sponsite
             String status = user['Status'] ?? 'No status available';
             String type = user['Type'] ?? 'No type available';
             String pic = user['Picture'] ?? '';
+            String authdoc =
+                user['doc'] ?? 'No authentication document available';
             Color statusColor = status == 'Active' ? Colors.green : Colors.red;
             bool isUserInactive = status != 'Active';
             bool isUserActive = status == 'Active';
@@ -543,7 +908,9 @@ Sponsite
                           : null, // Disable if the user is already active
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
-                          isUserInactive ? const Color.fromARGB(255, 129, 192, 131) : Color.fromARGB(255, 201, 200, 200),
+                          isUserInactive
+                              ? const Color.fromARGB(255, 129, 192, 131)
+                              : Color.fromARGB(255, 201, 200, 200),
                         ),
                         padding: MaterialStateProperty.all(
                           EdgeInsets.all(8.0),
@@ -568,7 +935,9 @@ Sponsite
                               : null, // Disable if the user is already inactive
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
-                          isUserActive ? Color.fromARGB(255, 240, 90, 80) : Color.fromARGB(255, 201, 200, 200),
+                          isUserActive
+                              ? Color.fromARGB(255, 240, 90, 80)
+                              : Color.fromARGB(255, 201, 200, 200),
                         ),
                         padding: MaterialStateProperty.all(
                           EdgeInsets.all(8.0),
@@ -582,6 +951,14 @@ Sponsite
                         ),
                       ),
                     ),
+                    IconButton(
+                      icon: Icon(Icons.arrow_forward),
+                      color: Color.fromARGB(255, 91, 79, 158),
+                      onPressed: () {
+                        ViewOthersProfileAdmin(
+                            context, email, name, status, type, authdoc);
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -592,4 +969,3 @@ Sponsite
     );
   }
 }
-
