@@ -28,6 +28,7 @@ final GlobalKey<FormState> _formKey2 = GlobalKey<FormState>();
   bool _obscured = true;
   bool wrongEmailOrPass = false;
   bool deactivated= false;
+    bool newUser= false;
   bool invalidEmail = false;
   
 
@@ -59,6 +60,8 @@ final GlobalKey<FormState> _formKey2 = GlobalKey<FormState>();
         await FirebaseDatabase.instance.reference().child('Sponsors').orderByChild('Email').equalTo(email).once();
             final userSnapshotAdmins =
         await FirebaseDatabase.instance.reference().child('Admins').orderByChild('Email').equalTo(email).once();
+             final userSnapshotNewUsers =
+        await FirebaseDatabase.instance.reference().child('newUsers').orderByChild('Email').equalTo(email).once();
     final userSnapshotSponseesDeactivated =
         await FirebaseDatabase.instance.reference().child('DeactivatedSponsees').orderByChild('Email').equalTo(email).once();
     final userSnapshotSponsorsDeactivated =
@@ -79,10 +82,22 @@ final GlobalKey<FormState> _formKey2 = GlobalKey<FormState>();
         wrongEmailOrPass=false;
       });
     }
+    else 
+      if (userSnapshotNewUsers.snapshot.value != null){
+      // User not found in both collections, show an error message
+      setState(() {
+        _isAuthenticating = false;
+        newUser = true;
+        wrongEmailOrPass=false;
+         deactivated = false;
+
+      });
+    }
     else {
        setState(() {
         _isAuthenticating = false;
         wrongEmailOrPass = true;
+          newUser = false;
         deactivated = false;
       });
     }
@@ -351,6 +366,15 @@ Future<String?> obtainNewTokenUsingFCM(String userId) async {
                                   style: TextStyle(
                                       fontStyle: FontStyle.normal,
                                       fontSize: 13,
+                                      color: Colors.red[700],
+                                      height: 0.5),
+                                ),
+                                 if (newUser)
+                                Text(
+                                  'Please wait for an approval/rejected email from our support team.',
+                                  style: TextStyle(
+                                      fontStyle: FontStyle.normal,
+                                      fontSize: 12,
                                       color: Colors.red[700],
                                       height: 0.5),
                                 ),
