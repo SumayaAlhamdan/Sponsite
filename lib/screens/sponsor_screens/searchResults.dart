@@ -529,42 +529,6 @@ class _ResultPageState extends State<ResultPage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (searchedEvents.isEmpty || originalSearchText.isEmpty)
-                  Center(
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 150,
-                        ),
-                        Text(
-                          "No results match your search",
-                          style: TextStyle(
-                              fontSize: 25,
-                              color: Color.fromARGB(255, 0, 0, 0)),
-                        ),
-                        TextButton(
-                          child: Text("Go Back",
-                              style: TextStyle(
-                                  fontSize: 23,
-                                  decoration: TextDecoration.underline)),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Stack(
-                                  children: [
-                                    ResultPage(
-                                        searchText: searchController.text),
-                                    SponsorBottomNavBar()
-                                  ],
-                                ), // Replace with your Recent Events page widget
-                              ),
-                            );
-                          },
-                        )
-                      ],
-                    ),
-                  ),
                 if (searchedEvents.isNotEmpty && originalSearchText.isNotEmpty)
                   SizedBox(
                     height: screenHeight - 580,
@@ -831,6 +795,42 @@ class _ResultPageState extends State<ResultPage> {
                           }
                         },
                       ),
+                    ),
+                  ),
+                if (searchedEvents.isEmpty || originalSearchText.isEmpty)
+                  Center(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 150,
+                        ),
+                        Text(
+                          "No results match your search",
+                          style: TextStyle(
+                              fontSize: 25,
+                              color: Color.fromARGB(255, 0, 0, 0)),
+                        ),
+                        TextButton(
+                          child: Text("Go Back",
+                              style: TextStyle(
+                                  fontSize: 23,
+                                  decoration: TextDecoration.underline)),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Stack(
+                                  children: [
+                                    ResultPage(
+                                        searchText: searchController.text),
+                                    SponsorBottomNavBar()
+                                  ],
+                                ), // Replace with your Recent Events page widget
+                              ),
+                            );
+                          },
+                        )
+                      ],
                     ),
                   ),
               ],
