@@ -57,16 +57,19 @@ final GlobalKey<FormState> _formKey2 = GlobalKey<FormState>();
         await FirebaseDatabase.instance.reference().child('Sponsees').orderByChild('Email').equalTo(email).once();
     final userSnapshotSponsors =
         await FirebaseDatabase.instance.reference().child('Sponsors').orderByChild('Email').equalTo(email).once();
+            final userSnapshotAdmins =
+        await FirebaseDatabase.instance.reference().child('Admins').orderByChild('Email').equalTo(email).once();
     final userSnapshotSponseesDeactivated =
         await FirebaseDatabase.instance.reference().child('DeactivatedSponsees').orderByChild('Email').equalTo(email).once();
     final userSnapshotSponsorsDeactivated =
         await FirebaseDatabase.instance.reference().child('DeactivatedSponsors').orderByChild('Email').equalTo(email).once();
 
-    if (userSnapshotSponsees.snapshot.value != null || userSnapshotSponsors.snapshot.value != null) {
+    if (userSnapshotSponsees.snapshot.value != null || userSnapshotSponsors.snapshot.value != null|| userSnapshotAdmins.snapshot.value != null ){
    final userCredentials = await _firebase.signInWithEmailAndPassword(
           email: email, password: password);
           _isAuthenticating = true;
         wrongEmailOrPass = false;
+           deactivated = false;
     } else 
       if (userSnapshotSponseesDeactivated.snapshot.value != null || userSnapshotSponsorsDeactivated.snapshot.value != null){
       // User not found in both collections, show an error message
