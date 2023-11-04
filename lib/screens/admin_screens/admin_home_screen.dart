@@ -782,7 +782,7 @@ Sponsite
             children: userWidgets,
           );
         } else {
-          return Text('Data is not in the expected format.');
+          return Center(child:Text('No new users available.'));
         }
       } else {
         return Center(child:Text('No new users available.'));
