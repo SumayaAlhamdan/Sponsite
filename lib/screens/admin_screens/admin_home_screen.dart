@@ -822,7 +822,7 @@ Sponsite
           destinationRef?.child(userId).set(userMap).then((_) {
             newUsersRef.child(userId).remove();
             sendEmail(userEmail, name, "Accepted");
-            //  setState(() {});
+             setState(() {});
           });
         }
       }).catchError((error) {
@@ -859,7 +859,7 @@ Sponsite
           destinationRef?.child(userId).set(userMap).then((_) {
             newUsersRef.child(userId).remove();
             sendEmail(userEmail, name, "Rejected");
-            //  setState(() {});
+             setState(() {});
           });
         }
       }).catchError((error) {

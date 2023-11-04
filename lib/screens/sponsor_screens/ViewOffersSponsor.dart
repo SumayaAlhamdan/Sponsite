@@ -3,8 +3,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sponsite/screens/sponsor_screens/offerDetail.dart';
-import 'package:sponsite/widgets/customAppBar.dart';
-import 'package:sponsite/screens/view_others_profile.dart'; 
+import 'package:sponsite/screens/view_others_profile.dart';
+import 'package:sponsite/widgets/customAppBar.dart'; 
 
 class ViewOffersSponsor extends StatefulWidget {
   const ViewOffersSponsor({Key? key}) : super(key: key);
@@ -43,6 +43,11 @@ class _ViewOffersSponsorState extends State<ViewOffersSponsor> {
     check();
     _loadEventsFromFirebase();
   }
+@override
+void dispose() {
+  // Cancel timers or stop animations here
+  super.dispose();
+}
 
 
   Widget listItem({required Event event, required Offer offer}) { 
@@ -374,7 +379,9 @@ Widget _buildCurrentEventsPage() {
     final eventDateTime = parseEventDateAndTime(event.startDate, event.startTime);
     return eventDateTime.isAfter(now);
   }).toList();
-
+ final filteredEventsWithOffers = filteredEvents.where((event) {
+  return offers.any((offer) => offer.EventId == event.EventId);
+}).toList();
 
   return SafeArea(
     child: Padding(
@@ -418,9 +425,9 @@ Widget _buildCurrentEventsPage() {
                         crossAxisSpacing: 8,
                         mainAxisSpacing: 8,
                       ),
-                      itemCount: filteredEvents.length,
+                      itemCount: filteredEventsWithOffers.length,
                       itemBuilder: (BuildContext context, int index) {
-                        Event event = filteredEvents[index];
+                        Event event = filteredEventsWithOffers[index];
                         Offer? offer;
 
                         for (Offer o in offers) {
@@ -444,100 +451,6 @@ Widget _buildCurrentEventsPage() {
     ),
   );
 }
-
-/*Widget _buildPastEventsPage() {
-  DateTime parseEventDateAndTime(String date, String time) {
-    final dateTimeString = '$date $time';
-    final format = DateFormat('yyyy-MM-dd hh:mm');
-    return format.parse(dateTimeString);
-  }
-
-  final now = DateTime.now();
-  final filteredEvents = events.where((event) {
-    final eventDateTime = parseEventDateAndTime(event.startDate, event.startTime);
-    return eventDateTime.isBefore(now);
-  }).toList();
-
-  if (filteredEvents.isEmpty) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Image.asset(
-            'assets/Time.png',
-            width: 282,
-            height: 284,
-            fit: BoxFit.fitWidth,
-          ),
-          SizedBox(height: 20),
-          Text(
-            'There Are No Past Events Yet',
-            style: TextStyle(
-              fontSize: 24,
-            ),
-          ),
-        ],
-      ),
-    );
-  } else {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 15),
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 50.0),
-            ),
-            Expanded(
-              child: Scrollbar(
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: const BouncingScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.70,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                  ),
-                  itemCount: filteredEvents.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    Event event = filteredEvents[index];
-                    Offer? offer;
-
-                    for (Offer o in offers) {
-                      if (o.EventId == event.EventId) {
-                        offer = o;
-                        break;
-                      }
-                    }
-
-                    if (offer != null) {
-                      return listItem(event: event, offer: offer);
-                    } else {
-                      // Return a default widget when offer is null
-                      return Container(
-                        width: 282,
-                        height: 284,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage('assets/Time.png'),
-                            fit: BoxFit.fitWidth,
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}*/ 
-
 
 
 Widget _buildPastEventsPage() {
