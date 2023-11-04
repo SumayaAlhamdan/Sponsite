@@ -265,7 +265,7 @@ class _sponsorEditProfileState extends State<sponsorEditProfile> {
                 onPressed: () async {
                   DatabaseReference dbRef = FirebaseDatabase.instance
                       .ref()
-                      .child('sponsors')
+                      .child('Sponsors')
                       .child(sponsorID!)
                       .child('Social Media')
                       .child(item.title);
