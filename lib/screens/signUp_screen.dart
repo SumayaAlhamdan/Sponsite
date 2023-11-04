@@ -118,8 +118,6 @@ class _SignUpState extends State<SignUp> {
         .once();
 
 
-
-
       if (emailSnapshot.snapshot.value != null && ((theType=="Sponsor" && RejectedSponsors.snapshot.value == null) || (theType=="Sponsee" && RejectedSponsees.snapshot.value == null) )) {
         // The email already exists in the "new users" list
         setState(() {

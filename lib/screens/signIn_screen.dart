@@ -27,6 +27,7 @@ final GlobalKey<FormState> _formKey2 = GlobalKey<FormState>();
   final _firebase = FirebaseAuth.instance;
   bool _obscured = true;
   bool wrongEmailOrPass = false;
+  bool deactivated= false;
   bool invalidEmail = false;
   
 
@@ -56,17 +57,30 @@ final GlobalKey<FormState> _formKey2 = GlobalKey<FormState>();
         await FirebaseDatabase.instance.reference().child('Sponsees').orderByChild('Email').equalTo(email).once();
     final userSnapshotSponsors =
         await FirebaseDatabase.instance.reference().child('Sponsors').orderByChild('Email').equalTo(email).once();
+    final userSnapshotSponseesDeactivated =
+        await FirebaseDatabase.instance.reference().child('DeactivatedSponsees').orderByChild('Email').equalTo(email).once();
+    final userSnapshotSponsorsDeactivated =
+        await FirebaseDatabase.instance.reference().child('DeactivatedSponsors').orderByChild('Email').equalTo(email).once();
 
-    if (userSnapshotSponsees.snapshot != null || userSnapshotSponsors.snapshot != null) {
+    if (userSnapshotSponsees.snapshot.value != null || userSnapshotSponsors.snapshot.value != null) {
    final userCredentials = await _firebase.signInWithEmailAndPassword(
           email: email, password: password);
           _isAuthenticating = true;
         wrongEmailOrPass = false;
-    } else {
+    } else 
+      if (userSnapshotSponseesDeactivated.snapshot.value != null || userSnapshotSponsorsDeactivated.snapshot.value != null){
       // User not found in both collections, show an error message
       setState(() {
         _isAuthenticating = false;
+        deactivated = true;
+        wrongEmailOrPass=false;
+      });
+    }
+    else {
+       setState(() {
+        _isAuthenticating = false;
         wrongEmailOrPass = true;
+        deactivated = false;
       });
     }
            // Check if the user's token is stored
@@ -322,6 +336,15 @@ Future<String?> obtainNewTokenUsingFCM(String userId) async {
                               if (wrongEmailOrPass)
                                 Text(
                                   'Wrong email or password',
+                                  style: TextStyle(
+                                      fontStyle: FontStyle.normal,
+                                      fontSize: 13,
+                                      color: Colors.red[700],
+                                      height: 0.5),
+                                ),
+                                if (deactivated)
+                                Text(
+                                  'Deactivated account, contact sponsiteApp@gmail.com for support.',
                                   style: TextStyle(
                                       fontStyle: FontStyle.normal,
                                       fontSize: 13,

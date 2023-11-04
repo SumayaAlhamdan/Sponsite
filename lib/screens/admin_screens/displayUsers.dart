@@ -1,13 +1,14 @@
 import 'dart:async';
-import 'package:firebase_storage/firebase_storage.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' show BaseRequest, Response;
+import 'package:http/io_client.dart' show IOClient, IOStreamedResponse;
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 import 'package:mailer/smtp_server/gmail.dart';
-import 'package:sponsite/screens/admin_screens/admin_home_screen.dart';
-import 'package:sponsite/screens/chat_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DisplayUsers extends StatefulWidget {
@@ -17,7 +18,8 @@ class DisplayUsers extends StatefulWidget {
 
 class _DisplayUsersState extends State<DisplayUsers> {
   User? user = FirebaseAuth.instance.currentUser;
-  String adminID = '';
+   String adminID = "";
+   String email ="";
   final databaseReference = FirebaseDatabase.instance.reference();
   List<Map<String, dynamic>> sponsors = [];
   List<Map<String, dynamic>> sponsees = [];
@@ -27,12 +29,7 @@ class _DisplayUsersState extends State<DisplayUsers> {
 
   @override
   void initState() {
-    if (user != null) {
-      adminID = user!.uid;
-      print('Admin ID: $adminID');
-    } else {
-      print('User is not logged in.');
-    }
+    check();
     super.initState();
     fetchSponsors().listen((sponsorsData) {
       setState(() {
@@ -64,6 +61,23 @@ class _DisplayUsersState extends State<DisplayUsers> {
     });
   }
 
+  void check() {
+    if (user != null) {
+      adminID = user!.uid;
+      print('Admin ID: $adminID');
+    final DatabaseReference database =
+        FirebaseDatabase.instance.reference().child('Admins');
+    database.child(adminID).once().then((DatabaseEvent event) async {
+      DataSnapshot userData = event.snapshot;
+      Map<dynamic, dynamic>? userMap = userData.value as Map<dynamic, dynamic>?;
+      if (userMap != null) {
+        email = userMap['Email'];
+      }
+    });
+    } else {
+      print('User is not logged in.');
+    }
+  }
   Stream<List<Map<String, dynamic>>> fetchSponsors() {
     DatabaseReference sponRef = _database.child('Sponsors');
 
@@ -391,20 +405,14 @@ class _DisplayUsersState extends State<DisplayUsers> {
   }
 
   Future<void> sendEmail(String? userEmail, String? name, String type) async {
-    String email = ""; //Your Email;
+  
 
     final DatabaseReference database =
         FirebaseDatabase.instance.reference().child('Sponsees');
     database.child(adminID).once().then((DatabaseEvent event) async {
-      DataSnapshot userData = event.snapshot;
-      Map<dynamic, dynamic>? userMap = userData.value as Map<dynamic, dynamic>?;
-      if (userMap != null) {
-        email = userMap['Email'];
-        print(email);
-        print(userEmail);
-      }
+      
 
-      final smtpServer = gmail(email, "gifp fhas owwl bdtb");
+      final smtpServer = gmail(email, "lxcx kkdm quez tcio");
       Message? message;
 
       if (type == "Activated") {
@@ -801,8 +809,36 @@ Sponsite
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('User Management'),
+      appBar: PreferredSize(  
+        preferredSize: const Size.fromHeight(90),  // Set the desired height   
+        child: Container(
+          height: 90,  
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 51, 45, 81),
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(40),  
+              bottomRight: Radius.circular(40),
+            ),
+          ),    
+          padding: const EdgeInsets.fromLTRB(16, 0, 0, 0),
+          child: Row( 
+          children: [ 
+             SizedBox(width: 260) ,
+            Center(       
+                  child:  
+                 Text( 
+                "User Mangament",
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 35,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
+         ),
+          ],
+         ),
+        ),
       ),
       body: DefaultTabController(
         length: 2,
@@ -991,3 +1027,19 @@ Sponsite
     );
   }
 }
+class GoogleAPIClient extends IOClient {
+  final Map<String, String> _headers;
+
+  GoogleAPIClient(this._headers) : super();
+
+  @override
+  Future<IOStreamedResponse> send(BaseRequest request) =>
+      super.send(request..headers.addAll(_headers));
+
+  @override
+  Future<Response> head(Uri url, {Map<String, String>? headers}) =>
+      super.head(url,
+          headers: (headers != null ? (headers..addAll(_headers)) : headers));
+}
+
+

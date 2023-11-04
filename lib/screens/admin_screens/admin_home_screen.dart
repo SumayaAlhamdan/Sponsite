@@ -15,7 +15,6 @@ class Event {
   });
 }
 
-
 class Offer {
   List<String> categories;
 
@@ -38,12 +37,15 @@ class _AdminPanelState extends State<AdminPanel> {
   String adminID = "";
    String email ="";
   User? user = FirebaseAuth.instance.currentUser;
+
   @override
   initState() {
     super.initState();
     check();
     _loadCategoriesFromFirebase();
+
   }
+
 
   void check() {
     if (user != null) {
@@ -423,11 +425,12 @@ Future<void> showconfirmationDialog(BuildContext context, String? userType,
   }
 
   Future<void> sendEmail(String? userEmail, String? name, String type) async {
+
     final DatabaseReference database =
         FirebaseDatabase.instance.reference().child('Admins');
     database.child(adminID).once().then((DatabaseEvent event) async {
 
-      final smtpServer = gmail(email, "gifp fhas owwl bdtb");
+      final smtpServer = gmail(email, "lxcx kkdm quez tcio");
       Message? message;
 
       if (type == "Accepted") {
@@ -600,14 +603,14 @@ Sponsite
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(  
-        preferredSize: const Size.fromHeight(95),  // Set the desired height   
+        preferredSize: const Size.fromHeight(90),  // Set the desired height   
         child: Container(
-          height: 95,  
+          height: 90,  
           decoration: BoxDecoration(
             color: const Color.fromARGB(255, 51, 45, 81),
             borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(20),  
-              bottomRight: Radius.circular(20),
+              bottomLeft: Radius.circular(40),  
+              bottomRight: Radius.circular(40),
             ),
           ),    
           padding: const EdgeInsets.fromLTRB(16, 0, 0, 0),
@@ -620,18 +623,18 @@ Sponsite
                 "Admin Panel",
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  fontSize: 30,
+                  fontSize: 35,
                   color: Colors.white,
                 ),
                 textAlign: TextAlign.center,
               ),
          ),
-         SizedBox(width: 260) ,
+         SizedBox(width: 240) ,
          PopupMenuButton<String>(
             icon: const Icon(
               Icons.more_horiz,
               color: Color.fromARGB(255, 255, 255, 255),
-              size: 40,
+              size: 45,
             ),
             onSelected: (value) {
               // Handle menu item selection here
@@ -820,7 +823,7 @@ Sponsite
           destinationRef?.child(userId).set(userMap).then((_) {
             newUsersRef.child(userId).remove();
             sendEmail(userEmail, name, "Accepted");
-             setState(() {});
+            //  setState(() {});
           });
         }
       }).catchError((error) {
@@ -857,7 +860,7 @@ Sponsite
           destinationRef?.child(userId).set(userMap).then((_) {
             newUsersRef.child(userId).remove();
             sendEmail(userEmail, name, "Rejected");
-             setState(() {});
+            //  setState(() {});
           });
         }
       }).catchError((error) {
