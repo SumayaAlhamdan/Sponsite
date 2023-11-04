@@ -18,14 +18,20 @@ class DisplayUsers extends StatefulWidget {
 
 class _DisplayUsersState extends State<DisplayUsers> {
   User? user = FirebaseAuth.instance.currentUser;
-   String adminID = "";
-   String email ="";
+  String adminID = "";
+  String email = "";
   final databaseReference = FirebaseDatabase.instance.reference();
   List<Map<String, dynamic>> sponsors = [];
   List<Map<String, dynamic>> sponsees = [];
   List<Map<String, dynamic>> Dsponsors = [];
   List<Map<String, dynamic>> Dsponsees = [];
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
+  TextEditingController searchController = TextEditingController();
+
+  List<Map<String, dynamic>> filteredSponsors = [];
+  List<Map<String, dynamic>> filteredDSponsors = [];
+  List<Map<String, dynamic>> filteredSponsees = [];
+  List<Map<String, dynamic>> filteredDSponsees = [];
 
   @override
   void initState() {
@@ -59,25 +65,51 @@ class _DisplayUsersState extends State<DisplayUsers> {
         print(Dsponsees);
       });
     });
+    filteredSponsors = sponsors;
+    filteredDSponsors = Dsponsors;
+    filteredSponsees = sponsees;
+    filteredDSponsees = Dsponsees;
+    super.initState();
+  }
+
+  void filterUsers(String text) {
+    setState(() {
+      filteredSponsors = sponsors
+          .where((user) =>
+              user['Name']?.toLowerCase().contains(text.toLowerCase()) == true)
+          .toList();
+      filteredDSponsors = Dsponsors.where((user) =>
+              user['Name']?.toLowerCase().contains(text.toLowerCase()) == true)
+          .toList();
+      filteredSponsees = sponsees
+          .where((user) =>
+              user['Name']?.toLowerCase().contains(text.toLowerCase()) == true)
+          .toList();
+      filteredDSponsees = Dsponsees.where((user) =>
+              user['Name']?.toLowerCase().contains(text.toLowerCase()) == true)
+          .toList();
+    });
   }
 
   void check() {
     if (user != null) {
       adminID = user!.uid;
       print('Admin ID: $adminID');
-    final DatabaseReference database =
-        FirebaseDatabase.instance.reference().child('Admins');
-    database.child(adminID).once().then((DatabaseEvent event) async {
-      DataSnapshot userData = event.snapshot;
-      Map<dynamic, dynamic>? userMap = userData.value as Map<dynamic, dynamic>?;
-      if (userMap != null) {
-        email = userMap['Email'];
-      }
-    });
+      final DatabaseReference database =
+          FirebaseDatabase.instance.reference().child('Admins');
+      database.child(adminID).once().then((DatabaseEvent event) async {
+        DataSnapshot userData = event.snapshot;
+        Map<dynamic, dynamic>? userMap =
+            userData.value as Map<dynamic, dynamic>?;
+        if (userMap != null) {
+          email = userMap['Email'];
+        }
+      });
     } else {
       print('User is not logged in.');
     }
   }
+
   Stream<List<Map<String, dynamic>>> fetchSponsors() {
     DatabaseReference sponRef = _database.child('Sponsors');
 
@@ -405,13 +437,9 @@ class _DisplayUsersState extends State<DisplayUsers> {
   }
 
   Future<void> sendEmail(String? userEmail, String? name, String type) async {
-  
-
     final DatabaseReference database =
         FirebaseDatabase.instance.reference().child('Sponsees');
     database.child(adminID).once().then((DatabaseEvent event) async {
-      
-
       final smtpServer = gmail(email, "lxcx kkdm quez tcio");
       Message? message;
 
@@ -808,42 +836,47 @@ Sponsite
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> tabViewChildren = [];
+
+    if (filteredDSponsees.isNotEmpty ||
+        filteredDSponsors.isNotEmpty ||
+        filteredSponsees.isNotEmpty ||
+        filteredSponsors.isNotEmpty) {
+      tabViewChildren.addAll([
+        _buildUserList(filteredSponsors, filteredDSponsors),
+        _buildUserList(filteredSponsees, filteredDSponsees),
+      ]);
+    } else {
+      tabViewChildren.addAll([
+        _buildUserList(sponsors, Dsponsors),
+        _buildUserList(sponsees, Dsponsees),
+      ]);
+    }
+
     return Scaffold(
-      appBar: PreferredSize(  
-        preferredSize: const Size.fromHeight(90),  // Set the desired height   
-        child: Container(
-          height: 90,  
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 51, 45, 81),
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(40),  
-              bottomRight: Radius.circular(40),
-            ),
-          ),    
-          padding: const EdgeInsets.fromLTRB(16, 0, 0, 0),
-          child: Row( 
-          children: [ 
-             SizedBox(width: 260) ,
-            Center(       
-                  child:  
-                 Text( 
-                "User Mangament",
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 35,
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.center,
-              ),
-         ),
-          ],
-         ),
-        ),
+      appBar: AppBar(
+        title: Text('User Management'),
       ),
       body: DefaultTabController(
         length: 2,
         child: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: searchController,
+                onChanged: (text) {
+                  filterUsers(text);
+                },
+                decoration: InputDecoration(
+                  labelText: 'Search Users',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.search,
+                      color: Color.fromARGB(255, 51, 45, 81)),
+                  labelStyle: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
+                ),
+              ),
+            ),
             TabBar(
               tabs: [
                 Tab(text: 'Sponsors'),
@@ -852,10 +885,7 @@ Sponsite
             ),
             Expanded(
               child: TabBarView(
-                children: [
-                  _buildUserList(sponsors, Dsponsors),
-                  _buildUserList(sponsees, Dsponsees),
-                ],
+                children: tabViewChildren,
               ),
             ),
           ],
@@ -885,148 +915,165 @@ Sponsite
       return SizedBox.shrink();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          category,
-          style: const TextStyle(
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            category,
+            style: const TextStyle(
               color: Color.fromARGB(255, 51, 45, 81),
               fontSize: 26,
-              fontWeight: FontWeight.w500),
-        ),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: users.length,
-          itemBuilder: (context, index) {
-            final user = users[index];
-            String id = user['ID'] ?? 'No ID available';
-            String name = user['Name'] ?? 'No name available';
-            String email = user['Email'] ?? 'No email available';
-            String status = user['Status'] ?? 'No status available';
-            String type = user['Type'] ?? 'No type available';
-            String pic = user['Picture'] ?? '';
-            String authdoc =
-                user['doc'] ?? 'No authentication document available';
-            Color statusColor = status == 'Active' ? Colors.green : Colors.red;
-            bool isUserInactive = status != 'Active';
-            bool isUserActive = status == 'Active';
-            return Card(
-              color: Color.fromARGB(255, 255, 255, 255),
-              child: ListTile(
-                title: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundImage:
-                          NetworkImage(pic), // Set the image as backgroundImage
-                      backgroundColor: Colors.transparent,
-                    ),
-                    SizedBox(
-                        width:
-                            10), // Add space between the picture and the name
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
+              children: users.map((user) {
+                String id = user['ID'] ?? 'No ID available';
+                String name = user['Name'] ?? 'No name available';
+                String email = user['Email'] ?? 'No email available';
+                String status = user['Status'] ?? 'No status available';
+                String type = user['Type'] ?? 'No type available';
+                String pic = user['Picture'] ?? '';
+                String authdoc =
+                    user['doc'] ?? 'No authentication document available';
+                Color statusColor =
+                    status == 'Active' ? Colors.green : Colors.red;
+                bool isUserInactive = status != 'Active';
+                bool isUserActive = status == 'Active';
+
+                return Card(
+                  color: Color.fromARGB(255, 255, 255, 255),
+                  child: ListTile(
+                    title: Row(
                       children: [
-                        Text(
-                          name,
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 51, 45, 81),
-                            fontSize: 22,
-                          ),
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage: NetworkImage(pic),
+                          backgroundColor: Colors.transparent,
                         ),
-                        Text(
-                          email,
-                          style: const TextStyle(
-                            color: Color.fromARGB(255, 51, 45, 81),
-                            fontSize: 17,
-                          ),
-                        ),
-                        Text(
-                          status,
-                          style: TextStyle(
-                            color: statusColor,
-                            fontSize: 17,
-                          ),
+                        SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              name,
+                              style: TextStyle(
+                                color: Color.fromARGB(255, 51, 45, 81),
+                                fontSize: 22,
+                              ),
+                            ),
+                            Text(
+                              email,
+                              style: const TextStyle(
+                                color: Color.fromARGB(255, 51, 45, 81),
+                                fontSize: 17,
+                              ),
+                            ),
+                            Text(
+                              status,
+                              style: TextStyle(
+                                color: statusColor,
+                                fontSize: 17,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ElevatedButton(
-                      onPressed: isUserInactive
-                          ? () {
-                              showActivationDialog(
-                                  context, type, name, id, email);
-                            }
-                          : null, // Disable if the user is already active
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                          isUserInactive
-                              ? const Color.fromARGB(255, 129, 192, 131)
-                              : Color.fromARGB(255, 201, 200, 200),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ElevatedButton(
+                          onPressed: isUserInactive
+                              ? () {
+                                  showActivationDialog(
+                                    context,
+                                    type,
+                                    name,
+                                    id,
+                                    email,
+                                  );
+                                }
+                              : null,
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                              isUserInactive
+                                  ? const Color.fromARGB(255, 129, 192, 131)
+                                  : Color.fromARGB(255, 201, 200, 200),
+                            ),
+                            padding: MaterialStateProperty.all(
+                              EdgeInsets.all(8.0),
+                            ),
+                          ),
+                          child: Text(
+                            'Activate',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                            ),
+                          ),
                         ),
-                        padding: MaterialStateProperty.all(
-                          EdgeInsets.all(8.0),
-                        ),
-                      ),
-                      child: Text(
-                        'Activate',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 6.0), // Add space between buttons
-                    ElevatedButton(
-                      onPressed:
-                          isUserActive // Enable deactivation button if the user is active
+                        SizedBox(width: 6.0),
+                        ElevatedButton(
+                          onPressed: isUserActive
                               ? () {
                                   showDeactivationDialog(
-                                      context, type, name, id, email);
+                                    context,
+                                    type,
+                                    name,
+                                    id,
+                                    email,
+                                  );
                                 }
-                              : null, // Disable if the user is already inactive
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                          isUserActive
-                              ? Color.fromARGB(255, 240, 90, 80)
-                              : Color.fromARGB(255, 201, 200, 200),
+                              : null,
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                              isUserActive
+                                  ? Color.fromARGB(255, 240, 90, 80)
+                                  : Color.fromARGB(255, 201, 200, 200),
+                            ),
+                            padding: MaterialStateProperty.all(
+                              EdgeInsets.all(8.0),
+                            ),
+                          ),
+                          child: Text(
+                            'Deactivate',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                            ),
+                          ),
                         ),
-                        padding: MaterialStateProperty.all(
-                          EdgeInsets.all(8.0),
+                        IconButton(
+                          icon: Icon(Icons.arrow_forward),
+                          color: Color.fromARGB(255, 91, 79, 158),
+                          onPressed: () {
+                            ViewOthersProfileAdmin(
+                              context,
+                              email,
+                              name,
+                              status,
+                              type,
+                              authdoc,
+                            );
+                          },
                         ),
-                      ),
-                      child: Text(
-                        'Deactivate',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                        ),
-                      ),
+                      ],
                     ),
-                    IconButton(
-                      icon: Icon(Icons.arrow_forward),
-                      color: Color.fromARGB(255, 91, 79, 158),
-                      onPressed: () {
-                        ViewOthersProfileAdmin(
-                            context, email, name, status, type, authdoc);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
+
 class GoogleAPIClient extends IOClient {
   final Map<String, String> _headers;
 
@@ -1041,5 +1088,3 @@ class GoogleAPIClient extends IOClient {
       super.head(url,
           headers: (headers != null ? (headers..addAll(_headers)) : headers));
 }
-
-

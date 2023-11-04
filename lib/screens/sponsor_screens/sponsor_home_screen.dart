@@ -1095,6 +1095,7 @@ class _FilterDialogState extends State<FilterDialog> {
     });
   }
 
+// save filter values to SharedPreferences
   Future<void> saveFilterValues() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt('minValue', _minValue);
@@ -1130,24 +1131,15 @@ class _FilterDialogState extends State<FilterDialog> {
                     Text(
                       'Min',
                       style: TextStyle(
-                          color: Color.fromARGB(255, 91, 79, 158),
-                          fontSize: 15),
+                        color: Color.fromARGB(255, 91, 79, 158),
+                        fontSize: 15,
+                      ),
                     ),
-                    TextFormField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(),
-                      controller:
-                          TextEditingController(text: _minValue.toString()),
-                      onChanged: (value) {
-                        try {
-                          int min = int.parse(value);
-                          setState(() {
-                            _minValue = min;
-                          });
-                        } catch (e) {
-                          print('Error parsing Min: $e');
-                        }
-                      },
+                    Text(
+                      '$_minValue', // Display the min value as plain text
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
                     ),
                   ],
                 ),
@@ -1160,24 +1152,15 @@ class _FilterDialogState extends State<FilterDialog> {
                     Text(
                       'Max',
                       style: TextStyle(
-                          color: Color.fromARGB(255, 91, 79, 158),
-                          fontSize: 15),
+                        color: Color.fromARGB(255, 91, 79, 158),
+                        fontSize: 15,
+                      ),
                     ),
-                    TextFormField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(),
-                      controller:
-                          TextEditingController(text: _maxValue.toString()),
-                      onChanged: (value) {
-                        try {
-                          int max = int.parse(value);
-                          setState(() {
-                            _maxValue = max;
-                          });
-                        } catch (e) {
-                          print('Error parsing Max: $e');
-                        }
-                      },
+                    Text(
+                      '$_maxValue', // Display the max value as plain text
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
                     ),
                   ],
                 ),
@@ -1291,7 +1274,7 @@ class _FilterDialogState extends State<FilterDialog> {
               _minValue,
               _maxValue,
               _selectedCategories,
-              _selectedCities, // Added selected cities
+              _selectedCities,
             );
             Navigator.of(context).pop();
           },
@@ -1310,7 +1293,7 @@ class _FilterDialogState extends State<FilterDialog> {
                 _minValue,
                 _maxValue,
                 _selectedCategories,
-                _selectedCities, // Added selected cities
+                _selectedCities,
               );
               Navigator.of(context).pop();
             } catch (e) {
