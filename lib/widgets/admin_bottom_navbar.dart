@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sponsite/screens/admin_screens/admin_home_screen.dart';
 import 'package:sponsite/screens/admin_screens/displayUsers.dart';
+import 'package:sponsite/screens/admin_screens/admin_categories.dart';
 
 
 class AdminBottomNavBar extends StatefulWidget {
@@ -16,6 +17,7 @@ class _AdminBottomNavBarState extends State<AdminBottomNavBar> {
   final List<Widget> _widgetOptions = [
     AdminPanel(),
     DisplayUsers(),
+    AdminCategories(),
   ];    
 
 
@@ -25,49 +27,48 @@ class _AdminBottomNavBarState extends State<AdminBottomNavBar> {
       currentPageIndex = index;
     });
   }
+Widget editCategory() {
+  return Container(
+    margin: EdgeInsets.fromLTRB(16.0, 32.0, 16.0, 16.0), // Increased top margin
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: SizedBox(), // Empty expanded widget to push the button to the right
+            ),
+            Align(
+              alignment: Alignment.centerRight, // Align to the right
+              child: ElevatedButton(
+                onPressed: _showTextInputDialog,
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(
+                    const Color.fromARGB(255, 51, 45, 81),
+                  ),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                  ),
+                ),
+                child: Text(
+                  'Add New Category',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 16.0), // Add space between the button and category items
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-     
-      body: _widgetOptions.elementAt(currentPageIndex),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color.fromARGB(255, 51, 45, 81),
-        selectedItemColor:  Colors.white,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.home_rounded,
-              size: 40,
-              color: Colors.white,
-            ),
-            label: 'Home',
-            activeIcon:  Icon(
-              Icons.home_rounded,
-              size: 40,
-              color: Color.fromARGB(255, 91, 79, 158),
-            ),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.manage_accounts,
-              size: 40,
-              color: Colors.white,
-            ),
-            label: 'Users',
-            activeIcon:  Icon(  
-              Icons.manage_accounts,
-              size: 40,
-              color: Color.fromARGB(255, 91, 79, 158),
-            ),
-          ),
-        ],
-        currentIndex: currentPageIndex,
-        
-        onTap: _onItemTap,
-      ),
-    );
-  }
+        // Rest of your widget content...
+      ],
+    ),
+  );
+}
+
 }
 
 
