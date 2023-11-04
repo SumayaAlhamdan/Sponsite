@@ -42,6 +42,7 @@ class _SignUpState extends State<SignUp> {
   bool bigFile = false;
   bool emailWait = false;
   bool emailRejected = false;
+    bool emailDeactivated = false;
   var fileName = 'No File Selected';
 
 
@@ -117,20 +118,44 @@ class _SignUpState extends State<SignUp> {
         .equalTo(email)
         .once();
 
+   final deactivatedSponsors= await dbref.child("DeactivatedSponsors")
+        .orderByChild('Email')
+        .equalTo(email)
+        .once();
 
-      if (emailSnapshot.snapshot.value != null && ((theType=="Sponsor" && RejectedSponsors.snapshot.value == null) || (theType=="Sponsee" && RejectedSponsees.snapshot.value == null) )) {
+
+         final deactivatedSponsees = await dbref.child("DeactivatedSponsees")
+        .orderByChild('Email')
+        .equalTo(email)
+        .once();
+
+      if (emailSnapshot.snapshot.value != null && ((theType=="Sponsor" && RejectedSponsors.snapshot.value == null) || (theType=="Sponsee" && RejectedSponsees.snapshot.value == null)) && ((theType=="Sponsor" && deactivatedSponsors.snapshot.value == null) || (theType=="Sponsee" && deactivatedSponsees.snapshot.value == null) )) {
         // The email already exists in the "new users" list
         setState(() {
           _isAuthenticating = false;
           emailWait = true;
+          emailRejected = false;
+           emailDeactivated = false;
         });
         return;
       }
-        else if ((RejectedSponsors.snapshot.value != null && theType=="Sponsor")|| (RejectedSponsees?.snapshot.value != null && theType=="Sponsee")) {
+        else if ((RejectedSponsors.snapshot.value != null && theType=="Sponsor")|| (RejectedSponsees.snapshot.value != null && theType=="Sponsee")) {
         // The email already exists in the "new users" list
         setState(() {
           _isAuthenticating = false;
           emailRejected = true;
+          emailWait = false;
+          emailDeactivated = false;
+        });
+        return;
+      }
+        else if ((deactivatedSponsors.snapshot.value != null && theType=="Sponsor")|| (deactivatedSponsees.snapshot.value != null && theType=="Sponsee")) {
+        // The email already exists in the "new users" list
+        setState(() {
+          _isAuthenticating = false;
+          emailDeactivated = true;
+           emailWait = false;
+           emailRejected = false;
         });
         return;
       }
@@ -155,6 +180,56 @@ class _SignUpState extends State<SignUp> {
 
    }
        else if ((RejectedSponsors.snapshot.value != null && theType=="Sponsee")) {
+    
+        final Map<dynamic, dynamic> eventData = RejectedSponsors.snapshot.value as Map<dynamic, dynamic>;
+          for (var key in eventData.keys) {
+            if (eventData[key]['Email'] == email) {
+              keySponsor = key;
+            }
+          }
+        final userId = keySponsor;
+        await dbref.child("newUsers").child(userId!).set({
+        'Name': name,
+        'Email': email,
+        'Social Media':null,
+        'Picture':'https://firebasestorage.googleapis.com/v0/b/sponsite-6a696.appspot.com/o/user_images%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1.jpg?alt=media&token=4e08e9f5-d526-4d2c-817b-11f9208e9b52',
+        'authentication document': fileName,
+        'Status': 'Inactive',
+        'Type': theType,
+         // Remove the extra colon
+      });
+
+        await FirebaseAuth.instance.signOut();
+      Navigator.of(context).popUntil((route) => route.isFirst);
+       showAlertDialog(context);
+
+   }
+    else if ((deactivatedSponsors.snapshot.value != null && theType=="Sponsee")) {
+    
+        final Map<dynamic, dynamic> eventData = RejectedSponsors.snapshot.value as Map<dynamic, dynamic>;
+          for (var key in eventData.keys) {
+            if (eventData[key]['Email'] == email) {
+              keySponsor = key;
+            }
+          }
+        final userId = keySponsor;
+        await dbref.child("newUsers").child(userId!).set({
+        'Name': name,
+        'Email': email,
+        'Social Media':null,
+        'Picture':'https://firebasestorage.googleapis.com/v0/b/sponsite-6a696.appspot.com/o/user_images%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1.jpg?alt=media&token=4e08e9f5-d526-4d2c-817b-11f9208e9b52',
+        'authentication document': fileName,
+        'Status': 'Inactive',
+        'Type': theType,
+         // Remove the extra colon
+      });
+
+        await FirebaseAuth.instance.signOut();
+      Navigator.of(context).popUntil((route) => route.isFirst);
+       showAlertDialog(context);
+
+   }
+   else if ((deactivatedSponsees.snapshot.value != null && theType=="Sponsor")) {
     
         final Map<dynamic, dynamic> eventData = RejectedSponsors.snapshot.value as Map<dynamic, dynamic>;
           for (var key in eventData.keys) {
@@ -413,7 +488,9 @@ class _SignUpState extends State<SignUp> {
                                        if (emailRejected) {
                                       return 'Your email has been rejected, contact @sponsiteApp@Gmail.com for help';
                                     }
-                              
+                                 if (emailDeactivated) {
+                                      return 'Your email has been deactivated, contact @sponsiteApp@Gmail.com for help';
+                                    }
                                     return null; // Add this line to handle valid input
                                   },
                                 ),
