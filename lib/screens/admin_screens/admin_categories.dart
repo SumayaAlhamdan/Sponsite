@@ -380,6 +380,9 @@ void _showConfirmationDialog(BuildContext context, String action,
                 showDialog(
                     context: context,
                     builder: (context) {
+                      Future.delayed(const Duration(seconds: 3), () {
+                Navigator.of(context).pop(true);
+              });
                       return AlertDialog(
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -403,9 +406,9 @@ void _showConfirmationDialog(BuildContext context, String action,
                         ),
                       );
                     });
-                Future.delayed(Duration(seconds: 5), () {
-                  Navigator.of(context).pop(); // Close the success dialog
-                });
+                // Future.delayed(Duration(seconds: 2), () {
+                //   Navigator.of(context).pop(); // Close the success dialog
+                // });
               }
             },
             child: Text('Confirm',
@@ -531,6 +534,9 @@ void _showDeleteConfirmationDialog(String categoryName, String categoryKey) {
                 showDialog(
                   context: context,
                   builder: (context) {
+              Future.delayed(const Duration(seconds: 3), () {
+                Navigator.of(context).pop(true);
+              });
                     return AlertDialog(
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -553,9 +559,9 @@ void _showDeleteConfirmationDialog(String categoryName, String categoryKey) {
                     );
                   },
                 );
-                Future.delayed(Duration(seconds: 5), () {
-                  Navigator.of(context).pop(); // Close the success dialog
-                });
+                // Future.delayed(Duration(seconds: 2), () {
+                //   Navigator.of(context).pop(); // Close the success dialog
+                // });
               }).catchError((error) {
                 // Handle any errors that occurred during the deletion process.
                 print("Error deleting category: $error");
