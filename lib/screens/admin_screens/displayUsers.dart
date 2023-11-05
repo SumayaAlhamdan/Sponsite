@@ -131,6 +131,7 @@ class _DisplayUsersState extends State<DisplayUsers> {
                     'Email': value['Email'] ?? '',
                     'Status': value['Status'] ?? 'Active',
                     'doc': value['authentication document'] ?? '',
+                    'Picture': value['Picture'],
                     'Type': 'Sponsor',
                   };
 
@@ -168,6 +169,7 @@ class _DisplayUsersState extends State<DisplayUsers> {
                     'Email': value['Email'] ?? '',
                     'Status': value['Status'] ?? 'Active',
                     'doc': value['authentication document'] ?? '',
+                    'Picture': value['Picture'],
                     'Type': 'Sponsee',
                   };
 
@@ -854,8 +856,36 @@ Sponsite
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('User Management'),
+      appBar:PreferredSize(  
+        preferredSize: const Size.fromHeight(90),  // Set the desired height   
+        child: Container(
+          height: 90,  
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 51, 45, 81),
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(40),  
+              bottomRight: Radius.circular(40),
+            ),
+          ),    
+          padding: const EdgeInsets.fromLTRB(16, 0, 0, 0),
+          child: Row( 
+          children: [ 
+             SizedBox(width: 250) ,
+            Center(       
+                  child:  
+                 Text( 
+                "Users Managment",
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 35,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
+         ),
+          ],
+          ),
+        ),
       ),
       body: DefaultTabController(
         length: 2,
