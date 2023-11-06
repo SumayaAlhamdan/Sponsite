@@ -1,13 +1,12 @@
 import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:sponsite/screens/chatPage.dart';
-import 'package:sponsite/screens/sponsor_screens/sponsor_home_screen.dart';
 import 'package:sponsite/screens/view_others_profile.dart';
-import 'package:sponsite/widgets/customAppBar.dart';
 
 final DatabaseReference dbref = FirebaseDatabase.instance.reference();
 
@@ -348,7 +347,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
     }
   }
 
-  Widget _buildOfferCard(Offer offer) {
+ Widget _buildOfferCard(Offer offer) {
     final timestamp = DateTime.parse(offer.timeStamp).millisecondsSinceEpoch;
 
     return Container(
@@ -465,48 +464,54 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                     ],
                   ),
                   SizedBox(width: 200),
-                  Container(
-                    width: 120,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ChatPage(
-                              receiverUserEmail: offer.sponsorEmail,
-                              receiverUserID: offer.sponsorId,
-                              receiverUserName: offer.sponsorName,
-                              pic: offer.sponsorImage,
-                            ),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        primary: const Color.fromARGB(255, 91, 79, 158),
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.chat_bubble,
-                            color: Colors.white,
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            'Chat',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                 Container(
+  width: 290,
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.end,
+    children: [
+      SizedBox(width: 2), // Add more space to push the button further right
+      ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatPage(
+                receiverUserEmail: offer.sponsorEmail,
+                receiverUserID: offer.sponsorId,
+                receiverUserName: offer.sponsorName,
+                pic: offer.sponsorImage,
+              ),
+            ),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          primary: const Color.fromARGB(255, 91, 79, 158),
+          elevation: 5,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.chat_bubble,
+              color: Colors.white,
+            ),
+            SizedBox(width: 8),
+            Text(
+              'chat',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
+  ),
+)
+
                 ],
               ),
             ),
@@ -581,7 +586,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                               _showConfirmationDialog("Reject", offer);
                             },
                             style: ElevatedButton.styleFrom(
-                              primary: Color.fromARGB(179, 203, 54, 43),
+                              primary: Colors.red, 
                               elevation: 5,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
@@ -601,7 +606,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                               _showConfirmationDialog("Accept", offer);
                             },
                             style: ElevatedButton.styleFrom(
-                              primary: Color.fromARGB(255, 51, 45, 81),
+                              primary: Colors.green,
                               elevation: 5,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),

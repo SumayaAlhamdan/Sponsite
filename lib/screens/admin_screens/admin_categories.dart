@@ -103,7 +103,7 @@ Widget editCategory() {
           children: [
             
             Container(
-              margin: EdgeInsets.only(right: 15.0),
+              margin: EdgeInsets.only(left: 590.0),
               child: ElevatedButton(
                 onPressed: _showTextInputDialog,
                 style: ButtonStyle(
@@ -139,38 +139,44 @@ Widget editCategory() {
                   color: Color.fromARGB(255, 51, 45, 81),
                   borderRadius: BorderRadius.circular(12.0), // Added radius
                 ),
-                child: ListTile(
-                  tileColor: Color.fromARGB(255, 51, 45, 81),
-                  title: Text(
-                    entry.value,
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  trailing: Container(
-                    decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 51, 45, 81),
-                      borderRadius: BorderRadius.circular(12.0), // Added radius
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.edit),
-                          color: Colors.white,
-                          onPressed: () {
-                            _editCategoryDialog(entry.key, entry.value);
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.delete),
-                          color: Colors.white,
-                          onPressed: () {
-                            _showDeleteConfirmationDialog(entry.value, entry.key);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                child: Card(
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(12.0),
+  ),
+  color: Color.fromARGB(255, 51, 45, 81),
+  child: ListTile(
+    title: Text(
+      entry.value,
+      style: TextStyle(color: Colors.white),
+    ),
+    trailing: Container(
+      decoration: BoxDecoration(
+        color: Color.fromARGB(255, 51, 45, 81),
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: Icon(Icons.edit),
+            color: Colors.white,
+            onPressed: () {
+              _editCategoryDialog(entry.key, entry.value);
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.delete),
+            color: Colors.white,
+            onPressed: () {
+              _showDeleteConfirmationDialog(entry.value, entry.key);
+            },
+          ),
+        ],
+      ),
+    ),
+  ),
+)
+
               );
             }).toList(),
           ),

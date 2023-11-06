@@ -7,8 +7,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:sponsite/screens/admin_screens/admin_home_screen.dart';
-import 'package:sponsite/screens/calendar.dart';
 import 'package:sponsite/widgets/user_image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -302,15 +300,15 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
               onPressed: () => Navigator.pop(context),
               child: const Text(
                 'Cancel',
-                style: TextStyle(color: Colors.white, fontSize: 15),
+                style: TextStyle(color: Colors.white, fontSize: 20),
               )),
-          leadingWidth: 100,
+          leadingWidth: 110,
           actions: [
             TextButton(
                 onPressed: () => save(),
                 child: Text(
                   ' Save ',
-                  style: TextStyle(color: Colors.white, fontSize: 15),
+                  style: TextStyle(color: Colors.white, fontSize: 20),
                 )),
             SizedBox(
               width: 10,
