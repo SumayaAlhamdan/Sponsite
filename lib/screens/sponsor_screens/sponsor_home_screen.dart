@@ -397,6 +397,11 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                                   // Show or hide the cancel button based on whether there's text in the TextField
                                 });
                               },
+                              onEditingComplete: () {
+                                String trimmedText =
+                                    searchController.text.trim();
+                                searchController.text = trimmedText;
+                              },
                               onSubmitted: (value) {
                                 // Handle the search when the user presses Enter on the keyboard
 
@@ -405,11 +410,6 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                                       builder: (context) => ResultPage(
                                           searchText: searchController.text)),
                                 );
-
-                                // _searchEventsByName(value);
-                                // originalSearchText = value;
-
-                                // You can now display filteredEvents in your UI
                                 setState(() {});
                               },
                             ),
@@ -632,260 +632,286 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                 SizedBox(
                   height: screenHeight - 580,
                   child: Scrollbar(
-                    // Set this to true to always show the scrollbar
-                    child: GridView.builder(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12.0, 0),
-                      shrinkWrap:
-                          true, // Add this to allow GridView to scroll inside SingleChildScrollView
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.715,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                      ),
-                      // itemCount: getFilteredEvents().length,
-                      // itemBuilder: (context, index) {
-                      //   Event event = getFilteredEvents()[index];
-                      itemCount: searchedEvents.isNotEmpty
-                          ? searchedEvents.length
-                          : getFilteredEvents().length,
-                      itemBuilder: (context, index) {
-                        Event event = searchedEvents.isNotEmpty
-                            ? searchedEvents[index]
-                            : getFilteredEvents()[index];
-
-                        //bool meetsFilterCriteria = applyFilterCriteria(event);
-                        // print('HERE EVENT CRIRITA');
-                        // if (meetsFilterCriteria) {
-                        return GestureDetector(
-                            onTap: () {
-                              // Navigate to the event details page
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => RecentEventsDetails(
-                                    sponsorID: sponsorID,
-                                    EventId: event.EventId,
-                                    sponseeId: event.sponseeId,
-                                    EventName: event.EventName,
-                                    EventType: event.EventType,
-                                    location: event.location,
-                                    imgURL: event.imgURL,
-                                    startDate: event.startDate,
-                                    endDate: event.endDate,
-                                    startTime: event.startTime,
-                                    endTime: event.endTime,
-                                    Category: event.Category,
-                                    notes: event.notes,
-                                    benefits: event.benefits,
-                                    NumberOfAttendees: event.NumberOfAttendees,
-                                    timeStamp: event.timeStamp,
-                                    sponseeImage: event.sponseeImage,
-                                    sponseeName: event.sponseeName,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Card(
-                              elevation: 5,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    height: screenHeight * 0.14,
-                                    decoration: BoxDecoration(
-                                      borderRadius: const BorderRadius.vertical(
-                                        top: Radius.circular(16),
+                    child: getFilteredEvents().isEmpty
+                        ? Center(
+                            child: Text("No recent events in $selectedCategory",
+                                style: TextStyle(
+                                    fontSize: 24,
+                                    color: Color.fromARGB(255, 189, 189, 189))),
+                          )
+                        :
+                        // Set this to true to always show the scrollbar
+                        GridView.builder(
+                            padding: const EdgeInsets.fromLTRB(12, 0, 12.0, 0),
+                            shrinkWrap:
+                                true, // Add this to allow GridView to scroll inside SingleChildScrollView
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 0.715,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                            ),
+                            // itemCount: getFilteredEvents().length,
+                            // itemBuilder: (context, index) {
+                            //   Event event = getFilteredEvents()[index];
+                            itemCount: //searchedEvents.isNotEmpty
+                                // ? searchedEvents.length
+                                // :
+                                getFilteredEvents().length,
+                            itemBuilder: (context, index) {
+                              Event event = //searchedEvents.isNotEmpty
+                                  // ? searchedEvents[index]
+                                  // :
+                                  getFilteredEvents()[index];
+                              //bool meetsFilterCriteria = applyFilterCriteria(event);
+                              // print('HERE EVENT CRIRITA');
+                              // if (meetsFilterCriteria) {
+                              return GestureDetector(
+                                  onTap: () {
+                                    // Navigate to the event details page
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            RecentEventsDetails(
+                                          sponsorID: sponsorID,
+                                          EventId: event.EventId,
+                                          sponseeId: event.sponseeId,
+                                          EventName: event.EventName,
+                                          EventType: event.EventType,
+                                          location: event.location,
+                                          imgURL: event.imgURL,
+                                          startDate: event.startDate,
+                                          endDate: event.endDate,
+                                          startTime: event.startTime,
+                                          endTime: event.endTime,
+                                          Category: event.Category,
+                                          notes: event.notes,
+                                          benefits: event.benefits,
+                                          NumberOfAttendees:
+                                              event.NumberOfAttendees,
+                                          timeStamp: event.timeStamp,
+                                          sponseeImage: event.sponseeImage,
+                                          sponseeName: event.sponseeName,
+                                        ),
                                       ),
-                                      image: DecorationImage(
-                                        image: event.imgURL.isNotEmpty
-                                            ? NetworkImage(event.imgURL)
-                                            : const NetworkImage(
-                                                'https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
-                                        fit: BoxFit.cover,
-                                      ),
+                                    );
+                                  },
+                                  child: Card(
+                                    elevation: 5,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
                                     ),
-                                  ),
-                                  Container(
-                                    decoration: const BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.vertical(
-                                          bottom: Radius.circular(30),
-                                        )),
-                                    padding: const EdgeInsets.all(8.0),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          event.EventName,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20,
-                                            color: Color.fromARGB(255, 0, 0, 0),
+                                        Container(
+                                          height: screenHeight * 0.14,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                const BorderRadius.vertical(
+                                              top: Radius.circular(16),
+                                            ),
+                                            image: DecorationImage(
+                                              image: event.imgURL.isNotEmpty
+                                                  ? NetworkImage(event.imgURL)
+                                                  : const NetworkImage(
+                                                      'https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
+                                              fit: BoxFit.cover,
+                                            ),
                                           ),
                                         ),
-                                        const SizedBox(height: 4),
-                                        Row(
-                                          children: [
-                                            GestureDetector(
-                                              child: CircleAvatar(
-                                                radius: 25,
-                                                backgroundImage: NetworkImage(
-                                                    event.sponseeImage),
-                                                backgroundColor:
-                                                    Colors.transparent,
-                                              ),
-                                              onTap: () {
-                                                Navigator.of(context)
-                                                    .push(MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ViewOthersProfile(
-                                                          'Sponsees',
-                                                          event.sponseeId),
-                                                ));
-                                              },
-                                            ),
-
-                                            SizedBox(width: 15),
-                                            // Add some space between the CircleAvatar and Text
-                                            GestureDetector(
-                                              child: Expanded(
-                                                child: Text(
-                                                  event.sponseeName,
-                                                  style: const TextStyle(
-                                                    fontSize: 22,
-                                                    color: Colors.black87,
-                                                  ),
-                                                ),
-                                              ),
-                                              onTap: () {
-                                                Navigator.of(context)
-                                                    .push(MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ViewOthersProfile(
-                                                          'Sponsees',
-                                                          event.sponseeId),
-                                                ));
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(
-                                          height: 5,
-                                        ),
-
-                                        Row(
-                                          children: [
-                                            const Icon(
-                                              Icons.calendar_today,
-                                              size: 18,
-                                              color: Color.fromARGB(
-                                                  255, 91, 79, 158),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              "${event.startDate} - ${event.endDate}",
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                color: Color.fromARGB(
-                                                    255, 0, 0, 0),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Row(
-                                          children: [
-                                            if (event.NumberOfAttendees !=
-                                                    null &&
-                                                event.NumberOfAttendees
-                                                    .isNotEmpty)
-                                              const Icon(
-                                                Icons.people,
-                                                size: 21,
-                                                color: Color.fromARGB(
-                                                    255, 91, 79, 158),
-                                              ),
-                                            const SizedBox(width: 4),
-                                            Expanded(
-                                              child: Text(
-                                                event.NumberOfAttendees,
+                                        Container(
+                                          decoration: const BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.vertical(
+                                                bottom: Radius.circular(30),
+                                              )),
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                event.EventName,
                                                 style: const TextStyle(
-                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 20,
                                                   color: Color.fromARGB(
                                                       255, 0, 0, 0),
                                                 ),
-                                                overflow: TextOverflow
-                                                    .ellipsis, // Add this line
-                                                maxLines: 1, // Add this line
                                               ),
-                                            )
-                                          ],
-                                        ),
-                                        const SizedBox(height: 10),
-                                        SizedBox(
-                                          height: 105,
-                                          child: Wrap(
-                                            spacing: 4,
-                                            children:
-                                                event.Category.map((category) {
-                                              return Chip(
-                                                label: Text(category),
-                                                backgroundColor:
-                                                    const Color.fromARGB(
-                                                        255, 255, 255, 255),
-                                                shadowColor:
-                                                    const Color.fromARGB(
+                                              const SizedBox(height: 4),
+                                              Row(
+                                                children: [
+                                                  GestureDetector(
+                                                    child: CircleAvatar(
+                                                      radius: 25,
+                                                      backgroundImage:
+                                                          NetworkImage(event
+                                                              .sponseeImage),
+                                                      backgroundColor:
+                                                          Colors.transparent,
+                                                    ),
+                                                    onTap: () {
+                                                      Navigator.of(context)
+                                                          .push(
+                                                              MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ViewOthersProfile(
+                                                                'Sponsees',
+                                                                event
+                                                                    .sponseeId),
+                                                      ));
+                                                    },
+                                                  ),
+
+                                                  SizedBox(width: 15),
+                                                  // Add some space between the CircleAvatar and Text
+                                                  GestureDetector(
+                                                    child: Expanded(
+                                                      child: Text(
+                                                        event.sponseeName,
+                                                        style: const TextStyle(
+                                                          fontSize: 22,
+                                                          color: Colors.black87,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    onTap: () {
+                                                      Navigator.of(context)
+                                                          .push(
+                                                              MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ViewOthersProfile(
+                                                                'Sponsees',
+                                                                event
+                                                                    .sponseeId),
+                                                      ));
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(
+                                                height: 5,
+                                              ),
+
+                                              Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons.calendar_today,
+                                                    size: 18,
+                                                    color: Color.fromARGB(
                                                         255, 91, 79, 158),
-                                                elevation: 3,
-                                                labelStyle: const TextStyle(
-                                                  color: Color.fromARGB(
-                                                      255, 91, 79, 158),
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    "${event.startDate} - ${event.endDate}",
+                                                    style: TextStyle(
+                                                      fontSize: 18,
+                                                      color: Color.fromARGB(
+                                                          255, 0, 0, 0),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Row(
+                                                children: [
+                                                  if (event.NumberOfAttendees !=
+                                                          null &&
+                                                      event.NumberOfAttendees
+                                                          .isNotEmpty)
+                                                    const Icon(
+                                                      Icons.people,
+                                                      size: 21,
+                                                      color: Color.fromARGB(
+                                                          255, 91, 79, 158),
+                                                    ),
+                                                  const SizedBox(width: 4),
+                                                  Expanded(
+                                                    child: Text(
+                                                      event.NumberOfAttendees,
+                                                      style: const TextStyle(
+                                                        fontSize: 18,
+                                                        color: Color.fromARGB(
+                                                            255, 0, 0, 0),
+                                                      ),
+                                                      overflow: TextOverflow
+                                                          .ellipsis, // Add this line
+                                                      maxLines:
+                                                          1, // Add this line
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                              const SizedBox(height: 10),
+                                              SizedBox(
+                                                height: 105,
+                                                child: Wrap(
+                                                  spacing: 4,
+                                                  children: event.Category.map(
+                                                      (category) {
+                                                    return Chip(
+                                                      label: Text(category),
+                                                      backgroundColor:
+                                                          const Color.fromARGB(
+                                                              255,
+                                                              255,
+                                                              255,
+                                                              255),
+                                                      shadowColor:
+                                                          const Color.fromARGB(
+                                                              255, 91, 79, 158),
+                                                      elevation: 3,
+                                                      labelStyle:
+                                                          const TextStyle(
+                                                        color: Color.fromARGB(
+                                                            255, 91, 79, 158),
+                                                      ),
+                                                    );
+                                                  }).toList(),
                                                 ),
-                                              );
-                                            }).toList(),
+                                              ),
+                                              const SizedBox(
+                                                  height: 8), // Add some space
+                                              const Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    'more details',
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontStyle:
+                                                          FontStyle.italic,
+                                                      color: Color.fromARGB(
+                                                          255, 91, 79, 158),
+                                                    ),
+                                                  ),
+                                                  Icon(
+                                                    Icons.arrow_forward,
+                                                    size:
+                                                        16, // Adjust the size as needed
+                                                    color: Color.fromARGB(
+                                                        255, 91, 79, 158),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(
+                                                  height:
+                                                      41.9), // Add some space at the bottom
+                                            ],
                                           ),
                                         ),
-                                        const SizedBox(
-                                            height: 8), // Add some space
-                                        const Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            Text(
-                                              'more details',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontStyle: FontStyle.italic,
-                                                color: Color.fromARGB(
-                                                    255, 91, 79, 158),
-                                              ),
-                                            ),
-                                            Icon(
-                                              Icons.arrow_forward,
-                                              size:
-                                                  16, // Adjust the size as needed
-                                              color: Color.fromARGB(
-                                                  255, 91, 79, 158),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(
-                                            height:
-                                                41.9), // Add some space at the bottom
                                       ],
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ));
-                      },
-                    ),
+                                  ));
+                            },
+                          ),
                   ),
                 ),
               ],

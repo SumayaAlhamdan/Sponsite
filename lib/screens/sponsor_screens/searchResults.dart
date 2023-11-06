@@ -420,6 +420,11 @@ class _ResultPageState extends State<ResultPage> {
                                       // Show or hide the cancel button based on whether there's text in the TextField
                                     });
                                   },
+                                  onEditingComplete: () {
+                                    String trimmedText =
+                                        searchController.text.trim();
+                                    searchController.text = trimmedText;
+                                  },
                                   onSubmitted: (value) {
                                     // Handle the search when the user presses Enter on the keyboard
                                     _searchEventsByName(value);
