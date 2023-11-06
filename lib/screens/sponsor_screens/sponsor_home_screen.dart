@@ -572,62 +572,71 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    if (FminAttendees != 0 ||
-                        FmaxAttendees != 200000 ||
-                        (FselectedCategories != null &&
-                            FselectedCategories.isNotEmpty) ||
-                        (FselectedCities != null && FselectedCities.isNotEmpty))
-                      Text('Filtered By:',
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal, // Scroll horizontally
+                  child: Row(
+                    children: [
+                      if (FminAttendees != 0 ||
+                          FmaxAttendees != 200000 ||
+                          (FselectedCategories != null &&
+                              FselectedCategories.isNotEmpty) ||
+                          (FselectedCities != null &&
+                              FselectedCities.isNotEmpty))
+                        Text(
+                          'Filtered By:',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 20,
                             color: Color.fromARGB(255, 91, 79, 158),
-                          )),
-                    SizedBox(width: 10),
-                    Wrap(
-                      spacing: 8.0,
-                      runSpacing: 4.0,
-                      children: <Widget>[
-                        if (FminAttendees != 0)
-                          Chip(
+                          ),
+                        ),
+                      SizedBox(width: 10),
+                      Wrap(
+                        spacing: 8.0,
+                        runSpacing: 4.0,
+                        children: <Widget>[
+                          if (FminAttendees != 0)
+                            Chip(
                               label: Text(
-                            'Min Attendees: $FminAttendees',
-                            style: TextStyle(
-                                color: Color.fromARGB(255, 91, 79, 158)),
-                          )),
-                        if (FmaxAttendees != 200000)
-                          Chip(
-                            label: Text(
-                              'Max Attendees: $FmaxAttendees',
-                              style: TextStyle(
-                                  color: Color.fromARGB(255, 91, 79, 158)),
+                                'Min Attendees: $FminAttendees',
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 91, 79, 158),
+                                ),
+                              ),
                             ),
-                          ),
-                        if (FselectedCategories != null &&
-                            FselectedCategories.isNotEmpty)
-                          Chip(
-                            label: Text(
-                                'Categories: ${FselectedCategories.join(', ')}'),
-                            labelStyle: TextStyle(
+                          if (FmaxAttendees != 200000)
+                            Chip(
+                              label: Text(
+                                'Max Attendees: $FmaxAttendees',
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 91, 79, 158),
+                                ),
+                              ),
+                            ),
+                          if (FselectedCategories != null &&
+                              FselectedCategories.isNotEmpty)
+                            Chip(
+                              label: Text(
+                                  'Categories: ${FselectedCategories.join(', ')}'),
+                              labelStyle: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(
-                                    255, 91, 79, 158)), // Add style as needed
-                          ),
-                        if (FselectedCities != null &&
-                            FselectedCities.isNotEmpty)
-                          Chip(
-                            label:
-                                Text('Cities: ${FselectedCities.join(', ')}'),
-                            labelStyle: TextStyle(
+                                color: Color.fromARGB(255, 91, 79, 158),
+                              ),
+                            ),
+                          if (FselectedCities != null &&
+                              FselectedCities.isNotEmpty)
+                            Chip(
+                              label:
+                                  Text('Cities: ${FselectedCities.join(', ')}'),
+                              labelStyle: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(
-                                    255, 91, 79, 158)), // Add style as needed
-                          ),
-                      ],
-                    ),
-                  ],
+                                color: Color.fromARGB(255, 91, 79, 158),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
                 SizedBox(
                   height: screenHeight - 580,

@@ -856,34 +856,33 @@ Sponsite
     }
 
     return Scaffold(
-      appBar:PreferredSize(  
-        preferredSize: const Size.fromHeight(90),  // Set the desired height   
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(90), // Set the desired height
         child: Container(
-          height: 90,  
+          height: 90,
           decoration: BoxDecoration(
             color: const Color.fromARGB(255, 51, 45, 81),
             borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(40),  
+              bottomLeft: Radius.circular(40),
               bottomRight: Radius.circular(40),
             ),
-          ),    
+          ),
           padding: const EdgeInsets.fromLTRB(16, 0, 0, 0),
-          child: Row( 
-          children: [ 
-             SizedBox(width: 250) ,
-            Center(       
-                  child:  
-                 Text( 
-                "Users Managment",
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 35,
-                  color: Colors.white,
+          child: Row(
+            children: [
+              SizedBox(width: 250),
+              Center(
+                child: Text(
+                  "Users Managment",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 35,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
-         ),
-          ],
+            ],
           ),
         ),
       ),
@@ -951,10 +950,14 @@ Sponsite
         children: [
           Text(
             category,
-            style: const TextStyle(
-              color: Color.fromARGB(255, 51, 45, 81),
+            style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w500,
+              color: category == "Activated Users"
+                  ? Color.fromARGB(255, 129, 192, 131)
+                  : category == "Deactivated Users"
+                      ? Color.fromARGB(255, 240, 90, 80)
+                      : Colors.black,
             ),
           ),
           SingleChildScrollView(
@@ -999,13 +1002,6 @@ Sponsite
                               email,
                               style: const TextStyle(
                                 color: Color.fromARGB(255, 51, 45, 81),
-                                fontSize: 17,
-                              ),
-                            ),
-                            Text(
-                              status,
-                              style: TextStyle(
-                                color: statusColor,
                                 fontSize: 17,
                               ),
                             ),
