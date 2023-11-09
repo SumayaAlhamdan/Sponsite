@@ -662,7 +662,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                           },
                           child: Row(
                             children: [
-                              Icon(Icons.delete), // Trash icon
+                              Icon(Icons.close), // Trash icon
                               SizedBox(
                                   width:
                                       8), // Add some space between the icon and text
