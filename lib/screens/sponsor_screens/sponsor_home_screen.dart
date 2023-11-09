@@ -635,6 +635,41 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                             ),
                         ],
                       ),
+                      if (FminAttendees != 0 ||
+                          FmaxAttendees != 200000 ||
+                          (FselectedCategories != null &&
+                              FselectedCategories.isNotEmpty) ||
+                          (FselectedCities != null &&
+                              FselectedCities.isNotEmpty))
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              FminAttendees = 0;
+                              FmaxAttendees = 200000;
+                              FselectedCategories = [];
+                              FselectedCities = [];
+                            });
+
+                            FilterDialog filterDialog = FilterDialog(
+                              onFilterApplied: (
+                                int minAttendees,
+                                int maxAttendees,
+                                List<String> selectedCategories,
+                                List<String> selectedCities,
+                              ) {},
+                            );
+                            //     filterDialog.clearFilterValues();
+                          },
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete), // Trash icon
+                              SizedBox(
+                                  width:
+                                      8), // Add some space between the icon and text
+                              //  Text('Clear Filter'),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -642,15 +677,31 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                   height: screenHeight - 580,
                   child: Scrollbar(
                     child: getFilteredEvents().isEmpty
-                        ? Center(
-                            child: Text("No recent events in $selectedCategory",
-                                style: TextStyle(
+                        ? (FminAttendees != 0 ||
+                                FmaxAttendees != 200000 ||
+                                (FselectedCategories != null &&
+                                    FselectedCategories.isNotEmpty) ||
+                                (FselectedCities != null &&
+                                    FselectedCities.isNotEmpty))
+                            ? Center(
+                                child: Text(
+                                  "No events that match your filtered criteria",
+                                  style: TextStyle(
                                     fontSize: 24,
-                                    color: Color.fromARGB(255, 189, 189, 189))),
-                          )
-                        :
-                        // Set this to true to always show the scrollbar
-                        GridView.builder(
+                                    color: Color.fromARGB(255, 189, 189, 189),
+                                  ),
+                                ),
+                              )
+                            : Center(
+                                child: Text(
+                                  "No recent events in $selectedCategory",
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    color: Color.fromARGB(255, 189, 189, 189),
+                                  ),
+                                ),
+                              )
+                        : GridView.builder(
                             padding: const EdgeInsets.fromLTRB(12, 0, 12.0, 0),
                             shrinkWrap:
                                 true, // Add this to allow GridView to scroll inside SingleChildScrollView
@@ -1141,6 +1192,24 @@ class _FilterDialogState extends State<FilterDialog> {
     prefs.setStringList('selectedCities', _selectedCities);
   }
 
+  Future<void> clearFilterValues() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    // Reset filter values in the current widget's state
+    setState(() {
+      _minValue = 0;
+      _maxValue = 200000;
+      _selectedCategories = [];
+      _selectedCities = [];
+    });
+    widget.onFilterApplied(
+      _minValue,
+      _maxValue,
+      _selectedCategories,
+      _selectedCities,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -1296,21 +1365,7 @@ class _FilterDialogState extends State<FilterDialog> {
       actions: [
         TextButton(
           onPressed: () async {
-            final prefs = await SharedPreferences.getInstance();
-            await prefs.clear();
-            // Reset filter values in the current widget's state
-            setState(() {
-              _minValue = 0;
-              _maxValue = 200000;
-              _selectedCategories = [];
-              _selectedCities = [];
-            });
-            widget.onFilterApplied(
-              _minValue,
-              _maxValue,
-              _selectedCategories,
-              _selectedCities,
-            );
+            clearFilterValues();
             Navigator.of(context).pop();
           },
           child: Text(
