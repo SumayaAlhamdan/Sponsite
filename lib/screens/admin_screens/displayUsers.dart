@@ -928,12 +928,19 @@ Sponsite
     List<Map<String, dynamic>> deactivatedUsers,
   ) {
     if (activatedUsers.isEmpty && deactivatedUsers.isEmpty) {
-      return Center(child: Text('No users available.'));
+      return Center(
+          child: Text(
+        'No users available.',
+        style: TextStyle(
+          fontSize: 24,
+          color: Color.fromARGB(255, 189, 189, 189),
+        ),
+      ));
     }
 
     return Column(
       children: [
-        _buildUserCategory('Activated Users', activatedUsers),
+        _buildUserCategory('Active Users', activatedUsers),
         _buildUserCategory('Deactivated Users', deactivatedUsers),
       ],
     );

@@ -851,10 +851,24 @@ Sponsite
                     children: userWidgets,
                   );
                 } else {
-                  return Center(child: Text('No new users available.'));
+                  return Center(
+                      child: Text(
+                    'No new users available.',
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Color.fromARGB(255, 189, 189, 189),
+                    ),
+                  ));
                 }
               } else {
-                return Center(child: Text('No new users available.'));
+                return Center(
+                    child: Text(
+                  'No new users available.',
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: Color.fromARGB(255, 189, 189, 189),
+                  ),
+                ));
               }
             } else {
               return Center(child: CircularProgressIndicator());
