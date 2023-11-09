@@ -344,7 +344,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
   final now = DateTime.now();
   print(now);
 final filteredEvents = events.where((event) {
-  final eventDateTime = parseEventDateAndTime(event.startDate, event.startTime);
+  final eventDateTime = parseEventDateAndTime(event.endDate, event.startTime);
   return eventDateTime.isAfter(now);
 }).toList();
 
@@ -389,9 +389,10 @@ Widget _buildPastEventsPage() {
 
   final now = DateTime.now();
 final filteredEvents = events.where((event) {
-  final eventDateTime = parseEventDateAndTime(event.startDate, event.startTime);
+  final eventDateTime = parseEventDateAndTime(event.endDate, event.startTime);
   return eventDateTime.isBefore(now);
 }).toList();
+filteredEvents.sort((a, b) => parseEventDateAndTime(b.startDate, b.startTime).compareTo(parseEventDateAndTime(a.startDate, a.startTime)));
 
   if (filteredEvents.isNotEmpty) {
     return Padding(
