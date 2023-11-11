@@ -413,7 +413,7 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                                     validator: (value) {
                                       if (RegExp(r'[!@#$%^&*(),.?":{}|<>]')
                                               .hasMatch(value!) ||
-                                          value.isEmpty) {
+                                          value.isEmpty  || value.trim().isEmpty) {
                                         return "Please enter a valid name with no special characters";
                                       }
                                       if (value.length > 30) {
@@ -460,6 +460,65 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                                       return null;
                                     },
                                   ),
+                                ),
+                                 Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    ElevatedButton(
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor:
+                                                          const Color.fromARGB(
+                                                              255, 91, 79, 158),
+                                                      elevation: 5,
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                                30),
+                                                      ),
+                                                    ),
+                                                    onPressed: () {
+                                                    Navigator.pop(context);
+                                                    },
+                                                    child: const Text(
+                                                      "Cancel",
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(width: 100,),
+                                                  ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      const Color.fromARGB(
+                                                          255, 91, 79, 158),
+                                                  elevation: 5,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30),
+                                                  ),
+                                                ),
+                                                onPressed: () {
+                                                  save();
+                                                },
+                                                child: const Text(
+                                                  "  Save  ",
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                  ],
+                                ),
+
+
+                                // const SizedBox(height: 25.0),
+                                Divider(
+                                  indent: 100,
+                                  endIndent: 100,
                                 ),
 
                                 // const SizedBox(height: 25.0),
