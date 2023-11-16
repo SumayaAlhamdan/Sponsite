@@ -221,6 +221,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                             notes: event.notes,
                             benefits: event.benefits,
                             NumberOfAttendees: event.NumberOfAttendees,
+                            isPast : isPast,
                           ),
                         ),
                       );

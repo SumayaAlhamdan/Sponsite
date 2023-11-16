@@ -20,6 +20,7 @@ class eventDetail extends StatefulWidget {
       required this.endTime,
       required this.notes,
       this.benefits,
+      required this.isPast,
       required this.NumberOfAttendees})
       : super(key: key);
   final String img;
@@ -34,6 +35,7 @@ class eventDetail extends StatefulWidget {
   final String endTime;
   final String notes;
   final String? benefits;
+  final bool isPast; 
   final String NumberOfAttendees;
 
   @override
@@ -171,15 +173,46 @@ class _Start extends State<eventDetail> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(height: 20),
-                          Text(
-                            widget.DetailKey,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 32,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
+                             Row(
+  children: [
+    Expanded(
+      child: Text(
+        widget.DetailKey,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 32,
+          color: Colors.black87,
+        ),
+      ),
+    ),
+    if (widget.isPast)
+      ElevatedButton.icon(
+        onPressed: () {
+          // Add the action you want for the button
+        },
+        icon: Icon(
+          Icons.star,
+          color: Colors.white,
+        ),
+        label: Text(
+          "Rate Sponsorship",
+          style: const TextStyle(
+            fontSize: 18,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          primary: const Color.fromARGB( 255,91,79,158),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          padding: EdgeInsets.all(15), // Adjust padding as needed
+        ),
+      ),
+  ],
+),
+                                const SizedBox(height: 10),
                           Text(
                             widget.Type,
                             style: const TextStyle(

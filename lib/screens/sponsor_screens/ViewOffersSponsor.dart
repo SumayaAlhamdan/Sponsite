@@ -50,7 +50,7 @@ void dispose() {
 }
 
 
-  Widget listItem({required Event event, required Offer offer}) { 
+  Widget listItem({required Event event, required Offer offer,required bool isPast}) { 
     Color statusColor = const Color.fromARGB(
         255, 91, 79, 158); // Default status color is gray for pending
 
@@ -281,6 +281,7 @@ void dispose() {
                             status: offer.status,
                             sponseeImage: event.sponseeImage,
                             sponseeName: event.sponseeName,
+                            isPast : isPast,
                           ),
                         ),
                       );
@@ -439,7 +440,7 @@ Widget _buildCurrentEventsPage() {
                         }
 
                         if (offer != null) {
-                          return listItem(event: event, offer: offer);
+                          return listItem(event: event, offer: offer, isPast:false);
                         
                         }
                       },
@@ -526,7 +527,7 @@ else {
       }
     }
 if (offer != null ) 
-    return listItem(event: event, offer: offer);
+    return listItem(event: event, offer: offer, isPast: true);
   },
 ),
           ),
