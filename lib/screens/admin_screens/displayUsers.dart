@@ -781,7 +781,7 @@ Sponsite
                         },
                         child: Center(
                           child: Text(
-                            file,
+                             "View Link",
                             style: const TextStyle(
                               color: Color.fromARGB(255, 15, 113, 193),
                               decoration: TextDecoration.underline,

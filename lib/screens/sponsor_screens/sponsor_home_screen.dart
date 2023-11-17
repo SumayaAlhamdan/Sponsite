@@ -1,22 +1,17 @@
+import 'dart:async';
 import 'dart:math';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
+
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
-import 'package:sponsite/screens/sponsor_screens/filter.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:google_maps_webservice/places.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sponsite/screens/sponsor_screens/searchResults.dart';
 import 'package:sponsite/screens/sponsor_screens/sendOffer.dart';
 import 'package:sponsite/screens/view_others_profile.dart';
-import 'package:sponsite/widgets/sponsor_botton_navbar.dart';
-import 'dart:async';
-import 'package:flutter_google_places/flutter_google_places.dart';
-import 'package:google_maps_webservice/places.dart';
-import 'package:googleapis/streetviewpublish/v1.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:sponsite/screens/sponsor_screens/searchResults.dart';
 
 String? sponsorID;
 
@@ -313,15 +308,47 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
       // Add the randomIndex to the displayedEventIndices set
       displayedEventIDs.add(randomIndex);
       Event event = events[randomIndex];
-      return SizedBox(
-          height: 220, // Set the desired fixed height
-          width: 300, // Set the desired fixed width
+  return GestureDetector(
+    onTap: () {
+      // Navigate to the event details page here
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+                                        builder: (context) =>
+                                            RecentEventsDetails(
+                                          sponsorID: sponsorID,
+                                          EventId: event.EventId,
+                                          sponseeId: event.sponseeId,
+                                          EventName: event.EventName,
+                                          EventType: event.EventType,
+                                          location: event.location,
+                                          imgURL: event.imgURL,
+                                          startDate: event.startDate,
+                                          endDate: event.endDate,
+                                          startTime: event.startTime,
+                                          endTime: event.endTime,
+                                          Category: event.Category,
+                                          notes: event.notes,
+                                          benefits: event.benefits,
+                                          NumberOfAttendees:
+                                              event.NumberOfAttendees,
+                                          timeStamp: event.timeStamp,
+                                          sponseeImage: event.sponseeImage,
+                                          sponseeName: event.sponseeName,
+                                        ),
+                                      ),
+    
+        );
+    },
+      child: SizedBox(
+         height: 220, // Set the desired fixed height
+          width: 400,  // Set the desired fixed width
           child: Card(
             elevation: 0,
             child: Container(
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 255, 255, 255),
-                borderRadius: BorderRadius.circular(25),
+                borderRadius: BorderRadius.circular(12),
                 image: DecorationImage(
                   image: event.imgURL.isNotEmpty
                       ? NetworkImage(event.imgURL)
@@ -330,13 +357,41 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                   fit: BoxFit.cover,
                 ),
               ),
-              padding: const EdgeInsets.fromLTRB(7, 5, 0, 0),
-              child: const Column(
+    // padding: const EdgeInsets.all(.0),              
+      child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-              ),
+                       mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.6),
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(12),
+                        bottomRight: Radius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      event.EventName,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ));
-    }).toList();
+          ),
+          ),
+      ),
+      );
+}).toList();
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -454,12 +509,12 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                 ),
                 Column(
                   children: [
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 17),
                     CarouselSlider(
                       items: promoCards,
                       options: CarouselOptions(
                         height:
-                            170, // You can adjust this value to control the height
+                            200, // You can adjust this value to control the height
                         aspectRatio:
                             1.7, // Set your desired aspect ratio for width and height
                         autoPlay: true,
