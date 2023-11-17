@@ -3,11 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:sponsite/screens/Rating.dart';
 import 'package:sponsite/widgets/customAppBarwithNav.dart';   
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+
+
 
 class eventDetail extends StatefulWidget {
   const eventDetail(
-      {Key? key,
+      {
+        Key? key,
       required this.DetailKey,
       required this.img,
       required this.location,
@@ -21,8 +27,10 @@ class eventDetail extends StatefulWidget {
       required this.notes,
       this.benefits,
       required this.isPast,
+      required this.EVENTid,
       required this.NumberOfAttendees})
       : super(key: key);
+      final String EVENTid ; 
   final String img;
   final String location;
   final String startDate;
@@ -45,6 +53,9 @@ class eventDetail extends StatefulWidget {
 class _Start extends State<eventDetail> {
   double screenWidth = 0;
   double screenHeight = 0;
+    final DatabaseReference database = FirebaseDatabase.instance.ref("Rate");
+
+
   //bool isCurrentTabSelected = true;  Indicates whether "Current Events" tab is selected
 
   @override
@@ -188,7 +199,20 @@ class _Start extends State<eventDetail> {
     if (widget.isPast)
       ElevatedButton.icon(
         onPressed: () {
-          // Add the action you want for the button
+        Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Rating(
+                           EVENTid: widget.EVENTid,
+                            EventName: widget.DetailKey,
+                            
+                           
+                          
+                          ),
+                        ),
+                        
+                      );
+                    
         },
         icon: Icon(
           Icons.star,
@@ -391,8 +415,139 @@ class _Start extends State<eventDetail> {
       ),
     );
   }
+void _rateSponsorships(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      double rating = 0; // Initial rating
+
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Container(
+          width: 600, // Set the desired width
+          height: 300, // Set the desired height
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  height: 48,
+                  decoration: const BoxDecoration(
+                    color: Color.fromARGB(255, 51, 45, 81),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: Text(
+                          'Rate Sponsorship',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        color: Colors.white,
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 250, // Adjusted height
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          'Rate this Sponsorship',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 26,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                   Center(
+  child: RatingBar.builder(
+    initialRating: rating,
+    minRating: 1,
+    direction: Axis.horizontal,
+    allowHalfRating: true,
+    itemCount: 5,
+    itemSize: 40, // Adjust the size to your preference
+    itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+    itemBuilder: (context, _) => Icon(
+      Icons.star,
+       color: Color.fromARGB(255, 51, 45, 81),
+    ),
+    onRatingUpdate: (newRating) {
+      rating = newRating;
+      // Handle the rating update
+    },
+  ),
+),
+const SizedBox(height: 20),
+
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // Handle submission of the rating
+                              Navigator.of(context).pop();
+                              // You can also save the rating to the database here
+                            },
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor:
+                                  const Color.fromARGB(255, 51, 45, 81),
+                              elevation: 20,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                            child: const Text(
+                              'Rate',
+                              style: TextStyle(
+                                fontSize: 22,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }
 
+}
 /*
           child: Column(
             children: [

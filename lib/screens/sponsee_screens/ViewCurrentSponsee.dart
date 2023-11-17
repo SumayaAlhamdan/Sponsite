@@ -9,6 +9,7 @@ import 'package:googleapis/cloudfunctions/v1.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:sponsite/eventDetail.dart';
+import 'package:sponsite/screens/Rating.dart';
 import 'package:sponsite/screens/sponsee_screens/SponseeOffersList.dart';
 import 'package:sponsite/widgets/customAppBar.dart';
 import 'package:sponsite/widgets/user_type_selector.dart';  
@@ -204,6 +205,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                   child: GestureDetector(
                     onTap: () {
                       final categoriesString = event.Category.join(', ');
+                     print("The event ID from class view current") ;  print(event.EVENTid) ; 
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -222,6 +224,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                             benefits: event.benefits,
                             NumberOfAttendees: event.NumberOfAttendees,
                             isPast : isPast,
+                            EVENTid: event.EVENTid,
                           ),
                         ),
                       );
@@ -280,7 +283,9 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                           
                           ),
                         ),
+                        
                       );
+                    
                     },
                     child: Text(
                       isPast? 'Post About it!' : 'View Offers',
