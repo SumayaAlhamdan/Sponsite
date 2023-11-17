@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:sponsite/screens/sponsor_screens/offerDetail.dart';
 import 'package:sponsite/screens/view_others_profile.dart';
 import 'package:sponsite/widgets/customAppBar.dart'; 
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:image_picker/image_picker.dart';
 
 class ViewOffersSponsor extends StatefulWidget {
   const ViewOffersSponsor({Key? key}) : super(key: key);
@@ -53,7 +58,7 @@ void dispose() {
   Widget listItem({required Event event, required Offer offer,required bool isPast}) { 
     Color statusColor = const Color.fromARGB(
         255, 91, 79, 158); // Default status color is gray for pending
-
+    bool isAccepted = offer.status == 'Accepted' ;
     if (offer.status == 'Accepted') {
       statusColor = Colors.green;
     } else if (offer.status == 'Rejected') {
@@ -249,7 +254,7 @@ void dispose() {
                   ),
                 ),
                 const SizedBox(
-                  height: 35  ,   
+                  height: 18  ,   
                 ),  
                 Align(    
                   alignment: Alignment.bottomRight,
@@ -309,6 +314,37 @@ void dispose() {
               ],
             ),
           ),
+          if(isAccepted && isPast)
+          Align(
+                  alignment: Alignment.center,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 91, 79, 158),
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    onPressed:() {
+                      showDialog(
+                        context:context,
+                          builder: (BuildContext context){ return newPost(
+                            eventID: event.EventId,
+                            eventName: event.EventName,
+                            userID : sponsorID as String ,
+                          
+                          );},
+                      );
+                    },
+                    child: Text(
+                      'Post About it!',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
         ],
       ),
     );
@@ -710,4 +746,394 @@ class Offer {
     required this.notes,
     required this.status,
   });
+}
+
+
+class newPost extends StatefulWidget {
+final String eventID ;
+final String userID ;
+final String eventName ;
+
+newPost({
+required this.eventID ,
+required this.userID ,
+required this.eventName , 
+});
+
+@override
+_newPostState createState() => _newPostState() ;
+}
+class _newPostState extends State<newPost>{
+  File? _imageFile;
+   TextEditingController notesController = TextEditingController();
+  final DatabaseReference database = FirebaseDatabase.instance.ref();
+  final TextEditingController _imageController =
+      TextEditingController(text: 'No image selected');
+  User? user = FirebaseAuth.instance.currentUser;
+
+  @override
+  initState() {
+    super.initState();
+  }
+   @override
+  void dispose() {
+    notesController.dispose();
+    super.dispose();
+  }
+  void _showEmptyFormAlert() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Theme(
+            data:
+                Theme.of(context).copyWith(dialogBackgroundColor: Colors.white),
+            child: AlertDialog(
+              title: const Text('Empty Post'),
+              // backgroundColor: Colors.white,
+              content: const Text(
+                'Your post should not be empty',
+                style: TextStyle(fontSize: 20),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    'OK',
+                    style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
+                  ),
+                ),  
+              ],
+            ));
+      },
+    );
+  }
+  //image methods //
+
+  Future<void> _removeImage() async {
+    setState(() {
+      _imageFile = null;
+      _selectedImageBytes = null;
+
+      print('image deleted');
+    });
+  }
+
+  String? _selectedImagePath;
+  Uint8List? _selectedImageBytes;
+
+  Future<void> _pickImage() async {
+    final imagePicker = ImagePicker();
+    final PickedFile? pickedFile =
+        await imagePicker.getImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      final File imageFile = File(pickedFile.path);
+      _selectedImageBytes = await convertImageToBytes(imageFile);
+      setState(() {
+        _imageFile = File(pickedFile.path);
+        _selectedImagePath = pickedFile.path;
+        _imageController.text = _selectedImagePath ?? '';
+        print('image picked');
+      });
+    }
+  }
+
+  Future<String> _uploadImage(File imageFile) async {
+    try {
+      final firebase_storage.Reference storageReference = firebase_storage
+          .FirebaseStorage.instance
+          .ref()
+          .child('event_images')
+          .child(
+              '${DateTime.now().millisecondsSinceEpoch}.${imageFile.path.split('.').last}');
+
+      final uploadTask = storageReference.putFile(imageFile);
+
+      final firebase_storage.TaskSnapshot storageTaskSnapshot =
+          await uploadTask.whenComplete(() => null);
+
+      final String imageURL = await storageTaskSnapshot.ref.getDownloadURL();
+      print('image uploaded');
+      return imageURL;
+    } catch (e) {
+      print('Error uploading image: $e');
+      return '';
+    }
+  }
+
+  Future<Uint8List?> convertImageToBytes(File? imageFile) async {
+    Uint8List? bytes;
+    if (imageFile != null) {
+      // Read the file as bytes
+      List<int> imageBytes = await imageFile.readAsBytes();
+      // Convert the list of ints to Uint8List
+      bytes = Uint8List.fromList(imageBytes);
+    }
+    return bytes;
+  }
+
+  String getButtonLabel() {
+    return _selectedImageBytes != null ? 'Change Image' : 'Upload Image';
+  }
+  
+  void _newPost() async {
+    DatabaseReference postsRef = database.child('posts');
+    if(notesController.text.trim().isEmpty ){
+      _showEmptyFormAlert();
+    }
+    else{
+      newPost post = newPost(
+eventID: widget.eventID,
+userID: widget.userID,
+eventName: widget.eventName ,
+        );
+         DatabaseReference newPostRef = postsRef.push();
+         final String imageUploadResult;
+        if (_imageFile != null) {
+          imageUploadResult = await _uploadImage(_imageFile!);
+        } else {
+          imageUploadResult = '';
+        }
+        final String timestamp = DateTime.now().toString();
+         await newPostRef.set({
+            "EventId": post.eventID,
+            "userId": post.userID,
+            "EventName": post.eventName,
+            "notes": notesController.text ,
+            "TimeStamp": timestamp ,
+            "img": imageUploadResult ,
+          });
+          setState(() {
+            notesController.clear();  
+          }); 
+          Navigator.of(context).pop();
+          // Show a success message
+          showDialog(
+            context: context,
+            builder: (context) {
+              Future.delayed(const Duration(seconds: 3), () {
+                Navigator.of(context).pop(true);
+              });
+              return Theme(
+                data: Theme.of(context)
+                    .copyWith(dialogBackgroundColor: Colors.white),
+                child: AlertDialog(
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: Color.fromARGB(255, 91, 79, 158),
+                        size: 48,
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'Your Post has been posted successfully!',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+    }
+  }
+  @override
+  Widget build(BuildContext context) {
+    print('Event Name: ${widget.eventName}');
+  return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 51, 45, 81),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                   Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Text(
+                      'New post for ${widget.eventName}',
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              decoration: const BoxDecoration(
+                color: Colors.white, // Changed to white
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Row(
+                      children: [
+                        Text(
+                          'Upload a photo of the event!',
+                          style: TextStyle(
+                            fontSize: 23,
+                            color: Colors.black,
+                          ),
+                        ),
+                        SizedBox(width: 5),
+                      ],
+                    ),
+                    SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.6,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (_selectedImageBytes != null)
+                          Image.memory(
+                            _selectedImageBytes!,
+                            width: 400,
+                            height: 500,
+                          )
+                        else
+                          Container(), // Placeholder if no image is selected
+                        SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            ElevatedButton.icon(
+                                icon: Icon(Icons.image_outlined , color: Colors.white,),
+                                onPressed: _selectedImageBytes != null
+                                    ? _pickImage
+                                    : _pickImage,
+                                label: Text(getButtonLabel() , style: TextStyle(color: Colors.white),),
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all<Color>(
+                                        const Color.fromARGB(255, 51, 45, 81)),
+                                    //Color.fromARGB(255, 207, 186, 224),), // Background color
+                                    textStyle:
+                                        MaterialStateProperty.all<TextStyle>(
+                                            const TextStyle(
+                                                fontSize: 16)), // Text style
+                                   // padding: MaterialStateProperty.all<
+                                     //       EdgeInsetsGeometry>(
+                                       // const EdgeInsets.all(16)), // Padding
+                                    elevation:
+                                        MaterialStateProperty.all<double>(
+                                            1), // Elevation
+                                    shape:
+                                        MaterialStateProperty.all<OutlinedBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            30), // Border radius
+                                        side: const BorderSide(
+                                            color: Color.fromARGB(255, 255, 255,
+                                                255)), // Border color
+                                      ),
+                                    ),
+                                    minimumSize: MaterialStateProperty.all<Size>(const Size(200, 50))) // Dynamically set the button labelText('Upload Image'),
+                                ),
+                            SizedBox(height: 10),
+                            if (_selectedImageBytes != null)
+                              TextButton.icon(
+                                icon: Icon(Icons.delete_forever_outlined),
+                                onPressed: _removeImage,
+                                label: Text(''),
+                                //child: Text('Remove Image'),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                    const SizedBox(height: 17),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: TextFormField(
+                          controller: notesController,
+                          maxLength: 600,
+                          decoration: const InputDecoration(
+                            labelText: 'What you would like to share? * ',
+                            //border: OutlineInputBorder(),
+                          ),
+                           autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Field must not left empty';
+                      }
+                    },
+                          style: const TextStyle(fontSize: 20),
+                          maxLines: 9,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _newPost();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor:
+                              const Color.fromARGB(255, 51, 45, 81),
+                          elevation: 20,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: const Text(
+                          'Post Now',
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  } 
 }
