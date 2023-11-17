@@ -726,10 +726,10 @@ eventName: widget.eventName ,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Padding(
+                   Padding(
                     padding: EdgeInsets.all(20),
                     child: Text(
-                      'New post for  event ',
+                      'New post for ${widget.eventName}',
                       style: TextStyle(
                         fontSize: 30,
                         color: Colors.white,
@@ -790,11 +790,11 @@ eventName: widget.eventName ,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             ElevatedButton.icon(
-                                icon: Icon(Icons.image_outlined),
+                                icon: Icon(Icons.image_outlined , color: Colors.white,),
                                 onPressed: _selectedImageBytes != null
                                     ? _pickImage
                                     : _pickImage,
-                                label: Text(getButtonLabel()),
+                                label: Text(getButtonLabel() , style: TextStyle(color: Colors.white),),
                                 style: ButtonStyle(
                                     backgroundColor: MaterialStateProperty.all<Color>(
                                         const Color.fromARGB(255, 51, 45, 81)),
@@ -803,9 +803,9 @@ eventName: widget.eventName ,
                                         MaterialStateProperty.all<TextStyle>(
                                             const TextStyle(
                                                 fontSize: 16)), // Text style
-                                    padding: MaterialStateProperty.all<
-                                            EdgeInsetsGeometry>(
-                                        const EdgeInsets.all(16)), // Padding
+                                   // padding: MaterialStateProperty.all<
+                                     //       EdgeInsetsGeometry>(
+                                       // const EdgeInsets.all(16)), // Padding
                                     elevation:
                                         MaterialStateProperty.all<double>(
                                             1), // Elevation
