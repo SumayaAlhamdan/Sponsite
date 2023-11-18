@@ -1,14 +1,8 @@
-import 'dart:convert';
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
-import 'package:sponsite/screens/chatPage.dart';
 import 'package:sponsite/screens/view_others_profile.dart';
 
-final DatabaseReference dbref = FirebaseDatabase.instance.reference();
+final DatabaseReference dbref = FirebaseDatabase.instance.ref();
 
 class Offer {
   String eventId;
@@ -17,6 +11,7 @@ class Offer {
   String sponsorName;
   String sponsorImage;
   String status;
+  double? rating;
 
   Offer({
     required this.eventId,
@@ -25,29 +20,53 @@ class Offer {
     required this.sponsorName,
     required this.sponsorImage,
     this.status = 'Pending',
+    this.rating,
   });
-
-
 }
 
 class Rating extends StatefulWidget {
   Rating({
-     this.EVENTid,
-     this.EventName,
-  }) ;
+    this.EVENTid,
+    this.EventName,
+  });
 
   final String? EVENTid;
   final String? EventName;
+
   @override
   _Rating createState() => _Rating();
 }
 
 class _Rating extends State<Rating> {
   List<Offer> offers = [];
+  List<String> ratedSponsors = [];
+
   @override
   void initState() {
     super.initState();
     _loadOffersFromFirebase();
+    _loadRatedSponsors();
+  }
+
+  void _loadRatedSponsors() async {
+    final DatabaseReference database = FirebaseDatabase.instance.ref();
+    database.child('Ratings').onValue.listen((ratings) {
+      if (ratings.snapshot.value != null) {
+        Map<dynamic, dynamic> ratingsData =
+            ratings.snapshot.value as Map<dynamic, dynamic>;
+        List<String> ratedSponsorsList = [];
+
+        ratingsData.forEach((key, value) {
+          String ratedSponsor =
+              '${value['offerId']}_${value['sponsorId']}';
+          ratedSponsorsList.add(ratedSponsor);
+        });
+
+        setState(() {
+          ratedSponsors = ratedSponsorsList;
+        });
+      }
+    });
   }
 
   void _loadOffersFromFirebase() async {
@@ -57,15 +76,12 @@ class _Rating extends State<Rating> {
     Map<String, String> sponsorNames = {};
     Map<String, String> sponsorImages = {};
 
-
     database.child('offers').onValue.listen((offer) {
       if (offer.snapshot.value != null) {
         Map<dynamic, dynamic> offerData =
             offer.snapshot.value as Map<dynamic, dynamic>;
         offerData.forEach((key, value) {
-           print("Hi there is an event which is  : ") ; print(widget.EVENTid) ; print(widget.EventName) ; 
           if (value['EventId'] == widget.EVENTid) {
-           
             try {
               loadedOffers.add(Offer(
                 eventId: key,
@@ -88,12 +104,10 @@ class _Rating extends State<Rating> {
             sponsorData.forEach((key, value) {
               sponsorNames[key] = value['Name'] as String? ?? '';
               sponsorImages[key] = value['Picture'] as String? ?? '';
-              
             });
             for (var offer in loadedOffers) {
               offer.sponsorName = sponsorNames[offer.sponsorId] ?? '';
               offer.sponsorImage = sponsorImages[offer.sponsorId] ?? '';
-            
             }
             setState(() {
               offers = loadedOffers;
@@ -104,44 +118,42 @@ class _Rating extends State<Rating> {
     });
   }
 
-  
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         backgroundColor: Colors.white,
-       appBar:  AppBar(
-  backgroundColor: Color.fromARGB(255, 51, 45, 81),
-  elevation: 0,
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.only(
-      bottomLeft: Radius.circular(20),
-      bottomRight: Radius.circular(20),
-    ),
-  ),
-  leading: IconButton(
-    icon: Icon(Icons.arrow_back, color: Colors.white),  
-    iconSize: 40, 
-    onPressed: () {
-      Navigator.of(context).pop();
-    },
-  ),
-  title: Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [ 
-      Text(
-        '${widget.EventName} Event Sponsors',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w500,
-          fontSize: 30, 
+        appBar: AppBar(
+          backgroundColor: Color.fromARGB(255, 51, 45, 81),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
+          ),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white),
+            iconSize: 40,
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '${widget.EventName} Sponsors',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 30,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),      
-    ],  
-  ),
-),
-    
         body: Column(
           children: [
             Expanded(
@@ -156,12 +168,13 @@ class _Rating extends State<Rating> {
       ),
     );
   }
-    Widget _buildSponsorsPage() {
-    final accepted =
-        offers.where((offer) => offer.status == 'Accepted').toList();
-print("here are all accepted"); print(accepted) ; 
+
+  Widget _buildSponsorsPage() {
+    final accepted = offers.where((offer) => offer.status == 'Accepted').toList();
+    print("here are all accepted");
+    print(accepted);
+
     if (accepted.isEmpty) {
-      // If there are no accepted offers, display the empty state message with the image
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -176,17 +189,16 @@ print("here are all accepted"); print(accepted) ;
               ),
             ),
           ),
-          SizedBox(height: 20), // Adjust the spacing as needed
+          SizedBox(height: 20),
           Text(
-            'There are no accepted offers yet',
+            'This event has no sponsors',
             style: TextStyle(
-              fontSize: 24, // Adjust the font size as needed
+              fontSize: 24,
             ),
           ),
         ],
       );
     } else {
-      // If there are accepted offers, display them
       return SingleChildScrollView(
         child: Column(
           children: accepted.map((offer) {
@@ -197,8 +209,9 @@ print("here are all accepted"); print(accepted) ;
     }
   }
 
- Widget _buildOfferCard(Offer offer) {
-  
+  Widget _buildOfferCard(Offer offer) {
+    bool alreadyRated =
+        ratedSponsors.contains('${offer.eventId}_${offer.sponsorId}');
 
     return Container(
       margin: EdgeInsets.all(10),
@@ -209,97 +222,104 @@ print("here are all accepted"); print(accepted) ;
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
-              spreadRadius: 2,
+              spreadRadius: 4,
               blurRadius: 4,
               offset: Offset(0, 2),
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            GestureDetector(
-              onTap: () {
-                setState(() {
-              
-                });
-              },
-              child: Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Color.fromARGB(193, 51, 45, 81),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 16),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      margin: EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50),
-                        color: Colors.black,
-                        image: DecorationImage(
-                          image: NetworkImage(offer.sponsorImage),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              GestureDetector(
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  margin: EdgeInsets.only(right: 20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50),
+                    image: DecorationImage(
+                      image: NetworkImage(offer.sponsorImage),
+                      fit: BoxFit.cover,
                     ),
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) =>
-                              ViewOthersProfile('Sponsors', offer.sponsorId)));
-                    },
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Sponsor',
+                ),
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          ViewOthersProfile('Sponsors', offer.sponsorId)));
+                },
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      child: Text(
+                        offer.sponsorName,
                         style: TextStyle(
                           fontSize: 24,
+                          fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
                       ),
-                      SizedBox(height: 5),
-                      GestureDetector(
-                        child: Text(
-                          offer.sponsorName,
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => ViewOthersProfile(
+                                'Sponsors', offer.sponsorId)));
+                      },
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        if (!alreadyRated)
+                          ElevatedButton(
+                            onPressed: () {
+                              _saveRating(offer, 0); // Change to initial value
+                            },
+                            child: Text('Rate'),
                           ),
-                        ),
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => ViewOthersProfile(
-                                  'Sponsors', offer.sponsorId)));
-                        },
-                      ),
-                    ],
-                  ),
-                  SizedBox(width: 200),
-                ],
+                        for (double i = 1; i <= 5; i++)
+                          GestureDetector(
+                            child: Icon(
+                              i <= (offer.rating ?? 0)
+                                  ? Icons.star
+                                  : Icons.star_border,
+                              color: Colors.orange,
+                              size: 30,
+                            ),
+                            onTap: () {
+                              if (!alreadyRated) {
+                                _saveRating(offer, i);
+                              }
+                            },
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
+  void _saveRating(Offer offer, double rating) {
+    dbref.child('Ratings').push().set({
+      'rating': rating,
+      'offerId': offer.eventId,
+      'sponsorId': offer.sponsorId,
+    });
+
+    setState(() {
+      offer.rating = rating;
+      ratedSponsors.add('${offer.eventId}_${offer.sponsorId}');
+    });
+  }
 }
