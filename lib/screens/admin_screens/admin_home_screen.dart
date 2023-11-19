@@ -440,7 +440,7 @@ class _AdminPanelState extends State<AdminPanel> {
                         },
                         child: Center(
                           child: Text(
-                           "View Link",
+                            "View Document",
                             style: const TextStyle(
                               color: Color.fromARGB(255, 15, 113, 193),
                               decoration: TextDecoration.underline,
