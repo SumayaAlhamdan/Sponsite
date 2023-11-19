@@ -781,7 +781,7 @@ Sponsite
                         },
                         child: Center(
                           child: Text(
-                             "View Link",
+                            "View Link",
                             style: const TextStyle(
                               color: Color.fromARGB(255, 15, 113, 193),
                               decoration: TextDecoration.underline,
@@ -856,6 +856,7 @@ Sponsite
     }
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(90), // Set the desired height
         child: Container(
