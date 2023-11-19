@@ -961,7 +961,7 @@ Sponsite
             style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w500,
-              color: category == "Activated Users"
+              color: category == "Active Users"
                   ? Color.fromARGB(255, 129, 192, 131)
                   : category == "Deactivated Users"
                       ? Color.fromARGB(255, 240, 90, 80)
