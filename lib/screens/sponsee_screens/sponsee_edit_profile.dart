@@ -296,24 +296,25 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
             style: TextStyle(color: Colors.white, fontSize: 25),
           ),
           centerTitle: true,
-          leading: TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              )),
-          leadingWidth: 110,
-          actions: [
-            TextButton(
-                onPressed: () => save(),
-                child: Text(
-                  ' Save ',
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                )),
-            SizedBox(
-              width: 10,
-            ),
-          ],
+           iconTheme: const IconThemeData(color: Colors.white),
+          // leading: TextButton(
+          //     onPressed: () => Navigator.pop(context),
+          //     child: const Text(
+          //       'Cancel',
+          //       style: TextStyle(color: Colors.white, fontSize: 20),
+          //     )),
+          // leadingWidth: 110,
+          // actions: [
+          //   TextButton(
+          //       onPressed: () => save(),
+          //       child: Text(
+          //         ' Save ',
+          //         style: TextStyle(color: Colors.white, fontSize: 20),
+          //       )),
+          //   SizedBox(
+          //     width: 10,
+          //   ),
+          // ],
         ),
         body: Column(
           // mainAxisSize: MainAxisSize.max,
@@ -464,30 +465,7 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                                  Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    ElevatedButton(
-                                                    style: ElevatedButton.styleFrom(
-                                                      backgroundColor:
-                                                          const Color.fromARGB(
-                                                              255, 91, 79, 158),
-                                                      elevation: 5,
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                                30),
-                                                      ),
-                                                    ),
-                                                    onPressed: () {
-                                                    Navigator.pop(context);
-                                                    },
-                                                    child: const Text(
-                                                      "Cancel",
-                                                      style: TextStyle(
-                                                        fontSize: 18,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  SizedBox(width: 100,),
+                                    
                                                   ElevatedButton(
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor:
@@ -504,7 +482,7 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
                                                   save();
                                                 },
                                                 child: const Text(
-                                                  "  Save  ",
+                                                  "               Save               ",
                                                   style: TextStyle(
                                                     fontSize: 18,
                                                     color: Colors.white,
