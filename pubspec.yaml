@@ -61,6 +61,8 @@ dependencies:
   syncfusion_flutter_calendar: ^23.1.39
   mailer: ^6.0.1
   string_similarity: ^2.0.0
+  flutter_rating_bar: ^4.0.1
+  
 
 
 
