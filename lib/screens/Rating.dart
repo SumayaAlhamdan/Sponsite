@@ -7,6 +7,7 @@ import 'package:sponsite/screens/view_others_profile.dart';
 final DatabaseReference dbref = FirebaseDatabase.instance.ref();
 
 class Offer {
+  String offerId;
   String eventId;
   String sponseeId;
   String sponsorId;
@@ -15,6 +16,7 @@ class Offer {
   String status;
 
   Offer({
+    required this.offerId,
     required this.eventId,
     required this.sponseeId,
     required this.sponsorId,
@@ -93,7 +95,8 @@ class _Rating extends State<Rating> {
           if (value['EventId'] == widget.EVENTid) {
             try {
               loadedOffers.add(Offer(
-                eventId: key,
+                offerId: key,
+                eventId: value['EventId'] as String? ?? '',
                 sponseeId: value['sponseeId'] as String? ?? '',
                 sponsorId: value['sponsorId'] as String? ?? '',
                 sponsorName: 'krkr',
@@ -128,8 +131,8 @@ class _Rating extends State<Rating> {
   }
 
   Widget _buildOfferCard(Offer offer) {
-    double currentRating = _getRatingForSponsor(offer.sponsorId);
-    bool alreadyRated = _alreadyRatedSponsor(offer.sponsorId);
+    double currentRating = _getRatingForSponsor(offer.sponsorId,offer.eventId);
+    bool alreadyRated = _alreadyRatedSponsor(offer.sponsorId,offer.eventId);
 
     return Container(
       margin: EdgeInsets.all(10),
@@ -272,17 +275,17 @@ class _Rating extends State<Rating> {
     );
   }
 
-  double _getRatingForSponsor(String sponsorId) {
+  double _getRatingForSponsor(String sponsorId,String eventId) {
     var ratedSponsor = rates.firstWhere(
       (rate) => rate.sponsorId == sponsorId,
-      orElse: () => Rates(sponsorId: sponsorId, rating: 0, eventId: ''),
+      orElse: () => Rates(sponsorId: sponsorId, rating: 0, eventId: eventId),
     );
 
     return ratedSponsor.rating ?? 0;
   }
 
   void _saveRating(Offer offer, double rating) {
-    if (!_alreadyRatedSponsor(offer.sponsorId)) {
+    if (!_alreadyRatedSponsor(offer.sponsorId,offer.eventId)) {
       dbref.child('Ratings').child('${offer.eventId}_${offer.sponsorId}').set({
         'rating': rating,
         'eventId': offer.eventId,
@@ -299,8 +302,8 @@ class _Rating extends State<Rating> {
     }
   }
 
-  bool _alreadyRatedSponsor(String sponsorId) {
-    return rates.any((rate) => rate.sponsorId == sponsorId);
+  bool _alreadyRatedSponsor(String sponsorId,String eventId) {
+    return rates.any((rate) => rate.sponsorId == sponsorId && rate.eventId == eventId);
   }
 
   @override
