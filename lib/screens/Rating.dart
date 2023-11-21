@@ -1,7 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:sponsite/screens/sponsor_screens/filter.dart';
 import 'package:sponsite/screens/view_others_profile.dart';
 
 final DatabaseReference dbref = FirebaseDatabase.instance.ref();
@@ -14,6 +13,7 @@ class Offer {
   String sponsorName;
   String sponsorImage;
   String status;
+  double? ratings; // Updated property name
 
   Offer({
     required this.offerId,
@@ -23,18 +23,7 @@ class Offer {
     required this.sponsorName,
     required this.sponsorImage,
     this.status = 'Pending',
-  });
-}
-
-class Rates {
-  String sponsorId;
-  double? rating;
-  String eventId;
-
-  Rates({
-    required this.sponsorId,
-    this.rating,
-    required this.eventId,
+    this.ratings, // Updated property name
   });
 }
 
@@ -53,31 +42,11 @@ class Rating extends StatefulWidget {
 
 class _Rating extends State<Rating> {
   List<Offer> offers = [];
-  List<Rates> rates = [];
 
   @override
   void initState() {
     super.initState();
     _loadOffersFromFirebase();
-    _loadRatedSponsors();
-  }
-
-  void _loadRatedSponsors() async {
-    final DatabaseReference database = FirebaseDatabase.instance.ref();
-    database.child('Ratings').onValue.listen((ratings) {
-      if (ratings.snapshot.value != null) {
-        Map<dynamic, dynamic> ratingsData =
-            ratings.snapshot.value as Map<dynamic, dynamic>;
-
-        ratingsData.forEach((key, value) {
-          rates.add(Rates(
-            sponsorId: value['sponsorId'] as String,
-            rating: value['rating'] as double,
-            eventId: value['eventId'] as String,
-          ));
-        });
-      }
-    });
   }
 
   void _loadOffersFromFirebase() async {
@@ -102,6 +71,9 @@ class _Rating extends State<Rating> {
                 sponsorName: 'krkr',
                 sponsorImage: '',
                 status: value['Status'] as String? ?? 'Pending',
+                ratings: value['ratings'] != null
+                    ? (value['ratings'] as num).toDouble()
+                    : null,
               ));
             } catch (e) {
               print('Error parsing timestamp: $e');
@@ -131,9 +103,6 @@ class _Rating extends State<Rating> {
   }
 
   Widget _buildOfferCard(Offer offer) {
-    double currentRating = _getRatingForSponsor(offer.sponsorId,offer.eventId);
-    bool alreadyRated = _alreadyRatedSponsor(offer.sponsorId,offer.eventId);
-
     return Container(
       margin: EdgeInsets.all(10),
       child: Container(
@@ -189,79 +158,44 @@ class _Rating extends State<Rating> {
                         ),
                       ),
                     ),
-                    if (alreadyRated)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            '$currentRating',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange,
-                            ),
-                          ),
-                          
-                        ],
+                    SizedBox(height: 5),
+                    if (offer.ratings != null) // Updated property name
+                      Text(
+                        'Rating: ${offer.ratings}',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.green,
+                        ),
                       )
                     else
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           RatingBar.builder(
-                            initialRating: currentRating,
+                            initialRating: offer.ratings ?? 0,
                             minRating: 1,
                             direction: Axis.horizontal,
-                            allowHalfRating: true,
+                            allowHalfRating: false,
                             itemCount: 5,
-                            itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
+                            itemSize: 20,
                             itemBuilder: (context, _) => Icon(
                               Icons.star,
                               color: Colors.amber,
                             ),
-                            onRatingUpdate: (double value) {
-                                currentRating = value;
-                              
-                          
+                            onRatingUpdate: (rating) {
+                              setState(() {
+                                offer.ratings = rating;
+                              });
+                              // Add the rating to the database
+                              _submitRating(offer);
                             },
                           ),
+                          SizedBox(width: 10),
                           ElevatedButton(
-                            child: Text(
-                              'Rate',
-                              style: TextStyle(
-                                color: Color.fromARGB(255, 242, 241, 241),
-                              ),
-                            ),
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all<Color>(
-                                const Color.fromARGB(255, 51, 45, 81),
-                              ),
-                              textStyle: MaterialStateProperty.all<TextStyle>(
-                                const TextStyle(fontSize: 16),
-                              ),
-                              padding:
-                                  MaterialStateProperty.all<EdgeInsetsGeometry>(
-                                const EdgeInsets.all(16),
-                              ),
-                              elevation:
-                                  MaterialStateProperty.all<double>(1),
-                              shape: MaterialStateProperty.all<OutlinedBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  side: const BorderSide(
-                                    color: Color.fromARGB(255, 255, 255, 255),
-                                  ),
-                                ),
-                              ),
-                              minimumSize:
-                                  MaterialStateProperty.all<Size>(
-                                const Size(200, 50),
-                              ),
-                            ),
-                            onPressed: () async {
-                              _saveRating(offer, currentRating);
+                            onPressed: () {
+                              // Add the rating to the database
+                              _submitRating(offer);
                             },
+                            child: Text('Rate'),
                           ),
                         ],
                       ),
@@ -275,35 +209,21 @@ class _Rating extends State<Rating> {
     );
   }
 
-  double _getRatingForSponsor(String sponsorId,String eventId) {
-    var ratedSponsor = rates.firstWhere(
-      (rate) => rate.sponsorId == sponsorId,
-      orElse: () => Rates(sponsorId: sponsorId, rating: 0, eventId: eventId),
-    );
+  void _submitRating(Offer offer) async {
+    try {
+      final DatabaseReference database = FirebaseDatabase.instance.ref();
+      final DatabaseReference offerRef =
+          database.child('offers').child(offer.offerId);
 
-    return ratedSponsor.rating ?? 0;
-  }
+      // Update the rating in the 'offers' node
+      await offerRef.child('ratings').set(offer.ratings);
 
-  void _saveRating(Offer offer, double rating) {
-    if (!_alreadyRatedSponsor(offer.sponsorId,offer.eventId)) {
-      dbref.child('Ratings').child('${offer.eventId}_${offer.sponsorId}').set({
-        'rating': rating,
-        'eventId': offer.eventId,
-        'sponsorId': offer.sponsorId,
-      });
+      // Perform any additional actions or UI updates as needed
 
-      setState(() {
-        rates.add(Rates(
-          sponsorId: offer.sponsorId,
-          rating: rating,
-          eventId: offer.eventId,
-        ));
-      });
+    } catch (error) {
+      print('Error submitting rating: $error');
+      // Handle errors accordingly
     }
-  }
-
-  bool _alreadyRatedSponsor(String sponsorId,String eventId) {
-    return rates.any((rate) => rate.sponsorId == sponsorId && rate.eventId == eventId);
   }
 
   @override
