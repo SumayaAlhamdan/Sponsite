@@ -308,41 +308,38 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
       // Add the randomIndex to the displayedEventIndices set
       displayedEventIDs.add(randomIndex);
       Event event = events[randomIndex];
-  return GestureDetector(
-    onTap: () {
-      // Navigate to the event details page here
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-                                        builder: (context) =>
-                                            RecentEventsDetails(
-                                          sponsorID: sponsorID,
-                                          EventId: event.EventId,
-                                          sponseeId: event.sponseeId,
-                                          EventName: event.EventName,
-                                          EventType: event.EventType,
-                                          location: event.location,
-                                          imgURL: event.imgURL,
-                                          startDate: event.startDate,
-                                          endDate: event.endDate,
-                                          startTime: event.startTime,
-                                          endTime: event.endTime,
-                                          Category: event.Category,
-                                          notes: event.notes,
-                                          benefits: event.benefits,
-                                          NumberOfAttendees:
-                                              event.NumberOfAttendees,
-                                          timeStamp: event.timeStamp,
-                                          sponseeImage: event.sponseeImage,
-                                          sponseeName: event.sponseeName,
-                                        ),
-                                      ),
-    
-        );
-    },
-      child: SizedBox(
-         height: 220, // Set the desired fixed height
-          width: 400,  // Set the desired fixed width
+      return GestureDetector(
+        onTap: () {
+          // Navigate to the event details page here
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RecentEventsDetails(
+                sponsorID: sponsorID,
+                EventId: event.EventId,
+                sponseeId: event.sponseeId,
+                EventName: event.EventName,
+                EventType: event.EventType,
+                location: event.location,
+                imgURL: event.imgURL,
+                startDate: event.startDate,
+                endDate: event.endDate,
+                startTime: event.startTime,
+                endTime: event.endTime,
+                Category: event.Category,
+                notes: event.notes,
+                benefits: event.benefits,
+                NumberOfAttendees: event.NumberOfAttendees,
+                timeStamp: event.timeStamp,
+                sponseeImage: event.sponseeImage,
+                sponseeName: event.sponseeName,
+              ),
+            ),
+          );
+        },
+        child: SizedBox(
+          height: 220, // Set the desired fixed height
+          width: 400, // Set the desired fixed width
           child: Card(
             elevation: 0,
             child: Container(
@@ -357,41 +354,42 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                   fit: BoxFit.cover,
                 ),
               ),
-    // padding: const EdgeInsets.all(.0),              
-      child: Column(
+              // padding: const EdgeInsets.all(.0),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                       mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.6),
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(12),
-                        bottomRight: Radius.circular(12),
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.6),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(12),
+                          bottomRight: Radius.circular(12),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      event.EventName,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                      child: Text(
+                        event.EventName,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-          ),
-      ),
+        ),
       );
-}).toList();
+    }).toList();
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -443,7 +441,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                               controller: searchController,
                               style: TextStyle(color: Colors.white),
                               decoration: InputDecoration(
-                                hintText: 'Search for an event',
+                                hintText: 'Search for a user or an event',
                                 hintStyle: TextStyle(color: Colors.grey),
                                 border: InputBorder.none,
                               ),

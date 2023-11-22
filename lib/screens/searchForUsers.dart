@@ -42,16 +42,12 @@ class _SearchForUsersState extends State<SearchForUsers> {
         filteredSponsors = sponsors;
       });
     });
-    print('Sponsors');
-    print(sponsors);
     fetchSponsees().listen((sponseesData) {
       setState(() {
         sponsees = sponseesData;
         filteredSponsees = sponsees;
       });
     });
-    //  print('Sponsees');
-    //   print(sponsees);
   }
 
   Stream<List<Map<String, dynamic>>> fetchSponsors() {
@@ -186,7 +182,8 @@ class _SearchForUsersState extends State<SearchForUsers> {
                   labelStyle: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
                 ),
               ),
-              _buildUserList(filteredSponsors, filteredSponsees),
+              _buildUserList(
+                  filteredSponsors, filteredSponsees, searchController.text),
             ],
           ),
         ),
@@ -197,11 +194,12 @@ class _SearchForUsersState extends State<SearchForUsers> {
   Widget _buildUserList(
     List<Map<String, dynamic>> sponsors,
     List<Map<String, dynamic>> sponsees,
+    String searchQuery,
   ) {
     if (sponsors.isEmpty && sponsees.isEmpty) {
       return Center(
         child: Text(
-          'No users available.',
+          'No users that matched $searchQuery',
           style: TextStyle(
             fontSize: 24,
             color: Color.fromARGB(255, 189, 189, 189),
@@ -212,6 +210,18 @@ class _SearchForUsersState extends State<SearchForUsers> {
 
     return Column(
       children: [
+        /*  if (searchController.text.isNotEmpty)
+          Padding(
+            padding: EdgeInsets.only(left: 16),
+            child: Text(
+              "Search results for $searchQuery",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 30,
+                color: Color.fromARGB(255, 91, 79, 158),
+              ),
+            ),
+          ), */
         _buildUserCategory('Sponsors', sponsors),
         _buildUserCategory('Sponsees', sponsees),
       ],
@@ -297,12 +307,12 @@ class _SearchForUsersState extends State<SearchForUsers> {
                       icon: Icon(Icons.more_vert),
                       color: Color.fromARGB(255, 91, 79, 158),
                       onPressed: () {
-                        print('IM HEREEEEEE');
-                        print(name);
-                        print(type);
-                        print(id);
+                        String userType =
+                            (type == 'Sponsee') ? 'Sponsees' : 'Sponsors';
+
                         Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => ViewOthersProfile(type, id)));
+                          builder: (context) => ViewOthersProfile(userType, id),
+                        ));
                       },
                     ),
                   ),

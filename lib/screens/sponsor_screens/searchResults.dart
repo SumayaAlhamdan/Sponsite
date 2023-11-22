@@ -105,6 +105,11 @@ class _ResultPageState extends State<ResultPage> {
   List<String> FselectedCategories = [];
   List<String> FselectedCities = [];
   List<String> eventTypesList = [];
+  List<Map<String, dynamic>> sponsors = [];
+  List<Map<String, dynamic>> sponsees = [];
+  List<Map<String, dynamic>> filteredSponsors = [];
+  List<Map<String, dynamic>> filteredSponsees = [];
+  final DatabaseReference _database = FirebaseDatabase.instance.ref();
 
   Future<List<String>> fetchEventTypes() async {
     final eventTypes = <String>[];
@@ -182,6 +187,105 @@ class _ResultPageState extends State<ResultPage> {
     searchController.text = widget.searchText;
     originalSearchText = widget.searchText;
     fetchEventTypesFromDatabase();
+    fetchSponsors().listen((sponsorsData) {
+      setState(() {
+        sponsors = sponsorsData;
+        filteredSponsors = sponsors;
+      });
+    });
+    fetchSponsees().listen((sponseesData) {
+      setState(() {
+        sponsees = sponseesData;
+        filteredSponsees = sponsees;
+      });
+    });
+  }
+
+  Stream<List<Map<String, dynamic>>> fetchSponsors() {
+    DatabaseReference sponRef = _database.child('Sponsors');
+    return sponRef.onValue.map(
+      (event) {
+        List<Map<String, dynamic>> Sponsors = [];
+        DataSnapshot dataSnapshot = event.snapshot;
+
+        try {
+          if (dataSnapshot.value != null) {
+            Map<dynamic, dynamic>? dataMap = dataSnapshot.value as Map?;
+
+            if (dataMap != null) {
+              dataMap.forEach((key, value) async {
+                if (value is Map<dynamic, dynamic>) {
+                  Map<String, dynamic> data = {
+                    'ID': key,
+                    'Name': value['Name'] ?? '',
+                    'Email': value['Email'] ?? '',
+                    'Bio': value['Bio'] ?? '',
+                    'Picture': value['Picture'],
+                    'Type': 'Sponsor',
+                  };
+                  if (user?.uid != data['ID']) Sponsors.add(data);
+                }
+              });
+            }
+          }
+        } catch (e) {
+          print('Error occurred: $e');
+        }
+        print(Sponsors);
+        return Sponsors;
+      },
+    );
+  }
+
+  Stream<List<Map<String, dynamic>>> fetchSponsees() {
+    DatabaseReference sponRef = _database.child('Sponsees');
+    return sponRef.onValue.map(
+      (event) {
+        List<Map<String, dynamic>> Sponsees = [];
+        DataSnapshot dataSnapshot = event.snapshot;
+
+        try {
+          if (dataSnapshot.value != null) {
+            Map<dynamic, dynamic>? dataMap = dataSnapshot.value as Map?;
+
+            if (dataMap != null) {
+              dataMap.forEach((key, value) async {
+                if (value is Map<dynamic, dynamic>) {
+                  Map<String, dynamic> data = {
+                    'ID': key,
+                    'Name': value['Name'] ?? '',
+                    'Email': value['Email'] ?? '',
+                    'Bio': value['Bio'] ?? '',
+                    'Picture': value['Picture'],
+                    'Type': 'Sponsee',
+                  };
+                  if (user?.uid != data['ID']) Sponsees.add(data);
+                }
+              });
+            }
+          }
+        } catch (e) {
+          print('Error occurred: $e');
+        }
+        return Sponsees;
+      },
+    );
+  }
+
+  void filterUsers(String text) {
+    text = text.trim();
+
+    setState(() {
+      filteredSponsors = sponsors
+          .where((user) =>
+              user['Name']?.toLowerCase().contains(text.toLowerCase()) == true)
+          .toList();
+
+      filteredSponsees = sponsees
+          .where((user) =>
+              user['Name']?.toLowerCase().contains(text.toLowerCase()) == true)
+          .toList();
+    });
   }
 
   void _loadEventsFromFirebase() async {
@@ -416,14 +520,13 @@ class _ResultPageState extends State<ResultPage> {
                                     border: InputBorder.none,
                                   ),
                                   onChanged: (text) {
-                                    setState(() {
-                                      // Show or hide the cancel button based on whether there's text in the TextField
-                                    });
+                                    filterUsers(text);
                                   },
                                   onEditingComplete: () {
                                     String trimmedText =
                                         searchController.text.trim();
                                     searchController.text = trimmedText;
+                                    filterUsers(trimmedText);
                                   },
                                   onSubmitted: (value) {
                                     // Handle the search when the user presses Enter on the keyboard
@@ -453,6 +556,38 @@ class _ResultPageState extends State<ResultPage> {
                 ],
               ),
             ),
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: EdgeInsets.only(left: 16),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Search results for user \"${originalSearchText}\" ",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30,
+                          color: Color.fromARGB(255, 91, 79, 158),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: screenHeight - 1000,
+                    child: Scrollbar(
+                      child: ListView(
+                        children: [
+                          _buildUserList(context, filteredSponsors,
+                              filteredSponsees, searchController.text),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Stack(
               children: [
                 Container(
@@ -468,7 +603,7 @@ class _ResultPageState extends State<ResultPage> {
                         Padding(
                           padding: EdgeInsets.only(left: 16),
                           child: Text(
-                            "Search results for \"${originalSearchText}\" ",
+                            "Search results for event \"${originalSearchText}\" ",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 30,
@@ -534,6 +669,107 @@ class _ResultPageState extends State<ResultPage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal, // Scroll horizontally
+                  child: Row(
+                    children: [
+                      if (FminAttendees != 0 ||
+                          FmaxAttendees != 200000 ||
+                          (FselectedCategories != null &&
+                              FselectedCategories.isNotEmpty) ||
+                          (FselectedCities != null &&
+                              FselectedCities.isNotEmpty))
+                        Text(
+                          'Filtered By:',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 91, 79, 158),
+                          ),
+                        ),
+                      SizedBox(width: 10),
+                      Wrap(
+                        spacing: 8.0,
+                        runSpacing: 4.0,
+                        children: <Widget>[
+                          if (FminAttendees != 0)
+                            Chip(
+                              label: Text(
+                                'Min Attendees: $FminAttendees',
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 91, 79, 158),
+                                ),
+                              ),
+                            ),
+                          if (FmaxAttendees != 200000)
+                            Chip(
+                              label: Text(
+                                'Max Attendees: $FmaxAttendees',
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 91, 79, 158),
+                                ),
+                              ),
+                            ),
+                          if (FselectedCategories != null &&
+                              FselectedCategories.isNotEmpty)
+                            Chip(
+                              label: Text(
+                                  'Categories: ${FselectedCategories.join(', ')}'),
+                              labelStyle: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 91, 79, 158),
+                              ),
+                            ),
+                          if (FselectedCities != null &&
+                              FselectedCities.isNotEmpty)
+                            Chip(
+                              label:
+                                  Text('Cities: ${FselectedCities.join(', ')}'),
+                              labelStyle: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 91, 79, 158),
+                              ),
+                            ),
+                        ],
+                      ),
+                      if (FminAttendees != 0 ||
+                          FmaxAttendees != 200000 ||
+                          (FselectedCategories != null &&
+                              FselectedCategories.isNotEmpty) ||
+                          (FselectedCities != null &&
+                              FselectedCities.isNotEmpty))
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              FminAttendees = 0;
+                              FmaxAttendees = 200000;
+                              FselectedCategories = [];
+                              FselectedCities = [];
+                            });
+
+                            FilterDialog filterDialog = FilterDialog(
+                              onFilterApplied: (
+                                int minAttendees,
+                                int maxAttendees,
+                                List<String> selectedCategories,
+                                List<String> selectedCities,
+                              ) {},
+                            );
+                            //     filterDialog.clearFilterValues();
+                          },
+                          child: Row(
+                            children: [
+                              Icon(Icons.close), // Trash icon
+                              SizedBox(
+                                  width:
+                                      8), // Add some space between the icon and text
+                              //  Text('Clear Filter'),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
                 if (searchedEvents.isNotEmpty && originalSearchText.isNotEmpty)
                   SizedBox(
                     height: screenHeight - 580,
@@ -560,249 +796,242 @@ class _ResultPageState extends State<ResultPage> {
                           Event event = searchedEvents.isNotEmpty
                               ? searchedEvents[index]
                               : getFilteredEvents()[index];
-                          bool meetsFilterCriteria = applyFilterCriteria(event);
-                          print('HERE EVENT CRIRITA');
-                          if (meetsFilterCriteria) {
-                            return GestureDetector(
-                                onTap: () {
-                                  // Navigate to the event details page
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => RecentEventsDetails(
-                                        sponsorID: sponsorID,
-                                        EventId: event.EventId,
-                                        sponseeId: event.sponseeId,
-                                        EventName: event.EventName,
-                                        EventType: event.EventType,
-                                        location: event.location,
-                                        imgURL: event.imgURL,
-                                        startDate: event.startDate,
-                                        endDate: event.endDate,
-                                        startTime: event.startTime,
-                                        endTime: event.endTime,
-                                        Category: event.Category,
-                                        notes: event.notes,
-                                        benefits: event.benefits,
-                                        NumberOfAttendees:
-                                            event.NumberOfAttendees,
-                                        timeStamp: event.timeStamp,
-                                        sponseeImage: event.sponseeImage,
-                                        sponseeName: event.sponseeName,
-                                      ),
+                          return GestureDetector(
+                              onTap: () {
+                                // Navigate to the event details page
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => RecentEventsDetails(
+                                      sponsorID: sponsorID,
+                                      EventId: event.EventId,
+                                      sponseeId: event.sponseeId,
+                                      EventName: event.EventName,
+                                      EventType: event.EventType,
+                                      location: event.location,
+                                      imgURL: event.imgURL,
+                                      startDate: event.startDate,
+                                      endDate: event.endDate,
+                                      startTime: event.startTime,
+                                      endTime: event.endTime,
+                                      Category: event.Category,
+                                      notes: event.notes,
+                                      benefits: event.benefits,
+                                      NumberOfAttendees:
+                                          event.NumberOfAttendees,
+                                      timeStamp: event.timeStamp,
+                                      sponseeImage: event.sponseeImage,
+                                      sponseeName: event.sponseeName,
                                     ),
-                                  );
-                                },
-                                child: Card(
-                                  elevation: 5,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
                                   ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        height: screenHeight * 0.14,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              const BorderRadius.vertical(
-                                            top: Radius.circular(16),
-                                          ),
-                                          image: DecorationImage(
-                                            image: event.imgURL.isNotEmpty
-                                                ? NetworkImage(event.imgURL)
-                                                : const NetworkImage(
-                                                    'https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
-                                            fit: BoxFit.cover,
-                                          ),
+                                );
+                              },
+                              child: Card(
+                                elevation: 5,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      height: screenHeight * 0.14,
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            const BorderRadius.vertical(
+                                          top: Radius.circular(16),
+                                        ),
+                                        image: DecorationImage(
+                                          image: event.imgURL.isNotEmpty
+                                              ? NetworkImage(event.imgURL)
+                                              : const NetworkImage(
+                                                  'https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
+                                          fit: BoxFit.cover,
                                         ),
                                       ),
-                                      Container(
-                                        decoration: const BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.vertical(
-                                              bottom: Radius.circular(30),
-                                            )),
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              event.EventName,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 20,
-                                                color: Color.fromARGB(
-                                                    255, 0, 0, 0),
-                                              ),
+                                    ),
+                                    Container(
+                                      decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.vertical(
+                                            bottom: Radius.circular(30),
+                                          )),
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            event.EventName,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20,
+                                              color:
+                                                  Color.fromARGB(255, 0, 0, 0),
                                             ),
-                                            const SizedBox(height: 4),
-                                            Row(
-                                              children: [
-                                                GestureDetector(
-                                                  child: CircleAvatar(
-                                                    radius: 25,
-                                                    backgroundImage:
-                                                        NetworkImage(
-                                                            event.sponseeImage),
-                                                    backgroundColor:
-                                                        Colors.transparent,
-                                                  ),
-                                                  onTap: () {
-                                                    Navigator.of(context)
-                                                        .push(MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          ViewOthersProfile(
-                                                              'Sponsees',
-                                                              event.sponseeId),
-                                                    ));
-                                                  },
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              GestureDetector(
+                                                child: CircleAvatar(
+                                                  radius: 25,
+                                                  backgroundImage: NetworkImage(
+                                                      event.sponseeImage),
+                                                  backgroundColor:
+                                                      Colors.transparent,
                                                 ),
+                                                onTap: () {
+                                                  Navigator.of(context)
+                                                      .push(MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ViewOthersProfile(
+                                                            'Sponsees',
+                                                            event.sponseeId),
+                                                  ));
+                                                },
+                                              ),
 
-                                                SizedBox(width: 15),
-                                                // Add some space between the CircleAvatar and Text
-                                                GestureDetector(
-                                                  child: Expanded(
-                                                    child: Text(
-                                                      event.sponseeName,
-                                                      style: const TextStyle(
-                                                        fontSize: 22,
-                                                        color: Colors.black87,
-                                                      ),
+                                              SizedBox(width: 15),
+                                              // Add some space between the CircleAvatar and Text
+                                              GestureDetector(
+                                                child: Expanded(
+                                                  child: Text(
+                                                    event.sponseeName,
+                                                    style: const TextStyle(
+                                                      fontSize: 22,
+                                                      color: Colors.black87,
                                                     ),
                                                   ),
-                                                  onTap: () {
-                                                    Navigator.of(context)
-                                                        .push(MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          ViewOthersProfile(
-                                                              'Sponsees',
-                                                              event.sponseeId),
-                                                    ));
-                                                  },
                                                 ),
-                                              ],
-                                            ),
-                                            const SizedBox(
-                                              height: 5,
-                                            ),
+                                                onTap: () {
+                                                  Navigator.of(context)
+                                                      .push(MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ViewOthersProfile(
+                                                            'Sponsees',
+                                                            event.sponseeId),
+                                                  ));
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                            height: 5,
+                                          ),
 
-                                            Row(
-                                              children: [
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.calendar_today,
+                                                size: 18,
+                                                color: Color.fromARGB(
+                                                    255, 91, 79, 158),
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                "${event.startDate} - ${event.endDate}",
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Color.fromARGB(
+                                                      255, 0, 0, 0),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              if (event.NumberOfAttendees !=
+                                                      null &&
+                                                  event.NumberOfAttendees
+                                                      .isNotEmpty)
                                                 const Icon(
-                                                  Icons.calendar_today,
-                                                  size: 18,
+                                                  Icons.people,
+                                                  size: 21,
                                                   color: Color.fromARGB(
                                                       255, 91, 79, 158),
                                                 ),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  "${event.startDate} - ${event.endDate}",
-                                                  style: TextStyle(
+                                              const SizedBox(width: 4),
+                                              Expanded(
+                                                child: Text(
+                                                  event.NumberOfAttendees,
+                                                  style: const TextStyle(
                                                     fontSize: 18,
                                                     color: Color.fromARGB(
                                                         255, 0, 0, 0),
                                                   ),
+                                                  overflow: TextOverflow
+                                                      .ellipsis, // Add this line
+                                                  maxLines: 1, // Add this line
                                                 ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Row(
-                                              children: [
-                                                if (event.NumberOfAttendees !=
-                                                        null &&
-                                                    event.NumberOfAttendees
-                                                        .isNotEmpty)
-                                                  const Icon(
-                                                    Icons.people,
-                                                    size: 21,
-                                                    color: Color.fromARGB(
-                                                        255, 91, 79, 158),
-                                                  ),
-                                                const SizedBox(width: 4),
-                                                Expanded(
-                                                  child: Text(
-                                                    event.NumberOfAttendees,
-                                                    style: const TextStyle(
-                                                      fontSize: 18,
-                                                      color: Color.fromARGB(
-                                                          255, 0, 0, 0),
-                                                    ),
-                                                    overflow: TextOverflow
-                                                        .ellipsis, // Add this line
-                                                    maxLines:
-                                                        1, // Add this line
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                            const SizedBox(height: 10),
-                                            SizedBox(
-                                              height: 105,
-                                              child: Wrap(
-                                                spacing: 4,
-                                                children: event.Category.map(
-                                                    (category) {
-                                                  return Chip(
-                                                    label: Text(category),
-                                                    backgroundColor:
-                                                        const Color.fromARGB(
-                                                            255, 255, 255, 255),
-                                                    shadowColor:
-                                                        const Color.fromARGB(
-                                                            255, 91, 79, 158),
-                                                    elevation: 3,
-                                                    labelStyle: const TextStyle(
-                                                      color: Color.fromARGB(
+                                              )
+                                            ],
+                                          ),
+                                          const SizedBox(height: 10),
+                                          SizedBox(
+                                            height: 105,
+                                            child: Wrap(
+                                              spacing: 4,
+                                              children: event.Category.map(
+                                                  (category) {
+                                                return Chip(
+                                                  label: Text(category),
+                                                  backgroundColor:
+                                                      const Color.fromARGB(
+                                                          255, 255, 255, 255),
+                                                  shadowColor:
+                                                      const Color.fromARGB(
                                                           255, 91, 79, 158),
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                                height: 8), // Add some space
-                                            const Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: [
-                                                Text(
-                                                  'more details',
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontStyle: FontStyle.italic,
+                                                  elevation: 3,
+                                                  labelStyle: const TextStyle(
                                                     color: Color.fromARGB(
                                                         255, 91, 79, 158),
                                                   ),
-                                                ),
-                                                Icon(
-                                                  Icons.arrow_forward,
-                                                  size:
-                                                      16, // Adjust the size as needed
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                              height: 8), // Add some space
+                                          const Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              Text(
+                                                'more details',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontStyle: FontStyle.italic,
                                                   color: Color.fromARGB(
                                                       255, 91, 79, 158),
                                                 ),
-                                              ],
-                                            ),
-                                            const SizedBox(
-                                                height:
-                                                    41.9), // Add some space at the bottom
-                                          ],
-                                        ),
+                                              ),
+                                              Icon(
+                                                Icons.arrow_forward,
+                                                size:
+                                                    16, // Adjust the size as needed
+                                                color: Color.fromARGB(
+                                                    255, 91, 79, 158),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                              height:
+                                                  41.9), // Add some space at the bottom
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ));
-                          } else {
-                            // no match to filter
-                          }
+                                    ),
+                                  ],
+                                ),
+                              ));
                         },
                       ),
                     ),
                   ),
-                if (searchedEvents.isEmpty || originalSearchText.isEmpty)
+                if (searchedEvents.isEmpty ||
+                    originalSearchText.isEmpty ||
+                    (filteredSponsees.isEmpty && filteredSponsors.isEmpty))
                   Center(
                     child: Column(
                       children: [
@@ -812,8 +1041,9 @@ class _ResultPageState extends State<ResultPage> {
                         Text(
                           "No results match your search",
                           style: TextStyle(
-                              fontSize: 25,
-                              color: Color.fromARGB(255, 0, 0, 0)),
+                            fontSize: 24,
+                            color: Color.fromARGB(255, 189, 189, 189),
+                          ),
                         ),
                         TextButton(
                           child: Text("Go Back",
@@ -893,6 +1123,152 @@ class _ResultPageState extends State<ResultPage> {
       ),
     );
   }
+}
+
+Widget _buildUserList(
+  BuildContext context,
+  List<Map<String, dynamic>> sponsors,
+  List<Map<String, dynamic>> sponsees,
+  String searchQuery,
+) {
+  if (sponsors.isEmpty && sponsees.isEmpty) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'No users that matched $searchQuery',
+          style: TextStyle(
+            fontSize: 24,
+            color: Color.fromARGB(255, 189, 189, 189),
+          ),
+        ),
+        /*  TextButton(
+          child: Text(
+            "Go Back",
+            style: TextStyle(
+              fontSize: 23,
+              decoration: TextDecoration.underline,
+            ),
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ), */
+      ],
+    );
+  }
+
+  return Column(
+    children: [
+      _buildUserCategory(context, 'Sponsors', sponsors, searchQuery),
+      _buildUserCategory(context, 'Sponsees', sponsees, searchQuery),
+    ],
+  );
+}
+
+Widget _buildUserCategory(BuildContext context, String category,
+    List<Map<String, dynamic>> users, String text) {
+  if (users == null || users.isEmpty) {
+    return SizedBox.shrink();
+  }
+
+  if (text.isNotEmpty) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /* Text(
+              category,
+              style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.w500,
+                color: Color.fromARGB(255, 51, 45, 81),
+              ),
+            ),*/
+          ListView(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            children: users.map((user) {
+              String id = user['ID'] ?? 'No ID available';
+              String name = user['Name'] ?? 'No name available';
+              String pic = user['Picture'] ?? '';
+              String bio = user['Bio'] ?? 'no bio available';
+              String type = user['Type'] ?? '';
+
+              return Card(
+                color: Color.fromARGB(255, 255, 255, 255),
+                child: ListTile(
+                  title: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundImage: NetworkImage(pic),
+                        backgroundColor: Colors.transparent,
+                      ),
+                      SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            name,
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 51, 45, 81),
+                              fontSize: 22,
+                            ),
+                          ),
+                          SizedBox(
+                              height: 4), // Add some space between name and bio
+                          Text(
+                            type,
+                            style: const TextStyle(
+                              color: Color.fromARGB(255, 51, 45, 81),
+                              fontSize: 17,
+                            ),
+                          ),
+                          SizedBox(
+                              height: 4), // Add some space between name and bio
+                          Text(
+                            bio.length > 65
+                                ? '${bio.substring(0, 65)}...'
+                                : bio,
+                            style: const TextStyle(
+                              color: Color.fromARGB(255, 51, 45, 81),
+                              fontSize: 17,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  trailing: IconButton(
+                    icon: Icon(Icons.more_vert),
+                    color: Color.fromARGB(255, 91, 79, 158),
+                    onPressed: () {
+                      String userType =
+                          (type == 'Sponsee') ? 'Sponsees' : 'Sponsors';
+
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => ViewOthersProfile(userType, id),
+                      ));
+                    },
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Return a default widget if the search input is empty
+  return Text(
+    '',
+    style: TextStyle(
+      fontSize: 16,
+      color: Colors.grey,
+    ),
+  );
 }
 
 void main() async {
