@@ -36,20 +36,20 @@ class _SponsorProfileState extends State<SponsorProfile> {
       print('User is not logged in.');
     }
   }
+
   void deleteUserAccount() async {
     final user = await FirebaseAuth.instance.currentUser;
-     var cred=null;
-     
-      if (user != null) {
-        final email = user.email; // This will give you the user's email
-         cred = EmailAuthProvider.credential(
-          email: email!,
-          password: _currentpasswordController.text,
-        );
-      }
-    
+    var cred = null;
+
+    if (user != null) {
+      final email = user.email; // This will give you the user's email
+      cred = EmailAuthProvider.credential(
+        email: email!,
+        password: _currentpasswordController.text,
+      );
+    }
+
     user!.reauthenticateWithCredential(cred).then((value) {
-      
       user.delete().then((_) {
         //Success, do something
         Navigator.pop(context);
@@ -60,7 +60,6 @@ class _SponsorProfileState extends State<SponsorProfile> {
           builder: (context) {
             Future.delayed(const Duration(seconds: 3), () {
               Navigator.of(context).pop(true);
-             
             });
             return Theme(
               data: Theme.of(context)
@@ -98,7 +97,6 @@ class _SponsorProfileState extends State<SponsorProfile> {
         //   weakPass = true;
         //   Navigator.of(context).pop();
         //   _showChangePasswordDialog(context);
-
         // });
         return;
       });
@@ -112,7 +110,6 @@ class _SponsorProfileState extends State<SponsorProfile> {
       return;
     });
   }
-
   // Future<void> deleteUserAccount() async {
   //   try {
   //     var cred=null;
@@ -124,7 +121,6 @@ class _SponsorProfileState extends State<SponsorProfile> {
   //         password: _currentpasswordController.text,
   //       );
   //     }
-
   //     user!.reauthenticateWithCredential(cred);
   //     await FirebaseAuth.instance.currentUser!.delete();
   //   } on FirebaseAuthException catch (e) {
@@ -179,6 +175,8 @@ class _SponsorProfileState extends State<SponsorProfile> {
               );
 
           sponsorList.add(sponsor);
+          profilePicUrl = sponsor.pic;
+          profileName = sponsor.name;
           // print(sponsorList);
           // print(sponsorList.first.social.first.link);
         });
@@ -239,9 +237,10 @@ class _SponsorProfileState extends State<SponsorProfile> {
         Form(
             key: _formKeyPass,
             child: Column(children: [
-              Text("Enter your current password to delete account", 
+              Text(
+                "Enter your current password to delete account",
               ),
-               SizedBox(
+              SizedBox(
                 height: 20,
               ),
               SizedBox(
@@ -292,6 +291,47 @@ class _SponsorProfileState extends State<SponsorProfile> {
     super.initState();
     check();
     _loadProfileFromFirebase();
+    _loadPostsFromFirebase();
+  }
+
+  List<Post> posts = [];
+  String profilePicUrl = '';
+  String profileName = '';
+  void _loadPostsFromFirebase() {
+    DatabaseReference dbRef = FirebaseDatabase.instance.ref().child('posts');
+    dbRef.onValue.listen((post) {
+      if (post.snapshot.value != null) {
+        setState(() {
+          posts.clear();
+          Map<dynamic, dynamic> postData =
+              post.snapshot.value as Map<dynamic, dynamic>;
+          postData.forEach((key, value) {
+            if (value['userId'] == sponsorID) {
+              // Use key as POSTid for the current post
+              String POSTid = key;
+
+              posts.add(Post(
+                text: value['notes'] as String? ?? '',
+                imageUrl: value['img'] as String? ?? '',
+                profilePicUrl: profilePicUrl,
+                eventname: value['EventName'] as String? ?? '',
+                profileName: profileName,
+                // Add other properties as needed
+              ));
+            }
+          });
+          // Optionally, you can sort posts based on a timestamp or other criteria
+          // posts.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+          if (posts.isNotEmpty) {
+            print("I have posts");
+            for (int i = 0; i < posts.length; i++) print(posts[i].text);
+          } else {
+            print("Posts is empty");
+          }
+        });
+      }
+    });
   }
 
   Future<void> _showSignOutConfirmationDialog(BuildContext context) async {
@@ -438,9 +478,8 @@ class _SponsorProfileState extends State<SponsorProfile> {
                     minimumSize:
                         MaterialStateProperty.all<Size>(const Size(200, 50))),
                 onPressed: () async {
-                   Navigator.of(context).pop();
-                 _showChangePasswordDialog(context);
-                 
+                  Navigator.of(context).pop();
+                  _showChangePasswordDialog(context);
                 })
           ],
         );
@@ -650,11 +689,152 @@ class _SponsorProfileState extends State<SponsorProfile> {
                             fontWeight: FontWeight.bold, fontSize: 30),
                       ),
                     ],
-                  )
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height *
+                        0.3, // Adjust the height as needed
+                    child: ListView(
+                      children: posts.map((post) {
+                        return Column(
+                          children: [
+                            PostContainer(
+                              text: post.text,
+                              imageUrl: post.imageUrl,
+                              profilePicUrl: post.profilePicUrl,
+                              profileName: post.profileName,
+                              eventname: post.eventname,
+                            ),
+                            const SizedBox(height: 16.0),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class ImagePopupScreen extends StatelessWidget {
+  final String imageUrl;
+
+  ImagePopupScreen({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        // Add an 'X' button to close the popup
+        leading: IconButton(
+          icon: Icon(Icons.close),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: Center(
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.contain,
+        ),
+      ),
+    );
+  }
+}
+
+class Post {
+  final String text;
+  final String? imageUrl;
+  final String profilePicUrl;
+  final String profileName;
+  final String eventname;
+
+  Post({
+    required this.text,
+    this.imageUrl,
+    required this.profilePicUrl,
+    required this.profileName,
+    required this.eventname,
+  });
+}
+
+class PostContainer extends StatelessWidget {
+  final String text;
+  final String? imageUrl;
+  final String profilePicUrl;
+  final String profileName;
+  final String eventname;
+
+  PostContainer({
+    required this.text,
+    this.imageUrl,
+    required this.profilePicUrl,
+    required this.profileName,
+    required this.eventname,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 25,
+                backgroundImage: NetworkImage(profilePicUrl),
+              ),
+              SizedBox(width: 8.0),
+              Text(
+                profileName ?? '',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+              SizedBox(width: 16.0),
+              CircleAvatar(
+                radius: 15,
+                backgroundImage: AssetImage('assets/sponsite_white.jpg'),
+              ),
+              SizedBox(width: 8.0),
+              Text(
+                eventname ?? '',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.0),
+          Text(
+            text,
+            style: const TextStyle(fontSize: 23.0),
+          ),
+          SizedBox(height: 8.0),
+          if (imageUrl != '')
+            InkWell(
+              onTap: () {
+                // When the image is tapped, show the popup
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ImagePopupScreen(imageUrl: imageUrl!),
+                  ),
+                );
+              },
+              child: Image.network(
+                imageUrl!,
+                height: 300.0,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
         ],
       ),
     );

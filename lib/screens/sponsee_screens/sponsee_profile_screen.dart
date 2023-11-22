@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:sponsite/screens/calendar.dart';
+import 'package:sponsite/screens/postEvent.dart';
 import 'package:sponsite/screens/sponsee_screens/sponsee_edit_profile.dart';
 
 import 'package:url_launcher/url_launcher.dart';
@@ -57,6 +58,8 @@ class _SponseeProfileState extends State<SponseeProfile> {
     }
   }
 
+  String profilePicUrl = '';
+  String profileName = '';
   void _loadProfileFromFirebase() async {
     check();
     DatabaseReference dbRef =
@@ -96,12 +99,13 @@ class _SponseeProfileState extends State<SponseeProfile> {
             pic: sponseeData['Picture'] as String? ?? '',
             social: socialMediaAccounts,
             email: sponseeData['Email'] as String? ?? '',
-
             // Add other fields as needed
           );
           _nameController.text = sponsee.name;
           _emailController.text = sponsee.email;
           _bioController.text = sponsee.bio;
+          profilePicUrl = sponsee.pic;
+          profileName = sponsee.name;
 
           // _emailController.text=sponsee.
           sponseeList.add(sponsee);
@@ -124,6 +128,46 @@ class _SponseeProfileState extends State<SponseeProfile> {
     super.initState();
     check();
     _loadProfileFromFirebase();
+    _loadPostsFromFirebase();
+  }
+
+  List<Post> posts = [];
+
+  void _loadPostsFromFirebase() {
+    DatabaseReference dbRef = FirebaseDatabase.instance.ref().child('posts');
+    dbRef.onValue.listen((post) {
+      if (post.snapshot.value != null) {
+        setState(() {
+          posts.clear();
+          Map<dynamic, dynamic> postData =
+              post.snapshot.value as Map<dynamic, dynamic>;
+          postData.forEach((key, value) {
+            if (value['userId'] == sponseeID) {
+              // Use key as POSTid for the current post
+              String POSTid = key;
+
+              posts.add(Post(
+                text: value['notes'] as String? ?? '',
+                imageUrl: value['img'] as String? ?? '',
+                profilePicUrl: profilePicUrl,
+                eventname: value['EventName'] as String? ?? '',
+                profileName: profileName,
+                // Add other properties as needed
+              ));
+            }
+          });
+          // Optionally, you can sort posts based on a timestamp or other criteria
+          // posts.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+          if (posts.isNotEmpty) {
+            print("I have posts");
+            for (int i = 0; i < posts.length; i++) print(posts[i].text);
+          } else {
+            print("Posts is empty");
+          }
+        });
+      }
+    });
   }
 
   Future<void> _showSignOutConfirmationDialog(BuildContext context) async {
@@ -256,10 +300,11 @@ class _SponseeProfileState extends State<SponseeProfile> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-              flex: 2,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              height: 200, // Adjust the height as needed
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -292,22 +337,20 @@ class _SponseeProfileState extends State<SponseeProfile> {
                                 color: Colors.black,
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: NetworkImage(sponseeList.first.pic)
-                                    // sponseeList.first.pic != ""? NetworkImage(sponseeList.first.pic) :AssetImage("assets/ksuCPCLogo.png")
-                                    ),
+                                  fit: BoxFit.cover,
+                                  image: NetworkImage(sponseeList.first.pic),
+                                ),
                               ),
                             ),
                         ],
                       ),
                     ),
-                  )
+                  ),
                 ],
-              )),
-          Expanded(
-            flex: 5,
-            child: Padding(
-              padding: const EdgeInsets.all(0.0),
+              ),
+            ),
+            Container(
+              height: 100, // Adjust the height as needed
               child: Column(
                 children: [
                   if (sponseeList.isNotEmpty)
@@ -347,62 +390,289 @@ class _SponseeProfileState extends State<SponseeProfile> {
                       ),
                     ),
                   ),
-                  // const _ProfileInfoRow(),
-                  if (sponseeList.isNotEmpty)
-                    SizedBox(
-                      width: 600,
-
-                      // Set your desired width here
-                      child: Center(
-                        child: Card(
-                          margin: const EdgeInsets.all(16.0),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Text(
-                              sponseeList.first.bio,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                              ),
-                            ),
+                ],
+              ),
+            ),
+            if (sponseeList.isNotEmpty)
+              SizedBox(
+                width: 600,
+                child: Container(
+                  height: 200, // Adjust the height as needed
+                  child: Center(
+                    child: Card(
+                      margin: const EdgeInsets.all(16.0),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          sponseeList.first.bio,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
                           ),
                         ),
                       ),
                     ),
-
-                  if (sponseeList.isNotEmpty)
-                    _ProfileInfoRow(sponseeList.first.social),
-                  const Divider(
-                      // indent: 100,
-                      // endIndent: 100,
-                      ),
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 20,
-                      ),
-                      Text(
-                        'My Posts',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 30),
-                      ),
-                    ],
-                  )
+                  ),
+                ),
+              ),
+            if (sponseeList.isNotEmpty)
+              _ProfileInfoRow(sponseeList.first.social),
+            const Divider(),
+            Container(
+              height: 50, // Adjust the height as needed
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Text(
+                    'My Posts',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+                  ),
                 ],
               ),
             ),
+            Container(
+              height: MediaQuery.of(context).size.height *
+                  0.3, // Adjust the height as needed
+              child: ListView(
+                children: posts.map((post) {
+                  return Column(
+                    children: [
+                      PostContainer(
+                        text: post.text,
+                        imageUrl: post.imageUrl,
+                        profilePicUrl: post.profilePicUrl,
+                        profileName: post.profileName,
+                        eventname: post.eventname,
+                      ),
+                      const SizedBox(height: 16.0),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ImagePopupScreen extends StatelessWidget {
+  final String imageUrl;
+
+  ImagePopupScreen({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        // Add an 'X' button to close the popup
+        leading: IconButton(
+          icon: Icon(Icons.close),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: Center(
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.contain,
+        ),
+      ),
+    );
+  }
+}
+
+class Post {
+  final String text;
+  final String? imageUrl;
+  final String profilePicUrl;
+  final String profileName;
+  final String eventname;
+
+  Post({
+    required this.text,
+    this.imageUrl,
+    required this.profilePicUrl,
+    required this.profileName,
+    required this.eventname,
+  });
+}
+
+class PostContainer extends StatelessWidget {
+  final String text;
+  final String? imageUrl;
+  final String profilePicUrl;
+  final String profileName;
+  final String eventname;
+
+  PostContainer({
+    required this.text,
+    this.imageUrl,
+    required this.profilePicUrl,
+    required this.profileName,
+    required this.eventname,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 25,
+                backgroundImage: NetworkImage(profilePicUrl),
+              ),
+              SizedBox(width: 8.0),
+              Text(
+                profileName ?? '',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+              SizedBox(width: 16.0),
+              CircleAvatar(
+                radius: 15,
+                backgroundImage: AssetImage('assets/sponsite_white.jpg'),
+              ),
+              SizedBox(width: 8.0),
+              Text(
+                eventname ?? '',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+            ],
           ),
+          SizedBox(height: 8.0),
+          Text(
+            text,
+            style: const TextStyle(fontSize: 23.0),
+          ),
+          SizedBox(height: 8.0),
+          if (imageUrl != '')
+            InkWell(
+              onTap: () {
+                // When the image is tapped, show the popup
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ImagePopupScreen(imageUrl: imageUrl!),
+                  ),
+                );
+              },
+              child: Image.network(
+                imageUrl!,
+                height: 300.0,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
         ],
       ),
     );
   }
 }
+
+// class Post {
+//   final String text;
+//   final String? imageUrl;
+//   final String profilePicUrl;
+//   final String profileName;
+//   final String eventname;
+
+//   Post({
+//     required this.text,
+//     this.imageUrl,
+//     required this.profilePicUrl,
+//     required this.profileName,
+//     required this.eventname,
+//   });
+// }
+
+// class PostContainer extends StatelessWidget {
+//   final String text;
+//   final String? imageUrl;
+//   final String profilePicUrl;
+//   final String profileName;
+//   final String eventname;
+
+//   PostContainer({
+//     required this.text,
+//     this.imageUrl,
+//     required this.profilePicUrl,
+//     required this.profileName,
+//     required this.eventname,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       margin: const EdgeInsets.all(16.0),
+//       padding: const EdgeInsets.all(16.0),
+//       decoration: BoxDecoration(
+//         border: Border.all(color: Colors.grey),
+//         borderRadius: BorderRadius.circular(8.0),
+//       ),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Row(
+//             children: [
+//               CircleAvatar(
+//                 radius: 25,
+//                 backgroundImage: NetworkImage(profilePicUrl),
+//                 // Add a placeholder image or default image if profilePicUrl is null
+//                 // backgroundImage: profilePicUrl != null
+//                 //     ? NetworkImage(profilePicUrl)
+//                 //     : AssetImage('assets/default_profile_pic.png'),
+//               ),
+//               SizedBox(width: 8.0),
+//               Text(
+//                 profileName ?? '',
+//                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+//               ),
+//               SizedBox(width: 16.0), // Adjust the spacing as needed
+//               CircleAvatar(
+//                   radius: 15,
+//                   backgroundImage:
+//                       AssetImage('assets/Spo_site__1_-removebg-preview.png')),
+//               SizedBox(width: 8.0),
+//               Text(
+//                 eventname ?? '',
+//                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+//               ),
+//             ],
+//           ),
+//           SizedBox(height: 8.0),
+//           Text(
+//             text,
+//             style: const TextStyle(fontSize: 23.0),
+//           ),
+//           if (imageUrl != '')
+//             Image.network(
+//               imageUrl!,
+//               height: 300.0,
+//               width: double.infinity,
+//               fit: BoxFit.cover,
+//             ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 class _ProfileInfoRow extends StatelessWidget {
   _ProfileInfoRow(List<SocialMediaAccount> this._items, {Key? key})

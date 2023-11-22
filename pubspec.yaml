@@ -104,7 +104,7 @@ flutter:
     - assets/Time.png
     - assets/googleCalendar.png
     - assets/Pack.png
-
+    - assets\sponsite_white.jpg
    
 
   # An image asset can refer to one or more resolution-specific "variants", see
