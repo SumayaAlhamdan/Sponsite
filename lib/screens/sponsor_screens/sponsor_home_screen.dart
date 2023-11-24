@@ -392,6 +392,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
     }).toList();
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         physics:
             const AlwaysScrollableScrollPhysics(), // Wrap your content in SingleChildScrollView to enable scrolling
