@@ -413,9 +413,10 @@ Widget _buildCurrentEventsPage() {
 
   final now = DateTime.now();
   final filteredEvents = events.where((event) {
-    final eventDateTime = parseEventDateAndTime(event.startDate, event.startTime);
+    final eventDateTime = parseEventDateAndTime(event.endDate, event.startTime);
     return eventDateTime.isAfter(now);
   }).toList();
+
  final filteredEventsWithOffers = filteredEvents.where((event) {
   return offers.any((offer) => offer.EventId == event.EventId);
 }).toList();
@@ -499,7 +500,7 @@ Widget _buildPastEventsPage() {
 
   final now = DateTime.now();
   final filteredEvents = events.where((event) {
-    final eventDateTime = parseEventDateAndTime(event.startDate, event.startTime);
+    final eventDateTime = parseEventDateAndTime(event.endDate, event.startTime);
     return eventDateTime.isBefore(now);
   }).toList();
 

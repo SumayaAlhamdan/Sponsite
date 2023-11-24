@@ -101,113 +101,167 @@ class _Rating extends State<Rating> {
       }
     });
   }
-
-  Widget _buildOfferCard(Offer offer) {
-    return Container(
-      margin: EdgeInsets.all(10),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              spreadRadius: 4,
-              blurRadius: 4,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              GestureDetector(
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  margin: EdgeInsets.only(right: 20),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50),
-                    image: DecorationImage(
-                      image: NetworkImage(offer.sponsorImage),
-                      fit: BoxFit.cover,
-                    ),
+Widget _buildOfferCard(Offer offer) {
+  return Container(
+    margin: EdgeInsets.all(10),
+    child: Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            spreadRadius: 4,
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            GestureDetector(
+              child: Container(
+                width: 100,
+                height: 100,
+                margin: EdgeInsets.only(right: 20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50),
+                  image: DecorationImage(
+                    image: NetworkImage(offer.sponsorImage),
+                    fit: BoxFit.cover,
                   ),
                 ),
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) =>
-                          ViewOthersProfile('Sponsors', offer.sponsorId)));
-                },
               ),
-              SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      child: Text(
-                        offer.sponsorName,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) =>
+                        ViewOthersProfile('Sponsors', offer.sponsorId)));
+              },
+            ),
+            SizedBox(width: 10),
+            Row(
+                
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    child: Text(
+                      offer.sponsorName,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
                     ),
-                    SizedBox(height: 5),
-                    if (offer.ratings != null) // Updated property name
-                      Text(
-                        'Rating: ${offer.ratings}',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.green,
-                        ),
-                      )
-                    else
-                      Row(
-                        children: [
-                          RatingBar.builder(
-                            initialRating: offer.ratings ?? 0,
-                            minRating: 1,
-                            direction: Axis.horizontal,
-                            allowHalfRating: false,
-                            itemCount: 5,
-                            itemSize: 20,
-                            itemBuilder: (context, _) => Icon(
-                              Icons.star,
-                              color: Colors.amber,
-                            ),
-                            onRatingUpdate: (rating) {
-                              setState(() {
-                                offer.ratings = rating;
-                              });
-                              // Add the rating to the database
-                              _submitRating(offer);
-                            },
-                          ),
-                          SizedBox(width: 10),
-                          ElevatedButton(
-                            onPressed: () {
-                              // Add the rating to the database
-                              _submitRating(offer);
-                            },
-                            child: Text('Rate'),
-                          ),
-                        ],
-                      ),
-                  ],
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+    
+                    children: [
+                      Padding(  padding: const EdgeInsets.only(left: 400,top: 40)), 
+                      if (offer.ratings!= null)
+                      Column(
+  children: [
+    Text(
+      'Rated with',
+      style: TextStyle(
+        fontSize: 20,
+        color: Colors.black,
+      ),
+    ),
+    Row(
+      children: [
+        Icon(
+          Icons.star,
+          color: Colors.yellow,
+        ),
+        Text(
+          ' ${offer.ratings}',
+          style: TextStyle(
+            fontSize: 18,
+            color: Color.fromARGB(255, 51, 45, 81),
+          ),
+        ),
+      ],
+    ),
+  ],
+),
+
+                      if (offer.ratings == null)
+                        Column(
+  children: [
+    Row(
+      children: [
+     
+        RatingBar.builder(
+
+          initialRating: offer.ratings ?? 0,
+          minRating: 1,
+          direction: Axis.horizontal,
+          allowHalfRating: false,
+          itemCount: 5,
+          itemSize: 28,
+          itemBuilder: (context, _) => Icon(
+            Icons.star,
+            color: Colors.amber,
+          ),
+          onRatingUpdate: (rating) {
+            setState(() {
+              offer.ratings = rating;
+            });
+            // Add the rating to the database
+            _submitRating(offer);
+          },
+        ),
+      ],
+    ),
+    SizedBox(height: 10), // Add some spacing between stars and button
+    Row(
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            // Add the rating to the database
+            _submitRating(offer);
+          },
+          style: ElevatedButton.styleFrom(
+            primary: const Color.fromARGB(255, 91, 79, 158),
+            elevation: 5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          child: Row(
+            children: [
+              SizedBox(width: 5),
+              Text(
+                'Rate',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
                 ),
               ),
             ],
           ),
         ),
+      ],
+    ),
+  ],
+),
+
+                    ],
+                  ),
+                ],
+              ),
+            
+          ],
+        ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   void _submitRating(Offer offer) async {
     try {
@@ -216,7 +270,7 @@ class _Rating extends State<Rating> {
           database.child('offers').child(offer.offerId);
 
       // Update the rating in the 'offers' node
-      await offerRef.child('ratings').set(offer.ratings);
+      await offerRef.child('rating').set(offer.ratings);
 
       // Perform any additional actions or UI updates as needed
 
