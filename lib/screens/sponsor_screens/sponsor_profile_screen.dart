@@ -690,26 +690,41 @@ class _SponsorProfileState extends State<SponsorProfile> {
                       ),
                     ],
                   ),
-                  Container(
-                    height: MediaQuery.of(context).size.height *
-                        0.3, // Adjust the height as needed
-                    child: ListView(
-                      children: posts.map((post) {
-                        return Column(
-                          children: [
-                            PostContainer(
-                              text: post.text,
-                              imageUrl: post.imageUrl,
-                              profilePicUrl: post.profilePicUrl,
-                              profileName: post.profileName,
-                              eventname: post.eventname,
-                            ),
-                            const SizedBox(height: 16.0),
-                          ],
-                        );
-                      }).toList(),
+                  if (posts.isNotEmpty)
+                    Container(
+                      height: MediaQuery.of(context).size.height *
+                          0.3, // Adjust the height as needed
+                      child: ListView(
+                        children: posts.map((post) {
+                          return Column(
+                            children: [
+                              PostContainer(
+                                text: post.text,
+                                imageUrl: post.imageUrl,
+                                profilePicUrl: post.profilePicUrl,
+                                profileName: post.profileName,
+                                eventname: post.eventname,
+                              ),
+                              const SizedBox(height: 16.0),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    )
+                  else
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/Write Content.png', // Specify the asset path
+                            width: 200, // Specify the width of the image
+                            height: 200, // Specify the height of the image
+                          ),
+                          Text('You don\'t have any posts yet'),
+                        ],
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),

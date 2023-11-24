@@ -10,18 +10,19 @@ import 'package:sponsite/widgets/user_image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ViewOthersProfile extends StatefulWidget {
-  ViewOthersProfile(this.type,this.otherID,{Key? key}) : super(key: key);
+  ViewOthersProfile(this.type, this.otherID, {Key? key}) : super(key: key);
   final otherID;
   final type;
-  State<ViewOthersProfile> createState() => _ViewOthersProfileState(type,otherID);
+  State<ViewOthersProfile> createState() =>
+      _ViewOthersProfileState(type, otherID);
 }
 
 class _ViewOthersProfileState extends State<ViewOthersProfile> {
   var otherID;
   var type;
-  _ViewOthersProfileState(t,otherId){
-    otherID=otherId;
-    type=t;
+  _ViewOthersProfileState(t, otherId) {
+    otherID = otherId;
+    type = t;
   }
   // late String name;
   List<ViewOthersProfileInfo> sponseeList = [];
@@ -37,12 +38,12 @@ class _ViewOthersProfileState extends State<ViewOthersProfile> {
   // }
 
   void _loadProfileFromFirebase() async {
-  //  check();
+    //  check();
     DatabaseReference dbRef =
         FirebaseDatabase.instance.ref().child(type).child(otherID!);
-     // user.updatePassword(newPassword)
+    // user.updatePassword(newPassword)
     // user.reauthenticateWithCredential(credential)
-    
+
     // Listen to the changes in the database reference
     dbRef.onValue.listen((event) {
       if (event.snapshot.value != null) {
@@ -88,8 +89,49 @@ class _ViewOthersProfileState extends State<ViewOthersProfile> {
 
   void initState() {
     super.initState();
-   // check();
+    // check();
     _loadProfileFromFirebase();
+    _loadPostsFromFirebase();
+  }
+
+  List<Post> posts = [];
+  String profilePicUrl = '';
+  String profileName = '';
+  void _loadPostsFromFirebase() {
+    DatabaseReference dbRef = FirebaseDatabase.instance.ref().child('posts');
+    dbRef.onValue.listen((post) {
+      if (post.snapshot.value != null) {
+        setState(() {
+          posts.clear();
+          Map<dynamic, dynamic> postData =
+              post.snapshot.value as Map<dynamic, dynamic>;
+          postData.forEach((key, value) {
+            if (value['userId'] == otherID) {
+              // Use key as POSTid for the current post
+              String POSTid = key;
+
+              posts.add(Post(
+                text: value['notes'] as String? ?? '',
+                imageUrl: value['img'] as String? ?? '',
+                profilePicUrl: profilePicUrl,
+                eventname: value['EventName'] as String? ?? '',
+                profileName: profileName,
+                // Add other properties as needed
+              ));
+            }
+          });
+          // Optionally, you can sort posts based on a timestamp or other criteria
+          // posts.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+          if (posts.isNotEmpty) {
+            print("I have posts");
+            for (int i = 0; i < posts.length; i++) print(posts[i].text);
+          } else {
+            print("Posts is empty");
+          }
+        });
+      }
+    });
   }
 
   Future<void> _showSignOutConfirmationDialog(BuildContext context) async {
@@ -304,7 +346,6 @@ class _ViewOthersProfileState extends State<ViewOthersProfile> {
                           child: Padding(
                             padding: EdgeInsets.all(16.0),
                             child: Text(
-                              
                               sponseeList.first.bio,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
@@ -316,20 +357,62 @@ class _ViewOthersProfileState extends State<ViewOthersProfile> {
                         ),
                       ),
                     ),
-                 
+
                   if (sponseeList.isNotEmpty)
                     _ProfileInfoRow(sponseeList.first.social),
-                     const Divider(
-                    // indent: 100,
-                    // endIndent: 100,
-                  ),
+                  const Divider(
+                      // indent: 100,
+                      // endIndent: 100,
+                      ),
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      SizedBox(width: 20,),
-                       Text('Posts',style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      Text(
+                        'Posts',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 30),
+                      ),
                     ],
-                  )
+                  ),
+                  if (posts.isNotEmpty)
+                    Container(
+                      height: MediaQuery.of(context).size.height *
+                          0.3, // Adjust the height as needed
+                      child: ListView(
+                        children: posts.map((post) {
+                          return Column(
+                            children: [
+                              PostContainer(
+                                text: post.text,
+                                imageUrl: post.imageUrl,
+                                profilePicUrl: post.profilePicUrl,
+                                profileName: post.profileName,
+                                eventname: post.eventname,
+                              ),
+                              const SizedBox(height: 16.0),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    )
+                  else
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/Write Content.png', // Specify the asset path
+                            width: 200, // Specify the width of the image
+                            height: 200, // Specify the height of the image
+                          ),
+                          Text(sponseeList.first.name +
+                              ' doesn\'t have any posts yet'),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -384,13 +467,132 @@ class _ViewOthersProfileState extends State<ViewOthersProfile> {
   // }
 }
 
+class ImagePopupScreen extends StatelessWidget {
+  final String imageUrl;
+
+  ImagePopupScreen({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        // Add an 'X' button to close the popup
+        leading: IconButton(
+          icon: Icon(Icons.close),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: Center(
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.contain,
+        ),
+      ),
+    );
+  }
+}
+
+class Post {
+  final String text;
+  final String? imageUrl;
+  final String profilePicUrl;
+  final String profileName;
+  final String eventname;
+
+  Post({
+    required this.text,
+    this.imageUrl,
+    required this.profilePicUrl,
+    required this.profileName,
+    required this.eventname,
+  });
+}
+
+class PostContainer extends StatelessWidget {
+  final String text;
+  final String? imageUrl;
+  final String profilePicUrl;
+  final String profileName;
+  final String eventname;
+
+  PostContainer({
+    required this.text,
+    this.imageUrl,
+    required this.profilePicUrl,
+    required this.profileName,
+    required this.eventname,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 25,
+                backgroundImage: NetworkImage(profilePicUrl),
+              ),
+              SizedBox(width: 8.0),
+              Text(
+                profileName ?? '',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+              SizedBox(width: 16.0),
+              CircleAvatar(
+                radius: 15,
+                backgroundImage: AssetImage('assets/sponsite_white.jpg'),
+              ),
+              SizedBox(width: 8.0),
+              Text(
+                eventname ?? '',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.0),
+          Text(
+            text,
+            style: const TextStyle(fontSize: 23.0),
+          ),
+          SizedBox(height: 8.0),
+          if (imageUrl != '')
+            InkWell(
+              onTap: () {
+                // When the image is tapped, show the popup
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ImagePopupScreen(imageUrl: imageUrl!),
+                  ),
+                );
+              },
+              child: Image.network(
+                imageUrl!,
+                height: 300.0,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 class _ProfileInfoRow extends StatelessWidget {
   _ProfileInfoRow(List<SocialMediaAccount> this._items, {Key? key})
       : super(key: key);
- 
+
   final List<SocialMediaAccount> _items;
-   
-  
 
   final Map<String, IconData> socialMediaIcons = {
     'github': FontAwesomeIcons.github,
@@ -407,7 +609,7 @@ class _ProfileInfoRow extends StatelessWidget {
     return Container(
       height: 100,
       //color: Colors.amber,
-      constraints:  BoxConstraints(maxWidth: _items.length * 80),
+      constraints: BoxConstraints(maxWidth: _items.length * 80),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: _items
@@ -429,13 +631,17 @@ class _ProfileInfoRow extends StatelessWidget {
           child: Material(
             shape: const CircleBorder(),
             clipBehavior: Clip.hardEdge,
-            color:Color.fromARGB(255, 244, 244, 244),
+            color: Color.fromARGB(255, 244, 244, 244),
             child: InkWell(
               onTap: () {
                 _launchUrl(item.link);
               },
               child: Center(
-                child: Icon(socialMediaIcons[item.title], size: 40,  color: Color.fromARGB(255, 91, 79, 158),),
+                child: Icon(
+                  socialMediaIcons[item.title],
+                  size: 40,
+                  color: Color.fromARGB(255, 91, 79, 158),
+                ),
               ),
             ),
           ));

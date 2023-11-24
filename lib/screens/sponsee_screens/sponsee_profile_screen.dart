@@ -438,26 +438,41 @@ class _SponseeProfileState extends State<SponseeProfile> {
                 ],
               ),
             ),
-            Container(
-              height: MediaQuery.of(context).size.height *
-                  0.3, // Adjust the height as needed
-              child: ListView(
-                children: posts.map((post) {
-                  return Column(
-                    children: [
-                      PostContainer(
-                        text: post.text,
-                        imageUrl: post.imageUrl,
-                        profilePicUrl: post.profilePicUrl,
-                        profileName: post.profileName,
-                        eventname: post.eventname,
-                      ),
-                      const SizedBox(height: 16.0),
-                    ],
-                  );
-                }).toList(),
+            if (posts.isNotEmpty)
+              Container(
+                height: MediaQuery.of(context).size.height *
+                    0.3, // Adjust the height as needed
+                child: ListView(
+                  children: posts.map((post) {
+                    return Column(
+                      children: [
+                        PostContainer(
+                          text: post.text,
+                          imageUrl: post.imageUrl,
+                          profilePicUrl: post.profilePicUrl,
+                          profileName: post.profileName,
+                          eventname: post.eventname,
+                        ),
+                        const SizedBox(height: 16.0),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              )
+            else
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/Write Content.png', // Specify the asset path
+                      width: 200, // Specify the width of the image
+                      height: 200, // Specify the height of the image
+                    ),
+                    Text('You don\'t have any posts yet'),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -530,149 +545,78 @@ class PostContainer extends StatelessWidget {
         border: Border.all(color: Colors.grey),
         borderRadius: BorderRadius.circular(8.0),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Row(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 25,
-                backgroundImage: NetworkImage(profilePicUrl),
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 25,
+                    backgroundImage: NetworkImage(profilePicUrl),
+                  ),
+                  SizedBox(width: 8.0),
+                  Text(
+                    profileName ?? '',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                  SizedBox(width: 16.0),
+                  CircleAvatar(
+                    radius: 15,
+                    backgroundImage: AssetImage('assets/sponsite_white.jpg'),
+                  ),
+                  SizedBox(width: 8.0),
+                  Text(
+                    eventname ?? '',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                ],
               ),
-              SizedBox(width: 8.0),
+              SizedBox(height: 8.0),
               Text(
-                profileName ?? '',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                text,
+                style: const TextStyle(fontSize: 23.0),
               ),
-              SizedBox(width: 16.0),
-              CircleAvatar(
-                radius: 15,
-                backgroundImage: AssetImage('assets/sponsite_white.jpg'),
-              ),
-              SizedBox(width: 8.0),
-              Text(
-                eventname ?? '',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-              ),
+              SizedBox(height: 8.0),
+              if (imageUrl != '')
+                InkWell(
+                  onTap: () {
+                    // When the image is tapped, show the popup
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ImagePopupScreen(imageUrl: imageUrl!),
+                      ),
+                    );
+                  },
+                  child: Image.network(
+                    imageUrl!,
+                    height: 300.0,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
             ],
           ),
-          SizedBox(height: 8.0),
-          Text(
-            text,
-            style: const TextStyle(fontSize: 23.0),
-          ),
-          SizedBox(height: 8.0),
-          if (imageUrl != '')
-            InkWell(
-              onTap: () {
-                // When the image is tapped, show the popup
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ImagePopupScreen(imageUrl: imageUrl!),
-                  ),
-                );
+          Positioned(
+            top: 0,
+            right: 0,
+            child: IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: () {
+                // Implement your delete logic here
+                // For example, you can show a confirmation dialog
+                // and then delete the post if the user confirms.
               },
-              child: Image.network(
-                imageUrl!,
-                height: 300.0,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
             ),
+          ),
         ],
       ),
     );
   }
 }
-
-// class Post {
-//   final String text;
-//   final String? imageUrl;
-//   final String profilePicUrl;
-//   final String profileName;
-//   final String eventname;
-
-//   Post({
-//     required this.text,
-//     this.imageUrl,
-//     required this.profilePicUrl,
-//     required this.profileName,
-//     required this.eventname,
-//   });
-// }
-
-// class PostContainer extends StatelessWidget {
-//   final String text;
-//   final String? imageUrl;
-//   final String profilePicUrl;
-//   final String profileName;
-//   final String eventname;
-
-//   PostContainer({
-//     required this.text,
-//     this.imageUrl,
-//     required this.profilePicUrl,
-//     required this.profileName,
-//     required this.eventname,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       margin: const EdgeInsets.all(16.0),
-//       padding: const EdgeInsets.all(16.0),
-//       decoration: BoxDecoration(
-//         border: Border.all(color: Colors.grey),
-//         borderRadius: BorderRadius.circular(8.0),
-//       ),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Row(
-//             children: [
-//               CircleAvatar(
-//                 radius: 25,
-//                 backgroundImage: NetworkImage(profilePicUrl),
-//                 // Add a placeholder image or default image if profilePicUrl is null
-//                 // backgroundImage: profilePicUrl != null
-//                 //     ? NetworkImage(profilePicUrl)
-//                 //     : AssetImage('assets/default_profile_pic.png'),
-//               ),
-//               SizedBox(width: 8.0),
-//               Text(
-//                 profileName ?? '',
-//                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-//               ),
-//               SizedBox(width: 16.0), // Adjust the spacing as needed
-//               CircleAvatar(
-//                   radius: 15,
-//                   backgroundImage:
-//                       AssetImage('assets/Spo_site__1_-removebg-preview.png')),
-//               SizedBox(width: 8.0),
-//               Text(
-//                 eventname ?? '',
-//                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-//               ),
-//             ],
-//           ),
-//           SizedBox(height: 8.0),
-//           Text(
-//             text,
-//             style: const TextStyle(fontSize: 23.0),
-//           ),
-//           if (imageUrl != '')
-//             Image.network(
-//               imageUrl!,
-//               height: 300.0,
-//               width: double.infinity,
-//               fit: BoxFit.cover,
-//             ),
-//         ],
-//       ),
-//     );
-//   }
-// }
 
 class _ProfileInfoRow extends StatelessWidget {
   _ProfileInfoRow(List<SocialMediaAccount> this._items, {Key? key})
