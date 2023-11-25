@@ -71,9 +71,10 @@ class _Rating extends State<Rating> {
                 sponsorName: 'krkr',
                 sponsorImage: '',
                 status: value['Status'] as String? ?? 'Pending',
-                ratings: value['ratings'] != null
-                    ? (value['ratings'] as num).toDouble()
-                    : null,
+            //    ratings: (value['sponsorRating'] as num).toDouble() 
+ ratings: value['sponsorRating'] != null
+                  ? (value['sponsorRating'] as num).toDouble()
+                   : null,
               ));
             } catch (e) {
               print('Error parsing timestamp: $e');
@@ -101,6 +102,8 @@ class _Rating extends State<Rating> {
       }
     });
   }
+
+  late double newRate ; 
 Widget _buildOfferCard(Offer offer) {
   return Container(
     margin: EdgeInsets.all(10),
@@ -159,38 +162,12 @@ Widget _buildOfferCard(Offer offer) {
                   ),
                   SizedBox(height: 5),
                   Row(
+                    
     
                     children: [
-                      Padding(  padding: const EdgeInsets.only(left: 400,top: 40)), 
-                      if (offer.ratings!= null)
-                      Column(
-  children: [
-    Text(
-      'Rated with',
-      style: TextStyle(
-        fontSize: 20,
-        color: Colors.black,
-      ),
-    ),
-    Row(
-      children: [
-        Icon(
-          Icons.star,
-          color: Colors.yellow,
-        ),
-        Text(
-          ' ${offer.ratings}',
-          style: TextStyle(
-            fontSize: 18,
-            color: Color.fromARGB(255, 51, 45, 81),
-          ),
-        ),
-      ],
-    ),
-  ],
-),
-
-                      if (offer.ratings == null)
+                      
+                      Padding(  padding: const EdgeInsets.only(left: 334,top: 40)), 
+                       if (offer.ratings == null)
                         Column(
   children: [
     Row(
@@ -208,13 +185,10 @@ Widget _buildOfferCard(Offer offer) {
             Icons.star,
             color: Colors.amber,
           ),
-          onRatingUpdate: (rating) {
-            setState(() {
-              offer.ratings = rating;
-            });
-            // Add the rating to the database
-            _submitRating(offer);
-          },
+         onRatingUpdate: (rating) {
+  newRate = rating ; 
+},
+
         ),
       ],
     ),
@@ -223,8 +197,8 @@ Widget _buildOfferCard(Offer offer) {
       children: [
         ElevatedButton(
           onPressed: () {
-            // Add the rating to the database
-            _submitRating(offer);
+          _submitRating(offer, newRate) ; 
+            newRate = 0 ; 
           },
           style: ElevatedButton.styleFrom(
             primary: const Color.fromARGB(255, 91, 79, 158),
@@ -250,6 +224,40 @@ Widget _buildOfferCard(Offer offer) {
     ),
   ],
 ),
+                      if (offer.ratings!= null)
+                      
+                      Column(
+                        
+  children: [
+    
+   
+    Row(
+      children: [
+        Text(
+          'Rated with:',
+          style: TextStyle(
+            fontSize: 26,
+            color: Colors.black , 
+          ),
+        ),
+        Icon(
+          Icons.star,
+          color: Colors.yellow,
+          size: 30,
+        ),
+        Text(
+          ' ${offer.ratings}',
+          style: TextStyle(
+            fontSize: 26,
+            color: Colors.black,
+          ),
+        ),
+      ],
+    ),
+  ],
+),
+
+                     
 
                     ],
                   ),
@@ -263,14 +271,15 @@ Widget _buildOfferCard(Offer offer) {
   );
 }
 
-  void _submitRating(Offer offer) async {
+
+  void _submitRating(Offer offer,double rating) async {
     try {
       final DatabaseReference database = FirebaseDatabase.instance.ref();
       final DatabaseReference offerRef =
           database.child('offers').child(offer.offerId);
 
       // Update the rating in the 'offers' node
-      await offerRef.child('rating').set(offer.ratings);
+      await offerRef.child('sponsorRating').set(rating);
 
       // Perform any additional actions or UI updates as needed
 
