@@ -38,6 +38,7 @@ class _SponsorProfileState extends State<SponsorProfile> {
   }
 
   void deleteUserAccount() async {
+    check();
     final user = await FirebaseAuth.instance.currentUser;
     var cred = null;
 
@@ -52,6 +53,15 @@ class _SponsorProfileState extends State<SponsorProfile> {
     user!.reauthenticateWithCredential(cred).then((value) {
       user.delete().then((_) {
         //Success, do something
+        DatabaseReference del =
+            FirebaseDatabase.instance.ref().child('Sponsors').child(sponsorID!);
+        del.update({
+          'Picture':
+              'https://firebasestorage.googleapis.com/v0/b/sponsite-6a696.appspot.com/o/user_images%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1.jpg?alt=media&token=4e08e9f5-d526-4d2c-817b-11f9208e9b52',
+              'Bio':'This user deleted their account',
+               'Social Media':null,
+        });
+        // del.remove();
         Navigator.pop(context);
         _currentpasswordController.clear();
         wrongpass = false;
@@ -189,8 +199,15 @@ class _SponsorProfileState extends State<SponsorProfile> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Password'),
+          title: Text('Password',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+          ),
           content: _buildChangePasswordForm(), // Call your function here
+          backgroundColor: Colors.white,
+          elevation: 0, // Remove the shadow
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -204,9 +221,33 @@ class _SponsorProfileState extends State<SponsorProfile> {
                 style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
               ),
             ),
-            TextButton(
-              onPressed: () {
-                wrongpass = false;
+             ElevatedButton(
+                child: const Text("Delete",
+                    style:
+                        TextStyle(color: Color.fromARGB(255, 242, 241, 241))),
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        const Color.fromARGB(255, 51, 45, 81)),
+                    //Color.fromARGB(255, 207, 186, 224),), // Background color
+                    textStyle: MaterialStateProperty.all<TextStyle>(
+                        const TextStyle(fontSize: 16)), // Text style
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                        const EdgeInsets.all(16)), // Padding
+                    elevation:
+                        MaterialStateProperty.all<double>(1), // Elevation
+                    shape: MaterialStateProperty.all<OutlinedBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(10), // Border radius
+                        side: const BorderSide(
+                            color: Color.fromARGB(
+                                255, 255, 255, 255)), // Border color
+                      ),
+                    ),
+                    minimumSize:
+                        MaterialStateProperty.all<Size>(const Size(200, 50))),
+                onPressed: () async {
+                   wrongpass = false;
                 // Implement your password change logic here
                 if (!_formKeyPass.currentState!.validate()) {
                   print('here');
@@ -214,17 +255,14 @@ class _SponsorProfileState extends State<SponsorProfile> {
                 }
 
                 deleteUserAccount();
-
-                // Navigator.of(context).pop();
-              },
-              child: Text('Save',
-                  style: TextStyle(color: Color.fromARGB(255, 51, 45, 81))),
-            ),
+                })
+            
           ],
         );
       },
     );
   }
+
 
   Widget _buildChangePasswordForm() {
     return Column(
