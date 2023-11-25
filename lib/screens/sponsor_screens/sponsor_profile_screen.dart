@@ -58,8 +58,8 @@ class _SponsorProfileState extends State<SponsorProfile> {
         del.update({
           'Picture':
               'https://firebasestorage.googleapis.com/v0/b/sponsite-6a696.appspot.com/o/user_images%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1.jpg?alt=media&token=4e08e9f5-d526-4d2c-817b-11f9208e9b52',
-              'Bio':'This user deleted their account',
-               'Social Media':null,
+          'Bio': 'This user deleted their account',
+          'Social Media': null,
         });
         // del.remove();
         Navigator.pop(context);
@@ -199,7 +199,8 @@ class _SponsorProfileState extends State<SponsorProfile> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Password',
+          title: Text(
+            'Password',
             style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
           ),
           content: _buildChangePasswordForm(), // Call your function here
@@ -221,7 +222,7 @@ class _SponsorProfileState extends State<SponsorProfile> {
                 style: TextStyle(color: Color.fromARGB(255, 51, 45, 81)),
               ),
             ),
-             ElevatedButton(
+            ElevatedButton(
                 child: const Text("Delete",
                     style:
                         TextStyle(color: Color.fromARGB(255, 242, 241, 241))),
@@ -247,22 +248,20 @@ class _SponsorProfileState extends State<SponsorProfile> {
                     minimumSize:
                         MaterialStateProperty.all<Size>(const Size(200, 50))),
                 onPressed: () async {
-                   wrongpass = false;
-                // Implement your password change logic here
-                if (!_formKeyPass.currentState!.validate()) {
-                  print('here');
-                  return;
-                }
+                  wrongpass = false;
+                  // Implement your password change logic here
+                  if (!_formKeyPass.currentState!.validate()) {
+                    print('here');
+                    return;
+                  }
 
-                deleteUserAccount();
+                  deleteUserAccount();
                 })
-            
           ],
         );
       },
     );
   }
-
 
   Widget _buildChangePasswordForm() {
     return Column(
@@ -349,6 +348,7 @@ class _SponsorProfileState extends State<SponsorProfile> {
               String POSTid = key;
 
               posts.add(Post(
+                id: POSTid,
                 text: value['notes'] as String? ?? '',
                 imageUrl: value['img'] as String? ?? '',
                 profilePicUrl: profilePicUrl,
@@ -737,6 +737,7 @@ class _SponsorProfileState extends State<SponsorProfile> {
                           return Column(
                             children: [
                               PostContainer(
+                                id: post.id,
                                 text: post.text,
                                 imageUrl: post.imageUrl,
                                 profilePicUrl: post.profilePicUrl,
@@ -799,6 +800,7 @@ class ImagePopupScreen extends StatelessWidget {
 }
 
 class Post {
+  final String? id;
   final String text;
   final String? imageUrl;
   final String profilePicUrl;
@@ -806,6 +808,7 @@ class Post {
   final String eventname;
 
   Post({
+    required this.id,
     required this.text,
     this.imageUrl,
     required this.profilePicUrl,
@@ -815,6 +818,7 @@ class Post {
 }
 
 class PostContainer extends StatelessWidget {
+  final String? id;
   final String text;
   final String? imageUrl;
   final String profilePicUrl;
@@ -822,12 +826,83 @@ class PostContainer extends StatelessWidget {
   final String eventname;
 
   PostContainer({
+    required this.id,
     required this.text,
     this.imageUrl,
     required this.profilePicUrl,
     required this.profileName,
     required this.eventname,
   });
+  Future<void> _showDeletePostConfirmation(BuildContext context) async {
+    DatabaseReference dbRef = FirebaseDatabase.instance.ref().child('posts');
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Post Confirmation'),
+          content: const Text(
+            'Are you sure you want to delete this post?                                   ',
+            style: TextStyle(fontSize: 20),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                    color: Color.fromARGB(255, 51, 45, 81), fontSize: 20),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                print("post id is $id");
+                dbRef.child(id!).remove().then((_) {
+                  // Handle successful deletion
+                  Navigator.of(context).pop(); // Close the confirmation dialog
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      Future.delayed(const Duration(seconds: 3), () {
+                        Navigator.of(context).pop(true);
+                      });
+                      return AlertDialog(
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              color: const Color.fromARGB(255, 91, 79, 158),
+                              size: 48,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'Post deleted successfully!',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                  // Future.delayed(Duration(seconds: 2), () {
+                  //   Navigator.of(context).pop(); // Close the success dialog
+                  // });
+                });
+              },
+              child: const Text('Delete',
+                  style: TextStyle(
+                      color: Color.fromARGB(255, 51, 45, 81), fontSize: 20)),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -838,56 +913,74 @@ class PostContainer extends StatelessWidget {
         border: Border.all(color: Colors.grey),
         borderRadius: BorderRadius.circular(8.0),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Row(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 25,
-                backgroundImage: NetworkImage(profilePicUrl),
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 25,
+                    backgroundImage: NetworkImage(profilePicUrl),
+                  ),
+                  SizedBox(width: 8.0),
+                  Text(
+                    profileName ?? '',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                  SizedBox(width: 16.0),
+                  CircleAvatar(
+                    radius: 15,
+                    backgroundImage: AssetImage('assets/sponsite_white.jpg'),
+                  ),
+                  SizedBox(width: 8.0),
+                  Text(
+                    eventname ?? '',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                ],
               ),
-              SizedBox(width: 8.0),
+              SizedBox(height: 8.0),
               Text(
-                profileName ?? '',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                text,
+                style: const TextStyle(fontSize: 23.0),
               ),
-              SizedBox(width: 16.0),
-              CircleAvatar(
-                radius: 15,
-                backgroundImage: AssetImage('assets/sponsite_white.jpg'),
-              ),
-              SizedBox(width: 8.0),
-              Text(
-                eventname ?? '',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-              ),
+              SizedBox(height: 8.0),
+              if (imageUrl != '')
+                InkWell(
+                  onTap: () {
+                    // When the image is tapped, show the popup
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ImagePopupScreen(imageUrl: imageUrl!),
+                      ),
+                    );
+                  },
+                  child: Image.network(
+                    imageUrl!,
+                    height: 300.0,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
             ],
           ),
-          SizedBox(height: 8.0),
-          Text(
-            text,
-            style: const TextStyle(fontSize: 23.0),
-          ),
-          SizedBox(height: 8.0),
-          if (imageUrl != '')
-            InkWell(
-              onTap: () {
-                // When the image is tapped, show the popup
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ImagePopupScreen(imageUrl: imageUrl!),
-                  ),
-                );
+          Positioned(
+            top: 0,
+            right: 0,
+            child: IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: () {
+                _showDeletePostConfirmation(context);
+                // Implement your delete logic here
+                // For example, you can show a confirmation dialog
+                // and then delete the post if the user confirms.
               },
-              child: Image.network(
-                imageUrl!,
-                height: 300.0,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
             ),
+          ),
         ],
       ),
     );
