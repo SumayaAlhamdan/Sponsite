@@ -203,7 +203,7 @@ class _SponseeHomeState extends State<SponseeHome> {
         allSponsors.sort((a, b) => b.rate.compareTo(a.rate));
 
         setState(() {
-          int displayCount = allSponsors.length < 10 ? allSponsors.length : 10;
+          int displayCount = allSponsors.length < 15 ? allSponsors.length : 15;
           sponsors = List<Sponsor>.from(allSponsors.getRange(0, displayCount));
           print(sponsors);
         });
@@ -304,7 +304,7 @@ class _SponseeHomeState extends State<SponseeHome> {
                         ],
                       ),
                     ),
-                    height: 200.0,
+                    height: 70.0,
                   ),
                 ),
               ],
@@ -354,6 +354,7 @@ class _SponseeHomeState extends State<SponseeHome> {
                 ),
               ),
             ),
+            const SizedBox(height: 20),
             if (sponsors.isEmpty)
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -377,9 +378,9 @@ class _SponseeHomeState extends State<SponseeHome> {
                       shrinkWrap: true,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
+                        crossAxisCount: 3,
                         childAspectRatio: 1,
-                        crossAxisSpacing: 8,
+                        crossAxisSpacing: 9,
                         mainAxisSpacing: 9,
                       ),
                       itemCount: sponsors.length,
