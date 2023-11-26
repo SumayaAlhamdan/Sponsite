@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sponsite/screens/Rating.dart';
+import 'package:intl/intl.dart';
 
 import 'package:sponsite/screens/calendar.dart';
 import 'package:sponsite/screens/postEvent.dart';
@@ -42,6 +43,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
   bool invalidEmail = false;
   bool wrongpass = false;
   bool addLink = false;
+   List<Event> events = [];
   String selectedApp = 'Selecet Platform';
   List<String> socialMediaApps = [
     'github',
@@ -67,7 +69,80 @@ class _SponseeProfileState extends State<SponseeProfile> {
     check();
     final user = await FirebaseAuth.instance.currentUser;
     var cred = null;
+    // List<String> events=[];
+ final DatabaseReference dbRef =
+      FirebaseDatabase.instance.ref().child('sponseeEvents');
+  dbRef.onValue.listen((event) {
+      if (event.snapshot.value != null) {
+        setState(() {
+          events.clear();
+          Map<dynamic, dynamic> eventData =
+              event.snapshot.value as Map<dynamic, dynamic>;
+          eventData.forEach((key, value) {
+            var categoryList = (value['Category'] as List<dynamic>)
+                .map((category) => category.toString())
+                .toList();
 
+            if (value['SponseeID'] == sponseeID) {
+              // Use key as EVENTid for the current event
+              String EVENTid = key;
+              //  print("The key value is " + key);
+              //print("the var value is : ");
+              //print(EVENTid);
+
+              String timestampString = value['TimeStamp'] as String;
+
+              events.add(Event(
+                EventName: value['EventName'] as String? ?? '',
+                EventType: value['EventType'] as String? ?? '',
+                location: value['Location'] as String? ?? '',
+                description: value['Description'] as String? ?? '',
+                imgURL: value['img'] as String? ??
+                    'https://png.pngtree.com/templates/sm/20180611/sm_5b1edb6d03c39.jpg',
+                startDate: value['startDate'] as String? ?? '',
+                endDate: value['endDate'] as String? ?? '',
+                startTime: value['startTime'] as String? ?? '',
+                endTime: value['endTime'] as String? ?? '',
+                notes:
+                    value['Notes'] as String? ?? 'There are no notes available',
+                benefits: value['Benefits'] as String? ?? '',
+                NumberOfAttendees: value['NumberOfAttendees'] as String? ?? '',
+                Category: categoryList,
+                EVENTid: EVENTid,
+                timeStamp: timestampString,
+                // Assign the EVENTid to the Event object
+              ));
+            }
+          });
+          events.sort((a, b) => b.timeStamp.compareTo(a.timeStamp));
+        });
+      }
+    });
+    DateTime parseEventDateAndTime(String date, String time) {
+  final dateTimeString = '$date $time';
+  final format = DateFormat('yyyy-MM-dd hh:mm');
+  print(format.parse(dateTimeString));
+  return format.parse(dateTimeString);
+}
+final now = DateTime.now();
+  print(now);
+final filteredEvents = events.where((event) {
+  final eventDateTime = parseEventDateAndTime(event.endDate, event.startTime);
+  return eventDateTime.isAfter(now);
+}).toList();
+if(filteredEvents.isNotEmpty){
+  print("1111111111111111");
+  filteredEvents.forEach((event) {
+  print('Event ID: ${event.EVENTid}');
+  print('Event Name: ${event.EventName}');
+  // Add more properties as needed
+  print('-----------------------');
+});
+   Navigator.pop(context);
+_showCantDeleteDialog(context);
+return;
+// print("1222222222222211");
+}
     if (user != null) {
       final email = user.email; // This will give you the user's email
       cred = EmailAuthProvider.credential(
@@ -75,7 +150,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
         password: _currentpasswordController.text,
       );
     }
-
+ print("333333333");
     user!.reauthenticateWithCredential(cred).then((value) {
       user.delete().then((_) {
         //Success, do something
@@ -468,7 +543,55 @@ class _SponseeProfileState extends State<SponseeProfile> {
     );
   }
 
-  Future<void> _showDeleteAccountConfirmationDialog(
+  //Future<void> _showDeleteAccountConfirmationDialog(
+  Future<void> _showCantDeleteDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Cannot Delete Account',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+          ),
+          content: const Text(
+            'You cannot delete your account because you have ongoing events                       ',
+            //style: TextStyle(fontSize: 20),
+          ),
+          backgroundColor: Colors.white,
+          elevation: 0, // Remove the shadow
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text(
+                'Ok',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 51, 45, 81),
+                ),
+              ),
+            ),
+            // TextButton(
+            //   onPressed: () async {
+            //     // Sign out the user
+            //     await FirebaseAuth.instance.signOut();
+            //     Navigator.of(context).pop();
+            //     // Close the dialog
+            //   },
+            //   child: const Text('Sign Out',
+            //       style: TextStyle(
+            //           color: Color.fromARGB(255, 51, 45, 81), fontSize: 20)),
+            // ),
+           
+          ],
+        );
+      },
+    );
+  }
+   Future<void> _showDeleteAccountConfirmationDialog(
       BuildContext context) async {
     return showDialog<void>(
       context: context,
@@ -1098,5 +1221,41 @@ class SocialMediaAccount {
   SocialMediaAccount({
     required this.title,
     required this.link,
+  });
+}
+
+class Event {
+  final String EventName;
+  final String EventType;
+  final String location;
+  final String description;
+  final String imgURL;
+  final String startDate;
+  final String endDate;
+  final String startTime;
+  final String endTime;
+  final String notes;
+  final String? benefits;
+  final String NumberOfAttendees;
+  final List<String> Category;
+  final String EVENTid;
+  final String timeStamp;
+
+  Event({
+    required this.EventName,
+    required this.EventType,
+    required this.location,
+    required this.description,
+    required this.imgURL,
+    required this.startDate,
+    required this.endDate,
+    required this.startTime,
+    required this.endTime,
+    required this.Category,
+    required this.NumberOfAttendees,
+    required this.notes,
+    this.benefits,
+    required this.EVENTid,
+    required this.timeStamp,
   });
 }

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:googleapis/serviceusage/v1.dart';
+import 'package:intl/intl.dart';
 import 'package:sponsite/screens/sponsor_screens/sponsor_edit_profile.dart';
 import 'package:sponsite/widgets/user_image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -27,7 +28,12 @@ class _SponsorProfileState extends State<SponsorProfile> {
   final TextEditingController _currentpasswordController =
       TextEditingController();
   bool wrongpass = false;
-
+List<Event> events = [];
+  List<Offer> offers = [];
+  final DatabaseReference dbEvents =
+      FirebaseDatabase.instance.reference().child('sponseeEvents');
+  final DatabaseReference dbOffers =
+      FirebaseDatabase.instance.reference().child('offers');
   void check() {
     if (user != null) {
       sponsorID = user?.uid;
@@ -42,6 +48,129 @@ class _SponsorProfileState extends State<SponsorProfile> {
     final user = await FirebaseAuth.instance.currentUser;
     var cred = null;
 
+  await dbOffers.once().then((offer) {
+    if (offer.snapshot.value != null) {
+      setState(() {
+        offers.clear();
+        Map<dynamic, dynamic> offersData =
+            offer.snapshot.value as Map<dynamic, dynamic>;
+        offersData.forEach((key, value) {
+          var categoryList = (value['Category'] as List<dynamic>)
+              .map((category) => category.toString())
+              .toList();
+          if (value['sponsorId'] == sponsorID) {
+            offers.add(Offer(
+              EventId: value['EventId'] as String? ?? '',
+              sponsorId: value['sponsorId'] as String,
+              sponseeId: value['sponseeId'] as String,
+              notes: value['notes'] as String? ?? '',
+              Category: categoryList,
+              status: value['Status'] as String? ?? '',
+            ));
+          }
+        });
+      });
+    }
+  });
+
+ 
+         setState(() {
+            final DatabaseReference database = FirebaseDatabase.instance.ref();
+            dbEvents.onValue.listen((event) {
+              if (event.snapshot.value != null) {
+                setState(() {
+                  events.clear();
+                  Map<dynamic, dynamic> eventData =
+                      event.snapshot.value as Map<dynamic, dynamic>;
+
+                  eventData.forEach((key, value) {
+                    // Check if value['Category'] is a listي
+                    List<String> categoryList = [];
+                    if (value['Category'] is List<dynamic>) {
+                      categoryList = (value['Category'] as List<dynamic>)
+                          .map((category) => category.toString())
+                          .toList();
+                    }
+                    String timestampString = value['TimeStamp'] as String;
+                    String eventStartDatestring = value['startDate'];
+                    String eventEndtDatestring = value['endDate'];
+                    DateTime? eventStartDate =
+                        DateTime.tryParse(eventStartDatestring);
+                    DateTime? eventEndDate =
+                        DateTime.tryParse(eventEndtDatestring);
+
+                    // Simulate the current time (for testing purposes)
+                    DateTime currentTime = DateTime.now();
+
+                  
+                      events.add(Event(
+                        EventId: key,
+                        EventName: value['EventName'] as String? ?? '',
+                        sponseeId: value['SponseeID'] as String? ?? '', 
+                        EventType: value['EventType'] as String? ?? '',
+                        location: value['Location'] as String? ?? '',
+                        imgURL: value['img'] as String? ?? "",
+                        startDate: value['startDate'] as String? ?? '',
+                        endDate: value['endDate'] as String? ?? '',
+                        startTime: value['startTime'] as String? ?? ' ',
+                        endTime: value['endTime'] as String? ?? ' ',
+                        Category: categoryList,
+                        description: value['description'] as String? ?? ' ',
+                        notes: value['Notes'] as String? ??
+                            'There are no notes available',
+                        benefits: value['Benefits'] as String?,
+                        NumberOfAttendees:
+                            value['NumberOfAttendees'] as String? ?? '',
+                        timeStamp: timestampString, 
+                                  sponseeImage: '',
+                              sponseeName: '',// Store the timestamp
+                      ));
+                    }
+                  );
+                });
+              }
+              // Sort events based on the timeStamp (descending order)
+              events.sort((a, b) => b.timeStamp.compareTo(a.timeStamp));
+            });
+ });
+
+ 
+        
+     DateTime parseEventDateAndTime(String date, String time) {
+    final dateTimeString = '$date $time';
+    final format = DateFormat('yyyy-MM-dd hh:mm');
+    return format.parse(dateTimeString);
+  }
+
+  final now = DateTime.now();
+  final filteredEvents = events.where((event) {
+    final eventDateTime = parseEventDateAndTime(event.endDate, event.startTime);
+    return eventDateTime.isAfter(now);
+  }).toList();
+
+ final filteredEventsWithOffers = filteredEvents.where((event) {
+  return offers.any((offer) => offer.EventId == event.EventId);
+}).toList();
+print(filteredEventsWithOffers.length);
+filteredEventsWithOffers.forEach((event) {
+  print('Event ID: ${event.EventId}');
+  print('Event Name: ${event.EventName}');
+  // Add more properties as needed
+  print('-----------------------');
+});
+if(filteredEventsWithOffers.isNotEmpty){
+  print(filteredEventsWithOffers);
+  print("1111111111111111");
+   Navigator.pop(context);
+_showCantDeleteDialog(context);
+return;
+}
+ print("77777777777");
+  //    bool _isEventAssociatedWithSponsor(String eventId, String? sponsorID) {
+  //   // Check if there is an offer with the specified EventId and sponsorId
+  //   return offers.any(
+  //       (offer) => offer.EventId == eventId && offer.sponsorId == sponsorID);
+  // }
     if (user != null) {
       final email = user.email; // This will give you the user's email
       cred = EmailAuthProvider.credential(
@@ -49,67 +178,66 @@ class _SponsorProfileState extends State<SponsorProfile> {
         password: _currentpasswordController.text,
       );
     }
-
     user!.reauthenticateWithCredential(cred).then((value) {
-      user.delete().then((_) {
-        //Success, do something
-        DatabaseReference del =
-            FirebaseDatabase.instance.ref().child('Sponsors').child(sponsorID!);
-        del.update({
-          'Picture':
-              'https://firebasestorage.googleapis.com/v0/b/sponsite-6a696.appspot.com/o/user_images%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1.jpg?alt=media&token=4e08e9f5-d526-4d2c-817b-11f9208e9b52',
-          'Bio': 'This user deleted their account',
-          'Social Media': null,
-        });
-        // del.remove();
-        Navigator.pop(context);
-        _currentpasswordController.clear();
-        wrongpass = false;
-        showDialog(
-          context: context,
-          builder: (context) {
-            Future.delayed(const Duration(seconds: 3), () {
-              Navigator.of(context).pop(true);
-            });
-            return Theme(
-              data: Theme.of(context)
-                  .copyWith(dialogBackgroundColor: Colors.white),
-              child: AlertDialog(
-                backgroundColor: Colors.white,
-                shape: BeveledRectangleBorder(
-                    borderRadius: BorderRadius.circular(2)),
-                content: const Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.check_circle,
-                      color: Color.fromARGB(255, 91, 79, 158),
-                      size: 48,
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'Account deleted successfully!',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      }).catchError((error) {
-        //Error, show something
-        // setState(() {
-        //    isChangeing = false;
-        //   weakPass = true;
-        //   Navigator.of(context).pop();
-        //   _showChangePasswordDialog(context);
-        // });
-        return;
-      });
+      // user.delete().then((_) {
+      //   //Success, do something
+      //   DatabaseReference del =
+      //       FirebaseDatabase.instance.ref().child('Sponsors').child(sponsorID!);
+      //   del.update({
+      //     'Picture':
+      //         'https://firebasestorage.googleapis.com/v0/b/sponsite-6a696.appspot.com/o/user_images%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1.jpg?alt=media&token=4e08e9f5-d526-4d2c-817b-11f9208e9b52',
+      //         'Bio':'This user deleted their account',
+      //          'Social Media':null,
+      //   });
+      //   // del.remove();
+      //   Navigator.pop(context);
+      //   _currentpasswordController.clear();
+      //   wrongpass = false;
+      //   showDialog(
+      //     context: context,
+      //     builder: (context) {
+      //       Future.delayed(const Duration(seconds: 3), () {
+      //         Navigator.of(context).pop(true);
+      //       });
+      //       return Theme(
+      //         data: Theme.of(context)
+      //             .copyWith(dialogBackgroundColor: Colors.white),
+      //         child: AlertDialog(
+      //           backgroundColor: Colors.white,
+      //           shape: BeveledRectangleBorder(
+      //               borderRadius: BorderRadius.circular(2)),
+      //           content: const Column(
+      //             mainAxisSize: MainAxisSize.min,
+      //             children: [
+      //               Icon(
+      //                 Icons.check_circle,
+      //                 color: Color.fromARGB(255, 91, 79, 158),
+      //                 size: 48,
+      //               ),
+      //               SizedBox(height: 16),
+      //               Text(
+      //                 'Account deleted successfully!',
+      //                 style: TextStyle(
+      //                   color: Colors.black,
+      //                   fontSize: 20,
+      //                 ),
+      //               ),
+      //             ],
+      //           ),
+      //         ),
+      //       );
+      //     },
+      //   );
+      // }).catchError((error) {
+      //   //Error, show something
+      //   // setState(() {
+      //   //    isChangeing = false;
+      //   //   weakPass = true;
+      //   //   Navigator.of(context).pop();
+      //   //   _showChangePasswordDialog(context);
+      //   // });
+      //   return;
+      // });
     }).catchError((err) {
       setState(() {
         // isChangeing = false;
@@ -192,6 +320,53 @@ class _SponsorProfileState extends State<SponsorProfile> {
         });
       }
     });
+  }
+  Future<void> _showCantDeleteDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Cannot Delete Account',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+          ),
+          content: const Text(
+            'You cannot delete your account because you have ongoing events                       ',
+            //style: TextStyle(fontSize: 20),
+          ),
+          backgroundColor: Colors.white,
+          elevation: 0, // Remove the shadow
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text(
+                'Ok',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 51, 45, 81),
+                ),
+              ),
+            ),
+            // TextButton(
+            //   onPressed: () async {
+            //     // Sign out the user
+            //     await FirebaseAuth.instance.signOut();
+            //     Navigator.of(context).pop();
+            //     // Close the dialog
+            //   },
+            //   child: const Text('Sign Out',
+            //       style: TextStyle(
+            //           color: Color.fromARGB(255, 51, 45, 81), fontSize: 20)),
+            // ),
+           
+          ],
+        );
+      },
+    );
   }
 
   void _showChangePasswordDialog(BuildContext context) {
@@ -1077,5 +1252,65 @@ class SocialMediaAccount {
   SocialMediaAccount({
     required this.title,
     required this.link,
+  });
+}
+
+class Event {
+  final String EventId;
+  final String EventName;
+  final String sponseeId;
+  final String EventType;
+  final String location;
+  final String description;
+  final String imgURL;
+  final String startDate;
+  final String endDate;
+  final String startTime;
+  final String endTime;
+  final String notes;
+  final String? benefits;
+  final String NumberOfAttendees;
+  final List<String> Category;
+  final String timeStamp;
+   String sponseeName;
+   String sponseeImage;
+
+  Event({
+    required this.EventId,
+    required this.EventName,
+    required this.EventType,
+    required this.sponseeId,
+    required this.location,
+    required this.description,
+    required this.imgURL,
+    required this.startDate,
+    required this.endDate,
+    required this.startTime,
+    required this.endTime,
+    required this.Category,
+    required this.NumberOfAttendees,
+    required this.notes,
+    required this.timeStamp,
+    this.benefits,
+     required this.sponseeName,
+     required this.sponseeImage,
+  });
+}
+
+class Offer {
+  final String EventId;
+  final String sponseeId;
+  final String sponsorId;
+  final List<String> Category;
+  final String notes;
+  final String status;
+
+  Offer({
+    required this.EventId,
+    required this.sponseeId,
+    required this.sponsorId,
+    required this.Category,
+    required this.notes,
+    required this.status,
   });
 }
