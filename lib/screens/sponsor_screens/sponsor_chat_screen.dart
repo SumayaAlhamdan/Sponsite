@@ -49,11 +49,28 @@ class _SponsorChatState extends State<SponsorChat> {
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return Center(
+            child: CircularProgressIndicator(),
+          );
         }
 
         if (!snapshot.hasData || snapshot.data?.snapshot.value == null) {
-          return Text('No data available');
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset('assets/Edit.png'),
+                SizedBox(height: 20),
+                Text(
+                  'No chatrooms available',
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: Color.fromARGB(255, 189, 189, 189),
+                  ),
+                ),
+              ],
+            ),
+          );
         }
 
         Map<dynamic, dynamic> offerData =

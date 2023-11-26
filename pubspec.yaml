@@ -106,6 +106,7 @@ flutter:
     - assets/Pack.png
     - assets/sponsite_white.jpg
     - assets/Write Content.png
+    - assets/Edit.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

@@ -222,8 +222,12 @@ class _ResultPageState extends State<ResultPage> {
                     'Bio': value['Bio'] ?? '',
                     'Picture': value['Picture'],
                     'Type': 'Sponsor',
+                    'Deleted': value['Deleted'] ?? false,
                   };
-                  if (user?.uid != data['ID']) Sponsors.add(data);
+                  if (user?.uid == data['ID'] || data['Deleted']) {
+                  } else {
+                    Sponsors.add(data);
+                  }
                 }
               });
             }
@@ -258,8 +262,13 @@ class _ResultPageState extends State<ResultPage> {
                     'Bio': value['Bio'] ?? '',
                     'Picture': value['Picture'],
                     'Type': 'Sponsee',
+                    'Deleted': value['Deleted'] ?? false,
                   };
-                  if (user?.uid != data['ID']) Sponsees.add(data);
+                  if (user?.uid == data['ID'] || data['Deleted']) {
+                    print('deleted or user');
+                  } else {
+                    Sponsees.add(data);
+                  }
                 }
               });
             }
@@ -272,19 +281,27 @@ class _ResultPageState extends State<ResultPage> {
     );
   }
 
-  void filterUsers(String text) {
-    text = text.trim();
+  void filterUsers(String searchText) {
+    // Trim leading and trailing whitespaces from the input text
+    searchText = searchText.trim();
 
+    // Update the state to trigger a rebuild with the filtered data
     setState(() {
-      filteredSponsors = sponsors
-          .where((user) =>
-              user['Name']?.toLowerCase().contains(text.toLowerCase()) == true)
-          .toList();
+      // Filter sponsors based on the 'Name' property
+      filteredSponsors = sponsors.where((user) {
+        final words = user['Name']?.split(' ') ?? [];
+        return words.any((word) =>
+            word.isNotEmpty &&
+            word.toLowerCase().startsWith(searchText.toLowerCase()));
+      }).toList();
 
-      filteredSponsees = sponsees
-          .where((user) =>
-              user['Name']?.toLowerCase().contains(text.toLowerCase()) == true)
-          .toList();
+      // Filter sponsees based on the 'Name' property
+      filteredSponsees = sponsees.where((user) {
+        final words = user['Name']?.split(' ') ?? [];
+        return words.any((word) =>
+            word.isNotEmpty &&
+            word.toLowerCase().startsWith(searchText.toLowerCase()));
+      }).toList();
     });
   }
 
