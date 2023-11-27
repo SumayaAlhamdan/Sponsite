@@ -48,7 +48,193 @@ List<Event> events = [];
     final user = await FirebaseAuth.instance.currentUser;
     var cred = null;
 
-  await dbOffers.once().then((offer) {
+  
+        
+     DateTime parseEventDateAndTime(String date, String time) {
+    final dateTimeString = '$date $time';
+    final format = DateFormat('yyyy-MM-dd hh:mm');
+    return format.parse(dateTimeString);
+  }
+
+  final now = DateTime.now();
+  final filteredEvents = events.where((event) {
+    final eventDateTime = parseEventDateAndTime(event.endDate, event.startTime);
+    return eventDateTime.isAfter(now);
+  }).toList();
+
+ final filteredEventsWithOffers = filteredEvents.where((event) {
+  return offers.any((offer) => offer.EventId == event.EventId);
+}).toList();
+print(filteredEventsWithOffers.length);
+filteredEventsWithOffers.forEach((event) {
+  print('Event ID: ${event.EventId}');
+  print('Event Name: ${event.EventName}');
+  // Add more properties as needed
+  print('-----------------------');
+});
+if(filteredEventsWithOffers.isNotEmpty){
+  print(filteredEventsWithOffers);
+  print("1111111111111111");
+   Navigator.pop(context);
+_showCantDeleteDialog(context);
+return;
+}
+ print("77777777777");
+  //    bool _isEventAssociatedWithSponsor(String eventId, String? sponsorID) {
+  //   // Check if there is an offer with the specified EventId and sponsorId
+  //   return offers.any(
+  //       (offer) => offer.EventId == eventId && offer.sponsorId == sponsorID);
+  // }
+    if (user != null) {
+      final email = user.email; // This will give you the user's email
+      cred = EmailAuthProvider.credential(
+        email: email!,
+        password: _currentpasswordController.text,
+      );
+    }
+    user!.reauthenticateWithCredential(cred).then((value) {
+      user.delete().then((_) {
+        //Success, do something
+        DatabaseReference del =
+            FirebaseDatabase.instance.ref().child('Sponsors').child(sponsorID!);
+        del.update({
+          'Picture':
+              'https://firebasestorage.googleapis.com/v0/b/sponsite-6a696.appspot.com/o/user_images%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1.jpg?alt=media&token=4e08e9f5-d526-4d2c-817b-11f9208e9b52',
+              'Bio':'This user deleted their account',
+               'Social Media':null,
+        });
+        // del.remove();
+        Navigator.pop(context);
+        _currentpasswordController.clear();
+        wrongpass = false;
+        showDialog(
+          context: context,
+          builder: (context) {
+            Future.delayed(const Duration(seconds: 3), () {
+              Navigator.of(context).pop(true);
+            });
+            return Theme(
+              data: Theme.of(context)
+                  .copyWith(dialogBackgroundColor: Colors.white),
+              child: AlertDialog(
+                backgroundColor: Colors.white,
+                shape: BeveledRectangleBorder(
+                    borderRadius: BorderRadius.circular(2)),
+                content: const Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      color: Color.fromARGB(255, 91, 79, 158),
+                      size: 48,
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Account deleted successfully!',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      }).catchError((error) {
+        //Error, show something
+        // setState(() {
+        //    isChangeing = false;
+        //   weakPass = true;
+        //   Navigator.of(context).pop();
+        //   _showChangePasswordDialog(context);
+        // });
+        return;
+      });
+    }).catchError((err) {
+      setState(() {
+        // isChangeing = false;
+        wrongpass = true;
+        Navigator.of(context).pop();
+        _showChangePasswordDialog(context);
+      });
+      return;
+    });
+  }
+  // Future<void> deleteUserAccount() async {
+  //   try {
+  //     var cred=null;
+  //     final user = await FirebaseAuth.instance.currentUser;
+  //     if (user != null) {
+  //       final email = user.email; // This will give you the user's email
+  //        cred = EmailAuthProvider.credential(
+  //         email: email!,
+  //         password: _currentpasswordController.text,
+  //       );
+  //     }
+  //     user!.reauthenticateWithCredential(cred);
+  //     await FirebaseAuth.instance.currentUser!.delete();
+  //   } on FirebaseAuthException catch (e) {
+  //     if (e.code == "requires-recent-login") {
+  //       print("errooooooooooor");
+  //     } else {
+  //       // Handle other Firebase exceptions
+  //     }
+  //   } catch (e) {
+  //     // Handle general exception
+  //   }
+  // }
+
+  void _loadProfileFromFirebase() async {
+    check();
+    DatabaseReference dbRef =
+        FirebaseDatabase.instance.ref().child('Sponsors').child(sponsorID!);
+
+    // Listen to the changes in the database reference
+    dbRef.onValue.listen((event) {
+      if (event.snapshot.value != null) {
+        setState(() {
+          // Clear the existing data in the list
+          sponsorList.clear();
+
+          Map<dynamic, dynamic> sponsorData =
+              event.snapshot.value as Map<dynamic, dynamic>;
+
+          // Parse social media accounts into a list of title-link pairs
+          List<SocialMediaAccount> socialMediaAccounts = [];
+          if (sponsorData.containsKey('Social Media')) {
+            Map<dynamic, dynamic> socialMediaData =
+                sponsorData['Social Media'] as Map<dynamic, dynamic>;
+            socialMediaData.forEach((title, link) {
+              socialMediaAccounts.add(SocialMediaAccount(
+                title: title as String? ?? '',
+                link: link as String? ?? '',
+              ));
+            });
+          }
+          // print(socialMediaAccounts[0].link);
+          // print(socialMediaAccounts[0].title);
+          // print(sponsorData);
+          // Create a sponsor object and add it to the list
+          SponsorProfileInfo sponsor = SponsorProfileInfo(
+              name: sponsorData['Name'] as String? ?? '',
+              bio: sponsorData['Bio'] as String? ?? '',
+              pic: sponsorData['Picture'] as String? ?? '',
+              social: socialMediaAccounts
+
+              // Add other fields as needed
+              );
+
+          sponsorList.add(sponsor);
+          profilePicUrl = sponsor.pic;
+          profileName = sponsor.name;
+          // print(sponsorList);
+          // print(sponsorList.first.social.first.link);
+        });
+      }
+    });
+    await dbOffers.once().then((offer) {
     if (offer.snapshot.value != null) {
       setState(() {
         offers.clear();
@@ -135,191 +321,6 @@ List<Event> events = [];
  });
 
  
-        
-     DateTime parseEventDateAndTime(String date, String time) {
-    final dateTimeString = '$date $time';
-    final format = DateFormat('yyyy-MM-dd hh:mm');
-    return format.parse(dateTimeString);
-  }
-
-  final now = DateTime.now();
-  final filteredEvents = events.where((event) {
-    final eventDateTime = parseEventDateAndTime(event.endDate, event.startTime);
-    return eventDateTime.isAfter(now);
-  }).toList();
-
- final filteredEventsWithOffers = filteredEvents.where((event) {
-  return offers.any((offer) => offer.EventId == event.EventId);
-}).toList();
-print(filteredEventsWithOffers.length);
-filteredEventsWithOffers.forEach((event) {
-  print('Event ID: ${event.EventId}');
-  print('Event Name: ${event.EventName}');
-  // Add more properties as needed
-  print('-----------------------');
-});
-if(filteredEventsWithOffers.isNotEmpty){
-  print(filteredEventsWithOffers);
-  print("1111111111111111");
-   Navigator.pop(context);
-_showCantDeleteDialog(context);
-return;
-}
- print("77777777777");
-  //    bool _isEventAssociatedWithSponsor(String eventId, String? sponsorID) {
-  //   // Check if there is an offer with the specified EventId and sponsorId
-  //   return offers.any(
-  //       (offer) => offer.EventId == eventId && offer.sponsorId == sponsorID);
-  // }
-    if (user != null) {
-      final email = user.email; // This will give you the user's email
-      cred = EmailAuthProvider.credential(
-        email: email!,
-        password: _currentpasswordController.text,
-      );
-    }
-    user!.reauthenticateWithCredential(cred).then((value) {
-      // user.delete().then((_) {
-      //   //Success, do something
-      //   DatabaseReference del =
-      //       FirebaseDatabase.instance.ref().child('Sponsors').child(sponsorID!);
-      //   del.update({
-      //     'Picture':
-      //         'https://firebasestorage.googleapis.com/v0/b/sponsite-6a696.appspot.com/o/user_images%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1.jpg?alt=media&token=4e08e9f5-d526-4d2c-817b-11f9208e9b52',
-      //         'Bio':'This user deleted their account',
-      //          'Social Media':null,
-      //   });
-      //   // del.remove();
-      //   Navigator.pop(context);
-      //   _currentpasswordController.clear();
-      //   wrongpass = false;
-      //   showDialog(
-      //     context: context,
-      //     builder: (context) {
-      //       Future.delayed(const Duration(seconds: 3), () {
-      //         Navigator.of(context).pop(true);
-      //       });
-      //       return Theme(
-      //         data: Theme.of(context)
-      //             .copyWith(dialogBackgroundColor: Colors.white),
-      //         child: AlertDialog(
-      //           backgroundColor: Colors.white,
-      //           shape: BeveledRectangleBorder(
-      //               borderRadius: BorderRadius.circular(2)),
-      //           content: const Column(
-      //             mainAxisSize: MainAxisSize.min,
-      //             children: [
-      //               Icon(
-      //                 Icons.check_circle,
-      //                 color: Color.fromARGB(255, 91, 79, 158),
-      //                 size: 48,
-      //               ),
-      //               SizedBox(height: 16),
-      //               Text(
-      //                 'Account deleted successfully!',
-      //                 style: TextStyle(
-      //                   color: Colors.black,
-      //                   fontSize: 20,
-      //                 ),
-      //               ),
-      //             ],
-      //           ),
-      //         ),
-      //       );
-      //     },
-      //   );
-      // }).catchError((error) {
-      //   //Error, show something
-      //   // setState(() {
-      //   //    isChangeing = false;
-      //   //   weakPass = true;
-      //   //   Navigator.of(context).pop();
-      //   //   _showChangePasswordDialog(context);
-      //   // });
-      //   return;
-      // });
-    }).catchError((err) {
-      setState(() {
-        // isChangeing = false;
-        wrongpass = true;
-        Navigator.of(context).pop();
-        _showChangePasswordDialog(context);
-      });
-      return;
-    });
-  }
-  // Future<void> deleteUserAccount() async {
-  //   try {
-  //     var cred=null;
-  //     final user = await FirebaseAuth.instance.currentUser;
-  //     if (user != null) {
-  //       final email = user.email; // This will give you the user's email
-  //        cred = EmailAuthProvider.credential(
-  //         email: email!,
-  //         password: _currentpasswordController.text,
-  //       );
-  //     }
-  //     user!.reauthenticateWithCredential(cred);
-  //     await FirebaseAuth.instance.currentUser!.delete();
-  //   } on FirebaseAuthException catch (e) {
-  //     if (e.code == "requires-recent-login") {
-  //       print("errooooooooooor");
-  //     } else {
-  //       // Handle other Firebase exceptions
-  //     }
-  //   } catch (e) {
-  //     // Handle general exception
-  //   }
-  // }
-
-  void _loadProfileFromFirebase() async {
-    check();
-    DatabaseReference dbRef =
-        FirebaseDatabase.instance.ref().child('Sponsors').child(sponsorID!);
-
-    // Listen to the changes in the database reference
-    dbRef.onValue.listen((event) {
-      if (event.snapshot.value != null) {
-        setState(() {
-          // Clear the existing data in the list
-          sponsorList.clear();
-
-          Map<dynamic, dynamic> sponsorData =
-              event.snapshot.value as Map<dynamic, dynamic>;
-
-          // Parse social media accounts into a list of title-link pairs
-          List<SocialMediaAccount> socialMediaAccounts = [];
-          if (sponsorData.containsKey('Social Media')) {
-            Map<dynamic, dynamic> socialMediaData =
-                sponsorData['Social Media'] as Map<dynamic, dynamic>;
-            socialMediaData.forEach((title, link) {
-              socialMediaAccounts.add(SocialMediaAccount(
-                title: title as String? ?? '',
-                link: link as String? ?? '',
-              ));
-            });
-          }
-          // print(socialMediaAccounts[0].link);
-          // print(socialMediaAccounts[0].title);
-          // print(sponsorData);
-          // Create a sponsor object and add it to the list
-          SponsorProfileInfo sponsor = SponsorProfileInfo(
-              name: sponsorData['Name'] as String? ?? '',
-              bio: sponsorData['Bio'] as String? ?? '',
-              pic: sponsorData['Picture'] as String? ?? '',
-              social: socialMediaAccounts
-
-              // Add other fields as needed
-              );
-
-          sponsorList.add(sponsor);
-          profilePicUrl = sponsor.pic;
-          profileName = sponsor.name;
-          // print(sponsorList);
-          // print(sponsorList.first.social.first.link);
-        });
-      }
-    });
   }
   Future<void> _showCantDeleteDialog(BuildContext context) async {
     return showDialog<void>(

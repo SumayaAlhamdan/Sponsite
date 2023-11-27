@@ -70,54 +70,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
     final user = await FirebaseAuth.instance.currentUser;
     var cred = null;
     // List<String> events=[];
- final DatabaseReference dbRef =
-      FirebaseDatabase.instance.ref().child('sponseeEvents');
-  dbRef.onValue.listen((event) {
-      if (event.snapshot.value != null) {
-        setState(() {
-          events.clear();
-          Map<dynamic, dynamic> eventData =
-              event.snapshot.value as Map<dynamic, dynamic>;
-          eventData.forEach((key, value) {
-            var categoryList = (value['Category'] as List<dynamic>)
-                .map((category) => category.toString())
-                .toList();
-
-            if (value['SponseeID'] == sponseeID) {
-              // Use key as EVENTid for the current event
-              String EVENTid = key;
-              //  print("The key value is " + key);
-              //print("the var value is : ");
-              //print(EVENTid);
-
-              String timestampString = value['TimeStamp'] as String;
-
-              events.add(Event(
-                EventName: value['EventName'] as String? ?? '',
-                EventType: value['EventType'] as String? ?? '',
-                location: value['Location'] as String? ?? '',
-                description: value['Description'] as String? ?? '',
-                imgURL: value['img'] as String? ??
-                    'https://png.pngtree.com/templates/sm/20180611/sm_5b1edb6d03c39.jpg',
-                startDate: value['startDate'] as String? ?? '',
-                endDate: value['endDate'] as String? ?? '',
-                startTime: value['startTime'] as String? ?? '',
-                endTime: value['endTime'] as String? ?? '',
-                notes:
-                    value['Notes'] as String? ?? 'There are no notes available',
-                benefits: value['Benefits'] as String? ?? '',
-                NumberOfAttendees: value['NumberOfAttendees'] as String? ?? '',
-                Category: categoryList,
-                EVENTid: EVENTid,
-                timeStamp: timestampString,
-                // Assign the EVENTid to the Event object
-              ));
-            }
-          });
-          events.sort((a, b) => b.timeStamp.compareTo(a.timeStamp));
-        });
-      }
-    });
+ 
     DateTime parseEventDateAndTime(String date, String time) {
   final dateTimeString = '$date $time';
   final format = DateFormat('yyyy-MM-dd hh:mm');
@@ -275,6 +228,54 @@ return;
           sponseeList.add(sponsee);
           // print(sponseeList);
           // print(sponseeList.first.social.first.link);
+        });
+      }
+    });
+    final DatabaseReference dbevents =
+      FirebaseDatabase.instance.ref().child('sponseeEvents');
+  dbevents.onValue.listen((event) {
+      if (event.snapshot.value != null) {
+        setState(() {
+          events.clear();
+          Map<dynamic, dynamic> eventData =
+              event.snapshot.value as Map<dynamic, dynamic>;
+          eventData.forEach((key, value) {
+            var categoryList = (value['Category'] as List<dynamic>)
+                .map((category) => category.toString())
+                .toList();
+
+            if (value['SponseeID'] == sponseeID) {
+              // Use key as EVENTid for the current event
+              String EVENTid = key;
+              //  print("The key value is " + key);
+              //print("the var value is : ");
+              //print(EVENTid);
+
+              String timestampString = value['TimeStamp'] as String;
+
+              events.add(Event(
+                EventName: value['EventName'] as String? ?? '',
+                EventType: value['EventType'] as String? ?? '',
+                location: value['Location'] as String? ?? '',
+                description: value['Description'] as String? ?? '',
+                imgURL: value['img'] as String? ??
+                    'https://png.pngtree.com/templates/sm/20180611/sm_5b1edb6d03c39.jpg',
+                startDate: value['startDate'] as String? ?? '',
+                endDate: value['endDate'] as String? ?? '',
+                startTime: value['startTime'] as String? ?? '',
+                endTime: value['endTime'] as String? ?? '',
+                notes:
+                    value['Notes'] as String? ?? 'There are no notes available',
+                benefits: value['Benefits'] as String? ?? '',
+                NumberOfAttendees: value['NumberOfAttendees'] as String? ?? '',
+                Category: categoryList,
+                EVENTid: EVENTid,
+                timeStamp: timestampString,
+                // Assign the EVENTid to the Event object
+              ));
+            }
+          });
+          events.sort((a, b) => b.timeStamp.compareTo(a.timeStamp));
         });
       }
     });
