@@ -13,7 +13,8 @@ class Offer {
   String sponsorName;
   String sponsorImage;
   String status;
-  double? ratings; // Updated property name
+  double? ratings;
+  bool rated ;  // Updated property name
 
   Offer({
     required this.offerId,
@@ -24,6 +25,7 @@ class Offer {
     required this.sponsorImage,
     this.status = 'Pending',
     this.ratings, // Updated property name
+    this.rated = false , 
   });
 }
 
@@ -82,6 +84,7 @@ bool loaded = false;
  ratings: value['sponsorRating'] != null
                   ? (value['sponsorRating'] as num).toDouble()
                    : null,
+                      rated: value['sponsorRating'] != null,
               ));
             } catch (e) {
               print('Error parsing timestamp: $e');
@@ -129,6 +132,7 @@ bool loaded = false;
 
   late double newRate ; 
   bool issubmitted = false  ;
+
 Widget _buildOfferCard(Offer offer) {
   return Container(
     margin: EdgeInsets.all(10),
@@ -192,11 +196,11 @@ Widget _buildOfferCard(Offer offer) {
     
                     children: [
                       
-                      Padding(  padding: const EdgeInsets.only(left: 334,top: 40)), 
+                      Padding(  padding: const EdgeInsets.only(left: 34,top: 40)), 
                     // If ratings are null
 if (offer.ratings == null) 
 Column(
-  children: !issubmitted
+  children:  !offer.rated 
       ? [
            Row(
             children: [
@@ -225,7 +229,10 @@ Column(
                   _submitRating(offer, newRate);
                   newRate = 0;
                   calculateRating(offer.sponsorId);
-                  issubmitted = true;
+                   setState(() {
+                        offer.rated = true; // Mark the offer as rated
+                        issubmitted = true;
+                      });
                 },
                 style: ElevatedButton.styleFrom(
                   primary: const Color.fromARGB(255, 91, 79, 158),
