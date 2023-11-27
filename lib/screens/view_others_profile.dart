@@ -86,27 +86,29 @@ class _ViewOthersProfileState extends State<ViewOthersProfile> {
       }
     });
   }
-  late String rating  = '0.0'  ;  
-  void _getRateFromDB(){ 
-  final DatabaseReference database = FirebaseDatabase.instance.ref();
-  database.child(type).onValue.listen((rate) {
-    print('Thy type there is : ') ; print(type) ; 
-    if (rate.snapshot.value != null) {
-                print('line 94 isnt null') ; 
-      Map<dynamic, dynamic> rateData =
-          rate.snapshot.value as Map<dynamic, dynamic>;
-      rateData.forEach((key, value) {
-        if (key == otherID) {
-          print('They key of spnsee value') ; 
-                   print('They  spnsee id') ;
-          if (value['Rate'] != null) {
-            print('Rate isnt null') ; 
-            rating = value['Rate'] ;
+
+  late String rating = '0.0';
+  void _getRateFromDB() {
+    final DatabaseReference database = FirebaseDatabase.instance.ref();
+    database.child(type).onValue.listen((rate) {
+      print('Thy type there is : ');
+      print(type);
+      if (rate.snapshot.value != null) {
+        print('line 94 isnt null');
+        Map<dynamic, dynamic> rateData =
+            rate.snapshot.value as Map<dynamic, dynamic>;
+        rateData.forEach((key, value) {
+          if (key == otherID) {
+            print('They key of spnsee value');
+            print('They  spnsee id');
+            if (value['Rate'] != null) {
+              print('Rate isnt null');
+              rating = value['Rate'];
+            }
           }
-       
-          }
+        });
       }
-      ); } }); 
+    });
   }
 
   void initState() {
@@ -114,7 +116,7 @@ class _ViewOthersProfileState extends State<ViewOthersProfile> {
     // check();
     _loadProfileFromFirebase();
     _loadPostsFromFirebase();
-    _getRateFromDB() ; 
+    _getRateFromDB();
   }
 
   List<Post> posts = [];
@@ -139,12 +141,14 @@ class _ViewOthersProfileState extends State<ViewOthersProfile> {
                 profilePicUrl: profilePicUrl,
                 eventname: value['EventName'] as String? ?? '',
                 profileName: profileName,
+                timestamp: value['TimeStamp'] as String? ?? '',
+
                 // Add other properties as needed
               ));
             }
           });
           // Optionally, you can sort posts based on a timestamp or other criteria
-          // posts.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+          posts.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
           if (posts.isNotEmpty) {
             print("I have posts");
@@ -343,117 +347,125 @@ class _ViewOthersProfileState extends State<ViewOthersProfile> {
             flex: 5,
             child: Padding(
               padding: const EdgeInsets.all(0.0),
-              child: Column(
-                children: [
-if (sponseeList.isNotEmpty)
-  Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Text(
-        sponseeList.first.name,
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              fontSize: 40,
-            ),
-      ),
-      SizedBox(width: 10), // Adjust the width according to your preference
-      Icon(
-        Icons.star,
-        color: Colors.yellow,
-        size: 30,
-      ),
-      Text(
-        rating,
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontSize: 20,
-            ),
-      ),
-    ],
-  ),
-                   
-                  if (sponseeList.isNotEmpty)
-                    SizedBox(
-                      width: 600,
-
-                      // Set your desired width here
-                      child: Center(
-                        child: Card(
-                          margin: const EdgeInsets.all(16.0),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    if (sponseeList.isNotEmpty)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            sponseeList.first.name,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 40,
+                                ),
                           ),
-                          child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Text(
-                              sponseeList.first.bio,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
+                          SizedBox(
+                              width:
+                                  10), // Adjust the width according to your preference
+                          Icon(
+                            Icons.star,
+                            color: Colors.yellow,
+                            size: 30,
+                          ),
+                          Text(
+                            rating,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  fontSize: 20,
+                                ),
+                          ),
+                        ],
+                      ),
+                    if (sponseeList.isNotEmpty)
+                      SizedBox(
+                        width: 600,
+
+                        // Set your desired width here
+                        child: Center(
+                          child: Card(
+                            margin: const EdgeInsets.all(16.0),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Text(
+                                sponseeList.first.bio,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
+                    if (sponseeList.isNotEmpty)
+                      _ProfileInfoRow(sponseeList.first.social),
+                    const Divider(
+                        // indent: 100,
+                        // endIndent: 100,
+                        ),
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 20,
+                        ),
+                        Text(
+                          'Posts',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 30),
+                        ),
+                      ],
                     ),
-
-                  if (sponseeList.isNotEmpty)
-                    _ProfileInfoRow(sponseeList.first.social),
-                  const Divider(
-                      // indent: 100,
-                      // endIndent: 100,
+                    if (posts.isNotEmpty)
+                      Container(
+                        height: MediaQuery.of(context).size.height *
+                            0.3, // Adjust the height as needed
+                        child: ListView(
+                          children: posts.map((post) {
+                            return Column(
+                              children: [
+                                PostContainer(
+                                  text: post.text,
+                                  imageUrl: post.imageUrl,
+                                  profilePicUrl: post.profilePicUrl,
+                                  profileName: post.profileName,
+                                  eventname: post.eventname,
+                                ),
+                                const SizedBox(height: 16.0),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                      )
+                    else
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/Write Content.png', // Specify the asset path
+                              width: 200, // Specify the width of the image
+                              height: 200, // Specify the height of the image
+                            ),
+                            Text(sponseeList.first.name +
+                                ' doesn\'t have any posts yet'),
+                          ],
+                        ),
                       ),
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 20,
-                      ),
-                      Text(
-                        'Posts',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 30),
-                      ),
-                    ],
-                  ),
-                  if (posts.isNotEmpty)
-                    Container(
-                      height: MediaQuery.of(context).size.height *
-                          0.3, // Adjust the height as needed
-                      child: ListView(
-                        children: posts.map((post) {
-                          return Column(
-                            children: [
-                              PostContainer(
-                                text: post.text,
-                                imageUrl: post.imageUrl,
-                                profilePicUrl: post.profilePicUrl,
-                                profileName: post.profileName,
-                                eventname: post.eventname,
-                              ),
-                              const SizedBox(height: 16.0),
-                            ],
-                          );
-                        }).toList(),
-                      ),
-                    )
-                  else
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            'assets/Write Content.png', // Specify the asset path
-                            width: 200, // Specify the width of the image
-                            height: 200, // Specify the height of the image
-                          ),
-                          Text(sponseeList.first.name +
-                              ' doesn\'t have any posts yet'),
-                        ],
-                      ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -538,6 +550,7 @@ class Post {
   final String profilePicUrl;
   final String profileName;
   final String eventname;
+  final String timestamp;
 
   Post({
     required this.text,
@@ -545,6 +558,7 @@ class Post {
     required this.profilePicUrl,
     required this.profileName,
     required this.eventname,
+    required this.timestamp,
   });
 }
 

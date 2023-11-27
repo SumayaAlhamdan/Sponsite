@@ -28,7 +28,7 @@ class _SponsorProfileState extends State<SponsorProfile> {
   final TextEditingController _currentpasswordController =
       TextEditingController();
   bool wrongpass = false;
-List<Event> events = [];
+  List<Event> events = [];
   List<Offer> offers = [];
   final DatabaseReference dbEvents =
       FirebaseDatabase.instance.reference().child('sponseeEvents');
@@ -48,43 +48,42 @@ List<Event> events = [];
     final user = await FirebaseAuth.instance.currentUser;
     var cred = null;
 
-  
-        
-     DateTime parseEventDateAndTime(String date, String time) {
-    final dateTimeString = '$date $time';
-    final format = DateFormat('yyyy-MM-dd hh:mm');
-    return format.parse(dateTimeString);
-  }
+    DateTime parseEventDateAndTime(String date, String time) {
+      final dateTimeString = '$date $time';
+      final format = DateFormat('yyyy-MM-dd hh:mm');
+      return format.parse(dateTimeString);
+    }
 
-  final now = DateTime.now();
-  final filteredEvents = events.where((event) {
-    final eventDateTime = parseEventDateAndTime(event.endDate, event.startTime);
-    return eventDateTime.isAfter(now);
-  }).toList();
+    final now = DateTime.now();
+    final filteredEvents = events.where((event) {
+      final eventDateTime =
+          parseEventDateAndTime(event.endDate, event.startTime);
+      return eventDateTime.isAfter(now);
+    }).toList();
 
- final filteredEventsWithOffers = filteredEvents.where((event) {
-  return offers.any((offer) => offer.EventId == event.EventId);
-}).toList();
-print(filteredEventsWithOffers.length);
-filteredEventsWithOffers.forEach((event) {
-  print('Event ID: ${event.EventId}');
-  print('Event Name: ${event.EventName}');
-  // Add more properties as needed
-  print('-----------------------');
-});
-if(filteredEventsWithOffers.isNotEmpty){
-  print(filteredEventsWithOffers);
-  print("1111111111111111");
-   Navigator.pop(context);
-_showCantDeleteDialog(context);
-return;
-}
- print("77777777777");
-  //    bool _isEventAssociatedWithSponsor(String eventId, String? sponsorID) {
-  //   // Check if there is an offer with the specified EventId and sponsorId
-  //   return offers.any(
-  //       (offer) => offer.EventId == eventId && offer.sponsorId == sponsorID);
-  // }
+    final filteredEventsWithOffers = filteredEvents.where((event) {
+      return offers.any((offer) => offer.EventId == event.EventId);
+    }).toList();
+    print(filteredEventsWithOffers.length);
+    filteredEventsWithOffers.forEach((event) {
+      print('Event ID: ${event.EventId}');
+      print('Event Name: ${event.EventName}');
+      // Add more properties as needed
+      print('-----------------------');
+    });
+    if (filteredEventsWithOffers.isNotEmpty) {
+      print(filteredEventsWithOffers);
+      print("1111111111111111");
+      Navigator.pop(context);
+      _showCantDeleteDialog(context);
+      return;
+    }
+    print("77777777777");
+    //    bool _isEventAssociatedWithSponsor(String eventId, String? sponsorID) {
+    //   // Check if there is an offer with the specified EventId and sponsorId
+    //   return offers.any(
+    //       (offer) => offer.EventId == eventId && offer.sponsorId == sponsorID);
+    // }
     if (user != null) {
       final email = user.email; // This will give you the user's email
       cred = EmailAuthProvider.credential(
@@ -100,8 +99,8 @@ return;
         del.update({
           'Picture':
               'https://firebasestorage.googleapis.com/v0/b/sponsite-6a696.appspot.com/o/user_images%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1.jpg?alt=media&token=4e08e9f5-d526-4d2c-817b-11f9208e9b52',
-              'Bio':'This user deleted their account',
-               'Social Media':null,
+          'Bio': 'This user deleted their account',
+          'Social Media': null,
         });
         // del.remove();
         Navigator.pop(context);
@@ -235,93 +234,87 @@ return;
       }
     });
     await dbOffers.once().then((offer) {
-    if (offer.snapshot.value != null) {
-      setState(() {
-        offers.clear();
-        Map<dynamic, dynamic> offersData =
-            offer.snapshot.value as Map<dynamic, dynamic>;
-        offersData.forEach((key, value) {
-          var categoryList = (value['Category'] as List<dynamic>)
-              .map((category) => category.toString())
-              .toList();
-          if (value['sponsorId'] == sponsorID) {
-            offers.add(Offer(
-              EventId: value['EventId'] as String? ?? '',
-              sponsorId: value['sponsorId'] as String,
-              sponseeId: value['sponseeId'] as String,
-              notes: value['notes'] as String? ?? '',
-              Category: categoryList,
-              status: value['Status'] as String? ?? '',
-            ));
-          }
+      if (offer.snapshot.value != null) {
+        setState(() {
+          offers.clear();
+          Map<dynamic, dynamic> offersData =
+              offer.snapshot.value as Map<dynamic, dynamic>;
+          offersData.forEach((key, value) {
+            var categoryList = (value['Category'] as List<dynamic>)
+                .map((category) => category.toString())
+                .toList();
+            if (value['sponsorId'] == sponsorID) {
+              offers.add(Offer(
+                EventId: value['EventId'] as String? ?? '',
+                sponsorId: value['sponsorId'] as String,
+                sponseeId: value['sponseeId'] as String,
+                notes: value['notes'] as String? ?? '',
+                Category: categoryList,
+                status: value['Status'] as String? ?? '',
+              ));
+            }
+          });
         });
-      });
-    }
-  });
+      }
+    });
 
- 
-         setState(() {
-            final DatabaseReference database = FirebaseDatabase.instance.ref();
-            dbEvents.onValue.listen((event) {
-              if (event.snapshot.value != null) {
-                setState(() {
-                  events.clear();
-                  Map<dynamic, dynamic> eventData =
-                      event.snapshot.value as Map<dynamic, dynamic>;
+    setState(() {
+      final DatabaseReference database = FirebaseDatabase.instance.ref();
+      dbEvents.onValue.listen((event) {
+        if (event.snapshot.value != null) {
+          setState(() {
+            events.clear();
+            Map<dynamic, dynamic> eventData =
+                event.snapshot.value as Map<dynamic, dynamic>;
 
-                  eventData.forEach((key, value) {
-                    // Check if value['Category'] is a listي
-                    List<String> categoryList = [];
-                    if (value['Category'] is List<dynamic>) {
-                      categoryList = (value['Category'] as List<dynamic>)
-                          .map((category) => category.toString())
-                          .toList();
-                    }
-                    String timestampString = value['TimeStamp'] as String;
-                    String eventStartDatestring = value['startDate'];
-                    String eventEndtDatestring = value['endDate'];
-                    DateTime? eventStartDate =
-                        DateTime.tryParse(eventStartDatestring);
-                    DateTime? eventEndDate =
-                        DateTime.tryParse(eventEndtDatestring);
-
-                    // Simulate the current time (for testing purposes)
-                    DateTime currentTime = DateTime.now();
-
-                  
-                      events.add(Event(
-                        EventId: key,
-                        EventName: value['EventName'] as String? ?? '',
-                        sponseeId: value['SponseeID'] as String? ?? '', 
-                        EventType: value['EventType'] as String? ?? '',
-                        location: value['Location'] as String? ?? '',
-                        imgURL: value['img'] as String? ?? "",
-                        startDate: value['startDate'] as String? ?? '',
-                        endDate: value['endDate'] as String? ?? '',
-                        startTime: value['startTime'] as String? ?? ' ',
-                        endTime: value['endTime'] as String? ?? ' ',
-                        Category: categoryList,
-                        description: value['description'] as String? ?? ' ',
-                        notes: value['Notes'] as String? ??
-                            'There are no notes available',
-                        benefits: value['Benefits'] as String?,
-                        NumberOfAttendees:
-                            value['NumberOfAttendees'] as String? ?? '',
-                        timeStamp: timestampString, 
-                                  sponseeImage: '',
-                              sponseeName: '',// Store the timestamp
-                      ));
-                    }
-                  );
-                });
+            eventData.forEach((key, value) {
+              // Check if value['Category'] is a listي
+              List<String> categoryList = [];
+              if (value['Category'] is List<dynamic>) {
+                categoryList = (value['Category'] as List<dynamic>)
+                    .map((category) => category.toString())
+                    .toList();
               }
-              // Sort events based on the timeStamp (descending order)
-              events.sort((a, b) => b.timeStamp.compareTo(a.timeStamp));
-            });
- });
+              String timestampString = value['TimeStamp'] as String;
+              String eventStartDatestring = value['startDate'];
+              String eventEndtDatestring = value['endDate'];
+              DateTime? eventStartDate =
+                  DateTime.tryParse(eventStartDatestring);
+              DateTime? eventEndDate = DateTime.tryParse(eventEndtDatestring);
 
- 
+              // Simulate the current time (for testing purposes)
+              DateTime currentTime = DateTime.now();
+
+              events.add(Event(
+                EventId: key,
+                EventName: value['EventName'] as String? ?? '',
+                sponseeId: value['SponseeID'] as String? ?? '',
+                EventType: value['EventType'] as String? ?? '',
+                location: value['Location'] as String? ?? '',
+                imgURL: value['img'] as String? ?? "",
+                startDate: value['startDate'] as String? ?? '',
+                endDate: value['endDate'] as String? ?? '',
+                startTime: value['startTime'] as String? ?? ' ',
+                endTime: value['endTime'] as String? ?? ' ',
+                Category: categoryList,
+                description: value['description'] as String? ?? ' ',
+                notes:
+                    value['Notes'] as String? ?? 'There are no notes available',
+                benefits: value['Benefits'] as String?,
+                NumberOfAttendees: value['NumberOfAttendees'] as String? ?? '',
+                timeStamp: timestampString,
+                sponseeImage: '',
+                sponseeName: '', // Store the timestamp
+              ));
+            });
+          });
+        }
+        // Sort events based on the timeStamp (descending order)
+        events.sort((a, b) => b.timeStamp.compareTo(a.timeStamp));
+      });
+    });
   }
+
   Future<void> _showCantDeleteDialog(BuildContext context) async {
     return showDialog<void>(
       context: context,
@@ -363,27 +356,28 @@ return;
             //       style: TextStyle(
             //           color: Color.fromARGB(255, 51, 45, 81), fontSize: 20)),
             // ),
-           
           ],
         );
       },
     );
   }
 
-    String rating = '0' ;  
-  void getRateFromDB(){ 
-  final DatabaseReference database = FirebaseDatabase.instance.ref();
-  database.child('Sponsors').onValue.listen((rate) {
-    if (rate.snapshot.value != null) {
-      Map<dynamic, dynamic> rateData =
-          rate.snapshot.value as Map<dynamic, dynamic>;
-      rateData.forEach((key, value) {
-        if (key == sponsorID) {
-          if (value['Rate'] != null) {
-                  rating = value['Rate'].toString() ; 
-          }}
+  String rating = '0';
+  void getRateFromDB() {
+    final DatabaseReference database = FirebaseDatabase.instance.ref();
+    database.child('Sponsors').onValue.listen((rate) {
+      if (rate.snapshot.value != null) {
+        Map<dynamic, dynamic> rateData =
+            rate.snapshot.value as Map<dynamic, dynamic>;
+        rateData.forEach((key, value) {
+          if (key == sponsorID) {
+            if (value['Rate'] != null) {
+              rating = value['Rate'].toString();
+            }
+          }
+        });
       }
-      ); } }); 
+    });
   }
 
   void _showChangePasswordDialog(BuildContext context) {
@@ -521,7 +515,7 @@ return;
     check();
     _loadProfileFromFirebase();
     _loadPostsFromFirebase();
-     getRateFromDB() ; 
+    getRateFromDB();
   }
 
   List<Post> posts = [];
@@ -547,12 +541,13 @@ return;
                 profilePicUrl: profilePicUrl,
                 eventname: value['EventName'] as String? ?? '',
                 profileName: profileName,
+                timestamp: value['TimeStamp'] as String? ?? '',
                 // Add other properties as needed
               ));
             }
           });
           // Optionally, you can sort posts based on a timestamp or other criteria
-          // posts.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+          posts.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
           if (posts.isNotEmpty) {
             print("I have posts");
@@ -837,140 +832,142 @@ return;
             flex: 5,
             child: Padding(
               padding: const EdgeInsets.all(0.0),
-              child: Column(
-                children: [
-                  if (sponsorList.isNotEmpty)
-                    Center(
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                          Text(
-                            sponsorList.first.name,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.bold, fontSize: 40),
-                          ),
-                             Icon(
-          Icons.star,
-          color: Colors.yellow,
-          size: 30,
-        ),
-                          Text(
-                           rating, 
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                    fontSize: 20),
-                          ),
-                        ])),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 91, 79, 158),
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    if (sponsorList.isNotEmpty)
+                      Center(
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                            Text(
+                              sponsorList.first.name,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 40),
+                            ),
+                            Icon(
+                              Icons.star,
+                              color: Colors.yellow,
+                              size: 30,
+                            ),
+                            Text(
+                              rating,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(fontSize: 20),
+                            ),
+                          ])),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 91, 79, 158),
+                        elevation: 5,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => sponsorEditProfile(),
+                        ));
+                      },
+                      child: const Text(
+                        "Edit Profile",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => sponsorEditProfile(),
-                      ));
-                    },
-                    child: const Text(
-                      "Edit Profile",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  // const _ProfileInfoRow(),
-                  if (sponsorList.isNotEmpty)
-                    SizedBox(
-                      width: 600,
+                    // const _ProfileInfoRow(),
+                    if (sponsorList.isNotEmpty)
+                      SizedBox(
+                        width: 600,
 
-                      // Set your desired width here
-                      child: Center(
-                        child: Card(
-                          margin: const EdgeInsets.all(16.0),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Text(
-                              sponsorList.first.bio,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
+                        // Set your desired width here
+                        child: Center(
+                          child: Card(
+                            margin: const EdgeInsets.all(16.0),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Text(
+                                sponsorList.first.bio,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
 
-                  if (sponsorList.isNotEmpty)
-                    _ProfileInfoRow(sponsorList.first.social),
-                  const Divider(
-                      // indent: 100,
-                      // endIndent: 100,
-                      ),
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 20,
-                      ),
-                      Text(
-                        'My Posts',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 30),
-                      ),
-                    ],
-                  ),
-                  if (posts.isNotEmpty)
-                    Container(
-                      height: MediaQuery.of(context).size.height *
-                          0.3, // Adjust the height as needed
-                      child: ListView(
-                        children: posts.map((post) {
-                          return Column(
-                            children: [
-                              PostContainer(
-                                id: post.id,
-                                text: post.text,
-                                imageUrl: post.imageUrl,
-                                profilePicUrl: post.profilePicUrl,
-                                profileName: post.profileName,
-                                eventname: post.eventname,
-                              ),
-                              const SizedBox(height: 16.0),
-                            ],
-                          );
-                        }).toList(),
-                      ),
-                    )
-                  else
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            'assets/Write Content.png', // Specify the asset path
-                            width: 200, // Specify the width of the image
-                            height: 200, // Specify the height of the image
-                          ),
-                          Text('You don\'t have any posts yet'),
-                        ],
-                      ),
+                    if (sponsorList.isNotEmpty)
+                      _ProfileInfoRow(sponsorList.first.social),
+                    const Divider(
+                        // indent: 100,
+                        // endIndent: 100,
+                        ),
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 20,
+                        ),
+                        Text(
+                          'My Posts',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 30),
+                        ),
+                      ],
                     ),
-                ],
+                    if (posts.isNotEmpty)
+                      Container(
+                        height: MediaQuery.of(context).size.height *
+                            0.3, // Adjust the height as needed
+                        child: ListView(
+                          children: posts.map((post) {
+                            return Column(
+                              children: [
+                                PostContainer(
+                                  id: post.id,
+                                  text: post.text,
+                                  imageUrl: post.imageUrl,
+                                  profilePicUrl: post.profilePicUrl,
+                                  profileName: post.profileName,
+                                  eventname: post.eventname,
+                                ),
+                                const SizedBox(height: 16.0),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                      )
+                    else
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/Write Content.png', // Specify the asset path
+                              width: 200, // Specify the width of the image
+                              height: 200, // Specify the height of the image
+                            ),
+                            Text('You don\'t have any posts yet'),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -1012,6 +1009,7 @@ class Post {
   final String profilePicUrl;
   final String profileName;
   final String eventname;
+  final String timestamp;
 
   Post({
     required this.id,
@@ -1020,6 +1018,7 @@ class Post {
     required this.profilePicUrl,
     required this.profileName,
     required this.eventname,
+    required this.timestamp,
   });
 }
 
@@ -1303,8 +1302,8 @@ class Event {
   final String NumberOfAttendees;
   final List<String> Category;
   final String timeStamp;
-   String sponseeName;
-   String sponseeImage;
+  String sponseeName;
+  String sponseeImage;
 
   Event({
     required this.EventId,
@@ -1323,8 +1322,8 @@ class Event {
     required this.notes,
     required this.timeStamp,
     this.benefits,
-     required this.sponseeName,
-     required this.sponseeImage,
+    required this.sponseeName,
+    required this.sponseeImage,
   });
 }
 

@@ -43,7 +43,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
   bool invalidEmail = false;
   bool wrongpass = false;
   bool addLink = false;
-   List<Event> events = [];
+  List<Event> events = [];
   String selectedApp = 'Selecet Platform';
   List<String> socialMediaApps = [
     'github',
@@ -65,62 +65,64 @@ class _SponseeProfileState extends State<SponseeProfile> {
     }
   }
 
-    late String rating  = '0'  ;  
-  void _getRateFromDB(){ 
-  final DatabaseReference database = FirebaseDatabase.instance.ref();
-  database.child('Sponsees').onValue.listen((rate) {
-    if (rate.snapshot.value != null) {
-      Map<dynamic, dynamic> rateData =
-          rate.snapshot.value as Map<dynamic, dynamic>;
-      rateData.forEach((key, value) {
-        if (key == sponseeID) {
-          print('They key of spnsee value') ; print(key) ; 
-                   print('They  spnsee id') ; print(sponseeID) ; 
-          if (value['Rate'] != null) {
-            rating = value['Rate'] ; 
-            print(rating) ; 
-
-          
+  late String rating = '0';
+  void _getRateFromDB() {
+    final DatabaseReference database = FirebaseDatabase.instance.ref();
+    database.child('Sponsees').onValue.listen((rate) {
+      if (rate.snapshot.value != null) {
+        Map<dynamic, dynamic> rateData =
+            rate.snapshot.value as Map<dynamic, dynamic>;
+        rateData.forEach((key, value) {
+          if (key == sponseeID) {
+            print('They key of spnsee value');
+            print(key);
+            print('They  spnsee id');
+            print(sponseeID);
+            if (value['Rate'] != null) {
+              rating = value['Rate'];
+              print(rating);
+            }
           }
-       
-          }
+        });
       }
-      ); } }); 
-       print('before the return') ; print(rating) ; 
+    });
+    print('before the return');
+    print(rating);
   }
-
 
   void deleteUserAccount() async {
     check();
     final user = await FirebaseAuth.instance.currentUser;
     var cred = null;
     // List<String> events=[];
- 
+
     DateTime parseEventDateAndTime(String date, String time) {
-  final dateTimeString = '$date $time';
-  final format = DateFormat('yyyy-MM-dd hh:mm');
-  print(format.parse(dateTimeString));
-  return format.parse(dateTimeString);
-}
-final now = DateTime.now();
-  print(now);
-final filteredEvents = events.where((event) {
-  final eventDateTime = parseEventDateAndTime(event.endDate, event.startTime);
-  return eventDateTime.isAfter(now);
-}).toList();
-if(filteredEvents.isNotEmpty){
-  print("1111111111111111");
-  filteredEvents.forEach((event) {
-  print('Event ID: ${event.EVENTid}');
-  print('Event Name: ${event.EventName}');
-  // Add more properties as needed
-  print('-----------------------');
-});
-   Navigator.pop(context);
-_showCantDeleteDialog(context);
-return;
+      final dateTimeString = '$date $time';
+      final format = DateFormat('yyyy-MM-dd hh:mm');
+      print(format.parse(dateTimeString));
+      return format.parse(dateTimeString);
+    }
+
+    final now = DateTime.now();
+    print(now);
+    final filteredEvents = events.where((event) {
+      final eventDateTime =
+          parseEventDateAndTime(event.endDate, event.startTime);
+      return eventDateTime.isAfter(now);
+    }).toList();
+    if (filteredEvents.isNotEmpty) {
+      print("1111111111111111");
+      filteredEvents.forEach((event) {
+        print('Event ID: ${event.EVENTid}');
+        print('Event Name: ${event.EventName}');
+        // Add more properties as needed
+        print('-----------------------');
+      });
+      Navigator.pop(context);
+      _showCantDeleteDialog(context);
+      return;
 // print("1222222222222211");
-}
+    }
     if (user != null) {
       final email = user.email; // This will give you the user's email
       cred = EmailAuthProvider.credential(
@@ -128,7 +130,7 @@ return;
         password: _currentpasswordController.text,
       );
     }
- print("333333333");
+    print("333333333");
     user!.reauthenticateWithCredential(cred).then((value) {
       user.delete().then((_) {
         //Success, do something
@@ -257,8 +259,8 @@ return;
       }
     });
     final DatabaseReference dbevents =
-      FirebaseDatabase.instance.ref().child('sponseeEvents');
-  dbevents.onValue.listen((event) {
+        FirebaseDatabase.instance.ref().child('sponseeEvents');
+    dbevents.onValue.listen((event) {
       if (event.snapshot.value != null) {
         setState(() {
           events.clear();
@@ -449,7 +451,7 @@ return;
     check();
     _loadProfileFromFirebase();
     _loadPostsFromFirebase();
-     _getRateFromDB() ; 
+    _getRateFromDB();
   }
 
   List<Post> posts = [];
@@ -473,12 +475,14 @@ return;
                 profilePicUrl: profilePicUrl,
                 eventname: value['EventName'] as String? ?? '',
                 profileName: profileName,
+                timestamp: value['TimeStamp'] as String? ?? '',
+
                 // Add other properties as needed
               ));
             }
           });
           // Optionally, you can sort posts based on a timestamp or other criteria
-          // posts.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+          posts.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
           if (posts.isNotEmpty) {
             print("I have posts");
@@ -612,13 +616,13 @@ return;
             //       style: TextStyle(
             //           color: Color.fromARGB(255, 51, 45, 81), fontSize: 20)),
             // ),
-           
           ],
         );
       },
     );
   }
-   Future<void> _showDeleteAccountConfirmationDialog(
+
+  Future<void> _showDeleteAccountConfirmationDialog(
       BuildContext context) async {
     return showDialog<void>(
       context: context,
@@ -763,198 +767,198 @@ return;
         ],
       ),
       body: Column(
-          children: [
-             Expanded(
-              flex: 2, // Adjust the height as needed
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 50),
-                    decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [
-                              Color.fromARGB(255, 91, 79, 158),
-                              Color.fromARGB(255, 51, 45, 81),
-                            ]),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(50),
-                          bottomRight: Radius.circular(50),
-                        )),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: SizedBox(
-                      width: 170,
-                      height: 170,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          if (sponseeList.isNotEmpty)
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.black,
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: NetworkImage(sponseeList.first.pic),
-                                ),
+        children: [
+          Expanded(
+            flex: 2, // Adjust the height as needed
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(bottom: 50),
+                  decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [
+                            Color.fromARGB(255, 91, 79, 158),
+                            Color.fromARGB(255, 51, 45, 81),
+                          ]),
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(50),
+                        bottomRight: Radius.circular(50),
+                      )),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SizedBox(
+                    width: 170,
+                    height: 170,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        if (sponseeList.isNotEmpty)
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.black,
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(sponseeList.first.pic),
                               ),
                             ),
-                        ],
-                      ),
+                          ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-             Expanded(
+          ),
+          Expanded(
             flex: 5,
             child: Padding(
               padding: const EdgeInsets.all(0.0),
-              child: Column(
-                children: [
-                  if (sponseeList.isNotEmpty)
-                    Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            sponseeList.first.name,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.bold, fontSize: 40),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    if (sponseeList.isNotEmpty)
+                      Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              sponseeList.first.name,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 40),
+                            ),
+                            Icon(
+                              Icons.star,
+                              color: Colors.yellow,
+                              size: 30,
+                            ),
+                            Text(
+                              rating,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(fontSize: 20),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 91, 79, 158),
+                        elevation: 5,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => SponseeEditProfile(),
+                        ));
+                      },
+                      child: const Text(
+                        "Edit Profile",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    if (sponseeList.isNotEmpty)
+                      SizedBox(
+                        width: 600,
+                        child: Container(
+                          height: 200, // Adjust the height as needed
+                          child: Center(
+                            child: Card(
+                              margin: const EdgeInsets.all(16.0),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Text(
+                                  sponseeList.first.bio,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                                      Icon(
-          Icons.star,
-          color: Colors.yellow,
-          size: 30,
-        ),
+                        ),
+                      ),
+                    if (sponseeList.isNotEmpty)
+                      _ProfileInfoRow(sponseeList.first.social),
+                    const Divider(),
+                    Container(
+                      height: 50, // Adjust the height as needed
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 20,
+                          ),
                           Text(
-                           rating,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge
-                                ?.copyWith(
-                                    fontSize: 20),
+                            'My Posts',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 30),
                           ),
                         ],
                       ),
                     ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 91, 79, 158),
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => SponseeEditProfile(),
-                      ));
-                    },
-                    child: const Text(
-                      "Edit Profile",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                
-              
-            
-            if (sponseeList.isNotEmpty)
-              SizedBox(
-                width: 600,
-                child: Container(
-                  height: 200, // Adjust the height as needed
-                  child: Center(
-                    child: Card(
-                      margin: const EdgeInsets.all(16.0),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text(
-                          sponseeList.first.bio,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
-                          ),
+                    if (posts.isNotEmpty)
+                      Container(
+                        height: MediaQuery.of(context).size.height *
+                            0.3, // Adjust the height as needed
+                        child: ListView(
+                          children: posts.map((post) {
+                            return Column(
+                              children: [
+                                PostContainer(
+                                  id: post.id,
+                                  text: post.text,
+                                  imageUrl: post.imageUrl,
+                                  profilePicUrl: post.profilePicUrl,
+                                  profileName: post.profileName,
+                                  eventname: post.eventname,
+                                ),
+                                const SizedBox(height: 16.0),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                      )
+                    else
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/Write Content.png', // Specify the asset path
+                              width: 200, // Specify the width of the image
+                              height: 200, // Specify the height of the image
+                            ),
+                            Text('You don\'t have any posts yet'),
+                          ],
                         ),
                       ),
-                    ),
-                  ),
-                ),
-              ),
-            if (sponseeList.isNotEmpty)
-              _ProfileInfoRow(sponseeList.first.social),
-            const Divider(),
-            Container(
-              height: 50, // Adjust the height as needed
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Text(
-                    'My Posts',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-                  ),
-                ],
-              ),
-            ),
-            if (posts.isNotEmpty)
-              Container(
-                height: MediaQuery.of(context).size.height *
-                    0.3, // Adjust the height as needed
-                child: ListView(
-                  children: posts.map((post) {
-                    return Column(
-                      children: [
-                        PostContainer(
-                          id: post.id,
-                          text: post.text,
-                          imageUrl: post.imageUrl,
-                          profilePicUrl: post.profilePicUrl,
-                          profileName: post.profileName,
-                          eventname: post.eventname,
-                        ),
-                        const SizedBox(height: 16.0),
-                      ],
-                    );
-                  }).toList(),
-                ),
-              )
-            else
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/Write Content.png', // Specify the asset path
-                      width: 200, // Specify the width of the image
-                      height: 200, // Specify the height of the image
-                    ),
-                    Text('You don\'t have any posts yet'),
                   ],
                 ),
               ),
-          ],
-        ),
             ),
-             ),
-          ],
+          ),
+        ],
       ),
     );
   }
@@ -992,6 +996,7 @@ class Post {
   final String profilePicUrl;
   final String profileName;
   final String eventname;
+  final String timestamp;
 
   Post({
     required this.id,
@@ -1000,6 +1005,7 @@ class Post {
     required this.profilePicUrl,
     required this.profileName,
     required this.eventname,
+    required this.timestamp,
   });
 }
 
