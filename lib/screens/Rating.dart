@@ -43,11 +43,17 @@ class Rating extends StatefulWidget {
 class _Rating extends State<Rating> {
   List<Offer> offers = [];
 
-  @override
-  void initState() {
-    super.initState();
+
+ @override
+void initState() {
+  super.initState();
+  if (!loaded) {
     _loadOffersFromFirebase();
+    loaded = true;
   }
+}
+
+bool loaded = false;
 
   void _loadOffersFromFirebase() async {
     final DatabaseReference database = FirebaseDatabase.instance.ref();
@@ -60,6 +66,7 @@ class _Rating extends State<Rating> {
       if (offer.snapshot.value != null) {
         Map<dynamic, dynamic> offerData =
             offer.snapshot.value as Map<dynamic, dynamic>;
+             loadedOffers.clear();
         offerData.forEach((key, value) {
           if (value['EventId'] == widget.EVENTid) {
             try {
@@ -82,6 +89,8 @@ class _Rating extends State<Rating> {
           }
         });
 
+          // After loading offers, update sponsors
+
         database.child('Sponsors').onValue.listen((spons) {
           if (spons.snapshot.value != null) {
             Map<dynamic, dynamic> sponsorData =
@@ -101,11 +110,25 @@ class _Rating extends State<Rating> {
         });
       }
     });
+            _updateSponsors(loadedOffers, sponsorNames, sponsorImages);
+
+  }
+
+   void _updateSponsors(
+      List<Offer> loadedOffers, Map<String, String> sponsorNames, Map<String, String> sponsorImages) {
+    for (var offer in loadedOffers) {
+      offer.sponsorName = sponsorNames[offer.sponsorId] ?? '';
+      offer.sponsorImage = sponsorImages[offer.sponsorId] ?? '';
+    }
+    setState(() {
+      offers = loadedOffers;
+    });
   }
 
  
 
   late double newRate ; 
+  bool issubmitted = false  ;
 Widget _buildOfferCard(Offer offer) {
   return Container(
     margin: EdgeInsets.all(10),
@@ -123,8 +146,9 @@ Widget _buildOfferCard(Offer offer) {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(13.0),
         child: Row(
+
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             GestureDetector(
@@ -169,96 +193,121 @@ Widget _buildOfferCard(Offer offer) {
                     children: [
                       
                       Padding(  padding: const EdgeInsets.only(left: 334,top: 40)), 
-                       if (offer.ratings == null)
-                        Column(
-  children: [
-    Row(
-      children: [
-     
-        RatingBar.builder(
-
-          initialRating: offer.ratings ?? 0,
-          minRating: 1,
-          direction: Axis.horizontal,
-          allowHalfRating: false,
-          itemCount: 5,
-          itemSize: 28,
-          itemBuilder: (context, _) => Icon(
-            Icons.star,
-            color: Colors.amber,
-          ),
-         onRatingUpdate: (rating) {
-  newRate = rating ; 
-},
-
-        ),
-      ],
-    ),
-    SizedBox(height: 10), // Add some spacing between stars and button
-    Row(
-      children: [
-        ElevatedButton(
-          onPressed: () {
-          _submitRating(offer, newRate) ; 
-            newRate = 0 ; 
-            calculateRating(offer.sponsorId) ; 
-          },
-          style: ElevatedButton.styleFrom(
-            primary: const Color.fromARGB(255, 91, 79, 158),
-            elevation: 5,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          child: Row(
+                    // If ratings are null
+if (offer.ratings == null) 
+Column(
+  children: !issubmitted
+      ? [
+           Row(
             children: [
-              SizedBox(width: 5),
-              Text(
-                'Rate',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
+              RatingBar.builder(
+                initialRating: offer.ratings ?? 0,
+                minRating: 1,
+                direction: Axis.horizontal,
+                allowHalfRating: false,
+                itemCount: 5,
+                itemSize: 28,
+                itemBuilder: (context, _) => Icon(
+                  Icons.star,
+                  color: Colors.amber,
+                ),
+                onRatingUpdate: (rating) {
+                  newRate = rating;
+                },
+              ),
+            ],
+          ),
+          SizedBox(height: 10), // Add some spacing between stars and button
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  _submitRating(offer, newRate);
+                  newRate = 0;
+                  calculateRating(offer.sponsorId);
+                  issubmitted = true;
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: const Color.fromARGB(255, 91, 79, 158),
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    SizedBox(width: 5),
+                    Text(
+                      'Rate',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-        ),
-      ],
-    ),
-  ],
-),
-                      if (offer.ratings!= null)
-                      
-                      Column(
-                        
-  children: [
-    
-   
-    Row(
-      children: [
-        Text(
-          'Rated with:',
-          style: TextStyle(
-            fontSize: 26,
-            color: Colors.black , 
+          
+        ]
+      : [
+          Row(
+            children: [
+              Text(
+                'Rated with:',
+                style: TextStyle(
+                  fontSize: 26,
+                  color: Colors.black,
+                ),
+              ),
+              Icon(
+                Icons.star,
+                color: Colors.yellow,
+                size: 30,
+              ),
+              Text(
+                ' ${offer.ratings}',
+                style: TextStyle(
+                  fontSize: 26,
+                  color: Colors.black,
+                ),
+              ),
+            ],
           ),
-        ),
-        Icon(
-          Icons.star,
-          color: Colors.yellow,
-          size: 30,
-        ),
-        Text(
-          ' ${offer.ratings}',
-          style: TextStyle(
-            fontSize: 26,
-            color: Colors.black,
+         
+        ],
+)
+
+// If ratings are not null
+else 
+  Column(
+    children: [
+      Row(
+        children: [
+          Text(
+            'Rated with:',
+            style: TextStyle(
+              fontSize: 26,
+              color: Colors.black,
+            ),
           ),
-        ),
-      ],
-    ),
-  ],
-),
+          Icon(
+            Icons.star,
+            color: Colors.yellow,
+            size: 30,
+          ),
+          Text(
+            ' ${offer.ratings}',
+            style: TextStyle(
+              fontSize: 26,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    ],
+  )
 
                      
 
@@ -413,7 +462,7 @@ double calculateRating(String sponsorID) {
     }
   }
 
- 
+
 
 
   }
