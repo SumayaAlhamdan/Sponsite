@@ -43,6 +43,9 @@ class _SponsorProfileState extends State<SponsorProfile> {
     }
   }
 
+  
+
+
   void deleteUserAccount() async {
     check();
     final user = await FirebaseAuth.instance.currentUser;
@@ -74,10 +77,12 @@ class _SponsorProfileState extends State<SponsorProfile> {
     if (filteredEventsWithOffers.isNotEmpty) {
       print(filteredEventsWithOffers);
       print("1111111111111111");
+      
       Navigator.pop(context);
       _showCantDeleteDialog(context);
       return;
     }
+   // _deleteAllUserPosts();
     print("77777777777");
     //    bool _isEventAssociatedWithSponsor(String eventId, String? sponsorID) {
     //   // Check if there is an offer with the specified EventId and sponsorId
@@ -102,6 +107,7 @@ class _SponsorProfileState extends State<SponsorProfile> {
           'Bio': 'This user deleted their account',
           'Social Media': null,
         });
+        _deleteAllUserPosts();
         // del.remove();
         Navigator.pop(context);
         _currentpasswordController.clear();
@@ -517,7 +523,28 @@ class _SponsorProfileState extends State<SponsorProfile> {
     _loadPostsFromFirebase();
     getRateFromDB();
   }
+void _deleteAllUserPosts() {
+  DatabaseReference dbRef = FirebaseDatabase.instance.ref().child('posts');
+    dbRef.onValue.listen((post) {
+      if (post.snapshot.value != null) {
+       
+          posts.clear();
+          Map<dynamic, dynamic> postData =
+              post.snapshot.value as Map<dynamic, dynamic>;
 
+      // Iterate through all posts
+      postData.forEach((key, value) {
+        if (value['userId'] == sponsorID) {
+          // Use key as POSTid for the current post
+          String postID = key;
+
+          // Delete the post
+          dbRef.child(postID).remove();
+        }
+      });
+    }
+  });
+}
   List<Post> posts = [];
   String profilePicUrl = '';
   String profileName = '';
