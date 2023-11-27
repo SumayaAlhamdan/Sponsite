@@ -14,7 +14,8 @@ class Offer {
   String sponsorImage;
   String status;
   double? ratings;
-  bool rated ;  // Updated property name
+  bool rated ; 
+  bool selected ;  // Updated property name
 
   Offer({
     required this.offerId,
@@ -26,6 +27,7 @@ class Offer {
     this.status = 'Pending',
     this.ratings, // Updated property name
     this.rated = false , 
+    this.selected = false, 
   });
 }
 
@@ -77,7 +79,7 @@ bool loaded = false;
                 eventId: value['EventId'] as String? ?? '',
                 sponseeId: value['sponseeId'] as String? ?? '',
                 sponsorId: value['sponsorId'] as String? ?? '',
-                sponsorName: 'krkr',
+                sponsorName: 'Roshn',
                 sponsorImage: '',
                 status: value['Status'] as String? ?? 'Pending',
             //    ratings: (value['sponsorRating'] as num).toDouble() 
@@ -198,11 +200,11 @@ Widget _buildOfferCard(Offer offer) {
                       
                       Padding(  padding: const EdgeInsets.only(left: 334,top: 40)), 
                     // If ratings are null
-if (offer.ratings == null) 
+                    if (offer.ratings == null) 
 Column(
-  children:  !offer.rated 
+  children: !offer.rated
       ? [
-           Row(
+          Row(
             children: [
               RatingBar.builder(
                 initialRating: offer.ratings ?? 0,
@@ -216,7 +218,10 @@ Column(
                   color: Colors.amber,
                 ),
                 onRatingUpdate: (rating) {
-                  newRate = rating;
+                  setState(() {
+                    newRate = rating;
+                    offer.selected = true; // Set the flag to true when a rating is selected
+                  });
                 },
               ),
             ],
@@ -225,15 +230,17 @@ Column(
           Row(
             children: [
               ElevatedButton(
-                onPressed: () {
-                  _submitRating(offer, newRate);
-                  newRate = 0;
-                  calculateRating(offer.sponsorId);
-                   setState(() {
-                        offer.rated = true; // Mark the offer as rated
-                        issubmitted = true;
-                      });
-                },
+                onPressed: offer.selected
+                    ? () {
+                        _submitRating(offer, newRate);
+                        newRate = 0;
+                        calculateRating(offer.sponsorId);
+                        setState(() {
+                          offer.rated = true; // Mark the offer as rated
+                          issubmitted = true;
+                        });
+                      }
+                    : null, // Disable the button if a rating is not selected
                 style: ElevatedButton.styleFrom(
                   primary: const Color.fromARGB(255, 91, 79, 158),
                   elevation: 5,
@@ -256,7 +263,6 @@ Column(
               ),
             ],
           ),
-          
         ]
       : [
           Row(
@@ -282,12 +288,11 @@ Column(
               ),
             ],
           ),
-         
         ],
 )
 
 // If ratings are not null
-else 
+ else 
   Column(
     children: [
       Row(
