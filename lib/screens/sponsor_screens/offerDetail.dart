@@ -829,7 +829,7 @@ Row(
     itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
     itemBuilder: (context, _) => Icon(
       Icons.star,
-       color: Color.fromARGB(255, 51, 45, 81),
+       color: Colors.amber
     ),
     onRatingUpdate: (newRating) {
       rating = newRating;

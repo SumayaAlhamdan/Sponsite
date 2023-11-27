@@ -152,7 +152,8 @@ Widget _buildOfferCard(Offer offer) {
       child: Padding(
         padding: const EdgeInsets.all(13.0),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             GestureDetector(
               child: Container(
@@ -174,10 +175,10 @@ Widget _buildOfferCard(Offer offer) {
               },
             ),
             SizedBox(width: 10),
-            // Use Expanded for sponsor's information
-            Expanded(
-              child: Column(
+            Row(
+                
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GestureDetector(
                     child: Text(
@@ -188,121 +189,146 @@ Widget _buildOfferCard(Offer offer) {
                         color: Colors.black,
                       ),
                     ),
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => ViewOthersProfile(
-                              'Sponsors', offer.sponsorId)));
-                    },
                   ),
                   SizedBox(height: 5),
-                ],
-              ),
-            ),
-            // Spacer to push the rating section to the extreme end
-            Spacer(),
-            // Use Expanded for the rating section
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if (offer.ratings == null)
-                    !offer.rated
-                        ? Row(
-                            children: [
-                              Container(
-                                width: 150,
-                                child: RatingBar.builder(
-                                  initialRating: offer.ratings ?? 0,
-                                  minRating: 1,
-                                  direction: Axis.horizontal,
-                                  allowHalfRating: false,
-                                  itemCount: 5,
-                                  itemSize: 30,
-                                  itemBuilder: (context, _) => Icon(
-                                    Icons.star,
-                                    color: Colors.amber,
-                                  ),
-                                  onRatingUpdate: (rating) {
-                                    newRate = rating;
-                                  },
-                                ),
-                              ),
-                            ],
-                          )
-                        : Row(
-                            children: [
-                              Text(
-                                'Rated with:',
-                                style: TextStyle(
-                                  fontSize: 26,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              Icon(
-                                Icons.star,
-                                color: Colors.yellow,
-                                size: 30,
-                              ),
-                              Text(
-                                ' ${offer.ratings}',
-                                style: TextStyle(
-                                  fontSize: 26,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ],
-                          ),
-                  SizedBox(height: 10),
                   Row(
+                    
+    
                     children: [
-                    Container(
-  width: 112,
-  margin: EdgeInsets.only(left: 16), // Adjust the left margin as needed
-  child: ElevatedButton(
-    onPressed: () {
-      _submitRating(offer, newRate);
-      newRate = 0;
-      calculateRating(offer.sponsorId);
-      setState(() {
-        offer.rated = true;
-        issubmitted = true;
-      });
-    },
-    style: ElevatedButton.styleFrom(
-      primary: const Color.fromARGB(255, 91, 79, 158),
-      elevation: 5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-    ),
-    child: Row(
-      children: [
-        SizedBox(width: 13),
-        Text(
-          'Rate',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
+                      
+                      Padding(  padding: const EdgeInsets.only(left: 334,top: 40)), 
+                    // If ratings are null
+if (offer.ratings == null) 
+Column(
+  children:  !offer.rated 
+      ? [
+           Row(
+            children: [
+              RatingBar.builder(
+                initialRating: offer.ratings ?? 0,
+                minRating: 1,
+                direction: Axis.horizontal,
+                allowHalfRating: true,
+                itemCount: 5,
+                itemSize: 28,
+                itemBuilder: (context, _) => Icon(
+                  Icons.star,
+                  color: Colors.amber,
+                ),
+                onRatingUpdate: (rating) {
+                  newRate = rating;
+                },
+              ),
+            ],
           ),
-        ),
-      ],
-    ),
-  ),
-),
+          SizedBox(height: 10), // Add some spacing between stars and button
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  _submitRating(offer, newRate);
+                  newRate = 0;
+                  calculateRating(offer.sponsorId);
+                   setState(() {
+                        offer.rated = true; // Mark the offer as rated
+                        issubmitted = true;
+                      });
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: const Color.fromARGB(255, 91, 79, 158),
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    SizedBox(width: 5),
+                    Text(
+                      'Rate',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          
+        ]
+      : [
+          Row(
+            children: [
+              Text(
+                'Rated with:',
+                style: TextStyle(
+                  fontSize: 26,
+                  color: Colors.black,
+                ),
+              ),
+              Icon(
+                Icons.star,
+                color: Colors.yellow,
+                size: 30,
+              ),
+              Text(
+                ' ${offer.ratings}',
+                style: TextStyle(
+                  fontSize: 26,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
+         
+        ],
+)
+
+// If ratings are not null
+else 
+  Column(
+    children: [
+      Row(
+        children: [
+          Text(
+            'Rated with:',
+            style: TextStyle(
+              fontSize: 26,
+              color: Colors.black,
+            ),
+          ),
+          Icon(
+            Icons.star,
+            color: Colors.yellow,
+            size: 30,
+          ),
+          Text(
+            ' ${offer.ratings}',
+            style: TextStyle(
+              fontSize: 26,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    ],
+  )
+
+                     
 
                     ],
                   ),
                 ],
               ),
-            ),
+            
           ],
         ),
       ),
     ),
   );
 }
-
-
 
 double ratingSum = 0 ; 
 int count = 0 ; 
