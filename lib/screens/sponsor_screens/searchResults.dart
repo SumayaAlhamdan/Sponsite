@@ -461,6 +461,7 @@ class _ResultPageState extends State<ResultPage> {
           ));
     }).toList();
     _searchEventsByName(originalSearchText);
+    filterUsers(originalSearchText);
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -1264,9 +1265,15 @@ Widget _buildUserCategory(BuildContext context, String category,
                       String userType =
                           (type == 'Sponsee') ? 'Sponsees' : 'Sponsors';
 
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => ViewOthersProfile(userType, id),
-                      ));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ViewOthersProfile(
+                            userType,
+                            id,
+                          ),
+                        ),
+                      );
                     },
                   ),
                 ),

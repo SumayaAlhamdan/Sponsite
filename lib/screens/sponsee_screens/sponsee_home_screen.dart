@@ -589,9 +589,15 @@ class _SponseeHomeState extends State<SponseeHome> {
                         String userType =
                             (type == 'Sponsee') ? 'Sponsees' : 'Sponsors';
 
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => ViewOthersProfile(userType, id),
-                        ));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ViewOthersProfile(
+                              userType,
+                              id,
+                            ),
+                          ),
+                        );
                       },
                     ),
                   ),
