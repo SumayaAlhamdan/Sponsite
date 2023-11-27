@@ -86,12 +86,35 @@ class _ViewOthersProfileState extends State<ViewOthersProfile> {
       }
     });
   }
+  late String rating  = '0.0'  ;  
+  void _getRateFromDB(){ 
+  final DatabaseReference database = FirebaseDatabase.instance.ref();
+  database.child(type).onValue.listen((rate) {
+    print('Thy type there is : ') ; print(type) ; 
+    if (rate.snapshot.value != null) {
+                print('line 94 isnt null') ; 
+      Map<dynamic, dynamic> rateData =
+          rate.snapshot.value as Map<dynamic, dynamic>;
+      rateData.forEach((key, value) {
+        if (key == otherID) {
+          print('They key of spnsee value') ; 
+                   print('They  spnsee id') ;
+          if (value['Rate'] != null) {
+            print('Rate isnt null') ; 
+            rating = value['Rate'] ;
+          }
+       
+          }
+      }
+      ); } }); 
+  }
 
   void initState() {
     super.initState();
     // check();
     _loadProfileFromFirebase();
     _loadPostsFromFirebase();
+    _getRateFromDB() ; 
   }
 
   List<Post> posts = [];
@@ -322,15 +345,32 @@ class _ViewOthersProfileState extends State<ViewOthersProfile> {
               padding: const EdgeInsets.all(0.0),
               child: Column(
                 children: [
-                  if (sponseeList.isNotEmpty)
-                    Text(
-                      sponseeList.first.name,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontWeight: FontWeight.bold, fontSize: 40),
-                    ),
-                  // const _ProfileInfoRow(),
+if (sponseeList.isNotEmpty)
+  Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Text(
+        sponseeList.first.name,
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              fontSize: 40,
+            ),
+      ),
+      SizedBox(width: 10), // Adjust the width according to your preference
+      Icon(
+        Icons.star,
+        color: Colors.yellow,
+        size: 30,
+      ),
+      Text(
+        rating,
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontSize: 20,
+            ),
+      ),
+    ],
+  ),
+                   
                   if (sponseeList.isNotEmpty)
                     SizedBox(
                       width: 600,

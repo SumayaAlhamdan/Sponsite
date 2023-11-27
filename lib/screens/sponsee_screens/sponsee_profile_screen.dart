@@ -65,7 +65,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
     }
   }
 
-    late String rating  = '8'  ;  
+    late String rating  = '0'  ;  
   void _getRateFromDB(){ 
   final DatabaseReference database = FirebaseDatabase.instance.ref();
   database.child('Sponsees').onValue.listen((rate) {
