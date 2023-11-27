@@ -76,12 +76,9 @@ void initState() {
   super.initState();
 
 
-  // Call the method to fetch the rating
   fetchOfferRating(widget.sponseeId, widget.EventId).then((double? rating) {
-    // Handle the rating value (null if not available)
     if (rating != null) {
       setState(() {
-        // Update the widget property with the fetched rating
         widget.rating = rating;
       });
     }
@@ -849,7 +846,7 @@ const SizedBox(height: 20),
                               // Handle submission of the rating
                               Navigator.of(context).pop();
                               _submitRating(widget.sponseeId,widget.EventId, rating) ; 
-                              // You can also save the rating to the database here
+                              calculateRating(widget.sponseeId) ; 
                             },
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
@@ -926,7 +923,35 @@ Future<void> _submitRating(String sponseeID, String eventId, double rate) async 
   }
 }
 
+double ratingSum = 0 ; 
+int count = 0 ; 
+double calculateRating(String sponseeID) {
+  final DatabaseReference database = FirebaseDatabase.instance.ref();
 
+  database.child('offers').onValue.listen((rates) {
+    if (rates.snapshot.value != null) {
+      Map<dynamic, dynamic> offerData =
+          rates.snapshot.value as Map<dynamic, dynamic>;
+      offerData.forEach((key, value) {
+        if (value['sponseeId'] == sponseeID) {
+          if (value['sponseeRating'] != null) {
+            ratingSum += value['sponseeRating'];
+            count++;
+          }
+        }
+      });
+
+      // Update the 'Rate' value under the specified sponsorID in 'Sponsors'
+      final DatabaseReference databaseSponsor = FirebaseDatabase.instance.ref();
+      final DatabaseReference sponseeRef =
+          databaseSponsor.child('Sponsees').child(sponseeID);
+      sponseeRef.child('Rate').set((ratingSum/count).toStringAsFixed(1)) ;
+    }
+  });
+
+  // Return 0 if the 'offers' data is null to avoid division by zero
+  return ratingSum / count;
+}
 
 
 }

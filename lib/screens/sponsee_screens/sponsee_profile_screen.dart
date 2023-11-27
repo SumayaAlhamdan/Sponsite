@@ -65,6 +65,26 @@ class _SponseeProfileState extends State<SponseeProfile> {
     }
   }
 
+    late String rating  = '0'  ;  
+  void _getRateFromDB(){ 
+  final DatabaseReference database = FirebaseDatabase.instance.ref();
+  database.child('Sponsees').onValue.listen((rate) {
+    if (rate.snapshot.value != null) {
+      Map<dynamic, dynamic> rateData =
+          rate.snapshot.value as Map<dynamic, dynamic>;
+      rateData.forEach((key, value) {
+        if (key == sponseeID) {
+          print('They key of spnsee value') ; print(key) ; 
+                   print('They  spnsee id') ; print(sponseeID) ; 
+          if (value['Rate'] != null) {
+            print('rating isnt null') ; print(value['Rate']) ; 
+                  rating = value['Rate'].toString() ; 
+          }}
+      }
+      ); } }); 
+  }
+
+
   void deleteUserAccount() async {
     check();
     final user = await FirebaseAuth.instance.currentUser;
@@ -424,6 +444,7 @@ return;
     check();
     _loadProfileFromFirebase();
     _loadPostsFromFirebase();
+      _getRateFromDB() ; 
   }
 
   List<Post> posts = [];
@@ -801,6 +822,19 @@ return;
                                 .titleLarge
                                 ?.copyWith(
                                     fontWeight: FontWeight.bold, fontSize: 40),
+                          ),
+                                      Icon(
+          Icons.star,
+          color: Colors.yellow,
+          size: 30,
+        ),
+                          Text(
+                           rating, 
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                    fontSize: 20),
                           ),
                         ],
                       ),

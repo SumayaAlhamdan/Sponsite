@@ -370,6 +370,22 @@ return;
     );
   }
 
+    String rating = '0' ;  
+  void getRateFromDB(){ 
+  final DatabaseReference database = FirebaseDatabase.instance.ref();
+  database.child('Sponsors').onValue.listen((rate) {
+    if (rate.snapshot.value != null) {
+      Map<dynamic, dynamic> rateData =
+          rate.snapshot.value as Map<dynamic, dynamic>;
+      rateData.forEach((key, value) {
+        if (key == sponsorID) {
+          if (value['Rate'] != null) {
+                  rating = value['Rate'].toString() ; 
+          }}
+      }
+      ); } }); 
+  }
+
   void _showChangePasswordDialog(BuildContext context) {
     showDialog<void>(
       context: context,
@@ -505,6 +521,7 @@ return;
     check();
     _loadProfileFromFirebase();
     _loadPostsFromFirebase();
+     getRateFromDB() ; 
   }
 
   List<Post> posts = [];
@@ -834,6 +851,19 @@ return;
                                 .titleLarge
                                 ?.copyWith(
                                     fontWeight: FontWeight.bold, fontSize: 40),
+                          ),
+                             Icon(
+          Icons.star,
+          color: Colors.yellow,
+          size: 30,
+        ),
+                          Text(
+                           rating, 
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                    fontSize: 20),
                           ),
                         ])),
                   ElevatedButton(

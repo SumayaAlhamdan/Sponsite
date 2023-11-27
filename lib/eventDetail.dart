@@ -53,7 +53,6 @@ class eventDetail extends StatefulWidget {
 class _Start extends State<eventDetail> {
   double screenWidth = 0;
   double screenHeight = 0;
-    final DatabaseReference database = FirebaseDatabase.instance.ref("Rate");
 
 
   //bool isCurrentTabSelected = true;  Indicates whether "Current Events" tab is selected

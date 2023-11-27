@@ -103,6 +103,8 @@ class _Rating extends State<Rating> {
     });
   }
 
+ 
+
   late double newRate ; 
 Widget _buildOfferCard(Offer offer) {
   return Container(
@@ -199,6 +201,7 @@ Widget _buildOfferCard(Offer offer) {
           onPressed: () {
           _submitRating(offer, newRate) ; 
             newRate = 0 ; 
+            calculateRating(offer.sponsorId) ; 
           },
           style: ElevatedButton.styleFrom(
             primary: const Color.fromARGB(255, 91, 79, 158),
@@ -270,6 +273,38 @@ Widget _buildOfferCard(Offer offer) {
     ),
   );
 }
+
+double ratingSum = 0 ; 
+int count = 0 ; 
+double calculateRating(String sponsorID) {
+  final DatabaseReference database = FirebaseDatabase.instance.ref();
+
+  database.child('offers').onValue.listen((rates) {
+    if (rates.snapshot.value != null) {
+      Map<dynamic, dynamic> offerData =
+          rates.snapshot.value as Map<dynamic, dynamic>;
+      offerData.forEach((key, value) {
+        if (value['sponsorId'] == sponsorID) {
+          if (value['sponsorRating'] != null) {
+            ratingSum += value['sponsorRating'];
+            count++;
+          }
+        }
+      });
+
+      // Update the 'Rate' value under the specified sponsorID in 'Sponsors'
+      final DatabaseReference databaseSponsor = FirebaseDatabase.instance.ref();
+      final DatabaseReference sponsorRef =
+          databaseSponsor.child('Sponsors').child(sponsorID);
+
+      sponsorRef.child('Rate').set((ratingSum/count).toStringAsFixed(1)) ;
+    }
+  });
+
+  // Return 0 if the 'offers' data is null to avoid division by zero
+  return ratingSum / count;
+}
+
 
 
   void _submitRating(Offer offer,double rating) async {
@@ -377,4 +412,9 @@ Widget _buildOfferCard(Offer offer) {
       );
     }
   }
-}
+
+ 
+
+
+  }
+
