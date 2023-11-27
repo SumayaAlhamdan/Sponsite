@@ -762,11 +762,10 @@ return;
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
+      body: Column(
           children: [
-            Container(
-              height: 200, // Adjust the height as needed
+             Expanded(
+              flex: 2, // Adjust the height as needed
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -811,8 +810,10 @@ return;
                 ],
               ),
             ),
-            Container(
-              height: 100, // Adjust the height as needed
+             Expanded(
+            flex: 5,
+            child: Padding(
+              padding: const EdgeInsets.all(0.0),
               child: Column(
                 children: [
                   if (sponseeList.isNotEmpty)
@@ -865,9 +866,9 @@ return;
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
+                
+              
+            
             if (sponseeList.isNotEmpty)
               SizedBox(
                 width: 600,
@@ -951,6 +952,9 @@ return;
               ),
           ],
         ),
+            ),
+             ),
+          ],
       ),
     );
   }
