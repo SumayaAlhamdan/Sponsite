@@ -65,7 +65,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
     }
   }
 
-    late String rating  = '0'  ;  
+    late String rating  = '8'  ;  
   void _getRateFromDB(){ 
   final DatabaseReference database = FirebaseDatabase.instance.ref();
   database.child('Sponsees').onValue.listen((rate) {
@@ -77,11 +77,16 @@ class _SponseeProfileState extends State<SponseeProfile> {
           print('They key of spnsee value') ; print(key) ; 
                    print('They  spnsee id') ; print(sponseeID) ; 
           if (value['Rate'] != null) {
-            print('rating isnt null') ; print(value['Rate']) ; 
-                  rating = value['Rate'].toString() ; 
-          }}
+            rating = value['Rate'] ; 
+            print(rating) ; 
+
+          
+          }
+       
+          }
       }
       ); } }); 
+       print('before the return') ; print(rating) ; 
   }
 
 
@@ -444,7 +449,7 @@ return;
     check();
     _loadProfileFromFirebase();
     _loadPostsFromFirebase();
-      _getRateFromDB() ; 
+     _getRateFromDB() ; 
   }
 
   List<Post> posts = [];
@@ -829,7 +834,7 @@ return;
           size: 30,
         ),
                           Text(
-                           rating, 
+                           rating,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleLarge
