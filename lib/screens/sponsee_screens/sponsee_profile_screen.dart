@@ -141,6 +141,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
               'https://firebasestorage.googleapis.com/v0/b/sponsite-6a696.appspot.com/o/user_images%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1%2FCrHfFHgX0DNzwmVmwXzteQNuGRr1.jpg?alt=media&token=4e08e9f5-d526-4d2c-817b-11f9208e9b52',
           'Bio': 'This user deleted their account',
           'Social Media': null,
+          'Deleted':true,
         });
         _deleteAllUserPosts();
         //  del.remove();
