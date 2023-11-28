@@ -33,6 +33,7 @@ class _SponsorChatState extends State<SponsorChat> {
       ),
       ),
     child: Scaffold(
+      backgroundColor: Colors.white,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(105), // Adjust the height as needed
         child: CustomAppBar(
@@ -170,6 +171,7 @@ class _SponsorChatState extends State<SponsorChat> {
     return Card(
       color: Color.fromARGB(255, 255, 255, 255),
       child: ListTile(
+        tileColor: Colors.white,
         leading: Container(
           decoration: const BoxDecoration(
             color: Colors.transparent,
