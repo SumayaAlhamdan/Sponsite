@@ -287,19 +287,30 @@ class _sponsorEditProfileState extends State<sponsorEditProfile> {
 
   @override
   Widget build(BuildContext context) {
-     return Theme(
+   return Theme(
       // Apply your theme settings within the Theme widget
-      data: ThemeData(
-        // Set your desired font family or other theme configurations
-        fontFamily: 'Urbanist',
-        textTheme: TextTheme(
-      displayLarge: const TextStyle(
-        fontSize: 72,
-        fontWeight: FontWeight.bold,
-      ),
-        // Add other theme configurations here as needed
-      ),
-      ),
+      data: ThemeData(useMaterial3: true,
+  primaryColor: Color.fromARGB(255, 91, 79, 158),
+  fontFamily: 'Urbanist',
+//   inputDecorationTheme: InputDecorationTheme(
+//     focusedBorder: OutlineInputBorder(
+//       borderSide: BorderSide(color: Color.fromARGB(255, 91, 79, 158),
+// ), // Set border color when focused
+//     ),
+//     labelStyle: TextStyle(
+//       color: Colors.black, // Set default label color
+//     ),
+//     prefixIconColor: Colors.black, // Set default icon color
+//     ),
+
+//     iconTheme:  IconThemeData(color: Color.fromARGB(255, 91, 79, 158 )
+
+//     ),
+  
+//   scaffoldBackgroundColor: Colors.white,
+  // other theme properties...
+),
+   
     child: Scaffold(
         appBar: AppBar(
           backgroundColor: const Color.fromARGB(255, 51, 45, 81),

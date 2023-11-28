@@ -16,7 +16,8 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(
       await _firebaseMessagingBackgroundHandler);
   runApp(MaterialApp(
-        theme: ThemeData(useMaterial3: true),
+        theme: ThemeData(useMaterial3: true, 
+        fontFamily: 'Urbanist',),
 
 //     theme:ThemeData(
 //         // Set your desired font family or other theme configurations
