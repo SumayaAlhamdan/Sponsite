@@ -104,7 +104,7 @@ void dispose() {
             ),  
             
         ), 
-        SizedBox(height: 10),  
+        SizedBox(height: 8),  
           SizedBox(
             width: double.infinity,
             height: 180,  
@@ -254,7 +254,7 @@ void dispose() {
                   ),
                 ),
                 const SizedBox(
-                  height: 18  ,   
+                  height: 9  ,   
                 ),  
                 Align(    
                   alignment: Alignment.bottomRight,

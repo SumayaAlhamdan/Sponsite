@@ -71,7 +71,7 @@ class ChatService extends ChangeNotifier {
   FirebaseAuth auth = FirebaseAuth.instance;
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
   List<Map<String, dynamic>> messagesAndFiles = [];
-
+static String userType = "null" ;
   String get currentUserId {
     final User? currentUser = auth.currentUser;
     return currentUser?.uid ?? '';
@@ -351,7 +351,8 @@ class ChatService extends ChangeNotifier {
 
     final Map<String, dynamic> data = {
       'click_action': 'FLUTTER_NOTIFICATION_CLICK',
-      'notif_type': 'status'
+      'notif_type': 'chat',
+      'userType': '$userType'
       // Add any additional data you want to send
     };
 
@@ -404,6 +405,7 @@ class ChatService extends ChangeNotifier {
     final Map<dynamic, dynamic>? data =
         dataSnapshot.value as Map<dynamic, dynamic>?;
     if (data != null && data.containsKey('Name')) {
+      userType = "Sponsee" ;
       return data['Name'].toString();
     }
 else{
@@ -412,6 +414,7 @@ else{
     final Map<dynamic, dynamic>? data =
         dataSnapshot.value as Map<dynamic, dynamic>?;
     if (data != null && data.containsKey('Name')) {
+      userType = "Sponsor" ;
       return data['Name'].toString();
     }
 }

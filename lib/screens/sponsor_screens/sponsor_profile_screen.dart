@@ -753,6 +753,7 @@ void _deleteAllUserPosts() {
       ),
       ),
     child: Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 51, 45, 81),
         leading: IconButton(
@@ -1095,6 +1096,7 @@ class PostContainer extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: const Text('Delete Post Confirmation'),
           content: const Text(
             'Are you sure you want to delete this post?                                   ',
