@@ -260,6 +260,7 @@ Future<double?> fetchOfferRating(String sponseeID, String eventId, String? spons
       data: ThemeData(
         // Set your desired font family or other theme configurations
         fontFamily: 'Urbanist',
+        useMaterial3: true,
         textTheme: TextTheme(
       displayLarge: const TextStyle(
         fontSize: 72,
