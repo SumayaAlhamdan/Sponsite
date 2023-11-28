@@ -336,7 +336,7 @@ Row(
         ),
       ),
     ),
-    if (widget.isPast)
+    if (widget.isPast&&widget.status == 'Accepted')
       widget.rating == null
           ? ElevatedButton.icon(
               onPressed: () {
