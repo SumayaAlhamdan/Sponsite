@@ -725,6 +725,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 51, 45, 81),
         leading: IconButton(
@@ -901,6 +902,7 @@ class _SponseeProfileState extends State<SponseeProfile> {
                           height: 200, // Adjust the height as needed
                           child: Center(
                             child: Card(
+                              color: Colors.white,
                               margin: const EdgeInsets.all(16.0),
                               elevation: 0,
                               shape: RoundedRectangleBorder(
