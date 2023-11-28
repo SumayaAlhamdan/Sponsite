@@ -413,7 +413,7 @@ if(filteredEvents.isNotEmpty){
         ),
         SizedBox(height: 20), // Adjust the spacing as needed
         Text(
-          'There are no current events yet',
+          'No current events available',
           style: TextStyle(
             fontSize: 24, // Adjust the font size as needed
           ),
@@ -484,7 +484,7 @@ filteredEvents.sort((a, b) => parseEventDateAndTime(b.startDate, b.startTime).co
         ),
         SizedBox(height: 20), // Adjust the spacing as needed
         Text(
-          'There Are No Past Events Yet',
+          'No past events available',
           style: TextStyle(
             fontSize: 24, // Adjust the font size as needed
           ),
