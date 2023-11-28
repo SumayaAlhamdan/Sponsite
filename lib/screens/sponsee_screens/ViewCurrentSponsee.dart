@@ -366,7 +366,7 @@ final filteredEvents = events.where((event) {
   final eventDateTime = parseEventDateAndTime(event.endDate, event.startTime);
   return eventDateTime.isAfter(now);
 }).toList();
-
+if(filteredEvents.isNotEmpty){
   return Padding(
     padding: const EdgeInsets.only(top: 1),
     child: Column(
@@ -396,7 +396,31 @@ final filteredEvents = events.where((event) {
       ],
     ),
   );
-}
+}else {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 282,
+          height: 284,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/Time.png'),
+              fit: BoxFit.fitWidth,
+            ),
+          ),
+        ),
+        SizedBox(height: 20), // Adjust the spacing as needed
+        Text(
+          'There are no current events yet',
+          style: TextStyle(
+            fontSize: 24, // Adjust the font size as needed
+          ),
+        ),
+      ],
+    );
+  }}
 
 Widget _buildPastEventsPage() {
   DateTime parseEventDateAndTime(String date, String time) {
