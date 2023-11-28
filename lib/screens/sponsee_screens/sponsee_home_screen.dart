@@ -336,7 +336,7 @@ class _SponseeHomeState extends State<SponseeHome> {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          "Search results for user",
+                          "Search results for user \"${searched}\"",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 30,
@@ -475,9 +475,8 @@ class _SponseeHomeState extends State<SponseeHome> {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(height: 20,),
           Text(
-            'No users that matched "$searchQuery"',
+            'No users that matched $searchQuery',
             style: TextStyle(
               fontSize: 24,
               color: Color.fromARGB(255, 189, 189, 189),
@@ -528,7 +527,8 @@ class _SponseeHomeState extends State<SponseeHome> {
             ),*/
             ListView(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              physics:
+                  const AlwaysScrollableScrollPhysics(), // Wrap your content in SingleChildScrollView to enable scrolling
               children: users.map((user) {
                 String id = user['ID'] ?? 'No ID available';
                 String name = user['Name'] ?? 'No name available';
@@ -589,7 +589,6 @@ class _SponseeHomeState extends State<SponseeHome> {
                       onPressed: () {
                         String userType =
                             (type == 'Sponsee') ? 'Sponsees' : 'Sponsors';
-
                         Navigator.push(
                           context,
                           MaterialPageRoute(
