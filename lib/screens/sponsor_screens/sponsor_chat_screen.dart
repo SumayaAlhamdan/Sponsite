@@ -2,9 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:sponsite/widgets/customAppBar.dart';
 import 'package:sponsite/screens/chatPage.dart';
 import 'package:sponsite/screens/chat_service.dart';
+import 'package:sponsite/widgets/customAppBar.dart';
 
 class SponsorChat extends StatefulWidget {
   const SponsorChat({Key? key}) : super(key: key);
@@ -19,7 +19,20 @@ class _SponsorChatState extends State<SponsorChat> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+     return Theme(
+      // Apply your theme settings within the Theme widget
+      data: ThemeData(
+        // Set your desired font family or other theme configurations
+        fontFamily: 'Urbanist',
+        textTheme: TextTheme(
+      displayLarge: const TextStyle(
+        fontSize: 72,
+        fontWeight: FontWeight.bold,
+      ),
+        // Add other theme configurations here as needed
+      ),
+      ),
+    child: Scaffold(
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(105), // Adjust the height as needed
         child: CustomAppBar(
@@ -27,6 +40,7 @@ class _SponsorChatState extends State<SponsorChat> {
         ),
       ),
       body: buildUserList(),
+    )
     );
   }
 

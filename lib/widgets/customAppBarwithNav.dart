@@ -36,7 +36,8 @@ class CustomAppBar extends StatelessWidget {
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 35,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Urbanist'
                   ),  
                 ),  
               ),  
@@ -65,7 +66,7 @@ class CustomAppBar extends StatelessWidget {
               icon: Icon(Icons.arrow_back),
               alignment: Alignment.topLeft,
               color: Colors.white,
-              iconSize:40,  
+              iconSize:30,  
               onPressed: () {
                 Navigator.of(context).pop();
               },        

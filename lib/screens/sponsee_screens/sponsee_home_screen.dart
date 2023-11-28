@@ -475,8 +475,9 @@ class _SponseeHomeState extends State<SponseeHome> {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          SizedBox(height: 20,),
           Text(
-            'No users that matched $searchQuery',
+            'No users that matched "$searchQuery"',
             style: TextStyle(
               fontSize: 24,
               color: Color.fromARGB(255, 189, 189, 189),

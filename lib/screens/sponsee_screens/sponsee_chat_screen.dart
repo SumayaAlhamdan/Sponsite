@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sponsite/screens/chatPage.dart';
 import 'package:sponsite/screens/chat_service.dart';
-import 'package:sponsite/screens/sponsor_screens/sponsor_home_screen.dart';
+import 'package:sponsite/widgets/customAppBar.dart';
+
 
 class SponseeChat extends StatefulWidget {
   const SponseeChat({Key? key}) : super(key: key);
@@ -20,14 +21,10 @@ class _SponseeChatState extends State<SponseeChat> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Chat',
-          style: TextStyle(
-            color: Color.fromARGB(255, 51, 45, 81),
-            fontWeight: FontWeight.bold,
-            fontSize: 40,
-          ),
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(105), // Adjust the height as needed
+        child: CustomAppBar(
+          title: 'Chat',
         ),
       ),
       body: buildUserList(),

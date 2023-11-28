@@ -1,19 +1,13 @@
 import 'dart:convert';
 
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:http/http.dart' as http;
-import 'package:sponsite/local_notifications.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_webservice/places.dart';
+import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:sponsite/widgets/customAppBarwithNav.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
 import 'package:sponsite/screens/view_others_profile.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sponsite/widgets/customAppBarwithNav.dart';
 
 
 class Event {
@@ -122,6 +116,7 @@ class _RecentEventsDetailsState extends State<RecentEventsDetails> {
   void initState() {
     super.initState();
     loadButtonStatus();   
+        setTimePhrase();
   
   }
   void loadButtonStatus() async{
@@ -139,6 +134,58 @@ class _RecentEventsDetailsState extends State<RecentEventsDetails> {
       });   
   }
   }
+  String st = "";
+  String et = "";
+  String stP = "";
+  String etP = "";
+
+void setTimePhrase() {
+  // Splitting the time by the ':' separator
+  List<String> startSplit = widget.startTime.split(':');
+  List<String> endSplit = widget.endTime.split(':');
+  // Extracting hours part as an integer
+  int? sHour = int.tryParse(startSplit[0]);
+    int? sMin = int.tryParse(startSplit[1]);
+
+  int? eHour = int.tryParse(endSplit[0]);
+    int? eMin = int.tryParse(endSplit[1]);
+
+
+  // Checking if the parsed hour is not null and within the valid range
+  if (sHour != null && sHour >= 0 && sHour <= 23) {
+    stP = sHour < 12 ? "AM" : "PM";
+  } else {
+    // Handling the case when the hour is invalid
+    stP = "Invalid start time";
+  }
+
+ if (eHour != null && eHour >= 0 && eHour <= 23) {
+    etP = eHour < 12 ? "AM" : "PM";
+  } else {
+    // Handling the case when the hour is invalid
+    etP = "Invalid start time";
+  }
+
+  if(sHour != null && stP=="PM"){
+    sHour=sHour-12;
+    st="${sHour}:${sMin}";
+  }
+  else{
+   st=widget.startTime;
+
+  }
+
+  if(eHour != null && etP=="PM"){
+    eHour=eHour-12;
+    et="${eHour}:${eMin}";
+  }
+  else{
+      et=widget.endTime;
+  }
+
+  print(st);
+  print(et);
+}
 
 
   @override
@@ -160,7 +207,6 @@ class _RecentEventsDetailsState extends State<RecentEventsDetails> {
     if (widget.location != "null") getloc();
 
     Widget buildMap() {
-      print("here!!");
       return Stack(
         children: [
           Container(
@@ -212,8 +258,20 @@ class _RecentEventsDetailsState extends State<RecentEventsDetails> {
         return "Error retrieving address";
       }
     }
-
-    return Scaffold(
+  return Theme(
+      // Apply your theme settings within the Theme widget
+      data: ThemeData(
+        // Set your desired font family or other theme configurations
+        fontFamily: 'Urbanist',
+        textTheme: TextTheme(
+      displayLarge: const TextStyle(
+        fontSize: 72,
+        fontWeight: FontWeight.bold,
+      ),
+        // Add other theme configurations here as needed
+      ),
+      ),
+    child: Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -353,7 +411,7 @@ class _RecentEventsDetailsState extends State<RecentEventsDetails> {
                           _buildInfoRow(Icons.calendar_today,
                               "${widget.startDate} - ${widget.endDate}", "Date"),
                           _buildInfoRow(Icons.access_time,
-                              "${widget.startTime}-${widget.endTime}", "Time"),
+                              "${st} ${stP} - ${et} ${etP}", "Time"),
                           _buildInfoRow(
                               Icons.people, widget.NumberOfAttendees, "Attendees"),
                           if (widget.location != "null")
@@ -486,7 +544,8 @@ class _RecentEventsDetailsState extends State<RecentEventsDetails> {
           ),  
         ],
       ),
-    );
+    ),
+  );
   }
   Widget _buildInfoRow(IconData icon, String text, String label) {
     return Padding(
@@ -507,7 +566,7 @@ class _RecentEventsDetailsState extends State<RecentEventsDetails> {
                 Text(
                   label,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 18,
                     color: Colors.black54,
                   ),
                 ),

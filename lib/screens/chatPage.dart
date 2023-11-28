@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart';
@@ -85,7 +84,22 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+     return Theme(
+      // Apply your theme settings within the Theme widget
+      data: ThemeData(
+        // Set your desired font family or other theme configurations
+        textTheme: TextTheme(
+      displayLarge: const TextStyle(
+        fontSize: 72,
+        fontWeight: FontWeight.bold,
+                fontFamily: 'Urbanist',
+
+      ),
+        // Add other theme configurations here as needed
+      ),
+      ),
+    child:
+     Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 51, 45, 81),
         shape: const RoundedRectangleBorder(
@@ -229,7 +243,7 @@ class _ChatPageState extends State<ChatPage> {
             icon: const Icon(
               Icons.more_horiz,
               color: Color.fromARGB(255, 255, 255, 255),
-              size: 50,
+              size: 40,
             ),
             onSelected: (value) {
               // Handle menu item selection here
@@ -315,7 +329,7 @@ class _ChatPageState extends State<ChatPage> {
                             width: 200, // Specify the width of the image
                             height: 200, // Specify the height of the image
                           ),
-                          Text('There are no messages in this chat yet'),
+                          Text('There are no messages in this chat yet', ),
                         ],
                       ),
                     );
@@ -463,7 +477,8 @@ class _ChatPageState extends State<ChatPage> {
                         hintText: "Type your message...",
                         hintStyle: TextStyle(
                             color: Color.fromARGB(
-                                255, 51, 45, 81)), // Change hint text color
+                                255, 51, 45, 81),
+                    ), // Change hint text color
                       ),
                     ),
                   ),
@@ -498,6 +513,7 @@ class _ChatPageState extends State<ChatPage> {
           ),
         ],
       ),
-    );
+    )
+     );
   }
 }

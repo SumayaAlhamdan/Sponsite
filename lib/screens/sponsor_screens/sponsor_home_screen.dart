@@ -339,13 +339,13 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
         },
         child: SizedBox(
           height: 220, // Set the desired fixed height
-          width: 400, // Set the desired fixed width
+          width: 400, 
           child: Card(
             elevation: 0,
             child: Container(
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 255, 255, 255),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(4),
                 image: DecorationImage(
                   image: event.imgURL.isNotEmpty
                       ? NetworkImage(event.imgURL)
@@ -369,8 +369,8 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.6),
                         borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(12),
-                          bottomRight: Radius.circular(12),
+                          bottomLeft: Radius.circular(25),
+                          bottomRight: Radius.circular(25),
                         ),
                       ),
                       child: Text(
@@ -379,6 +379,8 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
+                                  fontFamily: 'Urbanist',
+
                         ),
                       ),
                     ),
@@ -390,8 +392,20 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
         ),
       );
     }).toList();
-
-    return Scaffold(
+  return Theme(
+      // Apply your theme settings within the Theme widget
+      data: ThemeData(
+        // Set your desired font family or other theme configurations
+        fontFamily: 'Urbanist',
+        textTheme: TextTheme(
+      displayLarge: const TextStyle(
+        fontSize: 72,
+        fontWeight: FontWeight.bold,
+      ),
+        // Add other theme configurations here as needed
+      ),
+      ),
+    child: Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         physics:
@@ -592,23 +606,6 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                 ),
               ],
             ),
-            // Container(
-            //   height: 40,
-            //   padding: const EdgeInsets.symmetric(horizontal: 16),
-            //   child: Column(
-            //     children: [
-            //       Row(
-            //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //         children: [
-            //           _buildCategoryText('All', selectedCategory == 'All'),
-            //           _buildCategoryText('Education', false),
-            //           _buildCategoryText('Cultural', false),
-            //           _buildCategoryText('Financial Support', false),
-            //         ],
-            //       ),
-            //     ],
-            //   ),
-            // ),
             Container(
               height: 40,
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -636,7 +633,9 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                               FselectedCategories.isNotEmpty) ||
                           (FselectedCities != null &&
                               FselectedCities.isNotEmpty))
-                        Text(
+                          Padding(
+                            padding: EdgeInsets.only(left: 16),
+                        child: Text(
                           'Filtered By:',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
@@ -644,6 +643,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                             color: Color.fromARGB(255, 91, 79, 158),
                           ),
                         ),
+                          ),
                       SizedBox(width: 10),
                       Wrap(
                         spacing: 8.0,
@@ -673,7 +673,6 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                               label: Text(
                                   'Categories: ${FselectedCategories.join(', ')}'),
                               labelStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(255, 91, 79, 158),
                               ),
                             ),
@@ -683,7 +682,6 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                               label:
                                   Text('Cities: ${FselectedCities.join(', ')}'),
                               labelStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(255, 91, 79, 158),
                               ),
                             ),
@@ -716,7 +714,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                           },
                           child: Row(
                             children: [
-                              Icon(Icons.close), // Trash icon
+                              Icon(Icons.close, color: Color.fromARGB(255, 91, 79, 158),), // Trash icon
                               SizedBox(
                                   width:
                                       8), // Add some space between the icon and text
@@ -741,8 +739,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                                 child: Text(
                                   "No events that match your filtered criteria",
                                   style: TextStyle(
-                                    fontSize: 24,
-                                    color: Color.fromARGB(255, 189, 189, 189),
+                                    fontSize: 20,
                                   ),
                                 ),
                               )
@@ -750,8 +747,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                                 child: Text(
                                   "No recent events in $selectedCategory",
                                   style: TextStyle(
-                                    fontSize: 24,
-                                    color: Color.fromARGB(255, 189, 189, 189),
+                                    fontSize: 20,
                                   ),
                                 ),
                               )
@@ -815,7 +811,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                                   child: Card(
                                     elevation: 5,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
                                     child: Column(
                                       crossAxisAlignment:
@@ -853,7 +849,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                                                 event.EventName,
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 20,
+                                                  fontSize: 25,
                                                   color: Color.fromARGB(
                                                       255, 0, 0, 0),
                                                 ),
@@ -999,7 +995,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                                                   Text(
                                                     'more details',
                                                     style: TextStyle(
-                                                      fontSize: 16,
+                                                      fontSize: 18,
                                                       fontStyle:
                                                           FontStyle.italic,
                                                       color: Color.fromARGB(
@@ -1033,7 +1029,8 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildCategoryText(int index) {
@@ -1060,6 +1057,7 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
               category,
               style: TextStyle(
                 fontSize: 16,
+                fontFamily: 'Urbanist',
                 color: isSelected
                     ? const Color.fromARGB(255, 91, 79, 158)
                     : Colors.grey, // Button color
@@ -1266,11 +1264,24 @@ class _FilterDialogState extends State<FilterDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+      return Theme(
+      // Apply your theme settings within the Theme widget
+      data: ThemeData(
+        // Set your desired font family or other theme configurations
+        fontFamily: 'Urbanist',
+        textTheme: TextTheme(
+      displayLarge: const TextStyle(
+        fontSize: 72,
+        fontWeight: FontWeight.bold,
+      ),
+        // Add other theme configurations here as needed
+      ),
+      ),
+     child: AlertDialog(
       scrollable: true,
       title: Text(
-        'Filter Events By:',
-        style: TextStyle(color: Color.fromARGB(255, 91, 79, 158)),
+        'Filter Events:',
+        style: TextStyle(color: Color.fromARGB(255, 91, 79, 158),fontSize: 25, fontWeight: FontWeight.bold,),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1278,13 +1289,15 @@ class _FilterDialogState extends State<FilterDialog> {
           Text(
             'Number of Attendees (Min and Max):',
             style: TextStyle(
-                color: Color.fromARGB(255, 91, 79, 158), fontSize: 20),
+                color: Color.fromARGB(255, 91, 79, 158), fontSize: 20, fontWeight: FontWeight.bold),
           ),
+        SizedBox(height: 16),
+
           Row(
             children: [
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       'Min',
@@ -1293,19 +1306,34 @@ class _FilterDialogState extends State<FilterDialog> {
                         fontSize: 15,
                       ),
                     ),
-                    Text(
-                      '$_minValue', // Display the min value as plain text
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
+                    TextFormField(
+                      keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+     focusedBorder: UnderlineInputBorder(
+      borderSide: BorderSide(color: Color.fromARGB(255, 91, 79, 158)),
+    ),),
+        cursorColor: Color.fromARGB(255, 91, 79, 158),
+
+                      controller:
+                          TextEditingController(text: _minValue.toString()),
+                      onChanged: (value) {
+                        try {
+                          int min = int.parse(value);
+                          setState(() {
+                            _minValue = min;
+                          });
+                        } catch (e) {
+                          print('Error parsing Min: $e');
+                        }
+                      },
                     ),
                   ],
                 ),
               ),
-              SizedBox(width: 16),
+              SizedBox(width: 200),
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       'Max',
@@ -1314,11 +1342,25 @@ class _FilterDialogState extends State<FilterDialog> {
                         fontSize: 15,
                       ),
                     ),
-                    Text(
-                      '$_maxValue', // Display the max value as plain text
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
+                    TextFormField(
+                      keyboardType: TextInputType.number,
+                                   decoration: InputDecoration(
+     focusedBorder: UnderlineInputBorder(
+      borderSide: BorderSide(color: Color.fromARGB(255, 91, 79, 158)),
+    ),),
+    cursorColor: Color.fromARGB(255, 91, 79, 158),
+                      controller:
+                          TextEditingController(text: _maxValue.toString()),
+                      onChanged: (value) {
+                        try {
+                          int max = int.parse(value);
+                          setState(() {
+                            _maxValue = max;
+                          });
+                        } catch (e) {
+                          print('Error parsing Max: $e');
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -1339,12 +1381,15 @@ class _FilterDialogState extends State<FilterDialog> {
                 print('Error handling RangeSlider values: $e');
               }
             },
+            activeColor: Color.fromARGB(255, 91, 79, 158),
+           inactiveColor: Color.fromARGB(255, 177, 169, 219),
+
           ),
           SizedBox(height: 16),
           Text(
             'Select Categories:',
             style: TextStyle(
-                color: Color.fromARGB(255, 91, 79, 158), fontSize: 20),
+                color: Color.fromARGB(255, 91, 79, 158), fontSize: 20, fontWeight: FontWeight.bold,),
           ),
           Column(
             children: _categories.asMap().entries.map((entry) {
@@ -1372,6 +1417,8 @@ class _FilterDialogState extends State<FilterDialog> {
                     saveFilterValues();
                   });
                 },
+                   activeColor: Color.fromARGB(255, 91, 79, 158),
+
                 controlAffinity: ListTileControlAffinity
                     .leading, // Set checkboxes to the left
               );
@@ -1381,7 +1428,7 @@ class _FilterDialogState extends State<FilterDialog> {
           Text(
             'Select Cities:',
             style: TextStyle(
-                color: Color.fromARGB(255, 91, 79, 158), fontSize: 20),
+                color: Color.fromARGB(255, 91, 79, 158), fontSize: 20, fontWeight: FontWeight.bold,),
           ),
           Column(
             children: _cities.asMap().entries.map((entry) {
@@ -1409,8 +1456,8 @@ class _FilterDialogState extends State<FilterDialog> {
                     saveFilterValues();
                   });
                 },
-                controlAffinity: ListTileControlAffinity
-                    .leading, // Set checkboxes to the left
+            activeColor: Color.fromARGB(255, 91, 79, 158),
+            controlAffinity: ListTileControlAffinity.leading, // Set checkboxes to the left
               );
             }).toList(),
           ),
@@ -1461,6 +1508,7 @@ class _FilterDialogState extends State<FilterDialog> {
           ),
         ),
       ],
-    );
+    ),
+      );
   }
 }

@@ -2,17 +2,14 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:googleapis/cloudfunctions/v1.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:sponsite/eventDetail.dart';
-import 'package:sponsite/screens/Rating.dart';
+import 'package:sponsite/screens/eventDetail.dart';
 import 'package:sponsite/screens/sponsee_screens/SponseeOffersList.dart';
-import 'package:sponsite/widgets/customAppBar.dart';
-import 'package:sponsite/widgets/user_type_selector.dart';  
+import 'package:sponsite/widgets/customAppBar.dart';  
 
 class ViewCurrentSponsee extends StatefulWidget {
   const ViewCurrentSponsee({Key? key}) : super(key: key);
@@ -235,7 +232,7 @@ class _ViewCurrentSponseeState extends State<ViewCurrentSponsee> {
                         Text(
                           'more details',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 18,
                             fontStyle: FontStyle.italic,
                             color: Color.fromARGB(255, 91, 79, 158),
                           ),

@@ -1,12 +1,11 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:googleapis/admin/directory_v1.dart';
 import 'package:sponsite/screens/view_others_profile.dart';
 import 'package:sponsite/widgets/customAppBarwithNav.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:firebase_database/firebase_database.dart';
 
 
 
@@ -201,8 +200,20 @@ Future<double?> fetchOfferRating(String sponseeID, String eventId) async {
 
     screenHeight = MediaQuery.of(context).size.height;
     screenWidth = MediaQuery.of(context).size.width;
-
-    return Scaffold(
+ return Theme(
+      // Apply your theme settings within the Theme widget
+      data: ThemeData(
+        // Set your desired font family or other theme configurations
+        fontFamily: 'Urbanist',
+        textTheme: TextTheme(
+      displayLarge: const TextStyle(
+        fontSize: 72,
+        fontWeight: FontWeight.bold,
+      ),
+        // Add other theme configurations here as needed
+      ),
+      ),
+    child: Scaffold(
         backgroundColor: Colors.white,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -696,7 +707,8 @@ Row(
                               ],
                             )))))))
           ],
-        ));
+        ))
+ );
   }
 
   Color statusColor = const Color.fromARGB(

@@ -102,7 +102,7 @@ class _googleCalendarState extends State<googleCalendar> {
               icon: Icon(Icons.arrow_back),
               alignment: Alignment.topLeft,
               color: Colors.white,
-              iconSize:40,  
+              iconSize:30,  
               onPressed: () {
                 Navigator.of(context).pop();
               },  

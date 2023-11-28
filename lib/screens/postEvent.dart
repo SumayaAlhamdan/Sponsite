@@ -1,27 +1,37 @@
+import 'dart:io';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:sponsite/main.dart';
-import 'dart:typed_data';
+import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:google_maps_webservice/places.dart' as places;
+import 'package:image_picker/image_picker.dart';
+import 'package:sponsite/main.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
+ 
+  
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'New Event',
+      // Apply your theme settings within the Theme widget
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
+        fontFamily: 'Urbanist',
+        textTheme: TextTheme(
+      displayLarge: const TextStyle(
+        fontSize: 72,
+        fontWeight: FontWeight.bold,
+      ),
+      ),
       ),
       home: const MyHomePage(),
     );

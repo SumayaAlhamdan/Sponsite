@@ -1,24 +1,46 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:googleapis/servicemanagement/v1.dart';
 import 'package:sponsite/screens/signIn_screen.dart';
 import 'package:sponsite/screens/splash_screen.dart';
 import 'package:sponsite/screens/sponsee_screens/ViewCurrentSponsee.dart';
 import 'package:sponsite/screens/sponsor_screens/ViewOffersSponsor.dart';
-import 'package:sponsite/screens/sponsor_screens/offerDetail.dart';
 import 'package:sponsite/widgets/screen_logic.dart';
-import 'package:path_provider/path_provider.dart'; // Import path_provider.
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await FirebaseMessaging.instance.getInitialMessage();
-  FirebaseMessaging.onBackgroundMessage( await _firebaseMessagingBackgroundHandler);
+  FirebaseMessaging.onBackgroundMessage(
+      await _firebaseMessagingBackgroundHandler);
   runApp(MaterialApp(
-    theme: ThemeData(useMaterial3: true),
+        theme: ThemeData(useMaterial3: true),
+
+//     theme:ThemeData(
+//         // Set your desired font family or other theme configurations
+//         primaryColor: Color.fromARGB(255, 91, 79, 158),
+//        fontFamily: 'Urbanist',
+//   textTheme: TextTheme(
+//     // Define text field's specific style
+//     subtitle1: TextStyle(color: Colors.purple), // Change text color to purple
+//   ),
+//   inputDecorationTheme: InputDecorationTheme(
+//     // Set decoration properties for text fields
+//     focusedBorder: OutlineInputBorder(
+//       borderSide: BorderSide(color: Colors.purple), // Change border color when focused
+//     ),
+//     enabledBorder: OutlineInputBorder(
+//       borderSide: BorderSide(color: Colors.purple.withOpacity(0.5)), // Change border color
+//     ),
+//     labelStyle: TextStyle(color: Colors.purple), // Change label color to purple
+//   ),
+// ),
+
+        // Add other theme configurations here as needed
+    
+      
     navigatorKey: navigatorKey,
     home: StreamBuilder(
       stream: FirebaseAuth.instance.authStateChanges(),
@@ -53,27 +75,29 @@ void main() async {
     ),
   ));
 }
+
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   final String clickAction = message.data['click_action'];
   final String notif_type = message.data['notif_type'];
-  print('im here deema handling');
 
   if (clickAction == 'FLUTTER_NOTIFICATION_CLICK') {
     if (notif_type == 'status') {
-       print('deema is updating a status');
+      
+      
+      
       navigatorKey.currentState!.push(
         MaterialPageRoute(
           builder: (context) => ViewOffersSponsor(),
         ),
       );
     } else if (notif_type == 'offer') {
-      print('deema is sending an offer');
+     //_SponseeBottomNavBarState.changeTap(3);//SponseeBottomNavBar
       navigatorKey.currentState!.push(
         MaterialPageRoute(
           builder: (context) => ViewCurrentSponsee(),
         ),
       );
     }
-    }
+  }
 }

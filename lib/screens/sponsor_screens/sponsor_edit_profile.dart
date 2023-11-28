@@ -287,7 +287,20 @@ class _sponsorEditProfileState extends State<sponsorEditProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+     return Theme(
+      // Apply your theme settings within the Theme widget
+      data: ThemeData(
+        // Set your desired font family or other theme configurations
+        fontFamily: 'Urbanist',
+        textTheme: TextTheme(
+      displayLarge: const TextStyle(
+        fontSize: 72,
+        fontWeight: FontWeight.bold,
+      ),
+        // Add other theme configurations here as needed
+      ),
+      ),
+    child: Scaffold(
         appBar: AppBar(
           backgroundColor: const Color.fromARGB(255, 51, 45, 81),
           title: Text(
@@ -642,7 +655,8 @@ class _sponsorEditProfileState extends State<sponsorEditProfile> {
               ),
             )
           ],
-        ));
+        ))
+     );
   }
 
   void _showSocialsDialog() async {

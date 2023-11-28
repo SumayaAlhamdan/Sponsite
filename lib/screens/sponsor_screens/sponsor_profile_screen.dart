@@ -2,16 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:googleapis/serviceusage/v1.dart';
 import 'package:intl/intl.dart';
-import 'package:sponsite/screens/sponsor_screens/sponsor_edit_profile.dart';
-import 'package:sponsite/widgets/user_image_picker.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:sponsite/screens/calendar.dart';
+import 'package:sponsite/screens/sponsor_screens/sponsor_edit_profile.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SponsorProfile extends StatefulWidget {
   SponsorProfile({Key? key}) : super(key: key);
@@ -742,7 +739,20 @@ void _deleteAllUserPosts() {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+     return Theme(
+      // Apply your theme settings within the Theme widget
+      data: ThemeData(
+        // Set your desired font family or other theme configurations
+        fontFamily: 'Urbanist',
+        textTheme: TextTheme(
+      displayLarge: const TextStyle(
+        fontSize: 72,
+        fontWeight: FontWeight.bold,
+      ),
+        // Add other theme configurations here as needed
+      ),
+      ),
+    child: Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 51, 45, 81),
         leading: IconButton(
@@ -989,7 +999,7 @@ void _deleteAllUserPosts() {
                               width: 200, // Specify the width of the image
                               height: 200, // Specify the height of the image
                             ),
-                            Text('You don\'t have any posts yet'),
+                            Text('You don\'t have any posts yet', style: TextStyle(fontSize:18)),
                           ],
                         ),
                       ),
@@ -1000,10 +1010,10 @@ void _deleteAllUserPosts() {
           ),
         ],
       ),
+    )
     );
   }
 }
-
 class ImagePopupScreen extends StatelessWidget {
   final String imageUrl;
 
@@ -1011,7 +1021,20 @@ class ImagePopupScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+     return Theme(
+      // Apply your theme settings within the Theme widget
+      data: ThemeData(
+        // Set your desired font family or other theme configurations
+        fontFamily: 'Urbanist',
+        textTheme: TextTheme(
+      displayLarge: const TextStyle(
+        fontSize: 72,
+        fontWeight: FontWeight.bold,
+      ),
+        // Add other theme configurations here as needed
+      ),
+      ),
+    child: Scaffold(
       appBar: AppBar(
         // Add an 'X' button to close the popup
         leading: IconButton(
@@ -1025,6 +1048,7 @@ class ImagePopupScreen extends StatelessWidget {
           fit: BoxFit.contain,
         ),
       ),
+    )
     );
   }
 }
@@ -1138,7 +1162,20 @@ class PostContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+        return Theme(
+      // Apply your theme settings within the Theme widget
+      data: ThemeData(
+        // Set your desired font family or other theme configurations
+        fontFamily: 'Urbanist',
+        textTheme: TextTheme(
+      displayLarge: const TextStyle(
+        fontSize: 72,
+        fontWeight: FontWeight.bold,
+      ),
+        // Add other theme configurations here as needed
+      ),
+      ),
+    child: Container(
       margin: const EdgeInsets.all(8.0),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -1159,7 +1196,7 @@ class PostContainer extends StatelessWidget {
                   SizedBox(width: 8.0),
                   Text(
                     profileName ?? '',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, fontFamily: 'Urbanist',),
                   ),
                   SizedBox(width: 16.0),
                   CircleAvatar(
@@ -1215,7 +1252,8 @@ class PostContainer extends StatelessWidget {
           ),
         ],
       ),
-    );
+    )
+        );
   }
 }
 

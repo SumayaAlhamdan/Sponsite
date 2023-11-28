@@ -1,23 +1,17 @@
+import 'dart:async';
 import 'dart:math';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:googleapis/cloudsearch/v1.dart';
-import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
-import 'package:sponsite/screens/sponsor_screens/filter.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:google_maps_webservice/places.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sponsite/screens/sponsor_screens/sendOffer.dart';
 import 'package:sponsite/screens/sponsor_screens/sponsor_home_screen.dart';
 import 'package:sponsite/screens/view_others_profile.dart';
 import 'package:sponsite/widgets/sponsor_botton_navbar.dart';
-import 'dart:async';
-import 'package:flutter_google_places/flutter_google_places.dart';
-import 'package:google_maps_webservice/places.dart';
-import 'package:googleapis/streetviewpublish/v1.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 String? sponsorID;
 
@@ -462,8 +456,20 @@ class _ResultPageState extends State<ResultPage> {
     }).toList();
     _searchEventsByName(originalSearchText);
     filterUsers(originalSearchText);
-
-    return Scaffold(
+ return Theme(
+      // Apply your theme settings within the Theme widget
+      data: ThemeData(
+        // Set your desired font family or other theme configurations
+        fontFamily: 'Urbanist',
+        textTheme: TextTheme(
+      displayLarge: const TextStyle(
+        fontSize: 72,
+        fontWeight: FontWeight.bold,
+      ),
+        // Add other theme configurations here as needed
+      ),
+      ),
+    child: Scaffold(
       body: SingleChildScrollView(
         physics:
             const AlwaysScrollableScrollPhysics(), // Wrap your content in SingleChildScrollView to enable scrolling
@@ -697,7 +703,9 @@ class _ResultPageState extends State<ResultPage> {
                               FselectedCategories.isNotEmpty) ||
                           (FselectedCities != null &&
                               FselectedCities.isNotEmpty))
-                        Text(
+                       Padding(
+                            padding: EdgeInsets.only(left: 16),
+                        child: Text(
                           'Filtered By:',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
@@ -705,6 +713,7 @@ class _ResultPageState extends State<ResultPage> {
                             color: Color.fromARGB(255, 91, 79, 158),
                           ),
                         ),
+                          ),
                       SizedBox(width: 10),
                       Wrap(
                         spacing: 8.0,
@@ -734,7 +743,6 @@ class _ResultPageState extends State<ResultPage> {
                               label: Text(
                                   'Categories: ${FselectedCategories.join(', ')}'),
                               labelStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(255, 91, 79, 158),
                               ),
                             ),
@@ -744,7 +752,6 @@ class _ResultPageState extends State<ResultPage> {
                               label:
                                   Text('Cities: ${FselectedCities.join(', ')}'),
                               labelStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(255, 91, 79, 158),
                               ),
                             ),
@@ -777,7 +784,8 @@ class _ResultPageState extends State<ResultPage> {
                           },
                           child: Row(
                             children: [
-                              Icon(Icons.close), // Trash icon
+                              Icon(Icons.close, color: Color.fromARGB(255, 91, 79, 158),
+), // Trash icon
                               SizedBox(
                                   width:
                                       8), // Add some space between the icon and text
@@ -1019,7 +1027,7 @@ class _ResultPageState extends State<ResultPage> {
                                               Text(
                                                 'more details',
                                                 style: TextStyle(
-                                                  fontSize: 16,
+                                                  fontSize: 18,
                                                   fontStyle: FontStyle.italic,
                                                   color: Color.fromARGB(
                                                       255, 91, 79, 158),
@@ -1066,6 +1074,8 @@ class _ResultPageState extends State<ResultPage> {
                         TextButton(
                           child: Text("Go Back",
                               style: TextStyle(
+                                color: Color.fromARGB(
+                                                      255, 91, 79, 158),
                                   fontSize: 23,
                                   decoration: TextDecoration.underline)),
                           onPressed: () {
@@ -1091,7 +1101,8 @@ class _ResultPageState extends State<ResultPage> {
           ],
         ),
       ),
-    );
+    )
+ );
   }
 
   Widget _buildCategoryText(int index) {
@@ -1153,8 +1164,11 @@ Widget _buildUserList(
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+          SizedBox(
+                          height: 100,
+                        ),
         Text(
-          'No users that matched $searchQuery',
+          'No users that matched "$searchQuery"',
           style: TextStyle(
             fontSize: 24,
             color: Color.fromARGB(255, 189, 189, 189),
@@ -1425,21 +1439,37 @@ class _FilterDialogState extends State<FilterDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       scrollable: true,
-      title: Text('Filter Events'),
+      title: Text('Filter Events',
+              style: TextStyle(color: Color.fromARGB(255, 91, 79, 158),fontSize: 25, fontWeight: FontWeight.bold,),
+),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Number of Attendees (Min and Max)'),
+          Text('Number of Attendees (Min and Max)',
+            style: TextStyle(
+                color: Color.fromARGB(255, 91, 79, 158), fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+       SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text('Min'),
+                    Text('Min',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 91, 79, 158),
+                        fontSize: 15,
+                      ),
+                    ),
                     TextFormField(
                       keyboardType: TextInputType.number,
-                      decoration: InputDecoration(),
+                             decoration: InputDecoration(
+     focusedBorder: UnderlineInputBorder(
+      borderSide: BorderSide(color: Color.fromARGB(255, 91, 79, 158)),)),
+      cursorColor: Color.fromARGB(255, 91, 79, 158),
+
+                    
                       controller:
                           TextEditingController(text: _minValue.toString()),
                       onChanged: (value) {
@@ -1452,19 +1482,31 @@ class _FilterDialogState extends State<FilterDialog> {
                           print('Error parsing Min: $e');
                         }
                       },
+                      
                     ),
                   ],
                 ),
               ),
-              SizedBox(width: 16),
+              SizedBox(width: 200),
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text('Max'),
+                       Text(
+                      'Max',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 91, 79, 158),
+                        fontSize: 15,
+                      ),
+                    ),
                     TextFormField(
                       keyboardType: TextInputType.number,
-                      decoration: InputDecoration(),
+                                           decoration: InputDecoration(
+     focusedBorder: UnderlineInputBorder(
+      borderSide: BorderSide(color: Color.fromARGB(255, 91, 79, 158)),
+    ),),
+        cursorColor: Color.fromARGB(255, 91, 79, 158),
+
                       controller:
                           TextEditingController(text: _maxValue.toString()),
                       onChanged: (value) {
@@ -1497,16 +1539,26 @@ class _FilterDialogState extends State<FilterDialog> {
                 print('Error handling RangeSlider values: $e');
               }
             },
+                  activeColor: Color.fromARGB(255, 91, 79, 158),
+           inactiveColor: Color.fromARGB(255, 177, 169, 219),
+
           ),
           SizedBox(height: 16),
-          Text('Select Categories'),
-          Column(
+            Text(
+            'Select Categories:',
+            style: TextStyle(
+                color: Color.fromARGB(255, 91, 79, 158), fontSize: 20, fontWeight: FontWeight.bold,),
+          ),
+             Column(
             children: _categories.asMap().entries.map((entry) {
               final index = entry.key;
               final category = entry.value;
 
               return CheckboxListTile(
-                title: Text(category),
+                title: Text(category,
+                style: TextStyle(
+                      color: Color.fromARGB(255, 91, 79, 158), fontSize: 15),
+                ),
                 value: _selectedCategories.contains(category),
                 onChanged: (bool? value) {
                   setState(() {
@@ -1522,18 +1574,26 @@ class _FilterDialogState extends State<FilterDialog> {
                     saveFilterValues();
                   });
                 },
+              activeColor: Color.fromARGB(255, 91, 79, 158),
+
               );
             }).toList(),
           ),
           SizedBox(height: 16),
-          Text('Select Cities'),
-          Column(
+          Text(
+            'Select Cities:',
+            style: TextStyle(
+                color: Color.fromARGB(255, 91, 79, 158), fontSize: 20, fontWeight: FontWeight.bold,),
+          ),          Column(
             children: _cities.asMap().entries.map((entry) {
               final index = entry.key;
               final city = entry.value;
 
               return CheckboxListTile(
-                title: Text(city),
+                title: Text(city,
+                   style: TextStyle(
+                      color: Color.fromARGB(255, 91, 79, 158), fontSize: 15),
+                ),
                 value: _selectedCities.contains(city),
                 onChanged: (bool? value) {
                   setState(() {
@@ -1549,6 +1609,8 @@ class _FilterDialogState extends State<FilterDialog> {
                     saveFilterValues();
                   });
                 },
+                activeColor: Color.fromARGB(255, 91, 79, 158),
+
               );
             }).toList(),
           ),
@@ -1574,7 +1636,9 @@ class _FilterDialogState extends State<FilterDialog> {
             );
             Navigator.of(context).pop();
           },
-          child: Text('Clear'),
+          child: Text('Clear',  style: TextStyle(
+                      color: Color.fromARGB(255, 91, 79, 158), fontSize: 15),
+                ),
         ),
         TextButton(
           onPressed: () {
@@ -1592,7 +1656,10 @@ class _FilterDialogState extends State<FilterDialog> {
               print('Error applying filter: $e');
             }
           },
-          child: Text('Apply'),
+          child: Text('Apply',
+           style: TextStyle(
+                      color: Color.fromARGB(255, 91, 79, 158), fontSize: 15),
+                ),
         ),
       ],
     );

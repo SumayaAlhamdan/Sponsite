@@ -296,7 +296,7 @@ class _SponseeEditProfileState extends State<SponseeEditProfile> {
             style: TextStyle(color: Colors.white, fontSize: 25),
           ),
           centerTitle: true,
-           iconTheme: const IconThemeData(color: Colors.white),
+           iconTheme: const IconThemeData(color: Colors.white, size: 30),
           // leading: TextButton(
           //     onPressed: () => Navigator.pop(context),
           //     child: const Text(

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:sponsite/screens/sponsor_screens/ViewOffersSponsor.dart';
 import 'package:sponsite/screens/sponsor_screens/sponsor_chat_screen.dart';
 import 'package:sponsite/screens/sponsor_screens/sponsor_home_screen.dart';
-import 'package:sponsite/screens/sponsor_screens/sponsor_post.dart';
 import 'package:sponsite/screens/sponsor_screens/sponsor_profile_screen.dart';
 
 class SponsorBottomNavBar extends StatefulWidget {
@@ -18,7 +17,6 @@ class _SponseeBottomNavBarState extends State<SponsorBottomNavBar> {
   final List<Widget> _widgetOptions = [
       SponsorHomePage(),  
     const ViewOffersSponsor(),
-    const SponsorPost(),
     const SponsorChat(),    
      SponsorProfile()
   ];
@@ -67,19 +65,7 @@ class _SponseeBottomNavBarState extends State<SponsorBottomNavBar> {
               color: Color.fromARGB(255, 91, 79, 158),
             ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.add_circle_rounded,
-              size: 60,
-              color: Colors.white,
-            ),
-            label: 'Post',
-             activeIcon:  Icon(
-              Icons.add_circle_rounded,
-              size: 40,
-              color: Color.fromARGB(255, 91, 79, 158),
-            ),
-          ),
+
           BottomNavigationBarItem(
             icon: Icon(
               Icons.chat_bubble,
