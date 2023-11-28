@@ -456,178 +456,144 @@ class _ResultPageState extends State<ResultPage> {
     }).toList();
     _searchEventsByName(originalSearchText);
     filterUsers(originalSearchText);
- return Theme(
-      // Apply your theme settings within the Theme widget
-      data: ThemeData(
-        // Set your desired font family or other theme configurations
-        fontFamily: 'Urbanist',
-        textTheme: TextTheme(
-      displayLarge: const TextStyle(
-        fontSize: 72,
-        fontWeight: FontWeight.bold,
-      ),
-        // Add other theme configurations here as needed
-      ),
-      ),
-    child: Scaffold(
-      body: SingleChildScrollView(
-        physics:
-            const AlwaysScrollableScrollPhysics(), // Wrap your content in SingleChildScrollView to enable scrolling
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 51, 45, 81),
-              ),
-              child: Column(
-                children: [
-                  const SizedBox(height: 33),
-                  Center(
-                    child: Row(
-                      children: [
-                        IconButton(
-                            icon: Icon(Icons.arrow_back,
-                                color: Colors.white, size: 40),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Stack(
-                                    children: [
-                                      SponsorHomePage(),
-                                      SponsorBottomNavBar()
-                                    ],
-                                  ), // Replace with your Recent Events page widget
-                                ),
-                              );
-                            }),
-                        SizedBox(
-                          width: 120,
-                        ),
-                        Container(
-                          width: 430,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(0, 255, 255, 255),
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Color.fromARGB(96, 158, 158, 158),
-                                offset: Offset(0, 2),
-                                blurRadius: 2,
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              IconButton(
-                                icon: Icon(Icons.search, color: Colors.grey),
-                                onPressed: () {
-                                  // When the search button is pressed, filter events by event name
-                                  final eventName = searchController.text;
-                                  _searchEventsByName(eventName);
-                                  originalSearchText = eventName;
-
-                                  // You can now display filteredEvents in your UI
-                                  setState(() {});
-                                },
-                              ),
-                              Expanded(
-                                child: TextField(
-                                  controller: searchController,
-                                  style: TextStyle(color: Colors.white),
-                                  decoration: InputDecoration(
-                                    hintText: 'Search for an event',
-                                    hintStyle: TextStyle(color: Colors.grey),
-                                    border: InputBorder.none,
-                                  ),
-                                  onChanged: (text) {
-                                    filterUsers(text);
-                                  },
-                                  onEditingComplete: () {
-                                    String trimmedText =
-                                        searchController.text.trim();
-                                    searchController.text = trimmedText;
-                                    filterUsers(trimmedText);
-                                  },
-                                  onSubmitted: (value) {
-                                    // Handle the search when the user presses Enter on the keyboard
-                                    _searchEventsByName(value);
-                                    originalSearchText = value;
-
-                                    // You can now display filteredEvents in your UI
-                                    setState(() {});
-                                  },
-                                ),
-                              ),
-                              if (searchController.text.isNotEmpty)
-                                IconButton(
-                                  icon: Icon(Icons.cancel, color: Colors.grey),
-                                  onPressed: () {
-                                    searchController.clear();
-                                    setState(() {});
-                                  },
-                                ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                ],
-              ),
+    return Theme(
+        // Apply your theme settings within the Theme widget
+        data: ThemeData(
+          // Set your desired font family or other theme configurations
+          fontFamily: 'Urbanist',
+          textTheme: TextTheme(
+            displayLarge: const TextStyle(
+              fontSize: 72,
+              fontWeight: FontWeight.bold,
             ),
-            SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  Padding(
-                    padding: EdgeInsets.only(left: 16),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Search results for user \"${originalSearchText}\" ",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 30,
-                          color: Color.fromARGB(255, 91, 79, 158),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: screenHeight - 1000,
-                    child: Scrollbar(
-                      child: ListView(
-                        children: [
-                          _buildUserList(context, filteredSponsors,
-                              filteredSponsees, searchController.text),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Stack(
+            // Add other theme configurations here as needed
+          ),
+        ),
+        child: Scaffold(
+          body: SingleChildScrollView(
+            physics:
+                const AlwaysScrollableScrollPhysics(), // Wrap your content in SingleChildScrollView to enable scrolling
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  height: 100,
-                  color: const Color.fromARGB(255, 255, 255, 255),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: const BoxDecoration(
+                    color: Color.fromARGB(255, 51, 45, 81),
+                  ),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 33),
+                      Center(
+                        child: Row(
+                          children: [
+                            IconButton(
+                                icon: Icon(Icons.arrow_back,
+                                    color: Colors.white, size: 40),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Stack(
+                                        children: [
+                                          SponsorHomePage(),
+                                          SponsorBottomNavBar()
+                                        ],
+                                      ), // Replace with your Recent Events page widget
+                                    ),
+                                  );
+                                }),
+                            SizedBox(
+                              width: 120,
+                            ),
+                            Container(
+                              width: 430,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(0, 255, 255, 255),
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Color.fromARGB(96, 158, 158, 158),
+                                    offset: Offset(0, 2),
+                                    blurRadius: 2,
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  IconButton(
+                                    icon:
+                                        Icon(Icons.search, color: Colors.grey),
+                                    onPressed: () {
+                                      // When the search button is pressed, filter events by event name
+                                      final eventName = searchController.text;
+                                      _searchEventsByName(eventName);
+                                      originalSearchText = eventName;
+
+                                      // You can now display filteredEvents in your UI
+                                      setState(() {});
+                                    },
+                                  ),
+                                  Expanded(
+                                    child: TextField(
+                                      controller: searchController,
+                                      style: TextStyle(color: Colors.white),
+                                      decoration: InputDecoration(
+                                        hintText: 'Search for an event',
+                                        hintStyle:
+                                            TextStyle(color: Colors.grey),
+                                        border: InputBorder.none,
+                                      ),
+                                      onChanged: (text) {
+                                        filterUsers(text);
+                                      },
+                                      onEditingComplete: () {
+                                        String trimmedText =
+                                            searchController.text.trim();
+                                        searchController.text = trimmedText;
+                                        filterUsers(trimmedText);
+                                      },
+                                      onSubmitted: (value) {
+                                        // Handle the search when the user presses Enter on the keyboard
+                                        _searchEventsByName(value);
+                                        originalSearchText = value;
+
+                                        // You can now display filteredEvents in your UI
+                                        setState(() {});
+                                      },
+                                    ),
+                                  ),
+                                  if (searchController.text.isNotEmpty)
+                                    IconButton(
+                                      icon: Icon(Icons.cancel,
+                                          color: Colors.grey),
+                                      onPressed: () {
+                                        searchController.clear();
+                                        setState(() {});
+                                      },
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
                 ),
-                Column(
-                  children: [
-                    const SizedBox(height: 50),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(left: 16),
+                SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      Padding(
+                        padding: EdgeInsets.only(left: 16),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
                           child: Text(
-                            "Search results for event \"${originalSearchText}\" ",
+                            "Search results for user \"${originalSearchText}\" ",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 30,
@@ -635,474 +601,527 @@ class _ResultPageState extends State<ResultPage> {
                             ),
                           ),
                         ),
-                        Positioned(
-                          top: kToolbarHeight +
-                              40, // Adjust the top position as needed
-                          right: 16, // Adjust the right position as needed
-                          child: IconButton(
-                            icon: Icon(
-                              Icons.filter_list,
-                              color: (FminAttendees != 0 ||
-                                      FmaxAttendees != 200000 ||
-                                      FselectedCategories.isNotEmpty ||
-                                      FselectedCities.isNotEmpty)
-                                  ? Color.fromARGB(255, 91, 79, 158)
-                                  : Colors.grey,
-                            ),
-                            onPressed: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return FilterDialog(
-                                      onFilterApplied: (minAttendees,
-                                          maxAttendees,
-                                          selectedCategories,
-                                          selectedCities) {
-                                        setState(() {
-                                          FminAttendees = minAttendees;
-                                          FmaxAttendees = maxAttendees;
-                                          FselectedCategories =
-                                              selectedCategories;
-                                          FselectedCities = selectedCities;
-                                        });
-                                      },
-                                    );
-                                  });
-                            },
+                      ),
+                      SizedBox(
+                        height: screenHeight - 1000,
+                        child: Scrollbar(
+                          child: ListView(
+                            children: [
+                              _buildUserList(context, filteredSponsors,
+                                  filteredSponsees, searchController.text),
+                            ],
                           ),
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+                Stack(
+                  children: [
+                    Container(
+                      height: 100,
+                      color: const Color.fromARGB(255, 255, 255, 255),
+                    ),
+                    Column(
+                      children: [
+                        const SizedBox(height: 50),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(left: 16),
+                              child: Text(
+                                "Search results for event \"${originalSearchText}\" ",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 30,
+                                  color: Color.fromARGB(255, 91, 79, 158),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: kToolbarHeight +
+                                  40, // Adjust the top position as needed
+                              right: 16, // Adjust the right position as needed
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.filter_list,
+                                  color: (FminAttendees != 0 ||
+                                          FmaxAttendees != 200000 ||
+                                          FselectedCategories.isNotEmpty ||
+                                          FselectedCities.isNotEmpty)
+                                      ? Color.fromARGB(255, 91, 79, 158)
+                                      : Colors.grey,
+                                ),
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return FilterDialog(
+                                          onFilterApplied: (minAttendees,
+                                              maxAttendees,
+                                              selectedCategories,
+                                              selectedCities) {
+                                            setState(() {
+                                              FminAttendees = minAttendees;
+                                              FmaxAttendees = maxAttendees;
+                                              FselectedCategories =
+                                                  selectedCategories;
+                                              FselectedCities = selectedCities;
+                                            });
+                                          },
+                                        );
+                                      });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
                       ],
                     ),
-                    const SizedBox(height: 16),
                   ],
                 ),
-              ],
-            ),
-            Container(
-              height: 40,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: eventTypesList.length,
-                itemBuilder: (context, index) {
-                  return _buildCategoryText(index);
-                },
-              ),
-            ),
-            SizedBox(height: 3),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal, // Scroll horizontally
-                  child: Row(
-                    children: [
-                      if (FminAttendees != 0 ||
-                          FmaxAttendees != 200000 ||
-                          (FselectedCategories != null &&
-                              FselectedCategories.isNotEmpty) ||
-                          (FselectedCities != null &&
-                              FselectedCities.isNotEmpty))
-                       Padding(
-                            padding: EdgeInsets.only(left: 16),
-                        child: Text(
-                          'Filtered By:',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 91, 79, 158),
-                          ),
-                        ),
-                          ),
-                      SizedBox(width: 10),
-                      Wrap(
-                        spacing: 8.0,
-                        runSpacing: 4.0,
-                        children: <Widget>[
-                          if (FminAttendees != 0)
-                            Chip(
-                              label: Text(
-                                'Min Attendees: $FminAttendees',
-                                style: TextStyle(
+                Container(
+                  height: 40,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: eventTypesList.length,
+                    itemBuilder: (context, index) {
+                      return _buildCategoryText(index);
+                    },
+                  ),
+                ),
+                SizedBox(height: 3),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal, // Scroll horizontally
+                      child: Row(
+                        children: [
+                          if (FminAttendees != 0 ||
+                              FmaxAttendees != 200000 ||
+                              (FselectedCategories != null &&
+                                  FselectedCategories.isNotEmpty) ||
+                              (FselectedCities != null &&
+                                  FselectedCities.isNotEmpty))
+                            Padding(
+                              padding: EdgeInsets.only(left: 16),
+                              child: Text(
+                                'Filtered By:',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
                                   color: Color.fromARGB(255, 91, 79, 158),
                                 ),
                               ),
                             ),
-                          if (FmaxAttendees != 200000)
-                            Chip(
-                              label: Text(
-                                'Max Attendees: $FmaxAttendees',
-                                style: TextStyle(
-                                  color: Color.fromARGB(255, 91, 79, 158),
+                          SizedBox(width: 10),
+                          Wrap(
+                            spacing: 8.0,
+                            runSpacing: 4.0,
+                            children: <Widget>[
+                              if (FminAttendees != 0)
+                                Chip(
+                                  label: Text(
+                                    'Min Attendees: $FminAttendees',
+                                    style: TextStyle(
+                                      color: Color.fromARGB(255, 91, 79, 158),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          if (FselectedCategories != null &&
-                              FselectedCategories.isNotEmpty)
-                            Chip(
-                              label: Text(
-                                  'Categories: ${FselectedCategories.join(', ')}'),
-                              labelStyle: TextStyle(
-                                color: Color.fromARGB(255, 91, 79, 158),
-                              ),
-                            ),
-                          if (FselectedCities != null &&
-                              FselectedCities.isNotEmpty)
-                            Chip(
-                              label:
-                                  Text('Cities: ${FselectedCities.join(', ')}'),
-                              labelStyle: TextStyle(
-                                color: Color.fromARGB(255, 91, 79, 158),
+                              if (FmaxAttendees != 200000)
+                                Chip(
+                                  label: Text(
+                                    'Max Attendees: $FmaxAttendees',
+                                    style: TextStyle(
+                                      color: Color.fromARGB(255, 91, 79, 158),
+                                    ),
+                                  ),
+                                ),
+                              if (FselectedCategories != null &&
+                                  FselectedCategories.isNotEmpty)
+                                Chip(
+                                  label: Text(
+                                      'Categories: ${FselectedCategories.join(', ')}'),
+                                  labelStyle: TextStyle(
+                                    color: Color.fromARGB(255, 91, 79, 158),
+                                  ),
+                                ),
+                              if (FselectedCities != null &&
+                                  FselectedCities.isNotEmpty)
+                                Chip(
+                                  label: Text(
+                                      'Cities: ${FselectedCities.join(', ')}'),
+                                  labelStyle: TextStyle(
+                                    color: Color.fromARGB(255, 91, 79, 158),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          if (FminAttendees != 0 ||
+                              FmaxAttendees != 200000 ||
+                              (FselectedCategories != null &&
+                                  FselectedCategories.isNotEmpty) ||
+                              (FselectedCities != null &&
+                                  FselectedCities.isNotEmpty))
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  FminAttendees = 0;
+                                  FmaxAttendees = 200000;
+                                  FselectedCategories = [];
+                                  FselectedCities = [];
+                                });
+
+                                FilterDialog filterDialog = FilterDialog(
+                                  onFilterApplied: (
+                                    int minAttendees,
+                                    int maxAttendees,
+                                    List<String> selectedCategories,
+                                    List<String> selectedCities,
+                                  ) {},
+                                );
+                                //     filterDialog.clearFilterValues();
+                              },
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.close,
+                                    color: Color.fromARGB(255, 91, 79, 158),
+                                  ), // Trash icon
+                                  SizedBox(
+                                      width:
+                                          8), // Add some space between the icon and text
+                                  //  Text('Clear Filter'),
+                                ],
                               ),
                             ),
                         ],
                       ),
-                      if (FminAttendees != 0 ||
-                          FmaxAttendees != 200000 ||
-                          (FselectedCategories != null &&
-                              FselectedCategories.isNotEmpty) ||
-                          (FselectedCities != null &&
-                              FselectedCities.isNotEmpty))
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              FminAttendees = 0;
-                              FmaxAttendees = 200000;
-                              FselectedCategories = [];
-                              FselectedCities = [];
-                            });
-
-                            FilterDialog filterDialog = FilterDialog(
-                              onFilterApplied: (
-                                int minAttendees,
-                                int maxAttendees,
-                                List<String> selectedCategories,
-                                List<String> selectedCities,
-                              ) {},
-                            );
-                            //     filterDialog.clearFilterValues();
-                          },
-                          child: Row(
-                            children: [
-                              Icon(Icons.close, color: Color.fromARGB(255, 91, 79, 158),
-), // Trash icon
-                              SizedBox(
-                                  width:
-                                      8), // Add some space between the icon and text
-                              //  Text('Clear Filter'),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                if (searchedEvents.isNotEmpty && originalSearchText.isNotEmpty)
-                  SizedBox(
-                    height: screenHeight - 580,
-                    child: Scrollbar(
-                      // Set this to true to always show the scrollbar
-                      child: GridView.builder(
-                        padding: const EdgeInsets.fromLTRB(12, 0, 12.0, 0),
-                        shrinkWrap:
-                            true, // Add this to allow GridView to scroll inside SingleChildScrollView
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.715,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                        ),
-                        // itemCount: getFilteredEvents().length,
-                        // itemBuilder: (context, index) {
-                        //   Event event = getFilteredEvents()[index];
-                        itemCount: searchedEvents.isNotEmpty
-                            ? searchedEvents.length
-                            : getFilteredEvents().length,
-                        itemBuilder: (context, index) {
-                          Event event = searchedEvents.isNotEmpty
-                              ? searchedEvents[index]
-                              : getFilteredEvents()[index];
-                          return GestureDetector(
-                              onTap: () {
-                                // Navigate to the event details page
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => RecentEventsDetails(
-                                      sponsorID: sponsorID,
-                                      EventId: event.EventId,
-                                      sponseeId: event.sponseeId,
-                                      EventName: event.EventName,
-                                      EventType: event.EventType,
-                                      location: event.location,
-                                      imgURL: event.imgURL,
-                                      startDate: event.startDate,
-                                      endDate: event.endDate,
-                                      startTime: event.startTime,
-                                      endTime: event.endTime,
-                                      Category: event.Category,
-                                      notes: event.notes,
-                                      benefits: event.benefits,
-                                      NumberOfAttendees:
-                                          event.NumberOfAttendees,
-                                      timeStamp: event.timeStamp,
-                                      sponseeImage: event.sponseeImage,
-                                      sponseeName: event.sponseeName,
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Card(
-                                elevation: 5,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      height: screenHeight * 0.14,
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            const BorderRadius.vertical(
-                                          top: Radius.circular(16),
-                                        ),
-                                        image: DecorationImage(
-                                          image: event.imgURL.isNotEmpty
-                                              ? NetworkImage(event.imgURL)
-                                              : const NetworkImage(
-                                                  'https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
-                                          fit: BoxFit.cover,
+                    ),
+                    if (searchedEvents.isNotEmpty &&
+                        originalSearchText.isNotEmpty)
+                      SizedBox(
+                        height: screenHeight - 580,
+                        child: Scrollbar(
+                          // Set this to true to always show the scrollbar
+                          child: GridView.builder(
+                            padding: const EdgeInsets.fromLTRB(12, 0, 12.0, 0),
+                            shrinkWrap:
+                                true, // Add this to allow GridView to scroll inside SingleChildScrollView
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 0.715,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                            ),
+                            // itemCount: getFilteredEvents().length,
+                            // itemBuilder: (context, index) {
+                            //   Event event = getFilteredEvents()[index];
+                            itemCount: searchedEvents.isNotEmpty
+                                ? searchedEvents.length
+                                : getFilteredEvents().length,
+                            itemBuilder: (context, index) {
+                              Event event = searchedEvents.isNotEmpty
+                                  ? searchedEvents[index]
+                                  : getFilteredEvents()[index];
+                              return GestureDetector(
+                                  onTap: () {
+                                    // Navigate to the event details page
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            RecentEventsDetails(
+                                          sponsorID: sponsorID,
+                                          EventId: event.EventId,
+                                          sponseeId: event.sponseeId,
+                                          EventName: event.EventName,
+                                          EventType: event.EventType,
+                                          location: event.location,
+                                          imgURL: event.imgURL,
+                                          startDate: event.startDate,
+                                          endDate: event.endDate,
+                                          startTime: event.startTime,
+                                          endTime: event.endTime,
+                                          Category: event.Category,
+                                          notes: event.notes,
+                                          benefits: event.benefits,
+                                          NumberOfAttendees:
+                                              event.NumberOfAttendees,
+                                          timeStamp: event.timeStamp,
+                                          sponseeImage: event.sponseeImage,
+                                          sponseeName: event.sponseeName,
                                         ),
                                       ),
+                                    );
+                                  },
+                                  child: Card(
+                                    elevation: 5,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
                                     ),
-                                    Container(
-                                      decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.vertical(
-                                            bottom: Radius.circular(30),
-                                          )),
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            event.EventName,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 20,
-                                              color:
-                                                  Color.fromARGB(255, 0, 0, 0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          height: screenHeight * 0.14,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                const BorderRadius.vertical(
+                                              top: Radius.circular(16),
+                                            ),
+                                            image: DecorationImage(
+                                              image: event.imgURL.isNotEmpty
+                                                  ? NetworkImage(event.imgURL)
+                                                  : const NetworkImage(
+                                                      'https://media.istockphoto.com/id/1369748264/vector/abstract-white-background-geometric-texture.jpg?s=612x612&w=0&k=20&c=wFsN0D9Ifrw1-U8284OdjN25JJwvV9iKi9DdzVyMHEk='),
+                                              fit: BoxFit.cover,
                                             ),
                                           ),
-                                          const SizedBox(height: 4),
-                                          Row(
+                                        ),
+                                        Container(
+                                          decoration: const BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.vertical(
+                                                bottom: Radius.circular(30),
+                                              )),
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              GestureDetector(
-                                                child: CircleAvatar(
-                                                  radius: 25,
-                                                  backgroundImage: NetworkImage(
-                                                      event.sponseeImage),
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                ),
-                                                onTap: () {
-                                                  Navigator.of(context)
-                                                      .push(MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        ViewOthersProfile(
-                                                            'Sponsees',
-                                                            event.sponseeId),
-                                                  ));
-                                                },
-                                              ),
-
-                                              SizedBox(width: 15),
-                                              // Add some space between the CircleAvatar and Text
-                                              GestureDetector(
-                                                child: Expanded(
-                                                  child: Text(
-                                                    event.sponseeName,
-                                                    style: const TextStyle(
-                                                      fontSize: 22,
-                                                      color: Colors.black87,
-                                                    ),
-                                                  ),
-                                                ),
-                                                onTap: () {
-                                                  Navigator.of(context)
-                                                      .push(MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        ViewOthersProfile(
-                                                            'Sponsees',
-                                                            event.sponseeId),
-                                                  ));
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(
-                                            height: 5,
-                                          ),
-
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                Icons.calendar_today,
-                                                size: 18,
-                                                color: Color.fromARGB(
-                                                    255, 91, 79, 158),
-                                              ),
-                                              const SizedBox(width: 4),
                                               Text(
-                                                "${event.startDate} - ${event.endDate}",
-                                                style: TextStyle(
-                                                  fontSize: 18,
+                                                event.EventName,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 20,
                                                   color: Color.fromARGB(
                                                       255, 0, 0, 0),
                                                 ),
                                               ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Row(
-                                            children: [
-                                              if (event.NumberOfAttendees !=
-                                                      null &&
-                                                  event.NumberOfAttendees
-                                                      .isNotEmpty)
-                                                const Icon(
-                                                  Icons.people,
-                                                  size: 21,
-                                                  color: Color.fromARGB(
-                                                      255, 91, 79, 158),
-                                                ),
-                                              const SizedBox(width: 4),
-                                              Expanded(
-                                                child: Text(
-                                                  event.NumberOfAttendees,
-                                                  style: const TextStyle(
-                                                    fontSize: 18,
-                                                    color: Color.fromARGB(
-                                                        255, 0, 0, 0),
+                                              const SizedBox(height: 4),
+                                              Row(
+                                                children: [
+                                                  GestureDetector(
+                                                    child: CircleAvatar(
+                                                      radius: 25,
+                                                      backgroundImage:
+                                                          NetworkImage(event
+                                                              .sponseeImage),
+                                                      backgroundColor:
+                                                          Colors.transparent,
+                                                    ),
+                                                    onTap: () {
+                                                      Navigator.of(context)
+                                                          .push(
+                                                              MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ViewOthersProfile(
+                                                                'Sponsees',
+                                                                event
+                                                                    .sponseeId),
+                                                      ));
+                                                    },
                                                   ),
-                                                  overflow: TextOverflow
-                                                      .ellipsis, // Add this line
-                                                  maxLines: 1, // Add this line
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                          const SizedBox(height: 10),
-                                          SizedBox(
-                                            height: 105,
-                                            child: Wrap(
-                                              spacing: 4,
-                                              children: event.Category.map(
-                                                  (category) {
-                                                return Chip(
-                                                  label: Text(category),
-                                                  backgroundColor:
-                                                      const Color.fromARGB(
-                                                          255, 255, 255, 255),
-                                                  shadowColor:
-                                                      const Color.fromARGB(
-                                                          255, 91, 79, 158),
-                                                  elevation: 3,
-                                                  labelStyle: const TextStyle(
+
+                                                  SizedBox(width: 15),
+                                                  // Add some space between the CircleAvatar and Text
+                                                  GestureDetector(
+                                                    child: Expanded(
+                                                      child: Text(
+                                                        event.sponseeName,
+                                                        style: const TextStyle(
+                                                          fontSize: 22,
+                                                          color: Colors.black87,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    onTap: () {
+                                                      Navigator.of(context)
+                                                          .push(
+                                                              MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ViewOthersProfile(
+                                                                'Sponsees',
+                                                                event
+                                                                    .sponseeId),
+                                                      ));
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(
+                                                height: 5,
+                                              ),
+
+                                              Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons.calendar_today,
+                                                    size: 18,
                                                     color: Color.fromARGB(
                                                         255, 91, 79, 158),
                                                   ),
-                                                );
-                                              }).toList(),
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                              height: 8), // Add some space
-                                          const Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            children: [
-                                              Text(
-                                                'more details',
-                                                style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontStyle: FontStyle.italic,
-                                                  color: Color.fromARGB(
-                                                      255, 91, 79, 158),
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    "${event.startDate} - ${event.endDate}",
+                                                    style: TextStyle(
+                                                      fontSize: 18,
+                                                      color: Color.fromARGB(
+                                                          255, 0, 0, 0),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Row(
+                                                children: [
+                                                  if (event.NumberOfAttendees !=
+                                                          null &&
+                                                      event.NumberOfAttendees
+                                                          .isNotEmpty)
+                                                    const Icon(
+                                                      Icons.people,
+                                                      size: 21,
+                                                      color: Color.fromARGB(
+                                                          255, 91, 79, 158),
+                                                    ),
+                                                  const SizedBox(width: 4),
+                                                  Expanded(
+                                                    child: Text(
+                                                      event.NumberOfAttendees,
+                                                      style: const TextStyle(
+                                                        fontSize: 18,
+                                                        color: Color.fromARGB(
+                                                            255, 0, 0, 0),
+                                                      ),
+                                                      overflow: TextOverflow
+                                                          .ellipsis, // Add this line
+                                                      maxLines:
+                                                          1, // Add this line
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                              const SizedBox(height: 10),
+                                              SizedBox(
+                                                height: 105,
+                                                child: Wrap(
+                                                  spacing: 4,
+                                                  children: event.Category.map(
+                                                      (category) {
+                                                    return Chip(
+                                                      label: Text(category),
+                                                      backgroundColor:
+                                                          const Color.fromARGB(
+                                                              255,
+                                                              255,
+                                                              255,
+                                                              255),
+                                                      shadowColor:
+                                                          const Color.fromARGB(
+                                                              255, 91, 79, 158),
+                                                      elevation: 3,
+                                                      labelStyle:
+                                                          const TextStyle(
+                                                        color: Color.fromARGB(
+                                                            255, 91, 79, 158),
+                                                      ),
+                                                    );
+                                                  }).toList(),
                                                 ),
                                               ),
-                                              Icon(
-                                                Icons.arrow_forward,
-                                                size:
-                                                    16, // Adjust the size as needed
-                                                color: Color.fromARGB(
-                                                    255, 91, 79, 158),
+                                              const SizedBox(
+                                                  height: 8), // Add some space
+                                              const Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    'more details',
+                                                    style: TextStyle(
+                                                      fontSize: 18,
+                                                      fontStyle:
+                                                          FontStyle.italic,
+                                                      color: Color.fromARGB(
+                                                          255, 91, 79, 158),
+                                                    ),
+                                                  ),
+                                                  Icon(
+                                                    Icons.arrow_forward,
+                                                    size:
+                                                        16, // Adjust the size as needed
+                                                    color: Color.fromARGB(
+                                                        255, 91, 79, 158),
+                                                  ),
+                                                ],
                                               ),
+                                              const SizedBox(
+                                                  height:
+                                                      41.9), // Add some space at the bottom
                                             ],
                                           ),
-                                          const SizedBox(
-                                              height:
-                                                  41.9), // Add some space at the bottom
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ));
-                        },
-                      ),
-                    ),
-                  ),
-                if (searchedEvents.isEmpty ||
-                    originalSearchText.isEmpty ||
-                    (filteredSponsees.isEmpty && filteredSponsors.isEmpty))
-                  Center(
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 150,
-                        ),
-                        Text(
-                          "No results match your search",
-                          style: TextStyle(
-                            fontSize: 24,
-                            color: Color.fromARGB(255, 189, 189, 189),
+                                  ));
+                            },
                           ),
                         ),
-                        TextButton(
-                          child: Text("Go Back",
+                      ),
+                    if (searchedEvents.isEmpty ||
+                        originalSearchText.isEmpty ||
+                        (filteredSponsees.isEmpty && filteredSponsors.isEmpty))
+                      Center(
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 150,
+                            ),
+                            Text(
+                              "No results match your search",
                               style: TextStyle(
-                                color: Color.fromARGB(
-                                                      255, 91, 79, 158),
-                                  fontSize: 23,
-                                  decoration: TextDecoration.underline)),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Stack(
-                                  children: [
-                                    ResultPage(
-                                        searchText: searchController.text),
-                                    SponsorBottomNavBar()
-                                  ],
-                                ), // Replace with your Recent Events page widget
+                                fontSize: 24,
+                                color: Color.fromARGB(255, 189, 189, 189),
                               ),
-                            );
-                          },
-                        )
-                      ],
-                    ),
-                  ),
+                            ),
+                            TextButton(
+                              child: Text("Go Back",
+                                  style: TextStyle(
+                                      color: Color.fromARGB(255, 91, 79, 158),
+                                      fontSize: 23,
+                                      decoration: TextDecoration.underline)),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Stack(
+                                      children: [
+                                        ResultPage(
+                                            searchText: searchController.text),
+                                        SponsorBottomNavBar()
+                                      ],
+                                    ), // Replace with your Recent Events page widget
+                                  ),
+                                );
+                              },
+                            )
+                          ],
+                        ),
+                      ),
+                  ],
+                )
               ],
-            )
-          ],
-        ),
-      ),
-    )
- );
+            ),
+          ),
+        ));
   }
 
   Widget _buildCategoryText(int index) {
@@ -1164,9 +1183,9 @@ Widget _buildUserList(
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-          SizedBox(
-                          height: 100,
-                        ),
+        SizedBox(
+          height: 100,
+        ),
         Text(
           'No users that matched "$searchQuery"',
           style: TextStyle(
@@ -1439,24 +1458,33 @@ class _FilterDialogState extends State<FilterDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       scrollable: true,
-      title: Text('Filter Events',
-              style: TextStyle(color: Color.fromARGB(255, 91, 79, 158),fontSize: 25, fontWeight: FontWeight.bold,),
-),
+      title: Text(
+        'Filter Events',
+        style: TextStyle(
+          color: Color.fromARGB(255, 91, 79, 158),
+          fontSize: 25,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Number of Attendees (Min and Max)',
+          Text(
+            'Number of Attendees (Min and Max)',
             style: TextStyle(
-                color: Color.fromARGB(255, 91, 79, 158), fontSize: 20, fontWeight: FontWeight.bold),
+                color: Color.fromARGB(255, 91, 79, 158),
+                fontSize: 20,
+                fontWeight: FontWeight.bold),
           ),
-       SizedBox(height: 16),
+          SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text('Min',
+                    Text(
+                      'Min',
                       style: TextStyle(
                         color: Color.fromARGB(255, 91, 79, 158),
                         fontSize: 15,
@@ -1464,12 +1492,12 @@ class _FilterDialogState extends State<FilterDialog> {
                     ),
                     TextFormField(
                       keyboardType: TextInputType.number,
-                             decoration: InputDecoration(
-     focusedBorder: UnderlineInputBorder(
-      borderSide: BorderSide(color: Color.fromARGB(255, 91, 79, 158)),)),
-      cursorColor: Color.fromARGB(255, 91, 79, 158),
-
-                    
+                      decoration: InputDecoration(
+                          focusedBorder: UnderlineInputBorder(
+                        borderSide:
+                            BorderSide(color: Color.fromARGB(255, 91, 79, 158)),
+                      )),
+                      cursorColor: Color.fromARGB(255, 91, 79, 158),
                       controller:
                           TextEditingController(text: _minValue.toString()),
                       onChanged: (value) {
@@ -1482,7 +1510,6 @@ class _FilterDialogState extends State<FilterDialog> {
                           print('Error parsing Min: $e');
                         }
                       },
-                      
                     ),
                   ],
                 ),
@@ -1492,7 +1519,7 @@ class _FilterDialogState extends State<FilterDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                       Text(
+                    Text(
                       'Max',
                       style: TextStyle(
                         color: Color.fromARGB(255, 91, 79, 158),
@@ -1501,12 +1528,13 @@ class _FilterDialogState extends State<FilterDialog> {
                     ),
                     TextFormField(
                       keyboardType: TextInputType.number,
-                                           decoration: InputDecoration(
-     focusedBorder: UnderlineInputBorder(
-      borderSide: BorderSide(color: Color.fromARGB(255, 91, 79, 158)),
-    ),),
-        cursorColor: Color.fromARGB(255, 91, 79, 158),
-
+                      decoration: InputDecoration(
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(255, 91, 79, 158)),
+                        ),
+                      ),
+                      cursorColor: Color.fromARGB(255, 91, 79, 158),
                       controller:
                           TextEditingController(text: _maxValue.toString()),
                       onChanged: (value) {
@@ -1539,24 +1567,27 @@ class _FilterDialogState extends State<FilterDialog> {
                 print('Error handling RangeSlider values: $e');
               }
             },
-                  activeColor: Color.fromARGB(255, 91, 79, 158),
-           inactiveColor: Color.fromARGB(255, 177, 169, 219),
-
+            activeColor: Color.fromARGB(255, 91, 79, 158),
+            inactiveColor: Color.fromARGB(255, 177, 169, 219),
           ),
           SizedBox(height: 16),
-            Text(
+          Text(
             'Select Categories:',
             style: TextStyle(
-                color: Color.fromARGB(255, 91, 79, 158), fontSize: 20, fontWeight: FontWeight.bold,),
+              color: Color.fromARGB(255, 91, 79, 158),
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-             Column(
+          Column(
             children: _categories.asMap().entries.map((entry) {
               final index = entry.key;
               final category = entry.value;
 
               return CheckboxListTile(
-                title: Text(category,
-                style: TextStyle(
+                title: Text(
+                  category,
+                  style: TextStyle(
                       color: Color.fromARGB(255, 91, 79, 158), fontSize: 15),
                 ),
                 value: _selectedCategories.contains(category),
@@ -1574,8 +1605,7 @@ class _FilterDialogState extends State<FilterDialog> {
                     saveFilterValues();
                   });
                 },
-              activeColor: Color.fromARGB(255, 91, 79, 158),
-
+                activeColor: Color.fromARGB(255, 91, 79, 158),
               );
             }).toList(),
           ),
@@ -1583,15 +1613,20 @@ class _FilterDialogState extends State<FilterDialog> {
           Text(
             'Select Cities:',
             style: TextStyle(
-                color: Color.fromARGB(255, 91, 79, 158), fontSize: 20, fontWeight: FontWeight.bold,),
-          ),          Column(
+              color: Color.fromARGB(255, 91, 79, 158),
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Column(
             children: _cities.asMap().entries.map((entry) {
               final index = entry.key;
               final city = entry.value;
 
               return CheckboxListTile(
-                title: Text(city,
-                   style: TextStyle(
+                title: Text(
+                  city,
+                  style: TextStyle(
                       color: Color.fromARGB(255, 91, 79, 158), fontSize: 15),
                 ),
                 value: _selectedCities.contains(city),
@@ -1610,7 +1645,6 @@ class _FilterDialogState extends State<FilterDialog> {
                   });
                 },
                 activeColor: Color.fromARGB(255, 91, 79, 158),
-
               );
             }).toList(),
           ),
@@ -1636,9 +1670,11 @@ class _FilterDialogState extends State<FilterDialog> {
             );
             Navigator.of(context).pop();
           },
-          child: Text('Clear',  style: TextStyle(
-                      color: Color.fromARGB(255, 91, 79, 158), fontSize: 15),
-                ),
+          child: Text(
+            'Clear',
+            style: TextStyle(
+                color: Color.fromARGB(255, 91, 79, 158), fontSize: 15),
+          ),
         ),
         TextButton(
           onPressed: () {
@@ -1656,10 +1692,11 @@ class _FilterDialogState extends State<FilterDialog> {
               print('Error applying filter: $e');
             }
           },
-          child: Text('Apply',
-           style: TextStyle(
-                      color: Color.fromARGB(255, 91, 79, 158), fontSize: 15),
-                ),
+          child: Text(
+            'Apply',
+            style: TextStyle(
+                color: Color.fromARGB(255, 91, 79, 158), fontSize: 15),
+          ),
         ),
       ],
     );
