@@ -406,7 +406,7 @@ if(filteredEvents.isNotEmpty){
           height: 284,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/Time.png'),
+              image: AssetImage('assets/Add Files (1).png'),
               fit: BoxFit.fitWidth,
             ),
           ),
