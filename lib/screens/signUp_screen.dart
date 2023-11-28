@@ -196,6 +196,7 @@ class _SignUpState extends State<SignUp> {
         'authentication document': fileName,
         'Status': 'Inactive',
         'Type': theType,
+        'Rate': '0',
          // Remove the extra colon
       });
 
@@ -221,6 +222,7 @@ class _SignUpState extends State<SignUp> {
         'authentication document': fileName,
         'Status': 'Inactive',
         'Type': theType,
+        'Rate':'0'
          // Remove the extra colon
       });
 
@@ -246,6 +248,7 @@ class _SignUpState extends State<SignUp> {
         'authentication document': fileName,
         'Status': 'Inactive',
         'Type': theType,
+        'Rate':'0',
          // Remove the extra colon
       });
 
@@ -270,6 +273,7 @@ class _SignUpState extends State<SignUp> {
         'authentication document': fileName,
         'Status': 'Inactive',
         'Type': theType,
+        'Rate':'0',
       });
        await FirebaseAuth.instance.signOut();
        Navigator.of(context).popUntil((route) => route.isFirst);
