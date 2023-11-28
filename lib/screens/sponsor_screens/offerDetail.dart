@@ -34,6 +34,7 @@ class offertDetail extends StatefulWidget {
     required this.status,
     required this.isPast,
     this.rating,
+    this.sponsorId,
   }) : super(key: key ); // Use myKey if key is not provided
 
   final String img;
@@ -58,6 +59,7 @@ class offertDetail extends StatefulWidget {
   final String status;
   final bool isPast;
   double? rating;
+  String? sponsorId ; 
 
   @override
   State<offertDetail> createState() => _Start();
@@ -75,7 +77,7 @@ void initState() {
   super.initState();
 
 
-  fetchOfferRating(widget.sponseeId, widget.EventId).then((double? rating) {
+  fetchOfferRating(widget.sponseeId, widget.EventId, widget.sponsorId).then((double? rating) {
     if (rating != null) {
       setState(() {
         widget.rating = rating;
@@ -84,7 +86,7 @@ void initState() {
   });
 }
 
-Future<double?> fetchOfferRating(String sponseeID, String eventId) async {
+Future<double?> fetchOfferRating(String sponseeID, String eventId, String? sponsorID) async {
   try {
     final DatabaseReference database = FirebaseDatabase.instance.ref();
     final DatabaseEvent event = await database
@@ -102,7 +104,7 @@ Future<double?> fetchOfferRating(String sponseeID, String eventId) async {
       for (final entry in offers.entries) {
         final Map<dynamic, dynamic> offer = entry.value as Map<dynamic, dynamic>;
 
-        if (offer['sponseeId'] == sponseeID) {
+        if (offer['sponseeId'] == sponseeID && offer['sponsorId' == sponsorID ]) {
           // Check if the offer has a rating
           if (offer.containsKey('sponseeRating')) {
             return (offer['sponseeRating'] as num).toDouble();

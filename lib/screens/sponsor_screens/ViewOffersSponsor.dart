@@ -287,6 +287,7 @@ void dispose() {
                             sponseeImage: event.sponseeImage,
                             sponseeName: event.sponseeName,
                             isPast : isPast,
+                            sponsorId: sponsorID,
                           ),
                         ),
                       );
