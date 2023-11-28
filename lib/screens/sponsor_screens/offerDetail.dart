@@ -76,7 +76,7 @@ class _Start extends State<offertDetail> {
 void initState() {
   super.initState();
 
-
+setTimePhrase();
   fetchOfferRating(widget.sponseeId, widget.EventId, widget.sponsorId).then((double? rating) {
     if (rating != null) {
       setState(() {
@@ -85,6 +85,59 @@ void initState() {
     }
   });
 }
+String st = "";
+  String et = "";
+  String stP = "";
+  String etP = "";
+
+void setTimePhrase() {
+  // Splitting the time by the ':' separator
+  List<String> startSplit = widget.startTime.split(':');
+  List<String> endSplit = widget.endTime.split(':');
+  // Extracting hours part as an integer
+  int? sHour = int.tryParse(startSplit[0]);
+    int? sMin = int.tryParse(startSplit[1]);
+
+  int? eHour = int.tryParse(endSplit[0]);
+    int? eMin = int.tryParse(endSplit[1]);
+
+
+  // Checking if the parsed hour is not null and within the valid range
+  if (sHour != null && sHour >= 0 && sHour <= 23) {
+    stP = sHour < 12 ? "AM" : "PM";
+  } else {
+    // Handling the case when the hour is invalid
+    stP = "Invalid start time";
+  }
+
+ if (eHour != null && eHour >= 0 && eHour <= 23) {
+    etP = eHour < 12 ? "AM" : "PM";
+  } else {
+    // Handling the case when the hour is invalid
+    etP = "Invalid start time";
+  }
+
+  if(sHour != null && stP=="PM"){
+    sHour=sHour-12;
+    st="${sHour}:${sMin}";
+  }
+  else{
+   st=widget.startTime;
+
+  }
+
+  if(eHour != null && etP=="PM"){
+    eHour=eHour-12;
+    et="${eHour}:${eMin}";
+  }
+  else{
+      et=widget.endTime;
+  }
+
+  print(st);
+  print(et);
+}
+
 
 Future<double?> fetchOfferRating(String sponseeID, String eventId, String? sponsorID) async {
   try {
@@ -438,10 +491,8 @@ Row(
                                     Icons.calendar_today,
                                     "${widget.startDate} - ${widget.endDate}",
                                     "Date"),
-                                _buildInfoRow(
-                                    Icons.access_time,
-                                    "${widget.startTime}-${widget.endTime}",
-                                    "Time"),
+                              _buildInfoRow(Icons.access_time,
+                              "${st} ${stP} - ${et} ${etP}", "Time"),
                                 _buildInfoRow(Icons.person,
                                     widget.NumberOfAttendees, "Attendees"),
                                 if (widget.location != "null")
