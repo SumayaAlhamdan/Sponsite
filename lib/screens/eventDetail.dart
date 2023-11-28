@@ -255,6 +255,8 @@ void setTimePhrase() {
         widget.DetailKey,
         style: const TextStyle(
           fontWeight: FontWeight.bold,
+                              fontFamily: "Urbanist",
+
           fontSize: 32,
           color: Colors.black87,
         ),
@@ -289,6 +291,8 @@ void setTimePhrase() {
             fontSize: 18,
             color: Colors.white,
             fontWeight: FontWeight.bold,
+                                fontFamily: "Urbanist",
+
           ),
         ),
         style: ElevatedButton.styleFrom(
@@ -307,6 +311,8 @@ void setTimePhrase() {
                             style: const TextStyle(
                               fontSize: 22,
                               color: Colors.black87,
+                                                  fontFamily: "Urbanist",
+
                             ),
                           ),
                           const Divider(height: 30, thickness: 2),
@@ -353,6 +359,8 @@ void setTimePhrase() {
                                             snapshot.data ?? "",
                                             style: TextStyle(
                                               fontSize: 22.0,
+                                                                  fontFamily: "Urbanist",
+
                                             ),
                                           ),
                                         ),
@@ -369,11 +377,14 @@ void setTimePhrase() {
                                 child: buildMap(),
                               ),
                             ),
+                              const SizedBox(height: 15),
                           const Text(
                             "Categories",
                             style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
+                                                  fontFamily: "Urbanist",
+
                               color: Colors.black87,
                             ),
                           ),
@@ -391,6 +402,8 @@ void setTimePhrase() {
                                 elevation: 3,
                                 labelStyle: const TextStyle(
                                   color: Color.fromARGB(255, 91, 79, 158),
+                                                      fontFamily: "Urbanist",
+
                                 ),
                               );
                             }).toList(),
@@ -402,6 +415,8 @@ void setTimePhrase() {
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
+                                                  fontFamily: "Urbanist",
+
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -410,6 +425,8 @@ void setTimePhrase() {
                             style: const TextStyle(
                               fontSize: 20,
                               color: Colors.black87,
+                                                  fontFamily: "Urbanist",
+
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -419,6 +436,8 @@ void setTimePhrase() {
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
+                                                  fontFamily: "Urbanist",
+
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -429,6 +448,8 @@ void setTimePhrase() {
                             style: const TextStyle(
                               fontSize: 20,
                               color: Colors.black87,
+                                                  fontFamily: "Urbanist",
+
                             ),
                           ),
                         ],
@@ -474,6 +495,8 @@ void setTimePhrase() {
                   style: const TextStyle(
                     fontSize: 22,
                     color: Colors.black87,
+                                        fontFamily: "Urbanist",
+
                   ),
                 ),
             ],
