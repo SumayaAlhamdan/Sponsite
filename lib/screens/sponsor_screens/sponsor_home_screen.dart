@@ -369,8 +369,8 @@ class _SponsorHomePageState extends State<SponsorHomePage> {
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.6),
                         borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(25),
-                          bottomRight: Radius.circular(25),
+                          bottomLeft: Radius.circular(2),
+                          bottomRight: Radius.circular(2),
                         ),
                       ),
                       child: Text(
