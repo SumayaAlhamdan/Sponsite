@@ -387,19 +387,16 @@ class _SponseeHomeState extends State<SponseeHome> {
                 ],
               )
             else
-              SizedBox(
-                height: screenHeight,
-                child: Scrollbar(
-                  child: GridView.builder(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12.0, 0),
-                      shrinkWrap: true,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 1,
-                        crossAxisSpacing: 9,
-                        mainAxisSpacing: 9,
-                      ),
+              GridView.builder(
+                padding: const EdgeInsets.fromLTRB(12, 0, 12.0, 0),
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  childAspectRatio: 1,
+                  crossAxisSpacing: 9,
+                  mainAxisSpacing: 9,
+                ),
                       itemCount: sponsors.length,
                       itemBuilder: (context, index) {
                         Sponsor sponsor = sponsors[index];
@@ -457,11 +454,13 @@ class _SponseeHomeState extends State<SponseeHome> {
                           ),
                         );
                       }),
+                  ],
                 ),
-              ),
-          ],
-        ),
-      ),
+                ),
+              
+        
+      
+    
     );
   }
 
