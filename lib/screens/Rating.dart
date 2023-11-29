@@ -176,11 +176,10 @@ Widget _buildOfferCard(Offer offer) {
                         ViewOthersProfile('Sponsors', offer.sponsorId)));
               },
             ),
-            SizedBox(width: 10),
-            Row(
-                
+             SizedBox(width: 10),
+            Expanded(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GestureDetector(
                     child: Text(
@@ -199,7 +198,7 @@ Widget _buildOfferCard(Offer offer) {
                     children: [
                       
                       Padding(  padding: const EdgeInsets.only(left: 334,top: 40)), 
-                    // If ratings are null
+                    // If  are null
                     if (offer.ratings == null) 
 Column(
   children: !offer.rated
@@ -327,7 +326,7 @@ Column(
                   ),
                 ],
               ),
-            
+            ),
           ],
         ),
       ),
