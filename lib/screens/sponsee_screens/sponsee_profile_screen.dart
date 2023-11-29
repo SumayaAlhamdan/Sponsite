@@ -1144,10 +1144,10 @@ class PostContainer extends StatelessWidget {
   }
 
 
-  Widget _buildMentionWidget(String mention, BuildContext context) {
+  Widget _buildMentionWidget(String mention, String mentionWithoutSymbol,  BuildContext context) {
     return GestureDetector(
       onTap: () {
-      _navigateToUserProfile(mention, context);
+      _navigateToUserProfile(mentionWithoutSymbol, context);
       
       },
       child: Text(
@@ -1168,8 +1168,9 @@ class PostContainer extends StatelessWidget {
       // Check if the word is a mention (assuming it starts with '@')
       if (word.startsWith('@')) {
         // Remove any non-alphanumeric characters from the word
+        String mentionWithoutSymbol = word.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
         String mention = word.replaceAll(RegExp(r'[^a-zA-Z0-9@]'), '');
-        widgets.add(_buildMentionWidget(mention,context));
+        widgets.add(_buildMentionWidget(mention,mentionWithoutSymbol, context));
       } else {
         // If it's not a mention, add it as regular text
         widgets.add(Text(word));
