@@ -197,7 +197,7 @@ Widget _buildOfferCard(Offer offer) {
     
                     children: [
                       
-                      Padding(  padding: const EdgeInsets.only(left: 334,top: 40)), 
+                      Padding(  padding: const EdgeInsets.only(left: 400,top: 40)), 
                     // If  are null
                     if (offer.ratings == null) 
 Column(
@@ -205,6 +205,7 @@ Column(
       ? [
           Row(
             children: [
+
               RatingBar.builder(
                 initialRating: offer.ratings ?? 0,
                 minRating: 1,
@@ -265,6 +266,7 @@ Column(
         ]
       : [
           Row(
+
             children: [
               Text(
                 'Rated with:',
