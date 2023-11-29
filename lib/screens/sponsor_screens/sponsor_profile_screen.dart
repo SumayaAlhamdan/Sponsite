@@ -8,6 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:sponsite/screens/calendar.dart';
 import 'package:sponsite/screens/sponsor_screens/sponsor_edit_profile.dart';
+import 'package:sponsite/screens/view_others_profile.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SponsorProfile extends StatefulWidget {
@@ -1162,7 +1163,69 @@ class PostContainer extends StatelessWidget {
       },
     );
   }
+Future<void> _navigateToUserProfile(String username, BuildContext context) async {
 
+
+    final sponseeSnapshot =
+        await FirebaseDatabase.instance.reference().child('Sponsees').orderByChild('Name').equalTo(username).once();
+ final sponsorSnapshot =
+        await FirebaseDatabase.instance.reference().child('Sponsors').orderByChild('Name').equalTo(username).once();
+
+         String? userId;
+        if (sponsorSnapshot.snapshot.value != null){
+            final Map<dynamic, dynamic> sponsors =
+            sponsorSnapshot.snapshot.value as Map<dynamic, dynamic>;
+            userId = sponsors.keys.first; 
+
+          Navigator.of(context).push( MaterialPageRoute(
+    builder: (context) =>ViewOthersProfile('Sponsors',userId),));
+        }
+        else if (sponseeSnapshot.snapshot.value != null){
+      final Map<dynamic, dynamic> sponsees =
+            sponseeSnapshot.snapshot.value as Map<dynamic, dynamic>;
+            userId = sponsees.keys.first; 
+
+   Navigator.of(context).push( MaterialPageRoute(
+    builder: (context) =>ViewOthersProfile('Sponsees',userId),));
+  }
+  }
+
+
+  Widget _buildMentionWidget(String mention, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+      _navigateToUserProfile(mention, context);
+      
+      },
+      child: Text(
+        mention,
+        style: TextStyle(
+          color: const Color.fromARGB(255, 1, 100, 182), // You can set a different color for mentions
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+ List<Widget> _buildTextWithMentions(BuildContext context) {
+    List<Widget> widgets = [];
+    // Split the text by spaces to identify words
+    List<String> words = text.split(' ');
+
+    for (String word in words) {
+      // Check if the word is a mention (assuming it starts with '@')
+      if (word.startsWith('@')) {
+        // Remove any non-alphanumeric characters from the word
+        String mention = word.replaceAll(RegExp(r'[^a-zA-Z0-9@]'), '');
+        widgets.add(_buildMentionWidget(mention,context));
+      } else {
+        // If it's not a mention, add it as regular text
+        widgets.add(Text(word));
+      }
+      widgets.add(SizedBox(width: 4)); // Add spacing between words
+    }
+
+    return widgets;
+  }
   @override
   Widget build(BuildContext context) {
         return Theme(
@@ -1214,10 +1277,10 @@ class PostContainer extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 8.0),
-              Text(
-                text,
-                style: const TextStyle(fontSize: 23.0),
-              ),
+               Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: _buildTextWithMentions(context),
+          ),
               SizedBox(height: 8.0),
               if (imageUrl != '')
                 InkWell(
