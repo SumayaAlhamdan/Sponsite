@@ -1237,8 +1237,8 @@ class PostContainer extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 8.0),
-              Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+              Wrap(
+            //crossAxisAlignment: CrossAxisAlignment.start,
             children: _buildTextWithMentions(context),
           ),
               SizedBox(height: 8.0),
