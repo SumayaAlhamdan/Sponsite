@@ -182,6 +182,9 @@ print("------------------") ;
     } else if (widget.status == 'Rejected') {
       statusColor = Colors.red;
     }
+     else if (widget.status == 'Expired') {
+      statusColor = Color.fromARGB(255, 98, 97, 97);
+    }
       var output1=  DateTime.parse(widget.timeStamp);
     var output2 =  DateFormat('dd/MM/yyyy, HH:mm').format(output1); 
 
