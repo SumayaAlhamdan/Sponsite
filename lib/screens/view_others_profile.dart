@@ -198,7 +198,7 @@ class _ViewOthersProfileState extends State<ViewOthersProfile> {
       },
     );
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -576,7 +576,88 @@ class PostContainer extends StatelessWidget {
     required this.profileName,
     required this.eventname,
   });
+ bool isMention=false;
+  String type="";
+    String userId="";
 
+   Future<void> _navigateToUserProfile(String username, BuildContext context ) async {
+   Navigator.of(context).push( MaterialPageRoute(
+    builder: (context) =>ViewOthersProfile(type,userId),));
+   }
+
+   Future<void> _findUser(String username, BuildContext context) async {
+
+
+    final sponseeSnapshot =
+        await FirebaseDatabase.instance.reference().child('Sponsees').orderByChild('Name').equalTo(username).once();
+ final sponsorSnapshot =
+        await FirebaseDatabase.instance.reference().child('Sponsors').orderByChild('Name').equalTo(username).once();
+
+        if (sponsorSnapshot.snapshot.value != null){
+            final Map<dynamic, dynamic> sponsors =
+            sponsorSnapshot.snapshot.value as Map<dynamic, dynamic>;
+            userId = sponsors.keys.first; 
+            type="Sponsors";
+            isMention=true;
+
+        }
+        else if (sponseeSnapshot.snapshot.value != null){
+      final Map<dynamic, dynamic> sponsees =
+            sponseeSnapshot.snapshot.value as Map<dynamic, dynamic>;
+            userId = sponsees.keys.first; 
+             type="Sponsees";
+           isMention=true;
+   
+  }
+  }
+
+
+  Widget _buildMentionWidget(String mention, String mentionWithoutSymbol,  BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+      _navigateToUserProfile(mentionWithoutSymbol, context);
+      
+      },
+      child: Text(
+        mention,
+        style: TextStyle(
+          color: const Color.fromARGB(255, 1, 100, 182), // You can set a different color for mentions
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+ List<Widget> _buildTextWithMentions(BuildContext context) {
+    List<Widget> widgets = [];
+    // Split the text by spaces to identify words
+    List<String> words = text.split(' ');
+
+    for (String word in words) {
+      // Check if the word is a mention (assuming it starts with '@')
+      if (word.startsWith('@') ){
+       
+        // Remove any non-alphanumeric characters from the word
+        String mentionWithoutSymbol = word.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
+        String mention = word.replaceAll(RegExp(r'[^a-zA-Z0-9@]'), '');
+
+               widgets.add(FutureBuilder<void>(
+        future: _findUser(mentionWithoutSymbol, context),
+        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+          if (isMention) {
+            return _buildMentionWidget(mention, mentionWithoutSymbol, context);
+          } else {
+            return Text(word);
+          }
+        },
+      ));
+    } else {
+      // If it's not a mention, add it as regular text
+      widgets.add(Text(word));
+    }
+    widgets.add(SizedBox(width: 4)); // Add spacing between words
+  }
+   return widgets;
+}
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -613,9 +694,9 @@ class PostContainer extends StatelessWidget {
             ],
           ),
           SizedBox(height: 8.0),
-          Text(
-            text,
-            style: const TextStyle(fontSize: 23.0),
+              Wrap(
+           // crossAxisAlignment: CrossAxisAlignment.start,
+            children: _buildTextWithMentions(context),
           ),
           SizedBox(height: 8.0),
           if (imageUrl != '')
