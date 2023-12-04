@@ -939,11 +939,15 @@ Sponsite
       ));
     }
 
-    return Column(
+    return SingleChildScrollView(
+        physics:
+            const AlwaysScrollableScrollPhysics(),
+            child: Column(
       children: [
         _buildUserCategory('Active Users', activatedUsers),
         _buildUserCategory('Deactivated Users', deactivatedUsers),
       ],
+            )
     );
   }
 
