@@ -64,6 +64,9 @@ void dispose() {
     } else if (offer.status == 'Rejected') {
       statusColor = Colors.red;
     }
+    else if (offer.status == 'Expired') {
+      statusColor = Color.fromARGB(255, 98, 97, 97);
+    }
 
     final screenHeight = MediaQuery.of(context).size.height;
     return Container(
