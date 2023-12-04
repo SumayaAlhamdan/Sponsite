@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sponsite/screens/sponsee_screens/postEvent.dart';
 import 'package:sponsite/screens/sponsee_screens/ViewCurrentSponsee.dart';
+import 'package:sponsite/screens/sponsee_screens/postEvent.dart';
 import 'package:sponsite/screens/sponsee_screens/sponsee_chat_screen.dart';
 import 'package:sponsite/screens/sponsee_screens/sponsee_home_screen.dart';
 import 'package:sponsite/screens/sponsee_screens/sponsee_profile_screen.dart';
@@ -21,7 +21,6 @@ class _SponseeBottomNavBarState extends State<SponseeBottomNavBar> {
     const MyApp(),  
     const SponseeChat(),
      SponseeProfile()
-
   ];    
 
 

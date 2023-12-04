@@ -3,13 +3,13 @@ import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:sponsite/screens/sponsor_screens/offerDetail.dart';
 import 'package:sponsite/screens/view_others_profile.dart';
-import 'package:sponsite/widgets/customAppBar.dart'; 
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:image_picker/image_picker.dart';
+import 'package:sponsite/widgets/customAppBar.dart';
 
 class ViewOffersSponsor extends StatefulWidget {
   const ViewOffersSponsor({Key? key}) : super(key: key);
@@ -288,6 +288,7 @@ void dispose() {
                             sponseeName: event.sponseeName,
                             isPast : isPast,
                             sponsorId: sponsorID,
+                            timeStamp: offer.timeStamp,
                           ),
                         ),
                       );
@@ -419,7 +420,7 @@ Widget _buildCurrentEventsPage() {
   }).toList();
 
  final filteredEventsWithOffers = filteredEvents.where((event) {
-  return offers.any((offer) => offer.EventId == event.EventId);
+  return offers.any((offer) => offer.EventId == event.EventId && !(offer.status=='Expired'));
 }).toList();
 
   return SafeArea(
@@ -508,6 +509,12 @@ Widget _buildPastEventsPage() {
   final filteredEventsWithOffers = filteredEvents.where((event) {
   return offers.any((offer) => offer.EventId == event.EventId);
 }).toList();
+ final filteredEventsWithOffersEx = events.where((event) {
+  return offers.any((offer) => offer.EventId == event.EventId && (offer.status=='Expired' ));
+}).toList();
+var pastEventsAndOffers = new List.from(filteredEventsWithOffers)..addAll(filteredEventsWithOffersEx);
+
+pastEventsAndOffers.sort((a, b) => b.timeStamp.compareTo(a.timeStamp));
 
   if (filteredEvents.isEmpty) {
     return Center(
@@ -553,9 +560,9 @@ else {
     crossAxisSpacing: 8,
     mainAxisSpacing: 8,
   ),
-  itemCount: filteredEventsWithOffers.length,
+  itemCount: pastEventsAndOffers.length,
   itemBuilder: (BuildContext context, int index) {
-    Event event = filteredEventsWithOffers[index];
+    Event event = pastEventsAndOffers[index];
     Offer? offer;
 
     for (Offer o in offers) {
@@ -590,6 +597,8 @@ if (offer != null )
           Map<dynamic, dynamic> offersData =
               offer.snapshot.value as Map<dynamic, dynamic>;
           offersData.forEach((key, value) {
+          String timestampString = value['TimeStamp'] as String;
+
             var categoryList = (value['Category'] as List<dynamic>)
                 .map((category) => category.toString())
                 .toList();
@@ -601,8 +610,12 @@ if (offer != null )
                 notes: value['notes'] as String? ?? '',
                 Category: categoryList,
                 status: value['Status'] as String? ?? '',
+                timeStamp: timestampString, 
+
               ));
             }
+            offers.sort((a, b) => b.timeStamp.compareTo(a.timeStamp));
+
 
             final DatabaseReference database = FirebaseDatabase.instance.ref();
             database.child('sponseeEvents').onValue.listen((event) {
@@ -739,6 +752,7 @@ class Offer {
   final List<String> Category;
   final String notes;
   final String status;
+    final String  timeStamp;
 
   Offer({
     required this.EventId,
@@ -747,6 +761,7 @@ class Offer {
     required this.Category,
     required this.notes,
     required this.status,
+   required this.timeStamp,
   });
 }
 

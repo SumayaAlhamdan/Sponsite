@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:sponsite/screens/view_others_profile.dart';
 import 'package:sponsite/widgets/customAppBarwithNav.dart';
 
@@ -33,6 +34,7 @@ class offertDetail extends StatefulWidget {
     required this.notes,
     required this.status,
     required this.isPast,
+    required this.timeStamp,
     this.rating,
     this.sponsorId,
   }) : super(key: key ); // Use myKey if key is not provided
@@ -60,6 +62,7 @@ class offertDetail extends StatefulWidget {
   final bool isPast;
   double? rating;
   String? sponsorId ; 
+  String timeStamp;
 
   @override
   State<offertDetail> createState() => _Start();
@@ -179,6 +182,9 @@ print("------------------") ;
     } else if (widget.status == 'Rejected') {
       statusColor = Colors.red;
     }
+      var output1=  DateTime.parse(widget.timeStamp);
+    var output2 =  DateFormat('dd/MM/yyyy, HH:mm').format(output1); 
+
     GoogleMapController? mapController;
 
     double latitude = 0;
@@ -488,7 +494,7 @@ Row(
                                     "${widget.startDate} - ${widget.endDate}",
                                     "Date"),
                               _buildInfoRow(Icons.access_time,
-                              "${st} ${stP} - ${et} ${etP}", "Time"),
+                              "${widget.startTime} - ${widget.endTime}", "Time"),
                                 _buildInfoRow(Icons.person,
                                     widget.NumberOfAttendees, "Attendees"),
                                 if (widget.location != "null")
@@ -629,7 +635,24 @@ Row(
                                     baseColor:
                                         Color.fromARGB(255, 255, 255, 255),
                                     
-                                    title: Center( child: Text(
+                                    title: 
+                                      Row( 
+
+                                      children:[
+                                         Align (
+                                          alignment : Alignment.centerLeft,
+                                         child: Text(
+                                      output2,
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        color: const Color.fromARGB(221, 87, 85, 85),
+                                      ),
+                                      ),
+                                         ),
+                                         SizedBox(width: 110 ),
+                                             Align (
+                                          alignment : Alignment.center,
+                                           child: Text(
                                       "Offer Details",
                                       style: TextStyle(
                                         fontSize: 28,
@@ -637,7 +660,11 @@ Row(
                                         color: Colors.black87,
                                   
                                       ),
-                                    ),  
+                                         ),
+                                         ),
+                                        
+                                   
+                                      ],
                                     ),
                                     children: <Widget>[
                                       Container(
