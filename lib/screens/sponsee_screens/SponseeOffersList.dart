@@ -465,7 +465,7 @@ class _SponseeOffersListState extends State<SponseeOffersList> {
                   ),
                   SizedBox(width: 200),
                  Container(
-  width: 290,
+  width: 270,
   child: Row(
     mainAxisAlignment: MainAxisAlignment.end,
     children: [

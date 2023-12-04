@@ -21,7 +21,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'New Event',
       // Apply your theme settings within the Theme widget
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
@@ -1579,7 +1578,7 @@ class _MyHomePageState extends State<MyHomePage> {
             title: Text(
               'New Event',
               style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.w500,),
             ),
             backgroundColor: Color.fromARGB(255, 51, 45, 81),
             elevation: 0,
