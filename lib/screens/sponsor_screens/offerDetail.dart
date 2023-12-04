@@ -72,18 +72,13 @@ class _Start extends State<offertDetail> {
   bool isExpanded = false;
 
 
+
 @override
 void initState() {
   super.initState();
+  fetchOfferRating(widget.sponseeId, widget.EventId, widget.sponsorId) ; 
 
-setTimePhrase();
-  fetchOfferRating(widget.sponseeId, widget.EventId, widget.sponsorId).then((double? rating) {
-    if (rating != null) {
-      setState(() {
-        widget.rating = rating;
-      });
-    }
-  });
+  
 }
 String st = "";
   String et = "";
@@ -139,43 +134,42 @@ void setTimePhrase() {
 }
 
 
-Future<double?> fetchOfferRating(String sponseeID, String eventId, String? sponsorID) async {
+
+void fetchOfferRating(String sponseeID, String eventId, String? sponsorID) async {
+  final DatabaseReference database = FirebaseDatabase.instance.ref().child('offers');
+print(sponseeID) ; 
+print(sponsorID) ; 
+print("------------------") ; 
   try {
-    final DatabaseReference database = FirebaseDatabase.instance.ref();
-    final DatabaseEvent event = await database
-        .child('offers')
-        .orderByChild('EventId')
-        .equalTo(eventId)
-        .once();
+    var rate = await database.once();
+    if (rate.snapshot.value != null) {
+      Map<dynamic, dynamic> ratingData = rate.snapshot.value as Map<dynamic, dynamic>;
 
-    final DataSnapshot snapshot = event.snapshot;
-
-    if (snapshot.value != null) {
-      final Map<dynamic, dynamic> offers =
-          snapshot.value as Map<dynamic, dynamic>;
-
-      for (final entry in offers.entries) {
-        final Map<dynamic, dynamic> offer = entry.value as Map<dynamic, dynamic>;
-
-        if (offer['sponseeId'] == sponseeID && offer['sponsorId' == sponsorID ]) {
-          // Check if the offer has a rating
-          if (offer.containsKey('sponseeRating')) {
-            return (offer['sponseeRating'] as num).toDouble();
-          } else {
-            // Offer doesn't have a rating
-            return null;
-          }
+      for (var entry in ratingData.entries) {
+     
+        var value = entry.value;
+           print(value['sponseeId']) ; 
+        print(value['sponsorId']) ; 
+        if (value['sponseeId'] == sponseeID &&
+            value['sponsorId'] == sponsorID){
+              print('printing the value of rating aftetr if ') ; 
+              print(value['sponseeRating']) ; 
+        setState(() {
+          widget.rating =  (value["sponseeRating"] as num).toDouble();
+        });
+         print(widget.rating) ; 
+         print("^^^^^^^^^^^") ; 
         }
       }
     }
-
-    // No matching offer found
-    return null;
   } catch (error) {
-    print('Error fetching offer rating: $error');
-    return null;
+    print("Error fetching offer rating: $error");
   }
+
+  // Return a default value or null if the desired data is not found
+  return null;
 }
+
 
 
   @override
@@ -336,6 +330,7 @@ Row(
         ),
       ),
     ),
+    
     if (widget.isPast&&widget.status == 'Accepted')
       widget.rating == null
           ? ElevatedButton.icon(
@@ -911,7 +906,8 @@ const SizedBox(height: 20),
                             onPressed: () {
                               // Handle submission of the rating
                               Navigator.of(context).pop();
-                              _submitRating(widget.sponseeId,widget.EventId, rating) ; 
+                              print('sending to submit rating method ') ; 
+                              _submitRating(widget.sponsorId, widget.EventId, rating) ; 
                               calculateRating(widget.sponseeId) ; 
                             },
                             style: ElevatedButton.styleFrom(
@@ -944,31 +940,26 @@ const SizedBox(height: 20),
   );
 }
 
-Future<void> _submitRating(String sponseeID, String eventId, double rate) async {
+
+Future<void> _submitRating(String? sponsorID,  String eventId, double rate) async {
   try {
     final DatabaseReference database = FirebaseDatabase.instance.ref();
-
     // Construct the path to the specific offer
     final DatabaseReference offerRef = database.child('offers');
-
     // Use orderByChild and equalTo to filter offers based on EventId and sponseeId
     final DatabaseEvent event = await offerRef
         .orderByChild('EventId')
         .equalTo(eventId)
         .once();
-
     final DataSnapshot snapshot = event.snapshot;
-
     // Check if there is a matching offer
     if (snapshot.value != null) {
       final Map<dynamic, dynamic> offers = snapshot.value as Map<dynamic, dynamic>;
-
       // Iterate through the offers
       for (final entry in offers.entries) {
         final String key = entry.key as String;
         final Map<dynamic, dynamic> offer = entry.value as Map<dynamic, dynamic>;
-
-        if (offer['sponseeId'] == sponseeID) {
+        if (offer['sponsorId'] == sponsorID) {
           // Update the rating in the specific offer
           await offerRef.child(key).child('sponseeRating').set(rate);
           // Perform any additional actions or UI updates as needed
