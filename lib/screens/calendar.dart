@@ -298,17 +298,8 @@ Widget _buildGuestsList(String label, List<GoogleAPI.EventAttendee>? attendees) 
   final String formattedDate = DateFormat.yMMMd().add_jm().format(dateTime);
   return formattedDate;
 }
-@override
-  void dispose() {
-    if (_googleSignIn.currentUser != null) {
-      _googleSignIn.disconnect();
-      _googleSignIn.signOut();
-    }
 
-    super.dispose();
-  } 
 }
-
 class GoogleDataSource extends CalendarDataSource {
   GoogleDataSource({required List<GoogleAPI.Event>? events}) {
     appointments = events;

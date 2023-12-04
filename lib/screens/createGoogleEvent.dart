@@ -5,8 +5,8 @@ import 'package:googleapis/calendar/v3.dart' as calendar;
 import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:sponsite/widgets/customAppBarwithNav.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 class createEvent extends StatefulWidget {
@@ -205,15 +205,7 @@ String _formatDateTime(DateTime dateTime) {
   final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
   return formattedDate;
 }
-@override
-  void dispose() {
-    if (_googleSignIn.currentUser != null) {
-      _googleSignIn.disconnect();
-      _googleSignIn.signOut();
-    }
 
-    super.dispose();
-  } 
   
 Future<void> _showSummaryDialog() async {
   await showDialog(
