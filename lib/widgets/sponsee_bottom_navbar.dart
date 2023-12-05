@@ -27,7 +27,7 @@ class _SponseeBottomNavBarState extends State<SponseeBottomNavBar> {
   void initState() {
     // TODO: implement initState
     super.initState();
-            ChatService.notification_ = true; // Set to false when Chat tab is tapped
+            // ChatService.notification_ = true; // Set to false when Chat tab is tapped
 
 
   }
