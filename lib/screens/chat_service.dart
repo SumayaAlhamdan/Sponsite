@@ -1,14 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-import 'package:http/http.dart' as http;
+
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
-import 'package:sponsite/FirebaseApi.dart'; // Make sure to import your FirebaseApi class here
-import 'package:sponsite/local_notifications.dart';
 
 class ChatItem {
   final MessageType type;
@@ -68,6 +66,7 @@ class Msg {
 }
 
 class ChatService extends ChangeNotifier {
+  static bool notification_ = false;
   FirebaseAuth auth = FirebaseAuth.instance;
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
   List<Map<String, dynamic>> messagesAndFiles = [];
@@ -376,6 +375,8 @@ static String userType = "null" ;
 
       if (response.statusCode == 200) {
         print('Notification sent successfully.');
+        notification_=true;
+
       } else {
         print(
             'Error sending notification. Status code: ${response.statusCode}');

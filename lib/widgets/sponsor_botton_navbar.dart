@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sponsite/screens/chat_service.dart';
 import 'package:sponsite/screens/sponsor_screens/ViewOffersSponsor.dart';
 import 'package:sponsite/screens/sponsor_screens/sponsor_chat_screen.dart';
 import 'package:sponsite/screens/sponsor_screens/sponsor_home_screen.dart';
@@ -26,6 +27,10 @@ class _SponseeBottomNavBarState extends State<SponsorBottomNavBar> {
   void _onItemTap(int index) {
     setState(() {
       currentPageIndex = index;
+         if (index == 3) {
+        // Chat tab index
+        ChatService.notification_ = false; // Set to false when Chat tab is tapped
+      }
     });
   }
 
@@ -34,7 +39,9 @@ class _SponseeBottomNavBarState extends State<SponsorBottomNavBar> {
     return Scaffold(
      
       body: _widgetOptions.elementAt(currentPageIndex),
-      bottomNavigationBar: BottomNavigationBar(
+       bottomNavigationBar: Stack(
+        children: [
+ BottomNavigationBar(
         backgroundColor: Color.fromARGB(255, 51, 45, 81),
         selectedItemColor:  Colors.white,
         items: const <BottomNavigationBarItem>[
@@ -98,6 +105,23 @@ class _SponseeBottomNavBarState extends State<SponsorBottomNavBar> {
         
         onTap: _onItemTap,
       ),
+      if (ChatService.notification_)
+            Positioned(
+              // Position the red circle indicator
+              top: 10, // Adjust this value as needed
+              right: 25, // Adjust this value as needed
+              child: Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.red,
+                ),
+              ),
+            ),
+            ],
+    ),
+
     );
   }
 }

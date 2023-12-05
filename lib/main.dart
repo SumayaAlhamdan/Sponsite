@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:sponsite/screens/signIn_screen.dart';
 import 'package:sponsite/screens/splash_screen.dart';
 import 'package:sponsite/screens/sponsee_screens/ViewCurrentSponsee.dart';
+import 'package:sponsite/screens/sponsee_screens/sponsee_chat_screen.dart';
 import 'package:sponsite/screens/sponsor_screens/ViewOffersSponsor.dart';
 import 'package:sponsite/widgets/screen_logic.dart';
 
@@ -100,5 +101,14 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         ),
       );
     }
+    } else if (notif_type == 'chat') {
+     //_SponseeBottomNavBarState.changeTap(3);//SponseeBottomNavBar
+
+      navigatorKey.currentState!.push(
+        MaterialPageRoute(
+          builder: (context) => SponseeChat(),
+        ),
+      );
+    }
   }
-}
+
