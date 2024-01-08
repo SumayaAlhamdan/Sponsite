@@ -153,8 +153,8 @@ print("------------------") ;
         var value = entry.value;
            print(value['sponseeId']) ; 
         print(value['sponsorId']) ; 
-        if (value['sponseeId'] == sponseeID &&
-            value['sponsorId'] == sponsorID){
+        if (value['EventId'] == eventId &&
+            value['sponsorId'] == sponsorID ){
               print('printing the value of rating aftetr if ') ; 
               print(value['sponseeRating']) ; 
         setState(() {
