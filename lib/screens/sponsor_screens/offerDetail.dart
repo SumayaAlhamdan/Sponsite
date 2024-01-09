@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -140,7 +142,7 @@ void setTimePhrase() {
 
 void fetchOfferRating(String sponseeID, String eventId, String? sponsorID) async {
   final DatabaseReference database = FirebaseDatabase.instance.ref().child('offers');
-print(sponseeID) ; 
+print('AAAAAAAAAAAAAAAAAAAAAAAH $sponseeID') ; 
 print(sponsorID) ; 
 print("------------------") ; 
   try {
@@ -933,13 +935,16 @@ const SizedBox(height: 20),
                         Center(
                           
                           child: ElevatedButton(
-                            onPressed: () {
-                              // Handle submission of the rating
-                              Navigator.of(context).pop();
-                              print('sending to submit rating method ') ; 
-                              _submitRating(widget.sponsorId, widget.EventId, rating) ; 
-                              calculateRating(widget.sponseeId) ; 
-                            },
+                           onPressed: () async {
+  // Handle submission of the rating
+  Navigator.of(context).pop();
+  print('sending to submit rating method');
+  
+  await _submitRating(widget.sponsorId, widget.EventId,rating );
+  //double averageRating = await calculateRating(widget.sponseeId);
+  
+  // Now you can use the calculated averageRating as needed.
+},
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
                               backgroundColor:
@@ -969,9 +974,7 @@ const SizedBox(height: 20),
     },
   );
 }
-
-
-Future<void> _submitRating(String? sponsorID,  String eventId, double rate) async {
+Future<void> _submitRating(String? sponsorID, String eventId, double rate) async {
   try {
     final DatabaseReference database = FirebaseDatabase.instance.ref();
     // Construct the path to the specific offer
@@ -994,11 +997,14 @@ Future<void> _submitRating(String? sponsorID,  String eventId, double rate) asyn
           await offerRef.child(key).child('sponseeRating').set(rate);
           // Perform any additional actions or UI updates as needed
           setState(() {
-            widget.rating = rate ; 
+            widget.rating = rate;
           });
-  
-            
-                   break; // Exit the loop after updating the rating
+
+          print('Rating submitted successfully. Calling calculateRating...');
+          // Calculate and update the average rating
+          await calculateRating(widget.sponseeId);
+
+          break; // Exit the loop after updating the rating
         }
       }
     } else {
@@ -1010,35 +1016,46 @@ Future<void> _submitRating(String? sponsorID,  String eventId, double rate) asyn
   }
 }
 
-double ratingSum = 0 ; 
-int count = 0 ; 
-double calculateRating(String sponseeID) {
-  final DatabaseReference database = FirebaseDatabase.instance.ref();
+late double ratingSum,count;
+Future<double> calculateRating(String sponseeID) async {
+  try {
+    final DatabaseReference database = FirebaseDatabase.instance.ref();
+    final DatabaseEvent event = await database.child('offers').once();
+    final DataSnapshot rates = event.snapshot;
 
-  database.child('offers').onValue.listen((rates) {
-    if (rates.snapshot.value != null) {
-      Map<dynamic, dynamic> offerData =
-          rates.snapshot.value as Map<dynamic, dynamic>;
+    if (rates.value != null) {
+      Map<dynamic, dynamic> offerData = rates.value as Map<dynamic, dynamic>;
+      ratingSum = 0;
+      count = 0;
+
       offerData.forEach((key, value) {
-        if (value['sponseeId'] == sponseeID) {
-          if (value['sponseeRating'] != null) {
-            ratingSum += value['sponseeRating'];
-            count++;
-          }
+        if (value['sponseeId'] == sponseeID && value['sponseeRating'] != null) {
+          ratingSum += value['sponseeRating'];
+          count++;
         }
       });
 
-      // Update the 'Rate' value under the specified sponsorID in 'Sponsors'
-      final DatabaseReference databaseSponsor = FirebaseDatabase.instance.ref();
-      final DatabaseReference sponseeRef =
-          databaseSponsor.child('Sponsees').child(sponseeID);
-      sponseeRef.child('Rate').set((ratingSum/count).toStringAsFixed(1)) ;
-    }
-  });
+      double averageRating = count > 0 ? ratingSum / count : 0.0;
 
-  // Return 0 if the 'offers' data is null to avoid division by zero
-  return ratingSum / count;
+      // Update the 'Rate' value under the specified sponseeID in 'Sponsees'
+      final DatabaseReference databaseSponsee = FirebaseDatabase.instance.ref();
+      final DatabaseReference sponseeRef = databaseSponsee.child('Sponsees').child(sponseeID);
+      await sponseeRef.child('Rate').set(averageRating.toStringAsFixed(1));
+
+      print('calculateRating completed. Updated Rate in Sponsees: $averageRating');
+      return averageRating;
+    } else {
+      print('No offer data found.');
+      return 0.0;
+    }
+  } catch (error) {
+    print('Error calculating rating: $error');
+    // Handle errors accordingly
+    return 0.0;
+  }
 }
+
+
 
 
 }

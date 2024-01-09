@@ -360,6 +360,9 @@ double calculateRating(String sponsorID) {
           databaseSponsor.child('Sponsors').child(sponsorID);
 
       sponsorRef.child('Rate').set((ratingSum/count).toStringAsFixed(1)) ;
+   //ire   database.child('Sponsees').child(sponsorID);
+    //  sponsorRef.child('RatingCounts').set((count)) ; 
+
     }
   });
 
